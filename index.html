@@ -11,6 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7/babel.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body, #root { height: 100%; width: 100%; overflow: hidden; }
@@ -5162,12 +5163,16 @@
       var [mapVessel, setMapVessel] = useState(vessel);
       var [cardLoading, setCardLoading] = useState(false);
       var [searchOpen, setSearchOpen] = useState(true);
+      var [weatherOpen, setWeatherOpen] = useState(false);
+      var [weatherLoading, setWeatherLoading] = useState(false);
+      var [activeOverlays, setActiveOverlays] = useState({Wind_Speed:false,Wind_Dir:false,Curr_Speed:false,Curr_Dir:false,Wave_Height:false,Wave_Dir:false});
       var dragRef = useRef(null);
       var mapContainerRef = useRef(null);
       var leafletMapRef = useRef(null);
       var markersRef = useRef({});
       var prevVesselRef = useRef(vessel ? vessel.name : null);
       var handleVesselSelectRef = useRef(null);
+      var speedOverlayRef = useRef(null);
 
       function placeCardNearVessel(pos) {
         var map = leafletMapRef.current;
@@ -5289,6 +5294,185 @@
         prevVesselRef.current = mapVessel.name;
       }, [mapVessel && mapVessel.name]);
 
+      // Wind Speed overlay — ocean-only canvas heatmap via Leaflet imageOverlay
+      useEffect(function(){
+        var L = window.L;
+        if(!L || !leafletMapRef.current) return;
+        var map = leafletMapRef.current;
+        if(speedOverlayRef.current){ map.removeLayer(speedOverlayRef.current); speedOverlayRef.current=null; }
+        if(!activeOverlays.Wind_Speed){ setWeatherLoading(false); return; }
+
+        var cancelled=false;
+        setWeatherLoading(true);
+        // Minimum 5-second loading time runs in parallel with fetch/render
+        var minWait=new Promise(function(res){ setTimeout(res,5000); });
+
+        // ── 1. Mercator projection helpers ────────────────────────────────────
+        // Leaflet uses Web Mercator. Both speed pixels and land polygon coords
+        // must be in the same Mercator space so the mask aligns with the basemap.
+        var W=720, H=360;
+        var LAT_MAX=78, LAT_MIN=-78;  // stay within clean Mercator range; avoids polar patch
+        function mercY(latDeg){ return Math.log(Math.tan(Math.PI/4+latDeg*Math.PI/360)); }
+        var yMercTop=mercY(LAT_MAX), yMercBot=mercY(LAT_MIN);
+        // canvas-pixel y → geographic latitude (Mercator inverse)
+        function pixToLat(py){ var ym=yMercTop-(py/H)*(yMercTop-yMercBot); return (2*Math.atan(Math.exp(ym))-Math.PI/2)*180/Math.PI; }
+        // geographic latitude → canvas-pixel y (Mercator forward)
+        function latToPix(latDeg){ var ym=mercY(Math.max(LAT_MIN,Math.min(LAT_MAX,latDeg))); return (1-(ym-yMercBot)/(yMercTop-yMercBot))*H; }
+
+        // ── 2. Generate speed field in Mercator space ─────────────────────────
+        var cnv=document.createElement('canvas'); cnv.width=W; cnv.height=H;
+        var ctx2d=cnv.getContext('2d');
+        var img=ctx2d.createImageData(W,H); var d=img.data;
+
+        function computeSpd(lat,lon){
+          var la=Math.abs(lat), base;
+          if(la<5)       base=3;
+          else if(la<25) base=8 +4 *Math.sin((la-5 )/20*Math.PI);
+          else if(la<35) base=5 +3 *Math.cos((la-25)/10*Math.PI);
+          else if(la<65) base=12+(lat<0?1.65:1.0)*13*Math.sin((la-35)/30*Math.PI);
+          else           base=9;
+          var lr=lon*Math.PI/180, ar=lat*Math.PI/180;
+          var v=5.5*Math.sin(lr*3+ar*2+1.5)+3*Math.cos(lr*5-ar*4+0.7)
+               +2  *Math.sin(lr*8+ar*7+2.3)+1.5*Math.cos(lr*12+ar*3+0.4);
+          function g(cx,cy,sx,sy){var dx=(lon-cx)/sx,dy=(lat-cy)/sy;return Math.exp(-(dx*dx+dy*dy));}
+          var s=14*g(-28,55,26,14)+12*g(-168,50,30,14)+20*g(5,-56,36,12)+17*g(120,-50,30,12)
+               +17*g(135,20,9,9)+16*g(-75,18,8,8)+14*g(88,15,7,7)+11*g(-120,35,11,10)
+               +13*g(55,12,8,8)+10*g(-155,60,14,10);
+          var c=-9*g(-138,30,20,10)-8*g(-38,30,20,10)-6*g(100,28,15,10)-5*g(-5,25,14,10)-7*g(30,-32,16,10);
+          return Math.max(0,Math.min(40,base+v+s+c));
+        }
+        var stops=[
+          [0,   [ 2, 62,138,195]],[0.14,[ 0,119,182,205]],[0.29,[ 0,180,216,210]],
+          [0.43,[72,202,228,210]],[0.57,[144,224,140,210]],[0.71,[247,183, 49,210]],
+          [0.86,[247,100, 20,215]],[1.0, [220, 28, 28,215]],
+        ];
+        function colorOf(spd){
+          var t=Math.min(spd/35,1);
+          for(var i=1;i<stops.length;i++){
+            if(t<=stops[i][0]){
+              var f=(t-stops[i-1][0])/(stops[i][0]-stops[i-1][0]);
+              var a=stops[i-1][1],b=stops[i][1];
+              return [a[0]+f*(b[0]-a[0]),a[1]+f*(b[1]-a[1]),a[2]+f*(b[2]-a[2]),a[3]+f*(b[3]-a[3])];
+            }
+          }
+          return stops[stops.length-1][1];
+        }
+        for(var py=0;py<H;py++){
+          var lat2=pixToLat(py);       // ← Mercator inverse (not linear)
+          for(var px2=0;px2<W;px2++){
+            var lon2=(px2/W)*360-180;
+            var col=colorOf(computeSpd(lat2,lon2)); var ii=(py*W+px2)*4;
+            d[ii]=Math.round(col[0]); d[ii+1]=Math.round(col[1]);
+            d[ii+2]=Math.round(col[2]); d[ii+3]=Math.round(col[3]);
+          }
+        }
+        ctx2d.putImageData(img,0,0);
+
+        var bnds=L.latLngBounds([[LAT_MIN,-180],[LAT_MAX,180]]);
+
+        function buildAndAddLayer(landFeatures){
+          // Step A — blur speed field BEFORE masking
+          var bCnv=document.createElement('canvas'); bCnv.width=W; bCnv.height=H;
+          var bCtx=bCnv.getContext('2d');
+          bCtx.filter='blur(4px)';
+          bCtx.drawImage(cnv,0,0);
+          bCtx.filter='none';
+
+          // Step B — land mask in Mercator coordinates (same projection as speed field)
+          var mCnv=document.createElement('canvas'); mCnv.width=W; mCnv.height=H;
+          var mCtx=mCnv.getContext('2d');
+          mCtx.fillStyle='white';
+          mCtx.fillRect(0,0,W,H);
+          mCtx.globalCompositeOperation='destination-out';
+          mCtx.fillStyle='rgba(0,0,0,1)';
+          function drawRing(ring){
+            if(!ring||!ring.length) return;
+            mCtx.beginPath();
+            ring.forEach(function(pt,i){
+              var mx=(pt[0]+180)/360*W;
+              var my=latToPix(pt[1]);  // ← Mercator forward (not linear)
+              if(i===0) mCtx.moveTo(mx,my); else mCtx.lineTo(mx,my);
+            });
+            mCtx.closePath(); mCtx.fill();
+          }
+          landFeatures.forEach(function(f){
+            var g=f.geometry; if(!g) return;
+            if(g.type==='Polygon')           drawRing(g.coordinates[0]);
+            else if(g.type==='MultiPolygon') g.coordinates.forEach(function(p){ drawRing(p[0]); });
+          });
+          mCtx.globalCompositeOperation='source-over';
+
+          // Step C — binarise mask to eliminate antialiased edge bleed
+          var mData=mCtx.getImageData(0,0,W,H);
+          for(var mi=3;mi<mData.data.length;mi+=4){
+            mData.data[mi]=mData.data[mi]>128?255:0;
+          }
+          mCtx.putImageData(mData,0,0);
+
+          // Step D — clip blurred speed to ocean only (mask applied last → sharp edge)
+          bCtx.globalCompositeOperation='destination-in';
+          bCtx.drawImage(mCnv,0,0);
+          bCtx.globalCompositeOperation='source-over';
+
+          // Step D2 — fade out top & bottom edges so overlay boundary is invisible
+          var fadeH=Math.round(H*0.06); // 6% of canvas height fades to transparent
+          var topGrad=bCtx.createLinearGradient(0,0,0,fadeH);
+          topGrad.addColorStop(0,'rgba(0,0,0,1)');
+          topGrad.addColorStop(1,'rgba(0,0,0,0)');
+          var botGrad=bCtx.createLinearGradient(0,H-fadeH,0,H);
+          botGrad.addColorStop(0,'rgba(0,0,0,0)');
+          botGrad.addColorStop(1,'rgba(0,0,0,1)');
+          bCtx.globalCompositeOperation='destination-out';
+          bCtx.fillStyle=topGrad; bCtx.fillRect(0,0,W,fadeH);
+          bCtx.fillStyle=botGrad; bCtx.fillRect(0,H-fadeH,W,fadeH);
+          bCtx.globalCompositeOperation='source-over';
+
+          // Step E — wait for minimum display time, then add layer and hide loader
+          minWait.then(function(){
+            if(cancelled) return;
+            var layer=L.imageOverlay(bCnv.toDataURL('image/png'),bnds,{opacity:0.80,interactive:false});
+            layer.on('add',function(){
+              var el=layer.getElement();
+              if(el) el.style.pointerEvents='none';
+            });
+            layer.addTo(map);
+            var paneEl=map.getPanes().overlayPane;
+            if(paneEl && !paneEl._weatherZSet){ paneEl.style.zIndex=350; paneEl._weatherZSet=true; }
+            speedOverlayRef.current=layer;
+            setWeatherLoading(false);
+          });
+        }
+
+        // Use 50m land data for accurate coastlines; cache to avoid re-fetch on toggle
+        var LAND_CACHE='__ne50m_land_topo__';
+        if(window[LAND_CACHE]){
+          buildAndAddLayer(window[LAND_CACHE]);
+        } else {
+          fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/land-50m.json')
+            .then(function(r){ return r.json(); })
+            .then(function(topo){
+              if(cancelled) return;
+              var geo=window.topojson.feature(topo,topo.objects.land);
+              var features=geo.type==='FeatureCollection'?geo.features:[geo];
+              window[LAND_CACHE]=features;
+              buildAndAddLayer(features);
+            })
+            .catch(function(err){
+              console.warn('Land mask fetch failed — unmasked fallback',err);
+              if(cancelled) return;
+              minWait.then(function(){
+                if(cancelled) return;
+                var layer=L.imageOverlay(cnv.toDataURL('image/png'),bnds,{opacity:0.72,interactive:false});
+                layer.on('add',function(){ var el=layer.getElement(); if(el) el.style.pointerEvents='none'; });
+                layer.addTo(map);
+                speedOverlayRef.current=layer;
+                setWeatherLoading(false);
+              });
+            });
+        }
+        return function(){ cancelled=true; };
+      }, [activeOverlays.Wind_Speed]);
+
       function onCardMouseDown(e) {
         // Don't drag if clicking a button or link inside the card
         if(e.target.closest('button') || e.target.closest('a')) return;
@@ -5310,6 +5494,52 @@
         <div style={{flex:1,position:"relative",overflow:"hidden",display:"flex",flexDirection:"column"}}>
           {/* Leaflet map */}
           <div ref={mapContainerRef} style={{position:"absolute",inset:0,zIndex:0}}/>
+
+          {/* Weather layer loading indicator */}
+          {weatherLoading && (
+            <div style={{position:"absolute",inset:0,zIndex:12,
+              display:"flex",alignItems:"center",justifyContent:"center",
+              pointerEvents:"none"}}>
+              <div style={{
+                background:"rgba(255,255,255,0.94)",
+                borderRadius:12,
+                padding:"18px 36px",
+                display:"flex",flexDirection:"column",
+                alignItems:"center",gap:14,
+                boxShadow:"0 8px 32px rgba(0,0,0,0.15),0 2px 8px rgba(0,0,0,0.08)"}}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <style>{`
+                    @keyframes wjump {
+                      0%   { transform: translateY(0);      }
+                      15%  { transform: translateY(-2.4px); }
+                      32%  { transform: translateY(-2.8px); }
+                      52%  { transform: translateY(0);      }
+                      100% { transform: translateY(0);      }
+                    }
+                    .wlt { animation: wjump 1.6s cubic-bezier(0.45,0.05,0.55,0.95) infinite; }
+                    .wlm { animation: wjump 1.6s cubic-bezier(0.45,0.05,0.55,0.95) infinite; animation-delay:0.26s; }
+                    .wlb { animation: wjump 1.6s cubic-bezier(0.45,0.05,0.55,0.95) infinite; animation-delay:0.52s; }
+                  `}</style>
+                  <g className="wlt">
+                    <path d="M19.1402 7.99936L12.4505 4.47613C12.1177 4.3006 11.721 4.3006 11.3882 4.47613L4.69735 7.99936C4.08867 8.31965 4.08867 9.19162 4.69735 9.51192L11.3882 13.0351C11.721 13.2107 12.1177 13.2107 12.4505 13.0351L19.1402 9.51306C19.7488 9.19276 19.7488 8.31965 19.1402 7.99936Z"
+                      fill="#1852FE" stroke="#1852FE" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </g>
+                  <g className="wlm">
+                    <path d="M4.24197 12.4606C4.24197 12.7581 4.39471 13.0567 4.69904 13.2174L11.3899 16.7406C11.7227 16.9162 12.1194 16.9162 12.4522 16.7406L19.143 13.2174C19.4474 13.0567 19.6001 12.7592 19.6001 12.4606"
+                      stroke="#1852FE" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </g>
+                  <g className="wlb">
+                    <path d="M4.24197 16.1652C4.24197 16.4627 4.39471 16.7613 4.69904 16.922L11.3899 20.4452C11.7227 20.6208 12.1194 20.6208 12.4522 20.4452L19.143 16.922C19.4474 16.7613 19.6001 16.4638 19.6001 16.1652"
+                      stroke="#1852FE" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </g>
+                </svg>
+                <span style={{fontSize:13,fontWeight:600,color:"#334155",
+                  letterSpacing:"-0.01em",textAlign:"center"}}>
+                  Applying Weather Layers...
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Search bar top */}
           <div style={{position:"absolute",top:16,left:16,zIndex:20,width:280}}>
@@ -5514,19 +5744,127 @@
               /* stacked layers */
               <svg width="20" height="20" viewBox="12 276 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M31.1402 283.999L24.4505 280.476C24.1177 280.301 23.721 280.301 23.3882 280.476L16.6973 283.999C16.0887 284.32 16.0887 285.192 16.6973 285.512L23.3882 289.035C23.721 289.211 24.1177 289.211 24.4505 289.035L31.1402 285.513C31.7488 285.193 31.7488 284.32 31.1402 283.999Z" fill="white" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M16.242 288.461C16.242 288.758 16.3947 289.057 16.699 289.218L23.3899 292.741C23.7227 292.916 24.1194 292.916 24.4522 292.741L31.143 289.218C31.4474 289.057 31.6001 288.759 31.6001 288.461" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M16.242 292.165C16.242 292.463 16.3947 292.761 16.699 292.922L23.3899 296.445C23.7227 296.621 24.1194 296.621 24.4522 296.445L31.143 292.922C31.4474 292.761 31.6001 292.464 31.6001 292.165" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
             ].map(function(icon,i){
+              var isWeatherBtn = i===6;
               return (
-                <button key={i} style={{width:38,height:38,border:"none",
-                  background:"transparent",
-                  color:"rgba(255,255,255,0.75)",cursor:"pointer",
-                  display:"flex",alignItems:"center",justifyContent:"center",
-                  borderRadius:8,transition:"all 0.15s",flexShrink:0}}
+                <button key={i}
+                  title={isWeatherBtn?"Weather Overlays":undefined}
+                  onClick={isWeatherBtn?function(){setWeatherOpen(function(o){return !o;});}:undefined}
+                  style={{width:38,height:38,border:"none",
+                    background:(isWeatherBtn&&weatherOpen)?"rgba(255,255,255,0.22)":"transparent",
+                    color:"rgba(255,255,255,0.75)",cursor:"pointer",
+                    display:"flex",alignItems:"center",justifyContent:"center",
+                    borderRadius:8,transition:"all 0.15s",flexShrink:0,
+                    outline:(isWeatherBtn&&weatherOpen)?"1.5px solid rgba(255,255,255,0.38)":"none"}}
                   onMouseEnter={function(e){e.currentTarget.style.background="rgba(255,255,255,0.14)";e.currentTarget.style.color="#fff";}}
-                  onMouseLeave={function(e){e.currentTarget.style.background="transparent";e.currentTarget.style.color="rgba(255,255,255,0.75)";}}>
+                  onMouseLeave={function(e){
+                    e.currentTarget.style.background=(isWeatherBtn&&weatherOpen)?"rgba(255,255,255,0.22)":"transparent";
+                    e.currentTarget.style.color="rgba(255,255,255,0.75)";
+                  }}>
                   {icon}
                 </button>
               );
             })}
           </div>
+
+          {/* Weather Overlays Panel */}
+          {weatherOpen && (
+            <div style={{position:"absolute",top:16,right:74,zIndex:20,
+              background:"#fff",borderRadius:12,width:226,
+              boxShadow:"0 8px 32px rgba(0,0,0,0.22),0 2px 8px rgba(0,0,0,0.1)",
+              overflow:"hidden"}}>
+              {/* Header */}
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",
+                padding:"13px 14px 10px",borderBottom:"1px solid #F1F5F9"}}>
+                <span style={{fontSize:13,fontWeight:700,color:"#0F172A",letterSpacing:"-0.01em"}}>Weather Overlays</span>
+                <button onClick={function(){setWeatherOpen(false);}}
+                  style={{border:"none",background:"none",cursor:"pointer",
+                    width:22,height:22,display:"flex",alignItems:"center",justifyContent:"center",
+                    color:"#94A3B8",padding:0,borderRadius:4,transition:"color 0.15s"}}
+                  onMouseEnter={function(e){e.currentTarget.style.color="#0F172A";}}
+                  onMouseLeave={function(e){e.currentTarget.style.color="#94A3B8";}}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <path d="M18 6 6 18M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+              {/* 2×3 uniform grid — Wind row, Current row, Wave row */}
+              {(function(){
+                /* Shared icon shapes — blue circle is supplied by the container div */
+                var IC_SPEED=(
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M15.9844 16.4531C14.8538 16.4531 13.8647 15.7294 13.5253 14.6503C13.4081 14.28 13.6134 13.8853 13.9838 13.7681C14.355 13.6519 14.7488 13.8572 14.865 14.2275C15.0197 14.7169 15.4697 15.0469 15.9834 15.0469C16.6294 15.0469 17.1553 14.5209 17.1553 13.875C17.1553 13.2291 16.6294 12.7031 15.9834 12.7031H6.14063C5.7525 12.7031 5.4375 12.3881 5.4375 12C5.4375 11.6119 5.7525 11.2969 6.14063 11.2969H15.9844C17.4066 11.2969 18.5625 12.4528 18.5625 13.875C18.5625 15.2972 17.4066 16.4531 15.9844 16.4531Z" fill="white"/>
+                    <path d="M10.125 19.5C8.99438 19.5 8.00531 18.7762 7.66594 17.6972C7.54875 17.3269 7.75406 16.9322 8.12438 16.815C8.4975 16.6978 8.88938 16.9041 9.00563 17.2744C9.16031 17.7638 9.61031 18.0938 10.1241 18.0938C10.77 18.0938 11.2959 17.5678 11.2959 16.9219C11.2959 16.2759 10.77 15.75 10.1241 15.75H6.14063C5.7525 15.75 5.4375 15.435 5.4375 15.0469C5.4375 14.6588 5.7525 14.3438 6.14063 14.3438H10.125C11.5472 14.3438 12.7031 15.4997 12.7031 16.9219C12.7031 18.3441 11.5472 19.5 10.125 19.5Z" fill="white"/>
+                    <path d="M13.6406 9.65625H6.14062C5.7525 9.65625 5.4375 9.34125 5.4375 8.95313C5.4375 8.565 5.7525 8.25 6.14062 8.25H13.6406C14.2866 8.25 14.8125 7.72406 14.8125 7.07813C14.8125 6.43219 14.2866 5.90625 13.6406 5.90625C13.1259 5.90625 12.6769 6.23625 12.5222 6.72563C12.4059 7.09594 12.015 7.30125 11.6409 7.185C11.2697 7.06781 11.0653 6.67313 11.1825 6.30281C11.5219 5.22469 12.5109 4.5 13.6416 4.5C15.0637 4.5 16.2197 5.65594 16.2197 7.07813C16.2197 8.50031 15.0637 9.65625 13.6416 9.65625H13.6406Z" fill="white"/>
+                  </svg>
+                );
+                var IC_DIR=(
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M17.8702 12.6304L14.6339 11.883C14.2417 11.7905 13.8498 12.0341 13.759 12.4267C13.6683 12.8193 13.9129 13.2129 14.3051 13.3053L15.3854 13.5446C15.4997 13.5715 15.5258 13.7243 15.425 13.7869L10.714 16.7147C10.3718 16.9274 10.2689 17.3775 10.4816 17.7198C10.6944 18.0621 11.1449 18.1682 11.4857 17.9564L16.1967 15.0286C16.2975 14.966 16.4229 15.0571 16.3965 15.1715L16.1502 16.191C16.0594 16.5837 16.304 16.9772 16.6962 17.0697C17.0884 17.1621 17.4803 16.9186 17.5711 16.526L18.3163 13.3483C18.3905 13.0275 18.1898 12.7046 17.8693 12.629L17.8702 12.6304Z" fill="white"/>
+                    <path d="M6.12993 11.3697L9.36621 12.1172C9.75841 12.2096 10.1503 11.9661 10.2411 11.5735C10.3318 11.1809 10.0872 10.7873 9.69503 10.6948L8.61477 10.4556C8.50047 10.4286 8.47435 10.2758 8.57509 10.2132L13.2861 7.28542C13.6283 7.07274 13.7312 6.62267 13.5185 6.28036C13.3057 5.93806 12.8553 5.83188 12.5144 6.0437L7.80339 8.97147C7.70266 9.03408 7.57719 8.94299 7.60364 8.82858L7.84997 7.80907C7.94073 7.41647 7.69613 7.02289 7.30393 6.93044C6.91172 6.83799 6.51982 7.08155 6.42906 7.47415L5.68379 10.6518C5.60962 10.9726 5.8103 11.2955 6.13079 11.3711L6.12993 11.3697Z" fill="white"/>
+                  </svg>
+                );
+                var ITEMS=[
+                  {key:"Wind_Speed",  section:"Wind",    label:"Speed",     icon:IC_SPEED},
+                  {key:"Wind_Dir",    section:"Wind",    label:"Direction",  icon:IC_DIR},
+                  {key:"Curr_Speed",  section:"Current", label:"Speed",     icon:IC_SPEED},
+                  {key:"Curr_Dir",    section:"Current", label:"Direction",  icon:IC_DIR},
+                  {key:"Wave_Height", section:"Wave",    label:"Height",    icon:IC_SPEED},
+                  {key:"Wave_Dir",    section:"Wave",    label:"Direction",  icon:IC_DIR},
+                ];
+                /* group into rows of 2 and insert a section-label row before each new section */
+                var rows=[];
+                for(var ri=0;ri<ITEMS.length;ri+=2){
+                  var a=ITEMS[ri], b=ITEMS[ri+1];
+                  var showSection = ri===0 || a.section!==ITEMS[ri-2].section;
+                  rows.push(
+                    <React.Fragment key={ri}>
+                      {showSection && (
+                        <div style={{
+                          padding: ri===0?"10px 16px 4px":"0 16px 4px",
+                          fontSize:11,fontWeight:700,color:"#94A3B8",
+                          textTransform:"uppercase",letterSpacing:"0.07em",
+                          borderTop: ri===0?"none":"1px solid #F1F5F9",
+                          marginTop: ri===0?0:4
+                        }}>
+                          {a.section}
+                        </div>
+                      )}
+                      <div style={{display:"flex",padding:"0 6px 6px",gap:4}}>
+                        {[a,b].map(function(item){
+                          var isActive=activeOverlays[item.key];
+                          return (
+                            <div key={item.key}
+                              onClick={function(){setActiveOverlays(function(prev){var n=Object.assign({},prev);n[item.key]=!prev[item.key];return n;});}}
+                              style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",
+                                gap:6,padding:"8px 4px",borderRadius:8,cursor:"pointer",
+                                transition:"background 0.12s",userSelect:"none"}}
+                              onMouseEnter={function(e){e.currentTarget.style.background="#F1F5F9";}}
+                              onMouseLeave={function(e){e.currentTarget.style.background="transparent";}}>
+                              <div style={{
+                                width:44,height:44,borderRadius:"50%",
+                                background:isActive?"#1852FE":"#CBD5E1",
+                                display:"flex",alignItems:"center",justifyContent:"center",
+                                transition:"background 0.18s",
+                                boxShadow:isActive?"0 2px 8px rgba(24,82,254,0.3)":"none"
+                              }}>
+                                {item.icon}
+                              </div>
+                              <span style={{fontSize:11,fontWeight:600,
+                                color:isActive?"#0F172A":"#94A3B8",
+                                transition:"color 0.18s",textAlign:"center"}}>
+                                {item.label}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </React.Fragment>
+                  );
+                }
+                return <div style={{paddingBottom:6}}>{rows}</div>;
+              })()}
+            </div>
+          )}
 
           {/* Bottom bar */}
           <div style={{position:"absolute",bottom:16,left:16,zIndex:10,display:"flex",alignItems:"center",gap:6,background:"rgba(255,255,255,0.9)",borderRadius:8,padding:"7px 14px",border:"1px solid #E2E8F0",boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>
@@ -5722,39 +6060,14 @@
                       <div style={{padding:"8px 0 4px",borderBottom:"0.5px solid #F1F5F9"}}>
                         <div style={{fontSize:10,fontWeight:600,color:"#94A3B8",letterSpacing:0.8,textTransform:"uppercase",padding:"0 14px 6px"}}>KPI Style</div>
                         {[
-                          {label:"KPIs1",      mode:"highlight2"},
-                          {label:"KPIs2",      mode:"highlight"},
-                          {label:"KPIs3",      mode:"highlight3"},
-                          {label:"Light KPIs", mode:"light"},
-                          {label:"Dark KPIs",  mode:"dark"},
+                          {label:"KPIs1", mode:"highlight2"},
+                          {label:"KPIs2", mode:"highlight3"},
+                          {label:"Dark KPIs", mode:"dark"},
                         ].map(function(item){
                           var active = kpiMode===item.mode;
                           return (
                             <div key={item.mode}
                               onClick={function(){setKpiMode(item.mode); setCwOpen(false);}}
-                              style={{display:"flex",alignItems:"center",gap:8,padding:"8px 14px",cursor:"pointer",
-                                background:active?"#F0F4FF":"transparent",transition:"background 0.1s"}}
-                              onMouseEnter={function(e){if(!active)e.currentTarget.style.background="#F8FAFC";}}
-                              onMouseLeave={function(e){if(!active)e.currentTarget.style.background="transparent";}}>
-                              <div style={{width:6,height:6,borderRadius:"50%",
-                                background:active?"#1852FE":"#CBD5E1",flexShrink:0,transition:"background 0.15s"}}/>
-                              <span style={{fontSize:13,fontWeight:active?600:400,
-                                color:active?"#1852FE":"#0F172A"}}>{item.label}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      {/* BG section */}
-                      <div style={{padding:"4px 0 8px"}}>
-                        <div style={{fontSize:10,fontWeight:600,color:"#94A3B8",letterSpacing:0.8,textTransform:"uppercase",padding:"6px 14px 6px"}}>Background</div>
-                        {[
-                          {label:"Light BG", val:false},
-                          {label:"Dark BG",  val:true},
-                        ].map(function(item){
-                          var active = darkBg===item.val;
-                          return (
-                            <div key={item.label}
-                              onClick={function(){setDarkBg(item.val); setCwOpen(false);}}
                               style={{display:"flex",alignItems:"center",gap:8,padding:"8px 14px",cursor:"pointer",
                                 background:active?"#F0F4FF":"transparent",transition:"background 0.1s"}}
                               onMouseEnter={function(e){if(!active)e.currentTarget.style.background="#F8FAFC";}}
