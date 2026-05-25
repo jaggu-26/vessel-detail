@@ -41,12 +41,19 @@ html, body, #root { height: 100%; width: 100%; overflow: hidden; }
   border-radius: 6px;
 }
 @keyframes cardSwapJump {
-  0%   { transform: scale(1)    translateY(0);    box-shadow: none; }
-  25%  { transform: scale(0.94) translateY(-8px); box-shadow: 0 16px 40px rgba(24,82,254,0.22); }
-  60%  { transform: scale(1.03) translateY(3px);  box-shadow: 0 6px 20px rgba(24,82,254,0.16); }
-  100% { transform: scale(1)    translateY(0);    box-shadow: 0 4px 20px rgba(24,82,254,0.18); }
+  0%   { transform: scale(1)    translateY(0);     box-shadow: none; }
+  18%  { transform: scale(0.87) translateY(-14px); box-shadow: 0 20px 48px rgba(24,82,254,0.28); }
+  55%  { transform: scale(1.05) translateY(4px);   box-shadow: 0 8px 24px rgba(24,82,254,0.18); }
+  78%  { transform: scale(0.98) translateY(-2px);  box-shadow: 0 4px 16px rgba(24,82,254,0.12); }
+  100% { transform: scale(1)    translateY(0);     box-shadow: 0 2px 12px rgba(24,82,254,0.10); }
 }
-.card-swap-jump { animation: cardSwapJump 0.32s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+@keyframes swapPulseRing {
+  0%   { opacity: 1;   transform: scale(1);    }
+  70%  { opacity: 0.4; transform: scale(1.06); }
+  100% { opacity: 1;   transform: scale(1);    }
+}
+.card-swap-jump  { animation: cardSwapJump 0.42s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+.swap-pulse-ring { animation: swapPulseRing 0.9s ease-in-out infinite; }
 [data-mosaic-card] { will-change: auto; }
 body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 [data-chart-icons] button { cursor: pointer !important; }
@@ -378,77 +385,195 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         return {m:mn,x:Math.round(b1+(Math.random()-0.4)*18+i*2),y:Math.round(b2+(Math.random()-0.4)*22+i*3)};
       });
     }
+    // ── Modern shared chart constants ────────────────────────────────────────
+    var CC1 = "#1852FE", CC2 = "#0F6E56";
+    var ccGrid = <CartesianGrid strokeDasharray="0" stroke="#F1F5F9" vertical={false}/>;
+    function CcTooltip({active, payload, label}){
+      if(!active||!payload||!payload.length) return null;
+      return (
+        <div style={{background:"#0F172A",borderRadius:10,padding:"10px 14px",
+          boxShadow:"0 8px 32px rgba(0,0,0,0.28)",border:"1px solid rgba(255,255,255,0.07)",minWidth:130}}>
+          {label&&<div style={{fontSize:11,color:"#64748B",marginBottom:6,fontWeight:500,letterSpacing:0.3}}>{label}</div>}
+          {payload.map(function(p,i){return(
+            <div key={i} style={{display:"flex",alignItems:"center",gap:7,marginBottom:i<payload.length-1?5:0}}>
+              <div style={{width:8,height:8,borderRadius:"50%",background:p.color,flexShrink:0,boxShadow:"0 0 0 2px rgba(255,255,255,0.15)"}}/>
+              <span style={{fontSize:12,color:"#94A3B8",fontWeight:500}}>{p.name}:</span>
+              <span style={{fontSize:12,color:"#F8FAFC",fontWeight:700}}>{typeof p.value==="number"?p.value.toLocaleString():p.value}</span>
+            </div>
+          );})}
+        </div>
+      );
+    }
+    var ccLg = {wrapperStyle:{paddingTop:8,fontSize:11,color:"#64748B"}};
+    var ccTick = {fontSize:11,fill:"#94A3B8",fontWeight:400};
+    function ccXAx(key){ return <XAxis dataKey={key} tick={ccTick} axisLine={false} tickLine={false} dy={6}/>; }
+    function ccYAx(){ return <YAxis tick={ccTick} axisLine={false} tickLine={false} width={36} tickCount={5}/>; }
+
     // Renders the right Recharts element for a given chartType + data inside a ResponsiveContainer
     function CustomChartRenderer({chartType, data, xLabel, yLabel, height}){
       var h=height||220;
-      var mg={bottom:22,left:10,right:14,top:6};
+      var mg={bottom:8,left:0,right:16,top:10};
+
+      if(chartType==="line") return(
+        <ResponsiveContainer width="100%" height={h}>
+          <LineChart data={data} margin={mg}>
+            <defs>
+              <filter id="lnGlow"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            {ccGrid}{ccXAx("m")}{ccYAx()}
+            <Tooltip content={<CcTooltip/>}/>
+            <Legend {...ccLg}/>
+            <Line type="monotoneX" dataKey="x" stroke={CC1} strokeWidth={2.5} dot={false}
+              activeDot={{r:5,fill:CC1,strokeWidth:2,stroke:"#fff"}} name={xLabel||"Series A"}/>
+            <Line type="monotoneX" dataKey="y" stroke={CC2} strokeWidth={2.5} dot={false}
+              activeDot={{r:5,fill:CC2,strokeWidth:2,stroke:"#fff"}} name={yLabel||"Series B"} strokeDasharray="5 3"/>
+          </LineChart>
+        </ResponsiveContainer>
+      );
+
       if(chartType==="area") return(
         <ResponsiveContainer width="100%" height={h}>
           <AreaChart data={data} margin={mg}>
             <defs>
-              <linearGradient id="cgX" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={B} stopOpacity={0.18}/><stop offset="95%" stopColor={B} stopOpacity={0}/></linearGradient>
-              <linearGradient id="cgY" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#0F6E56" stopOpacity={0.15}/><stop offset="95%" stopColor="#0F6E56" stopOpacity={0}/></linearGradient>
+              <linearGradient id="ccGx" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={CC1} stopOpacity={0.22}/>
+                <stop offset="100%" stopColor={CC1} stopOpacity={0}/>
+              </linearGradient>
+              <linearGradient id="ccGy" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={CC2} stopOpacity={0.18}/>
+                <stop offset="100%" stopColor={CC2} stopOpacity={0}/>
+              </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8"/>
-            {xAx("m","Month")}{yAx(yLabel||"")}
-            <Tooltip/><Legend {...lgStyle}/>
-            <Area type="monotone" dataKey="x" stroke={B} fill="url(#cgX)" strokeWidth={2} dot={false} name={xLabel||"Series A"}/>
-            <Area type="monotone" dataKey="y" stroke="#0F6E56" fill="url(#cgY)" strokeWidth={2} dot={false} name={yLabel||"Series B"}/>
+            {ccGrid}{ccXAx("m")}{ccYAx()}
+            <Tooltip content={<CcTooltip/>}/>
+            <Legend {...ccLg}/>
+            <Area type="monotoneX" dataKey="x" stroke={CC1} fill="url(#ccGx)" strokeWidth={2.5}
+              dot={false} activeDot={{r:5,fill:CC1,strokeWidth:2,stroke:"#fff"}} name={xLabel||"Series A"}/>
+            <Area type="monotoneX" dataKey="y" stroke={CC2} fill="url(#ccGy)" strokeWidth={2.5}
+              dot={false} activeDot={{r:5,fill:CC2,strokeWidth:2,stroke:"#fff"}} name={yLabel||"Series B"}/>
           </AreaChart>
         </ResponsiveContainer>
       );
+
       if(chartType==="bar") return(
         <ResponsiveContainer width="100%" height={h}>
-          <BarChart data={data} barSize={14} margin={mg}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8"/>
-            {xAx("m","Month")}{yAx(yLabel||"")}
-            <Tooltip/><Legend {...lgStyle}/>
-            <Bar dataKey="x" fill={B} radius={[3,3,0,0]} name={xLabel||"Series A"}/>
-            <Bar dataKey="y" fill="#0F6E56" radius={[3,3,0,0]} name={yLabel||"Series B"}/>
+          <BarChart data={data} barSize={12} barGap={3} margin={mg}>
+            <defs>
+              <linearGradient id="ccBx" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={CC1} stopOpacity={1}/>
+                <stop offset="100%" stopColor={CC1} stopOpacity={0.6}/>
+              </linearGradient>
+              <linearGradient id="ccBy" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={CC2} stopOpacity={1}/>
+                <stop offset="100%" stopColor={CC2} stopOpacity={0.6}/>
+              </linearGradient>
+            </defs>
+            {ccGrid}{ccXAx("m")}{ccYAx()}
+            <Tooltip content={<CcTooltip/>}/>
+            <Legend {...ccLg}/>
+            <Bar dataKey="x" fill="url(#ccBx)" radius={[4,4,0,0]} name={xLabel||"Series A"}/>
+            <Bar dataKey="y" fill="url(#ccBy)" radius={[4,4,0,0]} name={yLabel||"Series B"}/>
           </BarChart>
         </ResponsiveContainer>
       );
+
       if(chartType==="scatter") return(
         <ResponsiveContainer width="100%" height={h}>
-          <ScatterChart margin={mg}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8"/>
-            <XAxis dataKey="x" type="number" tick={axTick} name={xLabel||"X"} label={{value:xLabel||"X",offset:-2,position:"insideBottom",style:axLabel}}/>
-            <YAxis dataKey="y" type="number" tick={axTick} name={yLabel||"Y"} label={{value:yLabel||"Y",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
-            <ZAxis range={[40,40]}/>
-            <Tooltip cursor={{strokeDasharray:"3 3"}}/>
-            <Scatter data={data} fill={B} opacity={0.7}/>
+          <ScatterChart margin={{...mg,left:4}}>
+            <defs>
+              <radialGradient id="ccSc" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor={CC1} stopOpacity={0.9}/>
+                <stop offset="100%" stopColor={CC1} stopOpacity={0.3}/>
+              </radialGradient>
+            </defs>
+            {ccGrid}
+            <XAxis dataKey="x" type="number" tick={ccTick} axisLine={false} tickLine={false}
+              label={{value:xLabel||"X",position:"insideBottom",offset:-2,style:{fontSize:10,fill:"#94A3B8"}}}/>
+            <YAxis dataKey="y" type="number" tick={ccTick} axisLine={false} tickLine={false} width={36}
+              label={{value:yLabel||"Y",angle:-90,position:"insideLeft",offset:8,style:{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}}/>
+            <ZAxis range={[48,48]}/>
+            <Tooltip content={<CcTooltip/>} cursor={{stroke:"#E2E8F0",strokeDasharray:"4 2"}}/>
+            <Scatter data={data} fill="url(#ccSc)" stroke={CC1} strokeWidth={1} strokeOpacity={0.4}/>
           </ScatterChart>
         </ResponsiveContainer>
       );
-      if(chartType==="pie") return(
-        <ResponsiveContainer width="100%" height={h}>
-          <PieChart>
-            <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={function(e){return e.name;}}>
-              {data.map(function(_,i){return <Cell key={i} fill={PIE_COLORS[i%PIE_COLORS.length]}/>;}) }
-            </Pie>
-            <Tooltip/><Legend {...lgStyle}/>
-          </PieChart>
-        </ResponsiveContainer>
-      );
-      if(chartType==="donut") return(
-        <ResponsiveContainer width="100%" height={h}>
-          <PieChart>
-            <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={52} outerRadius={82} paddingAngle={3} label={false}>
-              {data.map(function(_,i){return <Cell key={i} fill={PIE_COLORS[i%PIE_COLORS.length]}/>;}) }
-            </Pie>
-            <Tooltip/><Legend {...lgStyle}/>
-          </PieChart>
-        </ResponsiveContainer>
-      );
-      // default: line
+
+      if(chartType==="pie"){
+        var RENDED_LABEL=function(props){
+          var cx=props.cx,cy=props.cy,mx=props.mx,my=props.my,ex=props.ex,ey=props.ey,midAngle=props.midAngle,name=props.name,percent=props.percent;
+          return(
+            <g>
+              <text x={ex+(ex>cx?6:-6)} y={ey} textAnchor={ex>cx?"start":"end"} fill="#64748B" fontSize={10} fontWeight={500}>{name}</text>
+              <text x={ex+(ex>cx?6:-6)} y={ey+13} textAnchor={ex>cx?"start":"end"} fill="#94A3B8" fontSize={10}>{(percent*100).toFixed(0)+"%"}</text>
+            </g>
+          );
+        };
+        return(
+          <ResponsiveContainer width="100%" height={h}>
+            <PieChart>
+              <defs>
+                {PIE_COLORS.map(function(c,i){return(
+                  <radialGradient key={i} id={"pcg"+i} cx="40%" cy="40%" r="60%">
+                    <stop offset="0%" stopColor={c} stopOpacity={1}/>
+                    <stop offset="100%" stopColor={c} stopOpacity={0.75}/>
+                  </radialGradient>
+                );})}
+              </defs>
+              <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="48%"
+                outerRadius={72} paddingAngle={2} labelLine={false} label={RENDED_LABEL}>
+                {data.map(function(_,i){return <Cell key={i} fill={"url(#pcg"+i+")"} stroke="none"/>;}) }
+              </Pie>
+              <Tooltip content={<CcTooltip/>}/>
+            </PieChart>
+          </ResponsiveContainer>
+        );
+      }
+
+      if(chartType==="donut"){
+        var total=data.reduce(function(s,d){return s+d.value;},0);
+        var DONUT_LABEL=function(props){
+          var cx=props.cx,cy=props.cy;
+          return(
+            <g>
+              <text x={cx} y={cy-6} textAnchor="middle" fill="#0F172A" fontSize={18} fontWeight={700}>{total}</text>
+              <text x={cx} y={cy+12} textAnchor="middle" fill="#94A3B8" fontSize={10} fontWeight={500}>Total</text>
+            </g>
+          );
+        };
+        return(
+          <ResponsiveContainer width="100%" height={h}>
+            <PieChart>
+              <defs>
+                {PIE_COLORS.map(function(c,i){return(
+                  <linearGradient key={i} id={"dcg"+i} x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor={c} stopOpacity={1}/>
+                    <stop offset="100%" stopColor={c} stopOpacity={0.7}/>
+                  </linearGradient>
+                );})}
+              </defs>
+              <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%"
+                innerRadius={54} outerRadius={80} paddingAngle={3}
+                labelLine={false} label={DONUT_LABEL}>
+                {data.map(function(_,i){return <Cell key={i} fill={"url(#dcg"+i+")"} stroke="none"/>;}) }
+              </Pie>
+              <Tooltip content={<CcTooltip/>}/>
+              <Legend {...ccLg}/>
+            </PieChart>
+          </ResponsiveContainer>
+        );
+      }
+
+      // fallback: line
       return(
         <ResponsiveContainer width="100%" height={h}>
           <LineChart data={data} margin={mg}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8"/>
-            {xAx("m","Month")}{yAx(yLabel||"")}
-            <Tooltip/><Legend {...lgStyle}/>
-            <Line type="monotone" dataKey="x" stroke={B} strokeWidth={2} dot={{r:3}} name={xLabel||"Series A"}/>
-            <Line type="monotone" dataKey="y" stroke="#0F6E56" strokeWidth={2} dot={{r:3}} name={yLabel||"Series B"}/>
+            {ccGrid}{ccXAx("m")}{ccYAx()}
+            <Tooltip content={<CcTooltip/>}/>
+            <Legend {...ccLg}/>
+            <Line type="monotoneX" dataKey="x" stroke={CC1} strokeWidth={2.5} dot={false}
+              activeDot={{r:5,fill:CC1,strokeWidth:2,stroke:"#fff"}} name={xLabel||"Series A"}/>
+            <Line type="monotoneX" dataKey="y" stroke={CC2} strokeWidth={2.5} dot={false}
+              activeDot={{r:5,fill:CC2,strokeWidth:2,stroke:"#fff"}} name={yLabel||"Series B"}/>
           </LineChart>
         </ResponsiveContainer>
       );
@@ -1831,6 +1956,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         var saved=loadDLSlots();
         setSlots(saved||getDLSlots());
       },[chartItems.length, resetKey]);
+      // Global dragend fallback — fires when cursor leaves viewport or drag is cancelled
+      useEffect(function(){
+        function onGlobalDragEnd(){activeDragRef2.current=false;setDragSrc(null);setDragOver(null);}
+        document.addEventListener("dragend",onGlobalDragEnd);
+        return function(){document.removeEventListener("dragend",onGlobalDragEnd);};
+      },[]);
       function handleDrop(dest) {
         if(dragSrc===null||dragSrc===dest)return;
         var next=[...slots]; var tmp=next[dragSrc]; next[dragSrc]=next[dest]; next[dest]=tmp;
@@ -1918,6 +2049,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         setOrd(saved||items.map(function(_,i){return i;}));
         setDi(null); setOi(null); activeDragRef.current=false;
       },[items.length, section, resetKey]);
+      // Global dragend fallback — clears stuck "Dragging…" state when cursor leaves viewport
+      useEffect(function(){
+        function onGlobalDragEnd(){activeDragRef.current=false;setDi(null);setOi(null);}
+        document.addEventListener("dragend",onGlobalDragEnd);
+        return function(){document.removeEventListener("dragend",onGlobalDragEnd);};
+      },[]);
 
       // Compute live swap preview while dragging
       var displayOrd = ord;
@@ -1974,13 +2111,45 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   key={isSwapped?"swap-"+oi+"-"+di:"static-"+itemIdx}
                   className={isSwapped?"card-swap-jump":""}
                   style={{
-                  opacity:isDragged?0.38:1,
-                  borderRadius:10,
-                  height:"100%",
-                  boxSizing:"border-box",
-                  outline:isDragged?"2px dashed #94A3B8":isSwapped?"2px solid "+B:"none",
-                  transition:"opacity 0.15s, outline 0.15s"}}>
+                    opacity: isDragged ? 0.28 : 1,
+                    borderRadius: 10,
+                    height: "100%",
+                    boxSizing: "border-box",
+                    position: "relative",
+                    outline: isDragged
+                      ? "2.5px dashed #94A3B8"
+                      : isSwapped
+                      ? "3px solid "+B
+                      : "none",
+                    background: isSwapped ? "rgba(24,82,254,0.04)" : "transparent",
+                    boxShadow: isSwapped ? "0 0 0 6px rgba(24,82,254,0.10), 0 8px 32px rgba(24,82,254,0.14)" : "none",
+                    transition: "opacity 0.15s, outline 0.15s, box-shadow 0.15s, background 0.15s"
+                  }}>
                   {items[itemIdx]}
+                  {/* Swap indicator overlay on displaced card */}
+                  {isSwapped&&(
+                    <div className="swap-pulse-ring" style={{position:"absolute",inset:0,borderRadius:10,
+                      pointerEvents:"none",zIndex:8,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      <div style={{background:"#1852FE",color:"#fff",borderRadius:20,
+                        padding:"5px 14px",fontSize:12,fontWeight:700,letterSpacing:0.3,
+                        boxShadow:"0 4px 16px rgba(24,82,254,0.35)",display:"flex",alignItems:"center",gap:6}}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/>
+                        </svg>
+                        Swap
+                      </div>
+                    </div>
+                  )}
+                  {/* Ghost label on the dragged card's source slot */}
+                  {isDragged&&(
+                    <div style={{position:"absolute",inset:0,borderRadius:10,pointerEvents:"none",zIndex:8,
+                      display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      <div style={{background:"rgba(15,23,42,0.55)",color:"#fff",borderRadius:20,
+                        padding:"5px 14px",fontSize:12,fontWeight:600,backdropFilter:"blur(4px)"}}>
+                        Dragging…
+                      </div>
+                    </div>
+                  )}
                 </div>
                 {showHandle&&(
                   <div draggable={false} onMouseDown={function(e){startResize(e,itemIdx);}}
@@ -2686,6 +2855,15 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var resizingMosaicRef=useRef(false);
       var mosaicGridRef=useRef(null);
       useEffect(function(){setUserWeights({});setHovMosaic(null);setActiveMosaicResize(null);},[dashTab,section]);
+      // Global dragend fallback — clears stuck "Dragging…" / swap state when cursor leaves viewport
+      useEffect(function(){
+        function onGlobalDragEnd(){
+          document.body.classList.remove("mosaic-dragging");
+          setMdi(null); setMoi2(null);
+        }
+        document.addEventListener("dragend",onGlobalDragEnd);
+        return function(){document.removeEventListener("dragend",onGlobalDragEnd);};
+      },[]);
       var CARD_MIN_PCT=0.24; // minimum card width = 24% of the row
       // startWeight = flex weight of card; rowTotalWeight = sum of all weights; rowCardCount = cards in row
       function startMosaicResize(e,itemIdx,startWeight,rowTotalWeight,rowCardCount){
@@ -2921,26 +3099,52 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                               position:"relative",
                               boxSizing:"border-box",
                               borderRadius:10,
-                              // Landing spot: dragged card preview at its destination
-                              opacity: isDragging ? 0.3 : 1,
-                              outline: isLandingSpot ? "2.5px solid "+B
-                                     : isDisplaced   ? "2px dashed #94A3B8"
+                              // Landing spot / displaced card visual states
+                              opacity: isDragging ? 0.28 : 1,
+                              outline: isLandingSpot ? "3px solid "+B
+                                     : isDisplaced   ? "3px solid "+B
                                      : isResizing    ? "2px solid #6366F1"
                                      : isHighlight   ? "2px solid #1852FE"
                                      : "none",
-                              boxShadow: isLandingSpot ? "0 0 0 4px rgba(24,82,254,0.10), 0 8px 32px rgba(24,82,254,0.12)"
-                                       : isHighlight  ? "0 0 0 4px rgba(24,82,254,0.08)"
+                              boxShadow: (isLandingSpot||isDisplaced) ? "0 0 0 6px rgba(24,82,254,0.12), 0 12px 40px rgba(24,82,254,0.18)"
+                                       : isHighlight ? "0 0 0 4px rgba(24,82,254,0.08)"
                                        : "none",
-                              background: isLandingSpot ? "rgba(24,82,254,0.03)"
-                                        : isDisplaced  ? "rgba(148,163,184,0.06)"
+                              background: isLandingSpot ? "rgba(24,82,254,0.04)"
+                                        : isDisplaced  ? "rgba(24,82,254,0.04)"
                                         : isDragging   ? "#F1F5F9"
                                         : isResizing   ? "rgba(99,102,241,0.03)"
                                         : "transparent",
-                              transform: isLandingSpot ? "scale(1.015)" : "scale(1)",
+                              transform: isLandingSpot ? "scale(1.02)"
+                                       : isDisplaced  ? "scale(0.965)"
+                                       : "scale(1)",
                               zIndex: isLandingSpot ? 3 : isDisplaced ? 2 : 1,
-                              transition: isResizing ? "none" : "flex-grow 0.2s cubic-bezier(0.4,0,0.2,1), opacity 0.15s ease, outline 0.1s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1), background 0.1s ease, box-shadow 0.15s ease"
+                              transition: isResizing ? "none" : "flex-grow 0.22s cubic-bezier(0.4,0,0.2,1), opacity 0.15s ease, outline 0.12s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1), background 0.12s ease, box-shadow 0.15s ease"
                             }}>
                             {chartContent}
+                            {/* Displaced card — "Swap" badge */}
+                            {isDisplaced&&(
+                              <div className="swap-pulse-ring" style={{position:"absolute",inset:0,borderRadius:10,
+                                pointerEvents:"none",zIndex:8,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                                <div style={{background:"#1852FE",color:"#fff",borderRadius:20,
+                                  padding:"5px 14px",fontSize:12,fontWeight:700,letterSpacing:0.3,
+                                  boxShadow:"0 4px 16px rgba(24,82,254,0.35)",display:"flex",alignItems:"center",gap:6}}>
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/>
+                                  </svg>
+                                  Swap
+                                </div>
+                              </div>
+                            )}
+                            {/* Dragging ghost label */}
+                            {isDragging&&(
+                              <div style={{position:"absolute",inset:0,borderRadius:10,pointerEvents:"none",zIndex:8,
+                                display:"flex",alignItems:"center",justifyContent:"center"}}>
+                                <div style={{background:"rgba(15,23,42,0.5)",color:"#fff",borderRadius:20,
+                                  padding:"5px 14px",fontSize:12,fontWeight:600,backdropFilter:"blur(4px)"}}>
+                                  Dragging…
+                                </div>
+                              </div>
+                            )}
                             {/* Full-card drag grip — avoids SVG interference, shows rich ghost */}
                             {!(isDragging||isLandingSpot)&&(
                               <div draggable={true}
