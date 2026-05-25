@@ -12,7 +12,14 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
-  <link href="https://fonts.cdnfonts.com/css/gilroy" rel="stylesheet"/>
+  <style>
+/* ── Gilroy — self-hosted, always available ── */
+@font-face { font-family: 'Gilroy'; src: url('fonts/Gilroy-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Gilroy'; src: url('fonts/Gilroy-Medium.ttf') format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Gilroy'; src: url('fonts/Gilroy-SemiBold.ttf') format('truetype'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Gilroy'; src: url('fonts/Gilroy-Bold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Gilroy'; src: url('fonts/Gilroy-ExtraBold.ttf') format('truetype'); font-weight: 800; font-style: normal; font-display: swap; }
+  </style>
   <style>
 /* ─────────────────────────────────────────────
    1. Global resets & animations
@@ -46,14 +53,13 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 [data-chart-icons] { cursor: pointer !important; }
 [data-chart-icons] button { cursor: pointer !important; }
 [data-chart-icons] { cursor: pointer !important; }
-@keyframes iconFloat {
-  0%, 100% { transform: translateY(0px);   }
-  40%       { transform: translateY(-9px);  }
-  60%       { transform: translateY(-7px);  }
+@keyframes levitate {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
 }
-@keyframes iconGlow {
-  0%, 100% { opacity: 0.55; }
-  50%       { opacity: 0.85; }
+@keyframes shadowPulse {
+  0%, 100% { transform: translateX(-50%) scaleX(1)   scaleY(1);   opacity: 0.5; }
+  50%       { transform: translateX(-50%) scaleX(0.5) scaleY(0.5); opacity: 0.18; }
 }
 @keyframes pulseRing {
   0%   { transform: scale(1);   opacity: 0.7; }
@@ -64,18 +70,6 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 .leaflet-control-attribution { font-size: 9px !important; background: rgba(255,255,255,0.75) !important; border-radius: 4px !important; }
 .leaflet-control-zoom { display: none !important; }
 .leaflet-container { background: #c8dffb !important; }
-@keyframes pointNudge {
-  0%,100% { transform: translateY(0); opacity: 1; }
-  40%      { transform: translateY(4px); opacity: 1; }
-  55%      { transform: translateY(2px); opacity: 0.7; }
-}
-.view-analytics-hand {
-  display: block;
-  animation: pointNudge 0.7s ease-in-out infinite;
-  font-size: 14px;
-  line-height: 1;
-  text-align: center;
-}
   </style>
 </head>
 <body>
@@ -86,7 +80,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     const {
       LineChart, Line, BarChart, Bar, AreaChart, Area,
       PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis,
-      ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip,
+      ScatterChart, Scatter, ZAxis, XAxis, YAxis, CartesianGrid, Tooltip,
       ResponsiveContainer, ComposedChart, Legend, Label, ReferenceLine, ReferenceArea
     } = Recharts;
 
@@ -96,7 +90,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       borderLight:"#f0f0f0", text:"#0c1e35", textSub:"#555", textMuted:"#999",
       card:"#fff", kpiBg:"#fff", navBg:"#fff", navActive:"#EEF2FF",
     };
-    const PIE_COLORS = ["#3B82F6","#10B981","#F59E0B","#8B5CF6","#EC4899"];
+    const PIE_COLORS = ["#1852FE","#0F6E56","#F59E0B","#EF4444","#8B5CF6","#06B6D4"];
     const STATUS_COLOR = {Normal:"#0F6E56",Caution:"#BA7517",Warning:"#A32D2D",Filed:"#0F6E56",Pending:"#BA7517",Review:B};
     const CARD_H = 300;
     const CHART_H = 200;
@@ -328,6 +322,138 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     const axTick = {fontSize:11, fill:"#94A3B8", fontWeight:400};
     const axLabel = {fontSize:10, fill:"#CBD5E1"};
     const lgStyle = {wrapperStyle:{paddingTop:6,fontSize:11}};
+
+    // ── Smart chart-type picker ──────────────────────────────────────────────
+    // keyword → ordered candidate chart types (best match first)
+    const CHART_CANDIDATES = {
+      "SFOC":        ["scatter","line","area","bar"],
+      "SOG":         ["scatter","line","area","bar"],
+      "Speed":       ["scatter","area","line","bar"],
+      "Days":        ["bar","area","line","scatter"],
+      "Time":        ["bar","area","line","scatter"],
+      "Waiting":     ["bar","line","area","scatter"],
+      "Berth":       ["bar","line","area","scatter"],
+      "Anchorage":   ["bar","line","area","scatter"],
+      "Cargo":       ["area","bar","line","scatter"],
+      "Distance":    ["area","line","bar","scatter"],
+      "Fuel":        ["area","bar","line","scatter"],
+      "Consumption": ["area","bar","line","scatter"],
+      "EEOI":        ["line","area","scatter","bar"],
+      "CII":         ["line","area","bar","scatter"],
+      "GHG":         ["area","line","bar","scatter"],
+      "CO2":         ["area","line","bar","scatter"],
+      "Emissions":   ["area","line","bar","scatter"],
+      "Port":        ["bar","donut","pie","line"],
+      "Calls":       ["bar","donut","pie","line"],
+      "Power":       ["line","scatter","area","bar"],
+      "Utilization": ["bar","donut","line","area"],
+      "Rate":        ["line","area","bar","scatter"],
+    };
+    function pickChartType(xLabel, yLabel, usedTypes) {
+      var combined = ((xLabel||"")+" "+(yLabel||"")).toLowerCase();
+      var candidates = null;
+      var keys = Object.keys(CHART_CANDIDATES);
+      for(var i=0;i<keys.length;i++){
+        if(combined.indexOf(keys[i].toLowerCase())>-1){candidates=CHART_CANDIDATES[keys[i]];break;}
+      }
+      if(!candidates) candidates=["line","bar","area","scatter","donut","pie"];
+      for(var j=0;j<candidates.length;j++){
+        if(!usedTypes||usedTypes.indexOf(candidates[j])===-1) return candidates[j];
+      }
+      return candidates[0];
+    }
+    function generateChartData(chartType){
+      var months=["Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May"];
+      if(chartType==="scatter"){
+        return Array.from({length:20},function(_,i){
+          return {x:Math.round(30+Math.random()*70),y:Math.round(20+Math.random()*80)};
+        });
+      }
+      if(chartType==="pie"||chartType==="donut"){
+        var segs=["Jan–Feb","Mar–Apr","May–Jun","Jul–Aug","Sep–Oct","Nov–Dec"];
+        return segs.map(function(name){return {name:name,value:Math.round(10+Math.random()*40)};});
+      }
+      var b1=40+Math.random()*40, b2=30+Math.random()*50;
+      return months.map(function(mn,i){
+        return {m:mn,x:Math.round(b1+(Math.random()-0.4)*18+i*2),y:Math.round(b2+(Math.random()-0.4)*22+i*3)};
+      });
+    }
+    // Renders the right Recharts element for a given chartType + data inside a ResponsiveContainer
+    function CustomChartRenderer({chartType, data, xLabel, yLabel, height}){
+      var h=height||220;
+      var mg={bottom:22,left:10,right:14,top:6};
+      if(chartType==="area") return(
+        <ResponsiveContainer width="100%" height={h}>
+          <AreaChart data={data} margin={mg}>
+            <defs>
+              <linearGradient id="cgX" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={B} stopOpacity={0.18}/><stop offset="95%" stopColor={B} stopOpacity={0}/></linearGradient>
+              <linearGradient id="cgY" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#0F6E56" stopOpacity={0.15}/><stop offset="95%" stopColor="#0F6E56" stopOpacity={0}/></linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8"/>
+            {xAx("m","Month")}{yAx(yLabel||"")}
+            <Tooltip/><Legend {...lgStyle}/>
+            <Area type="monotone" dataKey="x" stroke={B} fill="url(#cgX)" strokeWidth={2} dot={false} name={xLabel||"Series A"}/>
+            <Area type="monotone" dataKey="y" stroke="#0F6E56" fill="url(#cgY)" strokeWidth={2} dot={false} name={yLabel||"Series B"}/>
+          </AreaChart>
+        </ResponsiveContainer>
+      );
+      if(chartType==="bar") return(
+        <ResponsiveContainer width="100%" height={h}>
+          <BarChart data={data} barSize={14} margin={mg}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8"/>
+            {xAx("m","Month")}{yAx(yLabel||"")}
+            <Tooltip/><Legend {...lgStyle}/>
+            <Bar dataKey="x" fill={B} radius={[3,3,0,0]} name={xLabel||"Series A"}/>
+            <Bar dataKey="y" fill="#0F6E56" radius={[3,3,0,0]} name={yLabel||"Series B"}/>
+          </BarChart>
+        </ResponsiveContainer>
+      );
+      if(chartType==="scatter") return(
+        <ResponsiveContainer width="100%" height={h}>
+          <ScatterChart margin={mg}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8"/>
+            <XAxis dataKey="x" type="number" tick={axTick} name={xLabel||"X"} label={{value:xLabel||"X",offset:-2,position:"insideBottom",style:axLabel}}/>
+            <YAxis dataKey="y" type="number" tick={axTick} name={yLabel||"Y"} label={{value:yLabel||"Y",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
+            <ZAxis range={[40,40]}/>
+            <Tooltip cursor={{strokeDasharray:"3 3"}}/>
+            <Scatter data={data} fill={B} opacity={0.7}/>
+          </ScatterChart>
+        </ResponsiveContainer>
+      );
+      if(chartType==="pie") return(
+        <ResponsiveContainer width="100%" height={h}>
+          <PieChart>
+            <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={function(e){return e.name;}}>
+              {data.map(function(_,i){return <Cell key={i} fill={PIE_COLORS[i%PIE_COLORS.length]}/>;}) }
+            </Pie>
+            <Tooltip/><Legend {...lgStyle}/>
+          </PieChart>
+        </ResponsiveContainer>
+      );
+      if(chartType==="donut") return(
+        <ResponsiveContainer width="100%" height={h}>
+          <PieChart>
+            <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={52} outerRadius={82} paddingAngle={3} label={false}>
+              {data.map(function(_,i){return <Cell key={i} fill={PIE_COLORS[i%PIE_COLORS.length]}/>;}) }
+            </Pie>
+            <Tooltip/><Legend {...lgStyle}/>
+          </PieChart>
+        </ResponsiveContainer>
+      );
+      // default: line
+      return(
+        <ResponsiveContainer width="100%" height={h}>
+          <LineChart data={data} margin={mg}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8"/>
+            {xAx("m","Month")}{yAx(yLabel||"")}
+            <Tooltip/><Legend {...lgStyle}/>
+            <Line type="monotone" dataKey="x" stroke={B} strokeWidth={2} dot={{r:3}} name={xLabel||"Series A"}/>
+            <Line type="monotone" dataKey="y" stroke="#0F6E56" strokeWidth={2} dot={{r:3}} name={yLabel||"Series B"}/>
+          </LineChart>
+        </ResponsiveContainer>
+      );
+    }
+    // ────────────────────────────────────────────────────────────────────────
 
     function ModernTooltip({active, payload, label}) {
       if(!active||!payload||!payload.length) return null;
@@ -1219,6 +1345,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var [hov,setHov]=useState(false);
       var [simOpen,setSimOpen]=useState(false);
       var [insightAnchor,setInsightAnchor]=useState(null);
+      var [loading,setLoading]=useState(true);
+      useEffect(function(){
+        var t=setTimeout(function(){setLoading(false);},900);
+        return function(){clearTimeout(t);};
+      },[]);
       function handleShowInsights(rect) {
         if (_activeInsightSetter && _activeInsightSetter !== setInsightAnchor) _activeInsightSetter(null);
         setInsightAnchor(rect);
@@ -1239,8 +1370,16 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <div style={{display:"flex",alignItems:"flex-start",gap:6,flex:1,minWidth:0}}>
               <span style={{fontSize:18,color:THEME.textMuted,lineHeight:"22px",flexShrink:0,cursor:"grab"}}>⠿</span>
               <div style={{cursor:"default"}}>
-                <div style={{fontWeight:600,fontSize:13,color:"#1E293B",lineHeight:"20px"}}>{title}</div>
-                {subtitle&&<div style={{fontSize:10,color:THEME.textMuted,marginTop:1}}>{subtitle}</div>}
+                {loading
+                  ? <React.Fragment>
+                      <div className="skel" style={{height:13,width:120,marginBottom:6}}/>
+                      <div className="skel" style={{height:10,width:80}}/>
+                    </React.Fragment>
+                  : <React.Fragment>
+                      <div style={{fontWeight:600,fontSize:13,color:"#1E293B",lineHeight:"20px"}}>{title}</div>
+                      {subtitle&&<div style={{fontSize:10,color:THEME.textMuted,marginTop:1}}>{subtitle}</div>}
+                    </React.Fragment>
+                }
               </div>
             </div>
             <div data-chart-icons style={{position:"relative",zIndex:10,flexShrink:0,pointerEvents:"all",cursor:"pointer"}}
@@ -1250,9 +1389,31 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             </div>
           </div>
           <div style={{flex:1,minHeight:0,display:"flex",alignItems:"center",justifyContent:"center",paddingTop:15,overflow:"hidden",borderRadius:"0 0 10px 10px"}}>
-            <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center"}}>
-              {children}
-            </div>
+            {loading
+              ? (
+                <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",justifyContent:"flex-end",gap:6,padding:"0 8px 12px"}}>
+                  {/* X-axis label row */}
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+                    {[38,28,42,30,36,26,44,32].map(function(w,i){
+                      return <div key={i} className="skel" style={{height:8,width:w,borderRadius:4}}/>;
+                    })}
+                  </div>
+                  {/* Bar chart skeleton */}
+                  <div style={{display:"flex",alignItems:"flex-end",gap:6,height:"75%"}}>
+                    {[55,75,45,88,60,38,70,50].map(function(h,i){
+                      return <div key={i} className="skel" style={{flex:1,height:h+"%",borderRadius:"4px 4px 0 0"}}/>;
+                    })}
+                  </div>
+                  {/* Base line */}
+                  <div className="skel" style={{height:2,width:"100%",borderRadius:2}}/>
+                </div>
+              )
+              : (
+                <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                  {children}
+                </div>
+              )
+            }
           </div>
           {insightAnchor&&<AIInsightsPanel title={title} anchor={insightAnchor} onClose={handleCloseInsights}/>}
           {simOpen&&<SimulatorModal title={title} onClose={function(){setSimOpen(false);}}/>}
@@ -2483,19 +2644,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       // Convert custom charts to cc()-compatible items so they join the mosaic grid
       var customCcItems=customCharts.map(function(c){
-        var chartData=c.data||[];
+        var cData=c.data||[];
         return cc(c.title||"Custom Chart",c.subtitle||"Custom metric",function(n){
-          return (
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={fd(chartData,n)} margin={{bottom:20,left:10,right:14,top:6}}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#d8dce3"/>
-                {xAx("m","Month")} {yAx("Value")}
-                <Tooltip/><Legend {...lgStyle}/>
-                <Line type="monotone" dataKey="x" stroke={B} strokeWidth={2} dot={false} name={c.xLabel||"Series A"}/>
-                <Line type="monotone" dataKey="y" stroke="#0F6E56" strokeWidth={2} dot={false} name={c.yLabel||"Series B"}/>
-              </LineChart>
-            </ResponsiveContainer>
-          );
+          var filtered=(c.chartType==="scatter"||c.chartType==="pie"||c.chartType==="donut")?cData:fd(cData,n);
+          return <CustomChartRenderer chartType={c.chartType||"line"} data={filtered} xLabel={c.xLabel||"Series A"} yLabel={c.yLabel||"Series B"}/>;
         },2);
       });
       var allDashItems=dashTabItems.concat(customCcItems);
@@ -2578,6 +2730,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         if(resetKey>0){
           try{localStorage.removeItem("chartOrder_"+(section||"default"));}catch(e){}
           try{localStorage.removeItem("draggableLayout_"+(section||"default"));}catch(e){}
+          // Also reset the in-memory mosaic order to default
+          var baseLen=10;
+          var defaultOrd=[];for(var _ri=0;_ri<baseLen;_ri++) defaultOrd.push(_ri);
+          for(var _rj=0;_rj<customCharts.length;_rj++) defaultOrd.push(baseLen+_rj);
+          setMosaicOrd(defaultOrd);
+          setMdi(null); setMoi2(null);
+          setUserWeights({});
+          setHovMosaic(null); setActiveMosaicResize(null);
           setLocalResetKey(function(k){return k+1;});
           setShowToast(false);
         }
@@ -2875,7 +3035,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
     }
 
-    function CustomisePanel({onClose, onAddChart}) {
+    function CustomisePanel({onClose, onAddChart, usedChartTypes}) {
       var TABS=["Operational","Technical","Environmental"];
       var METRICS={
         Operational:[
@@ -2979,6 +3139,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var [selYMetric,setSelYMetric]=useState(null);
       var [yOpen,setYOpen]=useState(false);
       var [chartData,setChartData]=useState(null);
+      var [chartType,setChartType]=useState(null);
       var [vis,setVis]=useState(false);
       var metRef=useRef(null);
 
@@ -2996,20 +3157,18 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var chartTitle=selMetric&&selYMetric?selMetric.label+" vs "+selYMetric:selMetric?selMetric.chartName:"";
 
       function doClose(){setVis(false);setTimeout(onClose,270);}
-      function handleSelectX(m){setSelMetric(m);setMetricOpen(false);setSearch("");setSelYMetric(null);setChartData(null);setYOpen(true);}
-      function handleSelectY(y){setSelYMetric(y);setYOpen(false);setChartData(null);}
+      function handleSelectX(m){setSelMetric(m);setMetricOpen(false);setSearch("");setSelYMetric(null);setChartData(null);setChartType(null);setYOpen(true);}
+      function handleSelectY(y){setSelYMetric(y);setYOpen(false);setChartData(null);setChartType(null);}
       function handleGenerate(){
         if(!canGenerate)return;
-        var months=["Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May"];
-        var b1=40+Math.random()*40, b2=30+Math.random()*50;
-        var data=months.map(function(mn,i){
-          return{m:mn,x:Math.round(b1+(Math.random()-0.4)*18+i*2),y:Math.round(b2+(Math.random()-0.4)*22+i*3)};
-        });
+        var type=pickChartType(selMetric.label,selYMetric,usedChartTypes||[]);
+        var data=generateChartData(type);
+        setChartType(type);
         setChartData(data);
       }
       function handleAddToChart(){
         if(onAddChart&&chartData){
-          onAddChart({title:chartTitle,subtitle:selMetric.label+" vs "+selYMetric,data:chartData,xKey:"x",yKey:"y",xLabel:selMetric.label,yLabel:selYMetric});
+          onAddChart({title:chartTitle,subtitle:selMetric.label+" vs "+selYMetric,data:chartData,chartType:chartType,xKey:"x",yKey:"y",xLabel:selMetric.label,yLabel:selYMetric});
           doClose();
         }
       }
@@ -3026,7 +3185,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between"}}>
                 <div>
                   <div style={{fontWeight:700,fontSize:17,color:THEME.text,marginBottom:5}}>Customise</div>
-                  <div style={{fontSize:12,color:THEME.textSub}}>You are in free-flow mode to generate your own charts &amp; <em>'add it to my charts'</em></div>
+                  <div style={{fontSize:12,color:THEME.textSub}}>You are in free-flow mode to generate your own charts</div>
                 </div>
                 <button onClick={doClose} style={{width:30,height:30,border:"none",background:"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:6,color:THEME.textSub,flexShrink:0,marginTop:2}}
                   onMouseEnter={function(e){e.currentTarget.style.background="#f0f0f0";}}
@@ -3161,73 +3320,63 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               </button>
 
               {/* Chart preview */}
-              <div style={{borderRadius:12,background:"#f5f6f8",minHeight:200,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",overflow:"hidden"}}>
+              <div style={{borderRadius:12,background:"#f5f6f8",minHeight:270,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",overflow:"hidden"}}>
                 {!chartData?(
-                  <div style={{textAlign:"center",padding:"28px 24px"}}>
-                    <div style={{position:"relative",display:"inline-block",marginBottom:16}}>
-                      {/* Shadow — stays still while icon floats above */}
+                  <div style={{textAlign:"center",padding:"24px 24px 20px"}}>
+                    <div style={{position:"relative",display:"inline-block",marginBottom:4}}>
+                      {/* Shadow — shrinks & fades as computer levitates */}
                       <svg width="120" height="18" viewBox="0 0 120 18" fill="none"
-                        style={{position:"absolute",bottom:-6,left:"50%",transform:"translateX(-50%)",
-                          animation:"iconGlow 2.8s ease-in-out infinite"}}>
-                        <ellipse cx="60" cy="9" rx="38" ry="9" fill="#c8d1e8" opacity="0.55"/>
+                        style={{position:"absolute",bottom:6,left:"50%",transformOrigin:"center center",
+                          animation:"shadowPulse 2.8s ease-in-out infinite"}}>
+                        <ellipse cx="60" cy="9" rx="42" ry="9" fill="#c8d1e8"/>
                       </svg>
-                      {/* Chart icon — floats above the shadow */}
+                      {/* Computer icon — levitates up and down */}
                       <svg width="120" height="96" viewBox="0 0 120 96" fill="none"
-                        style={{display:"block",animation:"iconFloat 2.8s ease-in-out infinite",position:"relative",zIndex:1}}>
-                        {/* Monitor body */}
-                        <rect x="6" y="4" width="82" height="62" rx="8" fill="#dce3f4"/>
+                        style={{display:"block",animation:"levitate 2.8s ease-in-out infinite",position:"relative",zIndex:1}}>
+                        {/* Monitor body — centred at x=60 (shifted +13 from original) */}
+                        <rect x="19" y="4" width="82" height="62" rx="8" fill="#dce3f4"/>
                         {/* Screen */}
-                        <rect x="12" y="10" width="70" height="48" rx="5" fill="#eef1f9"/>
-                        <rect x="12" y="10" width="70" height="48" rx="5" fill="url(#scr)" opacity="0.6"/>
+                        <rect x="25" y="10" width="70" height="48" rx="5" fill="#eef1f9"/>
+                        <rect x="25" y="10" width="70" height="48" rx="5" fill="url(#scr)" opacity="0.6"/>
                         {/* Bar charts */}
-                        <rect x="18" y="42" width="7" height="12" rx="2" fill="#b4bee0"/>
-                        <rect x="28" y="35" width="7" height="19" rx="2" fill="#9facd8"/>
-                        <rect x="38" y="38" width="7" height="16" rx="2" fill="#b4bee0"/>
-                        <rect x="48" y="28" width="7" height="26" rx="2" fill="#1852FE" opacity="0.45"/>
-                        <rect x="58" y="32" width="7" height="22" rx="2" fill="#9facd8"/>
-                        <rect x="68" y="24" width="7" height="30" rx="2" fill="#1852FE" opacity="0.6"/>
+                        <rect x="31" y="42" width="7" height="12" rx="2" fill="#b4bee0"/>
+                        <rect x="41" y="35" width="7" height="19" rx="2" fill="#9facd8"/>
+                        <rect x="51" y="38" width="7" height="16" rx="2" fill="#b4bee0"/>
+                        <rect x="61" y="28" width="7" height="26" rx="2" fill="#1852FE" opacity="0.45"/>
+                        <rect x="71" y="32" width="7" height="22" rx="2" fill="#9facd8"/>
+                        <rect x="81" y="24" width="7" height="30" rx="2" fill="#1852FE" opacity="0.6"/>
                         {/* Trend line */}
-                        <polyline points="21,46 31,38 41,41 51,31 61,34 75,25"
+                        <polyline points="34,46 44,38 54,41 64,31 74,34 88,25"
                           stroke="#1852FE" strokeWidth="2" fill="none"
                           strokeLinecap="round" strokeLinejoin="round" opacity="0.7"/>
                         {/* Trend dots */}
-                        <circle cx="51" cy="31" r="2.5" fill="#1852FE" opacity="0.9"/>
-                        <circle cx="75" cy="25" r="2.5" fill="#1852FE" opacity="0.9"/>
+                        <circle cx="64" cy="31" r="2.5" fill="#1852FE" opacity="0.9"/>
+                        <circle cx="88" cy="25" r="2.5" fill="#1852FE" opacity="0.9"/>
                         {/* Monitor stand neck */}
-                        <rect x="38" y="66" width="18" height="8" rx="2" fill="#c8d0e8"/>
+                        <rect x="51" y="66" width="18" height="8" rx="2" fill="#c8d0e8"/>
                         {/* Monitor stand base */}
-                        <rect x="28" y="74" width="38" height="7" rx="3.5" fill="#c8d0e8"/>
+                        <rect x="41" y="74" width="38" height="7" rx="3.5" fill="#c8d0e8"/>
                         <defs>
-                          <linearGradient id="scr" x1="12" y1="10" x2="12" y2="58" gradientUnits="userSpaceOnUse">
+                          <linearGradient id="scr" x1="25" y1="10" x2="25" y2="58" gradientUnits="userSpaceOnUse">
                             <stop offset="0" stopColor="#fff" stopOpacity="0.5"/>
                             <stop offset="1" stopColor="#fff" stopOpacity="0"/>
                           </linearGradient>
                         </defs>
                       </svg>
                     </div>
-                    <div style={{fontSize:13,color:THEME.textSub}}>Select metrics to create the charts/graphs</div>
+                    <div style={{fontSize:13,color:THEME.textSub}}>Select metric to create chart/graph</div>
                   </div>
                 ):(
                   <>
-                    <div style={{width:"100%",height:220,padding:"12px 4px 4px"}}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={chartData} margin={{bottom:22,left:10,right:14,top:6}}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8"/>
-                          <XAxis dataKey="m" tick={axTick}><Label value="Month" offset={-4} position="insideBottom" style={axLabel}/></XAxis>
-                          <YAxis tick={axTick} tickCount={5}/>
-                          <Tooltip/>
-                          <Legend {...lgStyle}/>
-                          <Line type="monotone" dataKey="x" stroke="#1852FE" strokeWidth={2} dot={{r:3}} name={selMetric.label}/>
-                          <Line type="monotone" dataKey="y" stroke="#0F6E56" strokeWidth={2} dot={{r:3}} name={selYMetric}/>
-                        </LineChart>
-                      </ResponsiveContainer>
+                    {chartType&&(
+                      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 14px 4px"}}>
+                        <span style={{fontSize:11,fontWeight:600,color:THEME.textSub,textTransform:"uppercase",letterSpacing:0.5}}>Preview</span>
+                        <span style={{fontSize:11,fontWeight:700,color:B,background:"#EEF2FF",borderRadius:20,padding:"2px 10px",letterSpacing:0.3,textTransform:"capitalize"}}>{chartType} chart</span>
+                      </div>
+                    )}
+                    <div style={{width:"100%",height:220,padding:"4px 4px 8px"}}>
+                      <CustomChartRenderer chartType={chartType||"line"} data={chartData} xLabel={selMetric?selMetric.label:""} yLabel={selYMetric||""} height={208}/>
                     </div>
-                    <button onClick={handleAddToChart}
-                      style={{margin:"0 16px 16px",width:"calc(100% - 32px)",height:38,borderRadius:8,border:"1.5px solid #1852FE",
-                        background:"#fff",cursor:"pointer",fontSize:13,fontWeight:600,color:"#1852FE",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1852FE" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                      Add to Charts
-                    </button>
                   </>
                 )}
               </div>
@@ -3245,7 +3394,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 style={{height:40,padding:"0 22px",borderRadius:8,border:"none",
                   background:chartData?"#1852FE":"#c8d3f5",color:"#fff",
                   cursor:chartData?"pointer":"not-allowed",fontSize:13,fontWeight:600}}>
-                Apply Changes
+                Add Chart
               </button>
             </div>
           </div>
@@ -3570,24 +3719,28 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
             )}
 
             {/* ── Data table ── */}
-            <div style={{background:"#fff",borderRadius:12,border:"0.5px solid #E2E8F0",overflow:"hidden"}}>
-              <div style={{padding:"14px 20px",borderBottom:"1px solid "+THEME.border,display:"flex",alignItems:"center",gap:8}}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={THEME.textSub} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/></svg>
-                <span style={{fontSize:13,fontWeight:600,color:THEME.text}}>Voyage Data</span>
-                <span style={{fontSize:12,color:THEME.textMuted,marginLeft:4}}>{filteredRows.length} rows</span>
+            <div style={{background:"#fff",borderRadius:14,border:"1px solid #E8ECF1",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,0.05)",fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif"}}>
+              {/* Title */}
+              <div style={{padding:"20px 24px 16px"}}>
+                <span style={{fontSize:16,fontWeight:700,color:"#0D1B2A"}}>Voyage Data </span>
+                <span style={{fontSize:16,fontWeight:700,color:"#0D1B2A"}}>({filteredRows.length})</span>
               </div>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(7, 1fr)",borderBottom:"1px solid "+THEME.border,background:THEME.surfaceAlt}}>
+              {/* Column headers */}
+              <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",background:"#F6F8FA",borderTop:"1px solid #E8ECF1",borderBottom:"1px solid #E8ECF1"}}>
                 {hdrs.map(function(h,i){return(
-                  <div key={i} style={{padding:"10px 14px",fontSize:11,fontWeight:600,color:THEME.textSub,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{h}</div>
+                  <div key={i} style={{padding:"12px 16px",fontSize:14,fontWeight:600,color:"#64748B",whiteSpace:"nowrap",letterSpacing:0.1}}>{h}</div>
                 );})}
               </div>
+              {/* Rows */}
               {tableData.length===0&&(
-                <div style={{padding:"40px 24px",textAlign:"center",color:THEME.textMuted,fontSize:14}}>No records match the current filters.</div>
+                <div style={{padding:"40px 24px",textAlign:"center",color:"#94A3B8",fontSize:14}}>No records match the current filters.</div>
               )}
               {tableData.map(function(row,ri){return(
-                <div key={ri} style={{display:"grid",gridTemplateColumns:"repeat(7, 1fr)",borderBottom:"0.5px solid "+THEME.borderLight,background:ri%2===0?"#fff":"#f9fafb"}}>
+                <div key={ri} style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",borderBottom:"1px solid #F0F3F6",background:"#fff",transition:"background 0.12s"}}
+                  onMouseEnter={function(e){e.currentTarget.style.background="#FAFBFC";}}
+                  onMouseLeave={function(e){e.currentTarget.style.background="#fff";}}>
                   {[row.voyageNum,row.dateStr,row.hours,row.reportType,row.loadCondition,row.fuelGroup,row.sog+" kn"].map(function(cell,ci){return(
-                    <div key={ci} style={{padding:"9px 14px",fontSize:12,color:ci===0?THEME.text:THEME.textSub,fontWeight:ci===0?600:400,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{cell}</div>
+                    <div key={ci} style={{padding:"14px 16px",fontSize:14,color:"#030712",fontWeight:ci===0?600:400,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{cell}</div>
                   );})}
                 </div>
               );})}
@@ -4897,7 +5050,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
               {/* ── Scrollable table area + sticky download footer ── */}
               <div style={{display:"flex",flexDirection:"column"}}>
               <div style={{overflow:"auto",maxHeight:"calc(100vh - 130px)"}}>
-              <div style={{background:"#fff",borderRadius:10,border:"1px solid #E2E8F0",width:"100%",minWidth:tableWidth}}>
+              <div style={{background:"#fff",borderRadius:10,border:"1px solid #E2E8F0",width:"100%",minWidth:tableWidth,overflow:"hidden"}}>
                 <table style={{width:"100%",minWidth:tableWidth,borderCollapse:"collapse",tableLayout:"fixed"}}>
                   <colgroup>
                     <col style={{width:MCOL,minWidth:MCOL}}/>
@@ -4913,11 +5066,13 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                       <th style={{padding:"14px 12px",textAlign:"left",fontSize:12,fontWeight:600,color:"#64748B",
                         background:"#F8FAFC",letterSpacing:"0.04em",textTransform:"uppercase",
                         position:"sticky",left:0,top:0,zIndex:25,
-                        borderRight:"1.5px solid #E2E8F0",boxShadow:"2px 0 0 0 #E2E8F0"}}>
+                        borderRight:"1.5px solid #E2E8F0",boxShadow:"2px 0 0 0 #E2E8F0",
+                        borderTopLeftRadius:10}}>
                         Metrics
                       </th>
                       {allVessels.map(function(v,i){
                         var isFirst=i===0;
+                        var isLastCol=i===allVessels.length-1&&!showPeer&&compVessels.length>=3;
                         var vRange=getVesselCompData(v).range;
                         return (
                           <th key={v.name} style={{padding:"10px 14px",textAlign:"left",
@@ -4926,7 +5081,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                             position:"sticky",top:0,
                             left:isFirst?MCOL:undefined,
                             zIndex:isFirst?20:10,
-                            boxShadow:isFirst?"2px 0 0 0 #E2E8F0":undefined}}>
+                            boxShadow:isFirst?"2px 0 0 0 #E2E8F0":undefined,
+                            borderTopRightRadius:isLastCol?10:0}}>
                             <div style={{position:"relative",paddingRight:!isFirst?24:0}}>
                               <div style={{display:"flex",alignItems:"center",gap:10}}>
                                 <VesselIcon size={36} bg={getVesselColor(v.type)}/>
@@ -4959,7 +5115,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                       })}
                       {/* Peer Benchmark column header */}
                       {showPeer&&(
-                        <th style={{padding:"10px 16px",background:"#FAF5FF",borderLeft:"1px solid #E2E8F0",verticalAlign:"middle",position:"sticky",top:0,zIndex:10,textAlign:"left"}}>
+                        <th style={{padding:"10px 16px",background:"#FAF5FF",borderLeft:"1px solid #E2E8F0",verticalAlign:"middle",position:"sticky",top:0,zIndex:10,textAlign:"left",borderTopRightRadius:compVessels.length>=3?10:0}}>
                           <div style={{fontSize:13,fontWeight:600,color:"#7C3AED",whiteSpace:"nowrap",textAlign:"left"}}>Peer Average</div>
                           <div style={{fontSize:10,color:"#A78BFA",marginTop:2,whiteSpace:"nowrap",textAlign:"left"}}>
                             {(function(){
@@ -4971,7 +5127,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                       )}
                       {/* Add vessel search cell */}
                       {compVessels.length<3&&(
-                        <th ref={searchWrapRef} style={{padding:"10px 14px",background:"#F8FAFC",borderLeft:"1px solid #E2E8F0",verticalAlign:"middle",position:"sticky",top:0,zIndex:30,overflow:"visible"}}>
+                        <th ref={searchWrapRef} style={{padding:"10px 14px",background:"#F8FAFC",borderLeft:"1px solid #E2E8F0",verticalAlign:"middle",position:"sticky",top:0,zIndex:30,overflow:"visible",borderTopRightRadius:10}}>
                           <div style={{position:"relative"}}>
                             {/* Always show expanded search input */}
                             <div style={{position:"relative",width:"100%"}}>
@@ -5662,10 +5818,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                 </button>
                 <button onClick={onAnalytics} style={{border:"none",background:"none",cursor:"pointer",
                   fontSize:12,fontWeight:600,color:"#1852FE",fontFamily:"inherit",
-                  textDecoration:"none",padding:0,display:"flex",flexDirection:"column",alignItems:"center",gap:1}}>
-                  <span className="view-analytics-hand">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" style={{transform:"rotate(180deg)"}}><g fill="#94A3B8"><path d="M2.57783 13.0244L7.82134 18.0905C8.40643 18.6558 8.73684 19.4344 8.73684 20.248V23H20.3421L21.7676 13.1146C22.0772 11.2393 20.8705 9.44545 19 9L11.5 7.11905V1.75C11.5 0.783502 10.7165 0 9.75 0C8.7835 0 8 0.783502 8 1.75V12.5L4.62918 10.3974C4.09728 10.0656 3.42467 10.0584 2.88582 10.3788C1.93605 10.9435 1.78318 12.2567 2.57783 13.0244Z"></path></g></svg>
-                  </span>
+                  textDecoration:"none",padding:0}}>
                   <span style={{textDecoration:"underline",textUnderlineOffset:2}}>View Analytics</span>
                 </button>
               </div>
@@ -5940,7 +6093,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
 /* Wide desktop: show all cards in one row + smaller font to prevent value wrapping */
 @media(min-width:1600px){
   .kpi-grid{grid-template-columns:repeat(var(--kpi-cols,8),1fr);}
-  .kpi-val{font-size:15px!important;}
+  .kpi-val{font-size:20px!important;}
 }
 /* Mobile: 2 columns */
 @media(max-width:640px){
@@ -5958,7 +6111,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
 }
 @media(max-width:640px){
   .kpi-card-padding{padding:12px!important;}
-  .kpi-val{font-size:15px!important;}
+  .kpi-val{font-size:20px!important;}
 }
 @media(max-width:400px){
   .kpi-val{font-size:13px!important;}
@@ -6137,12 +6290,12 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                   <div style={{flex:1}}/>
                   {savedLayoutExists&&(
                     <button onClick={handleLayoutReset}
-                      style={{display:"flex",alignItems:"center",gap:6,height:36,padding:"0 12px",borderRadius:6,
-                        border:"1px solid transparent",background:"transparent",cursor:"pointer",fontSize:14,
-                        fontWeight:500,color:THEME.textSub,flexShrink:0,transition:"all 0.15s"}}
-                      onMouseEnter={function(e){e.currentTarget.style.border="1px solid #CBD5E1";e.currentTarget.style.color="#1e293b";}}
-                      onMouseLeave={function(e){e.currentTarget.style.border="1px solid transparent";e.currentTarget.style.color=THEME.textSub;}}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      style={{display:"flex",alignItems:"center",gap:6,height:36,padding:"0 14px",borderRadius:4,
+                        border:"1.5px solid #CBD5E1",background:"#fff",cursor:"pointer",fontSize:13,
+                        fontWeight:600,color:"#475569",flexShrink:0,transition:"all 0.15s",fontFamily:"inherit",whiteSpace:"nowrap"}}
+                      onMouseEnter={function(e){e.currentTarget.style.borderColor="#94A3B8";e.currentTarget.style.color="#1e293b";e.currentTarget.style.background="#F8FAFC";}}
+                      onMouseLeave={function(e){e.currentTarget.style.borderColor="#CBD5E1";e.currentTarget.style.color="#475569";e.currentTarget.style.background="#fff";}}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
                       </svg>
                       Reset to default
@@ -6158,7 +6311,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                     </svg>
                     Customise
                   </button>
-                  {showCustomise&&<CustomisePanel onClose={function(){setShowCustomise(false);}} onAddChart={handleAddChart}/>}
+                  {showCustomise&&<CustomisePanel onClose={function(){setShowCustomise(false);}} onAddChart={handleAddChart} usedChartTypes={customCharts.map(function(c){return c.chartType||"line";})}/>}
                   <button onClick={function(){setCompareOpen(true);}}
                     style={{display:"flex",alignItems:"center",gap:6,height:36,padding:"0 14px",borderRadius:4,border:"1.5px solid #1852FE",background:"#EEF2FF",cursor:"pointer",fontSize:13,fontWeight:600,color:"#1852FE",flexShrink:0,transition:"all 0.15s",fontFamily:"inherit",whiteSpace:"nowrap"}}
 onMouseEnter={function(e){e.currentTarget.style.background="#E0E7FF";}}
