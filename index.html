@@ -1760,6 +1760,54 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
     }
 
+    var TECHNICAL_KPI_CARDS = [
+      {label:"Hull Health",             status:"Good",         statusColor:"#0F6E56",
+       rows:[{key:"Current speed loss", val:"9.8%", valColor:"#DC2626"}]},
+      {label:"Main Engine Health",      status:"Good",         statusColor:"#0F6E56",
+       rows:[{key:"Current fuel loss",  val:"9.8%", valColor:"#DC2626"}]},
+      {label:"Last Under Water Service",status:"12 Dec 2025",  statusColor:"#0F172A",
+       rows:[{key:"Propeller polishing",val:"",    valColor:"#475569"}]},
+      {label:"Scavenge Air Cooler",     status:"Good",         statusColor:"#0F6E56",
+       rows:[{key:"Pressure drop",      val:"40 mmWG", valColor:"#475569"},
+             {key:"Cooling water drop", val:"30°C",    valColor:"#475569"}]},
+    ];
+
+    function TechnicalKpiCards() {
+      return (
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:20}}>
+          {TECHNICAL_KPI_CARDS.map(function(card){
+            var statusBg = card.statusColor==="#0F6E56" ? "#E1F5EE"
+                         : card.statusColor==="#DC2626"  ? "#FEF2F2"
+                         : "#F1F5F9";
+            return (
+              <div key={card.label}
+                style={{background:"#fff",borderRadius:10,border:"0.5px solid #CBD5E1",
+                  padding:"16px 18px",boxSizing:"border-box",minHeight:100,
+                  transition:"border 0.2s"}}
+                onMouseEnter={function(e){e.currentTarget.style.border="1.5px solid #94A3B8";}}
+                onMouseLeave={function(e){e.currentTarget.style.border="0.5px solid #CBD5E1";}}>
+                <div style={{fontSize:12,color:"#64748B",fontWeight:500,letterSpacing:0.3,marginBottom:10,lineHeight:1.4}}>
+                  {card.label}
+                </div>
+                <div style={{display:"inline-flex",alignItems:"center",background:statusBg,
+                  borderRadius:20,padding:"3px 10px",marginBottom:10}}>
+                  <span style={{fontSize:14,fontWeight:700,color:card.statusColor}}>{card.status}</span>
+                </div>
+                {card.rows.map(function(row){
+                  return (
+                    <div key={row.key} style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginTop:4}}>
+                      <span style={{fontSize:12,color:"#94A3B8",fontWeight:500}}>{row.key}</span>
+                      {row.val && <span style={{fontSize:13,fontWeight:700,color:row.valColor,marginLeft:8}}>{row.val}</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
     function KpiGrid({kpis, vessel, dark}) {
       var scrollRef = useRef(null);
       var [canLeft, setCanLeft] = useState(false);
@@ -6452,7 +6500,9 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
               </div>
             </div>
             <div style={{flex:1,overflowY:"auto",padding:"20px 24px 24px",background:darkBg?"#EAEFF4":THEME.bg,transition:"background 0.2s"}}>
-              {kpiMode==="highlight"
+              {activeNav==="emissions" && dashTab==="technical"
+                ? <TechnicalKpiCards />
+                : kpiMode==="highlight"
                 ? <KpiHighlight kpis={kpis} vessel={selectedVessel}/>
                 : kpiMode==="highlight2"
                 ? <KpiHighlight2 kpis={kpis} vessel={selectedVessel} selectedVessel={selectedVessel}
