@@ -1566,6 +1566,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       "Idle days":          function(v){return "Average idle days per month for "+v.type+" vessels across the platform is 5 days";},
       "CII score":          function(v){return "Average CII score for "+v.range+" "+v.type+" across the platform is 78";},
       "Voyages MTD":        function(v){return "Average monthly voyages for "+v.range+" "+v.type+" across the platform is 2";},
+      "Hull Health":            function(v){return "Fleet benchmark for "+v.type+" hull health is Good with avg speed loss of 6.5%. Current vessel is above average — schedule hull cleaning within 45 days to recover performance.";},
+      "Main Engine Health":     function(v){return "Fleet benchmark for "+v.type+" main engine health is Good with avg fuel loss of 5.2%. Current vessel excess loss of 9.8% indicates injector wear — recommend service at next port call.";},
+      "Last UW Service":        function(v){return "Recommended underwater service interval for "+v.type+" vessels is every 12 months. Last service was 5 months ago — next due Jun 2026. Propeller polishing improved efficiency by 3.1%.";},
+      "Scavenge Air Cooler":    function(v){return "Fleet benchmark pressure drop for "+v.type+" scavenge air coolers is 30 mmWG. Current reading of 40 mmWG indicates partial fouling — cleaning recommended within 30 days to prevent power loss.";},
     };
 
     function ArrowTooltip({up, tooltip, change, dark, isLast}) {
