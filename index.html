@@ -1570,6 +1570,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       "Main Engine Health":     function(v){return "Fleet benchmark for "+v.type+" main engine health is Good with avg fuel loss of 5.2%. Current vessel excess loss of 9.8% indicates injector wear — recommend service at next port call.";},
       "Last UW Service":        function(v){return "Recommended underwater service interval for "+v.type+" vessels is every 12 months. Last service was 5 months ago — next due Jun 2026. Propeller polishing improved efficiency by 3.1%.";},
       "Scavenge Air Cooler":    function(v){return "Fleet benchmark pressure drop for "+v.type+" scavenge air coolers is 30 mmWG. Current reading of 40 mmWG indicates partial fouling — cleaning recommended within 30 days to prevent power loss.";},
+      "CII Rating":             function(v){return "Fleet avg CII for "+v.type+" vessels is B (72). This vessel at A (68) is 5.5% better than fleet. Maintain current SFOC and speed profile to retain A rating through year-end.";},
+      "AER":                    function(v){return "Fleet benchmark AER for "+v.type+" is 8.8 g/t·nm. Vessel at 7.2 g/t·nm is 18% below fleet average and on track for the IMO 2030 target of 6.0 g/t·nm.";},
+      "Distance":               function(v){return "Fleet avg annual distance for "+v.range+" "+v.type+" is 19,500 nm. Current 18,420 nm is 5.5% below benchmark — partly due to 3 extended port stays in Q1 2025.";},
+      "Transport Work":         function(v){return "Fleet avg transport work for "+v.range+" "+v.type+" is 14.1 M t·nm. Below benchmark due to reduced cargo volume in Apr–May caused by dry-dock scheduling.";},
+      "EUA":                    function(v){return "Fleet avg EUA cost for "+v.type+" vessels YTD is €51,200. Vessel at €42,800 is 16% below fleet avg due to lower CO₂ intensity. Projected full-year saving vs fleet: €18K.";},
+      "Fuel EU YTD":            function(v){return "GHG intensity: 82.1 gCO₂eq/MJ vs FuelEU 2025 limit of 91.16 gCO₂eq/MJ. Compliance balance surplus: 4.2 t CO₂eq. Penalty: €0. Surplus can be banked or transferred to next compliance period.";},
     };
 
     function ArrowTooltip({up, tooltip, change, dark, isLast}) {
@@ -1769,6 +1775,15 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       {label:"Main Engine Health",      value:"Good",        change:"Fuel loss 9.8%",    up:false},
       {label:"Last UW Service",         value:"12 Dec 2025", change:"Propeller polish",  up:true},
       {label:"Scavenge Air Cooler",     value:"Good",        change:"40mmWG · 30°C drop", up:true},
+    ];
+
+    var ENVIRONMENTAL_KPIS_DATA = [
+      {label:"CII Rating",       value:"A (68)",       change:"+4 pts",         up:true},
+      {label:"AER",              value:"7.2 g/t·nm",   change:"−8.3%",          up:true},
+      {label:"Distance",         value:"18,420 nm",    change:"−5.1%",          up:false},
+      {label:"Transport Work",   value:"12.4 M t·nm",  change:"−3.7%",          up:false},
+      {label:"EUA",              value:"€ 42,800",     change:"−12%",           up:false},
+      {label:"Fuel EU YTD",      value:"Compliant",    change:"Balance −4.2 t", up:false},
     ];
 
     function KpiGrid({kpis, vessel, dark}) {
@@ -6464,7 +6479,9 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
             </div>
             <div style={{flex:1,overflowY:"auto",padding:"20px 24px 24px",background:darkBg?"#EAEFF4":THEME.bg,transition:"background 0.2s"}}>
               {(function(){
-                var activeKpis = (activeNav==="emissions" && dashTab==="technical") ? TECHNICAL_KPIS_DATA : kpis;
+                var activeKpis = (activeNav==="emissions" && dashTab==="technical") ? TECHNICAL_KPIS_DATA
+                               : (activeNav==="emissions" && dashTab==="environmental") ? ENVIRONMENTAL_KPIS_DATA
+                               : kpis;
                 return kpiMode==="highlight"
                   ? <KpiHighlight kpis={activeKpis} vessel={selectedVessel}/>
                   : kpiMode==="highlight2"
