@@ -2300,23 +2300,32 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     function AvgFuelConsChart(props){
       var months = props.months || 6;
       var [filter, setFilter] = React.useState("both");
-      var allData = [
-        {m:"May 25",propulsion:18.2,manoeuvring:2.1,boiler:3.4,igs:1.8,incinerator:0.6,cargoCooling:2.2,others:1.1},
-        {m:"Jun 25",propulsion:19.5,manoeuvring:2.4,boiler:3.1,igs:1.6,incinerator:0.5,cargoCooling:2.5,others:1.3},
-        {m:"Jul 25",propulsion:17.8,manoeuvring:1.9,boiler:3.6,igs:2.0,incinerator:0.7,cargoCooling:2.8,others:1.0},
-        {m:"Aug 25",propulsion:20.1,manoeuvring:2.6,boiler:3.2,igs:1.7,incinerator:0.6,cargoCooling:2.3,others:1.2},
-        {m:"Sep 25",propulsion:16.4,manoeuvring:1.8,boiler:3.8,igs:1.9,incinerator:0.8,cargoCooling:2.6,others:1.4},
-        {m:"Oct 25",propulsion:21.3,manoeuvring:2.8,boiler:3.0,igs:1.5,incinerator:0.5,cargoCooling:2.1,others:0.9},
-        {m:"Nov 25",propulsion:18.9,manoeuvring:2.3,boiler:3.5,igs:1.8,incinerator:0.7,cargoCooling:2.4,others:1.1},
+      // Dynamic month labels — same logic as fd() in SectionCharts
+      var _MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      var _todayM=new Date().getMonth();
+      var count=Math.min(months,7);
+      // Raw numeric rows, oldest first (7 entries = up to 7 months back)
+      var rawRows=[
+        {propulsion:18.2,manoeuvring:2.1,boiler:3.4,igs:1.8,incinerator:0.6,cargoCooling:2.2,others:1.1},
+        {propulsion:19.5,manoeuvring:2.4,boiler:3.1,igs:1.6,incinerator:0.5,cargoCooling:2.5,others:1.3},
+        {propulsion:17.8,manoeuvring:1.9,boiler:3.6,igs:2.0,incinerator:0.7,cargoCooling:2.8,others:1.0},
+        {propulsion:20.1,manoeuvring:2.6,boiler:3.2,igs:1.7,incinerator:0.6,cargoCooling:2.3,others:1.2},
+        {propulsion:16.4,manoeuvring:1.8,boiler:3.8,igs:1.9,incinerator:0.8,cargoCooling:2.6,others:1.4},
+        {propulsion:21.3,manoeuvring:2.8,boiler:3.0,igs:1.5,incinerator:0.5,cargoCooling:2.1,others:0.9},
+        {propulsion:18.9,manoeuvring:2.3,boiler:3.5,igs:1.8,incinerator:0.7,cargoCooling:2.4,others:1.1},
       ];
+      // Assign calendar month labels counting back from today, then slice to `count`
+      var allData=rawRows.slice(-count).map(function(row,i){
+        var monthsAgo=count-1-i; // 0 = current month
+        return Object.assign({},row,{m:_MN[(_todayM-monthsAgo+120)%12]});
+      });
       var ecaData = allData.map(function(d){
         return Object.assign({},d,{propulsion:+(d.propulsion*0.82).toFixed(1),boiler:+(d.boiler*1.2).toFixed(1),igs:+(d.igs*1.3).toFixed(1)});
       });
       var nonEcaData = allData.map(function(d){
         return Object.assign({},d,{propulsion:+(d.propulsion*1.12).toFixed(1),boiler:+(d.boiler*0.85).toFixed(1),igs:+(d.igs*0.75).toFixed(1)});
       });
-      var base = filter==="eca" ? ecaData : filter==="noneca" ? nonEcaData : allData;
-      var chartData = base.slice(-Math.min(months, base.length));
+      var chartData = filter==="eca" ? ecaData : filter==="noneca" ? nonEcaData : allData;
       function btn(label, key){
         var active = filter===key;
         return <button onClick={function(){setFilter(key);}} style={{
