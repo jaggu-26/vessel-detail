@@ -1943,7 +1943,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         <React.Fragment>
           <span
             onClick={function(e){e.stopPropagation();setOpen(true);}}
-            style={{fontSize:12,fontWeight:600,color:"#1852FE",textDecoration:"underline",
+            onMouseEnter={function(e){e.currentTarget.style.textDecoration="none";}}
+            onMouseLeave={function(e){e.currentTarget.style.textDecoration="underline";}}
+            style={{fontSize:12,fontWeight:600,color:"#ffffff",textDecoration:"underline",
               textUnderlineOffset:2,cursor:"pointer",flexShrink:0,lineHeight:1}}>
             view
           </span>
