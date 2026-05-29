@@ -2364,28 +2364,38 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       // Operational tab items (spans: [3,3, 3,3, 6, 6, 3,3, 6])
       var operationalItems=[
-        cc("Voyage Performance","Completed vs delayed",
-          function(n){return (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={fd(voyageData,n)} barSize={18} margin={{bottom:20,left:4,right:10,top:10}}>
-                <defs>
-                  <linearGradient id="bgCompleted" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3B82F6" stopOpacity={1}/>
-                    <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.55}/>
-                  </linearGradient>
-                  <linearGradient id="bgDelayed" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#F87171" stopOpacity={1}/>
-                    <stop offset="100%" stopColor="#F87171" stopOpacity={0.55}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
-                {xAx("m","Month")} {yAx("Voyages")}
-                <Tooltip content={<ModernTooltip/>}/><Legend {...lgStyle}/>
-                <Bar dataKey="completed" fill="url(#bgCompleted)" radius={[8,8,0,0]} name="Completed" maxBarSize={32}/>
-                <Bar dataKey="delayed" fill="url(#bgDelayed)" radius={[8,8,0,0]} name="Delayed" maxBarSize={32}/>
-              </BarChart>
-            </ResponsiveContainer>
-          );}, 2),
+        cc("Warranted Speed & Consumption Breach","Monthly breach count",
+          function(n){
+            var wscData=[
+              {m:"Jan",speedBreach:3,consBreach:2},{m:"Feb",speedBreach:5,consBreach:4},
+              {m:"Mar",speedBreach:2,consBreach:3},{m:"Apr",speedBreach:6,consBreach:5},
+              {m:"May",speedBreach:4,consBreach:6},{m:"Jun",speedBreach:7,consBreach:4},
+              {m:"Jul",speedBreach:3,consBreach:5},{m:"Aug",speedBreach:8,consBreach:7},
+              {m:"Sep",speedBreach:5,consBreach:3},{m:"Oct",speedBreach:4,consBreach:6},
+              {m:"Nov",speedBreach:6,consBreach:4},{m:"Dec",speedBreach:3,consBreach:2},
+            ];
+            return (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={fd(wscData,n)} barSize={18} margin={{bottom:20,left:4,right:10,top:10}}>
+                  <defs>
+                    <linearGradient id="bgSpeedBreach" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#F97316" stopOpacity={1}/>
+                      <stop offset="100%" stopColor="#F97316" stopOpacity={0.55}/>
+                    </linearGradient>
+                    <linearGradient id="bgConsBreach" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#0EA5E9" stopOpacity={1}/>
+                      <stop offset="100%" stopColor="#0EA5E9" stopOpacity={0.55}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
+                  {xAx("m","Month")} {yAx("Breaches")}
+                  <Tooltip content={<ModernTooltip/>}/><Legend {...lgStyle}/>
+                  <Bar dataKey="speedBreach" fill="url(#bgSpeedBreach)" radius={[6,6,0,0]} name="Speed Breach" maxBarSize={28}/>
+                  <Bar dataKey="consBreach"  fill="url(#bgConsBreach)"  radius={[6,6,0,0]} name="Consumption Breach" maxBarSize={28}/>
+                </BarChart>
+              </ResponsiveContainer>
+            );
+          }, 2),
         cc("Speed Consumption Curve","Ballast vs Laden — Head sea",
           function(n){
             function bReg(x){return Math.max(0,0.00082*Math.pow(x,2.9));}
