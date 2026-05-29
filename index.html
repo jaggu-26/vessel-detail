@@ -2306,13 +2306,13 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var count=Math.min(months,7);
       // Raw numeric rows, oldest first (7 entries = up to 7 months back)
       var rawRows=[
-        {propulsion:18.2,manoeuvring:2.1,boiler:3.4,igs:1.8,incinerator:0.6,cargoCooling:2.2,others:1.1},
-        {propulsion:19.5,manoeuvring:2.4,boiler:3.1,igs:1.6,incinerator:0.5,cargoCooling:2.5,others:1.3},
-        {propulsion:17.8,manoeuvring:1.9,boiler:3.6,igs:2.0,incinerator:0.7,cargoCooling:2.8,others:1.0},
-        {propulsion:20.1,manoeuvring:2.6,boiler:3.2,igs:1.7,incinerator:0.6,cargoCooling:2.3,others:1.2},
-        {propulsion:16.4,manoeuvring:1.8,boiler:3.8,igs:1.9,incinerator:0.8,cargoCooling:2.6,others:1.4},
-        {propulsion:21.3,manoeuvring:2.8,boiler:3.0,igs:1.5,incinerator:0.5,cargoCooling:2.1,others:0.9},
-        {propulsion:18.9,manoeuvring:2.3,boiler:3.5,igs:1.8,incinerator:0.7,cargoCooling:2.4,others:1.1},
+        {propulsion:120,manoeuvring:18,boiler:28,igs:20,incinerator:10,cargoCooling:22,others:12},
+        {propulsion:135,manoeuvring:22,boiler:25,igs:18,incinerator:8, cargoCooling:25,others:14},
+        {propulsion:115,manoeuvring:16,boiler:32,igs:22,incinerator:12,cargoCooling:28,others:11},
+        {propulsion:148,manoeuvring:24,boiler:26,igs:19,incinerator:9, cargoCooling:23,others:13},
+        {propulsion:108,manoeuvring:15,boiler:35,igs:21,incinerator:14,cargoCooling:26,others:15},
+        {propulsion:162,manoeuvring:26,boiler:24,igs:17,incinerator:8, cargoCooling:21,others:10},
+        {propulsion:140,manoeuvring:20,boiler:30,igs:20,incinerator:11,cargoCooling:24,others:12},
       ];
       // Assign calendar month labels counting back from today, then slice to `count`
       var allData=rawRows.slice(-count).map(function(row,i){
@@ -2366,7 +2366,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
                 {xAx("m","Month")}
                 <YAxis tick={axTick} width={52} axisLine={false} tickLine={false}
-                  domain={[0,50]} ticks={[0,10,20,30,40,50]}
+                  domain={[0,200]} ticks={[0,50,100,150,200]}
                   label={{value:"MT / day",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={<ModernTooltip/>}/>
                 <Bar dataKey="propulsion"   stackId="me"  fill="#2563EB" name="ME Prop."/>
