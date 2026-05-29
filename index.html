@@ -2386,22 +2386,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               </BarChart>
             </ResponsiveContainer>
           );}, 2),
-        cc("Speed Consumption Curve","Head sea vs Following sea",
+        cc("Speed Consumption Curve","Ballast vs Laden — Head sea",
           function(n){
-            // Head sea (higher resistance)
-            function bHeadReg(x){return Math.max(0,0.00082*Math.pow(x,2.9));}
-            function lHeadReg(x){return Math.max(0,0.00108*Math.pow(x,2.95));}
-            // Following sea (lower resistance, ~12% less fuel)
-            function bSeaReg(x){return Math.max(0,0.00072*Math.pow(x,2.9));}
-            function lSeaReg(x){return Math.max(0,0.00095*Math.pow(x,2.95));}
-            var bHeadData=[],lHeadData=[],bSeaData=[],lSeaData=[];
-            for(var i=0;i<=56;i++){
-              var s=i*0.25;
-              bHeadData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(bHeadReg(s).toFixed(3))});
-              lHeadData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(lHeadReg(s).toFixed(3))});
-              bSeaData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(bSeaReg(s).toFixed(3))});
-              lSeaData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(lSeaReg(s).toFixed(3))});
-            }
+            function bReg(x){return Math.max(0,0.00082*Math.pow(x,2.9));}
+            function lReg(x){return Math.max(0,0.00108*Math.pow(x,2.95));}
+            var bRegData=[],lRegData=[];
+            for(var i=0;i<=56;i++){var s=i*0.25;bRegData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(bReg(s).toFixed(3))});lRegData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(lReg(s).toFixed(3))});}
             var ballastPts=[
               {x:10.1,y:0.82},{x:10.4,y:0.88},{x:10.8,y:0.99},{x:11.1,y:1.08},
               {x:11.4,y:1.18},{x:11.7,y:1.28},{x:12.0,y:1.38},{x:12.3,y:1.46},
@@ -2427,21 +2417,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#E2E8F0",strokeDasharray:"4 2"}}/>
                   <Legend verticalAlign="top" align="left"
                     wrapperStyle={{paddingLeft:56,paddingTop:4,fontSize:11}}/>
-                  {/* Head sea regressions */}
-                  <Scatter name="Ballast Head Sea" data={bHeadData}
+                  <Scatter name="Ballast Regression" data={bRegData}
                     line={{stroke:"#0EA5E9",strokeWidth:2}} lineType="joint"
                     dot={false} fill="#0EA5E9" legendType="line"/>
-                  <Scatter name="Laden Head Sea" data={lHeadData}
+                  <Scatter name="Laden Regression" data={lRegData}
                     line={{stroke:"#F97316",strokeWidth:2,strokeDasharray:"7 4"}} lineType="joint"
                     dot={false} fill="#F97316" legendType="plainline"/>
-                  {/* Following sea regressions */}
-                  <Scatter name="Ballast Sea" data={bSeaData}
-                    line={{stroke:"#6366F1",strokeWidth:2}} lineType="joint"
-                    dot={false} fill="#6366F1" legendType="line"/>
-                  <Scatter name="Laden Sea" data={lSeaData}
-                    line={{stroke:"#10B981",strokeWidth:2,strokeDasharray:"7 4"}} lineType="joint"
-                    dot={false} fill="#10B981" legendType="plainline"/>
-                  {/* Data points */}
                   <Scatter name="Ballast" data={ballastPts} legendType="circle"
                     fill="#0EA5E9"
                     shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill="#0EA5E9"/>;}}/>
