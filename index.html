@@ -2400,7 +2400,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             </div>
             <div style={{flex:1,minHeight:0}}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{bottom:20,left:4,right:10,top:4}} barGap={6} barCategoryGap="28%">
+                <BarChart data={chartData} margin={{bottom:20,left:4,right:10,top:4}} barSize={18} barGap={3}>
                   <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
                   {xAx("m","Month")}
                   {yAx("MT / day")}
@@ -2408,13 +2408,13 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <Legend verticalAlign="top" align="left"
                     wrapperStyle={{paddingLeft:52,paddingTop:0,fontSize:10,lineHeight:"16px",color:"#64748B"}}
                   />
-                  <Bar dataKey="propulsion"   stackId="me"  name="ME Propulsion"   fill="#2563EB" maxBarSize={20}/>
-                  <Bar dataKey="manoeuvring"  stackId="me"  name="ME Manoeuvring"  fill="#93C5FD" radius={[4,4,0,0]} maxBarSize={20}/>
-                  <Bar dataKey="boiler"       stackId="aux" name="Boiler"          fill="#F97316" maxBarSize={20}/>
-                  <Bar dataKey="igs"          stackId="aux" name="IGS"             fill="#FDBA74" maxBarSize={20}/>
-                  <Bar dataKey="incinerator"  stackId="aux" name="Incinerator"     fill="#FCD34D" maxBarSize={20}/>
-                  <Bar dataKey="cargoCooling" stackId="aux" name="Cargo Cooling"   fill="#A78BFA" maxBarSize={20}/>
-                  <Bar dataKey="others"       stackId="aux" name="Others"          fill="#CBD5E1" radius={[4,4,0,0]} maxBarSize={20}/>
+                  <Bar dataKey="propulsion"   stackId="me"  name="ME Propulsion"   fill="#2563EB"/>
+                  <Bar dataKey="manoeuvring"  stackId="me"  name="ME Manoeuvring"  fill="#93C5FD" radius={[4,4,0,0]}/>
+                  <Bar dataKey="boiler"       stackId="aux" name="Boiler"          fill="#F97316"/>
+                  <Bar dataKey="igs"          stackId="aux" name="IGS"             fill="#FDBA74"/>
+                  <Bar dataKey="incinerator"  stackId="aux" name="Incinerator"     fill="#FCD34D"/>
+                  <Bar dataKey="cargoCooling" stackId="aux" name="Cargo Cooling"   fill="#A78BFA"/>
+                  <Bar dataKey="others"       stackId="aux" name="Others"          fill="#CBD5E1" radius={[4,4,0,0]}/>
                 </BarChart>
               </ResponsiveContainer>
             </div>
