@@ -2365,7 +2365,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <BarChart data={chartData} margin={{bottom:20,left:4,right:10,top:4}} barSize={18} barGap={3}>
                 <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
                 {xAx("m","Month")}
-                {yAx("MT / day")}
+                <YAxis tick={axTick} width={52} axisLine={false} tickLine={false}
+                  domain={[0,200]} ticks={[0,50,100,150,200]}
+                  label={{value:"MT / day",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={<ModernTooltip/>}/>
                 <Bar dataKey="propulsion"   stackId="me"  fill="#2563EB" name="ME Prop."/>
                 <Bar dataKey="manoeuvring"  stackId="me"  fill="#93C5FD" name="Manoeuv."    radius={[4,4,0,0]}/>
