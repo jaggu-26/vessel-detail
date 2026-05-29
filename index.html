@@ -2295,6 +2295,83 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
     }
 
+    // ── Avg Fuel Consumption chart — defined at module level so its identity
+    //    is stable across SectionCharts re-renders (hover state, etc.)
+    function AvgFuelConsChart(props){
+      var months = props.months || 6;
+      var [filter, setFilter] = React.useState("both");
+      var allData = [
+        {m:"May 25",propulsion:18.2,manoeuvring:2.1,boiler:3.4,igs:1.8,incinerator:0.6,cargoCooling:2.2,others:1.1},
+        {m:"Jun 25",propulsion:19.5,manoeuvring:2.4,boiler:3.1,igs:1.6,incinerator:0.5,cargoCooling:2.5,others:1.3},
+        {m:"Jul 25",propulsion:17.8,manoeuvring:1.9,boiler:3.6,igs:2.0,incinerator:0.7,cargoCooling:2.8,others:1.0},
+        {m:"Aug 25",propulsion:20.1,manoeuvring:2.6,boiler:3.2,igs:1.7,incinerator:0.6,cargoCooling:2.3,others:1.2},
+        {m:"Sep 25",propulsion:16.4,manoeuvring:1.8,boiler:3.8,igs:1.9,incinerator:0.8,cargoCooling:2.6,others:1.4},
+        {m:"Oct 25",propulsion:21.3,manoeuvring:2.8,boiler:3.0,igs:1.5,incinerator:0.5,cargoCooling:2.1,others:0.9},
+        {m:"Nov 25",propulsion:18.9,manoeuvring:2.3,boiler:3.5,igs:1.8,incinerator:0.7,cargoCooling:2.4,others:1.1},
+      ];
+      var ecaData = allData.map(function(d){
+        return Object.assign({},d,{propulsion:+(d.propulsion*0.82).toFixed(1),boiler:+(d.boiler*1.2).toFixed(1),igs:+(d.igs*1.3).toFixed(1)});
+      });
+      var nonEcaData = allData.map(function(d){
+        return Object.assign({},d,{propulsion:+(d.propulsion*1.12).toFixed(1),boiler:+(d.boiler*0.85).toFixed(1),igs:+(d.igs*0.75).toFixed(1)});
+      });
+      var base = filter==="eca" ? ecaData : filter==="noneca" ? nonEcaData : allData;
+      var chartData = base.slice(-Math.min(months, base.length));
+      function btn(label, key){
+        var active = filter===key;
+        return <button onClick={function(){setFilter(key);}} style={{
+          padding:"3px 11px",borderRadius:12,fontSize:11,fontWeight:600,cursor:"pointer",
+          border:"1px solid "+(active?"#3B82F6":"#E2E8F0"),
+          background:active?"#EFF6FF":"transparent",
+          color:active?"#3B82F6":"#94A3B8",
+          fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif",
+        }}>{label}</button>;
+      }
+      var LG=[
+        {k:"propulsion",  label:"ME Prop.",   color:"#2563EB"},
+        {k:"manoeuvring", label:"Manoeuv.",   color:"#93C5FD"},
+        {k:"boiler",      label:"Boiler",     color:"#F97316"},
+        {k:"igs",         label:"IGS",        color:"#FDBA74"},
+        {k:"incinerator", label:"Inciner.",   color:"#FCD34D"},
+        {k:"cargoCooling",label:"Cargo Cool.",color:"#A78BFA"},
+        {k:"others",      label:"Others",     color:"#CBD5E1"},
+      ];
+      return (
+        <div style={{display:"flex",flexDirection:"column",alignSelf:"stretch",width:"100%",height:"100%"}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
+            <div style={{display:"flex",gap:4}}>
+              {btn("Both","both")}{btn("ECA only","eca")}{btn("Non-ECA","noneca")}
+            </div>
+          </div>
+          <div style={{display:"flex",flexWrap:"nowrap",gap:6,marginBottom:3,overflow:"hidden"}}>
+            {LG.map(function(item){
+              return <div key={item.k} style={{display:"flex",alignItems:"center",gap:3,flexShrink:0}}>
+                <span style={{width:8,height:8,borderRadius:2,background:item.color,display:"inline-block",flexShrink:0}}/>
+                <span style={{fontSize:9,color:"#64748B",whiteSpace:"nowrap"}}>{item.label}</span>
+              </div>;
+            })}
+          </div>
+          <div style={{flex:1,minHeight:0}}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{bottom:20,left:4,right:10,top:4}} barSize={18} barGap={3}>
+                <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
+                {xAx("m","Month")}
+                {yAx("MT / day")}
+                <Tooltip content={<ModernTooltip/>}/>
+                <Bar dataKey="propulsion"   stackId="me"  fill="#2563EB" name="ME Prop."/>
+                <Bar dataKey="manoeuvring"  stackId="me"  fill="#93C5FD" name="Manoeuv."    radius={[4,4,0,0]}/>
+                <Bar dataKey="boiler"       stackId="aux" fill="#F97316" name="Boiler"/>
+                <Bar dataKey="igs"          stackId="aux" fill="#FDBA74" name="IGS"/>
+                <Bar dataKey="incinerator"  stackId="aux" fill="#FCD34D" name="Inciner."/>
+                <Bar dataKey="cargoCooling" stackId="aux" fill="#A78BFA" name="Cargo Cool."/>
+                <Bar dataKey="others"       stackId="aux" fill="#CBD5E1" name="Others"       radius={[4,4,0,0]}/>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      );
+    }
+
     function SectionCharts({section, resetKey=0, cfg, STATUS_PILL, RATING_PILL, monthCount=6, customCharts=[], dashTab, setDashTab, selectedVessel, onLayoutSave, onLayoutReset}) {
       // Deterministic per-vessel data offset so charts visibly update
       var vSeed = selectedVessel ? (selectedVessel.name.charCodeAt(3)||1) / 20 : 0;
@@ -2360,66 +2437,6 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         var makeEl=isFactory?function(n){return <ChartCard title={title} subtitle={subtitle}>{childrenOrFn(n)}</ChartCard>;}:null;
         var el=isFactory?<ChartCard title={title} subtitle={subtitle}>{childrenOrFn(6)}</ChartCard>:<ChartCard title={title} subtitle={subtitle}>{childrenOrFn}</ChartCard>;
         return {el:el,makeEl:makeEl,span:span||2};
-      }
-
-      // Average Fuel Consumption per Day — grouped stacked bar chart
-      function AvgFuelConsChart(props){
-        var months = props.months || 6;
-        var [filter, setFilter] = React.useState("both");
-        var allData = [
-          {m:"May 25",propulsion:18.2,manoeuvring:2.1,boiler:3.4,igs:1.8,incinerator:0.6,cargoCooling:2.2,others:1.1},
-          {m:"Jun 25",propulsion:19.5,manoeuvring:2.4,boiler:3.1,igs:1.6,incinerator:0.5,cargoCooling:2.5,others:1.3},
-          {m:"Jul 25",propulsion:17.8,manoeuvring:1.9,boiler:3.6,igs:2.0,incinerator:0.7,cargoCooling:2.8,others:1.0},
-          {m:"Aug 25",propulsion:20.1,manoeuvring:2.6,boiler:3.2,igs:1.7,incinerator:0.6,cargoCooling:2.3,others:1.2},
-          {m:"Sep 25",propulsion:16.4,manoeuvring:1.8,boiler:3.8,igs:1.9,incinerator:0.8,cargoCooling:2.6,others:1.4},
-          {m:"Oct 25",propulsion:21.3,manoeuvring:2.8,boiler:3.0,igs:1.5,incinerator:0.5,cargoCooling:2.1,others:0.9},
-          {m:"Nov 25",propulsion:18.9,manoeuvring:2.3,boiler:3.5,igs:1.8,incinerator:0.7,cargoCooling:2.4,others:1.1},
-        ];
-        var ecaData = allData.map(function(d){
-          return Object.assign({},d,{propulsion:+(d.propulsion*0.82).toFixed(1),boiler:+(d.boiler*1.2).toFixed(1),igs:+(d.igs*1.3).toFixed(1)});
-        });
-        var nonEcaData = allData.map(function(d){
-          return Object.assign({},d,{propulsion:+(d.propulsion*1.12).toFixed(1),boiler:+(d.boiler*0.85).toFixed(1),igs:+(d.igs*0.75).toFixed(1)});
-        });
-        var base = filter==="eca" ? ecaData : filter==="noneca" ? nonEcaData : allData;
-        var chartData = base.slice(-Math.min(months, base.length));
-        function btn(label, key){
-          var active = filter===key;
-          return <button onClick={function(){setFilter(key);}} style={{
-            padding:"3px 11px",borderRadius:12,fontSize:11,fontWeight:600,cursor:"pointer",
-            border:"1px solid "+(active?"#3B82F6":"#E2E8F0"),
-            background:active?"#EFF6FF":"transparent",
-            color:active?"#3B82F6":"#94A3B8",
-            fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif",
-          }}>{label}</button>;
-        }
-        return (
-          <div style={{display:"flex",flexDirection:"column",alignSelf:"stretch",width:"100%",height:"100%"}}>
-            <div style={{display:"flex",gap:4,marginBottom:4,paddingLeft:2}}>
-              {btn("Both","both")}{btn("ECA only","eca")}{btn("Non-ECA","noneca")}
-            </div>
-            <div style={{flex:1,minHeight:0}}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{bottom:20,left:4,right:10,top:4}} barSize={18} barGap={3}>
-                  <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
-                  {xAx("m","Month")}
-                  {yAx("MT / day")}
-                  <Tooltip content={<ModernTooltip/>}/>
-                  <Legend verticalAlign="top" align="left"
-                    wrapperStyle={{paddingLeft:52,paddingTop:0,fontSize:10,lineHeight:"16px",color:"#64748B"}}
-                  />
-                  <Bar dataKey="propulsion"   stackId="me"  name="ME Propulsion"   fill="#2563EB"/>
-                  <Bar dataKey="manoeuvring"  stackId="me"  name="ME Manoeuvring"  fill="#93C5FD" radius={[4,4,0,0]}/>
-                  <Bar dataKey="boiler"       stackId="aux" name="Boiler"          fill="#F97316"/>
-                  <Bar dataKey="igs"          stackId="aux" name="IGS"             fill="#FDBA74"/>
-                  <Bar dataKey="incinerator"  stackId="aux" name="Incinerator"     fill="#FCD34D"/>
-                  <Bar dataKey="cargoCooling" stackId="aux" name="Cargo Cooling"   fill="#A78BFA"/>
-                  <Bar dataKey="others"       stackId="aux" name="Others"          fill="#CBD5E1" radius={[4,4,0,0]}/>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        );
       }
 
       // Operational tab items (spans: [3,3, 3,3, 6, 6, 3,3, 6])
