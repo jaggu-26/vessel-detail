@@ -3175,14 +3175,19 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var resizingMosaicRef=useRef(false);
       var mosaicGridRef=useRef(null);
       useEffect(function(){setUserWeights({});setHovMosaic(null);setActiveMosaicResize(null);},[dashTab,section]);
-      // Global dragend fallback — clears stuck "Dragging…" / swap state when cursor leaves viewport
+      // Global dragend + keyup(Escape) fallback — clears stuck "Dragging…" / swap state
       useEffect(function(){
-        function onGlobalDragEnd(){
+        function clearDrag(){
           document.body.classList.remove("mosaic-dragging");
           setMdi(null); setMoi2(null);
         }
-        document.addEventListener("dragend",onGlobalDragEnd);
-        return function(){document.removeEventListener("dragend",onGlobalDragEnd);};
+        function onKeyUp(e){ if(e.key==="Escape") clearDrag(); }
+        document.addEventListener("dragend",clearDrag);
+        document.addEventListener("keyup",onKeyUp);
+        return function(){
+          document.removeEventListener("dragend",clearDrag);
+          document.removeEventListener("keyup",onKeyUp);
+        };
       },[]);
       var CARD_MIN_PCT=0.24; // minimum card width = 24% of the row
       // startWeight = flex weight of card; rowTotalWeight = sum of all weights; rowCardCount = cards in row
@@ -3465,33 +3470,33 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                                 </div>
                               </div>
                             )}
-                            {/* Full-card drag grip — avoids SVG interference, shows rich ghost */}
-                            {!(isDragging||isLandingSpot)&&(
-                              <div draggable={true}
-                                onDragStart={function(e){
-                                  if(resizingMosaicRef.current){e.preventDefault();return;}
-                                  e.dataTransfer.effectAllowed="move";
-                                  e.dataTransfer.setData("text/plain",String(itemIdx));
-                                  document.body.classList.add("mosaic-dragging");
-                                  // Build a rich drag ghost from the full card element
-                                  var cardEl=document.querySelector('[data-mosaic-card="'+itemIdx+'"]');
-                                  if(cardEl){
-                                    var ghost=cardEl.cloneNode(true);
-                                    var cw=cardEl.offsetWidth, ch=cardEl.offsetHeight;
-                                    ghost.style.cssText="position:fixed;top:-9999px;left:-9999px;width:"+cw+"px;height:"+ch+"px;transform:rotate(1.8deg) scale(1.03);box-shadow:0 24px 64px rgba(0,0,0,0.22);border-radius:12px;pointer-events:none;opacity:1;background:#fff;overflow:hidden;";
-                                    document.body.appendChild(ghost);
-                                    // Cursor offset: horizontal center, ~30px from top (title bar area)
-                                    e.dataTransfer.setDragImage(ghost,cw/2,30);
-                                    setTimeout(function(){if(ghost.parentNode)ghost.parentNode.removeChild(ghost);},0);
-                                  }
-                                  // rAF: set ghost-placeholder state after browser captures drag image
-                                  window.requestAnimationFrame(function(){setMdi(itemIdx);});
-                                }}
-                                onDragEnd={function(){document.body.classList.remove("mosaic-dragging");setMdi(null);setMoi2(null);}}
-                                style={{position:"absolute",top:0,left:0,right:52,height:44,
-                                  cursor:"grab",zIndex:6,background:"transparent",userSelect:"none"}}
-                              />
-                            )}
+                            {/* Full-card drag grip — always in DOM so dragend always fires on an attached node */}
+                            <div draggable={!(isDragging||isLandingSpot)}
+                              onDragStart={function(e){
+                                if(isDragging||isLandingSpot||resizingMosaicRef.current){e.preventDefault();return;}
+                                e.dataTransfer.effectAllowed="move";
+                                e.dataTransfer.setData("text/plain",String(itemIdx));
+                                document.body.classList.add("mosaic-dragging");
+                                // Build a rich drag ghost from the full card element
+                                var cardEl=document.querySelector('[data-mosaic-card="'+itemIdx+'"]');
+                                if(cardEl){
+                                  var ghost=cardEl.cloneNode(true);
+                                  var _gw=cardEl.offsetWidth, _gh=cardEl.offsetHeight;
+                                  ghost.style.cssText="position:fixed;top:-9999px;left:-9999px;width:"+_gw+"px;height:"+_gh+"px;transform:rotate(1.8deg) scale(1.03);box-shadow:0 24px 64px rgba(0,0,0,0.22);border-radius:12px;pointer-events:none;opacity:1;background:#fff;overflow:hidden;";
+                                  document.body.appendChild(ghost);
+                                  // Cursor offset: horizontal center, ~30px from top (title bar area)
+                                  e.dataTransfer.setDragImage(ghost,_gw/2,30);
+                                  setTimeout(function(){if(ghost.parentNode)ghost.parentNode.removeChild(ghost);},0);
+                                }
+                                // rAF: set ghost-placeholder state after browser captures drag image
+                                window.requestAnimationFrame(function(){setMdi(itemIdx);});
+                              }}
+                              onDragEnd={function(){document.body.classList.remove("mosaic-dragging");setMdi(null);setMoi2(null);}}
+                              style={{position:"absolute",top:0,left:0,right:52,height:44,
+                                cursor:isDragging||isLandingSpot?"grabbing":"grab",
+                                zIndex:6,background:"transparent",userSelect:"none",
+                                pointerEvents:isDragging||isLandingSpot?"none":"auto"}}
+                            />
                             {isResizing&&(
                               <div style={{position:"absolute",top:8,right:42,
                                 background:"#6366F1",color:"#fff",fontSize:11,fontWeight:700,
