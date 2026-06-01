@@ -270,6 +270,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       "Daily Hire Rate":       {headline:"$22,000/day Jun — up $3,500 from Jan",dir:{l:"Rising",c:"#0F6E56"},chg:{l:"+18.9%",c:"#0F6E56"},obs:"TC index up 23 pts (112→135); rate tracks index tightly at r=0.97",rec:"Lock in 2-yr charters now; Apr dip was an outlier, index momentum strong",tags:["charter","market-up","rate-lock"]},
       "Revenue vs OPEX":       {headline:"MV Delta best: $140K profit, 34% margin",dir:{l:"Profitable",c:"#0F6E56"},chg:{l:"+34% avg",c:"#0F6E56"},obs:"MV Coral weakest at $35K / 18% margin — 3× gap vs Delta",rec:"Review Coral OPEX structure; target ≥25% margin in next charter renewal",tags:["margin","opex","delta-best"]},
       "GHG Trend":             {headline:"All 3 gases declining — SOx down 33%",dir:{l:"Improving",c:"#0F6E56"},chg:{l:"−28% avg",c:"#0F6E56"},obs:"SOx fastest at −33.3%; NOx −28.6%; CO2 −23.4% — all ahead of target",rec:"Document SOx reductions now for next MRV reporting cycle",tags:["IMO-2030","SOx","all-green"]},
+      "Required and Attained AER vs Month": {headline:"Voyages 219-220 achieved A-rating (AER 1.3-1.5)",dir:{l:"Improving",c:"#0F6E56"},chg:{l:"−4.1 AER",c:"#0F6E56"},obs:"Sharp AER drop after voyage 218 — speed reduction and cargo optimisation driving improvement",rec:"Maintain current voyage pattern; document for CII annual compliance filing",tags:["CII","AER","compliance"]},
+      "Global GHG Emissions": {headline:"Total CO₂ on track: 1,160 tCO₂eq YTD",dir:{l:"Improving",c:"#0F6E56"},chg:{l:"−8% vs 2024",c:"#0F6E56"},obs:"CO₂ dominates at 80% of total GHG; CH₄ and N₂O both below IMO thresholds",rec:"Continue fuel-switch programme; monitor CH₄ slip rate on LNG legs",tags:["GHG","emissions","IMO-2030"]},
+      "EU Emissions": {headline:"EU→NonEU highest exposure: 96 t total emissions",dir:{l:"Moderate",c:"#BA7517"},chg:{l:"+11%",c:"#C96868"},obs:"Sea passages account for 76% of EU ETS-eligible emissions; port stay is 24%",rec:"Prioritise efficiency on EU→NonEU routes; consider slow-steaming to reduce ETS cost",tags:["EU-ETS","emissions","compliance"]},
+      "Fuel EU Emissions": {headline:"50% voyages in deficit — VY-006 worst at -220 EUAs",dir:{l:"Worsening",c:"#C96868"},chg:{l:"−220 EUAs",c:"#C96868"},obs:"Alternating surplus/deficit pattern; total net position is slightly negative for the year",rec:"Purchase surplus EUAs before year-end; plan VY-011 profile to achieve compliance balance ≥ 100",tags:["FuelEU","EUAs","compliance"]},
       "CII Ratings":           {headline:"MV Eagle D-rated (CII 105) — urgent",dir:{l:"At Risk",c:"#A32D2D"},chg:{l:"2/5 A-rated",c:"#0F6E56"},obs:"Eagle (105) and Coral (94) breach C/D thresholds; 3 vessels in safe zone",rec:"Speed-reduce Eagle by 1.5 kn immediately; schedule Coral hull cleaning Q3",tags:["CII-D","at-risk","speed-reduce"]},
       "Hull Condition Scores": {headline:"MV Coral 65/100 — high fouling risk",dir:{l:"Declining",c:"#A32D2D"},chg:{l:"78.75 avg",c:"#BA7517"},obs:"Delta leads at 91; Coral and Baltic both below 75 — action threshold",rec:"Schedule Coral cleaning within 14 days; inspect Baltic anti-fouling coating",tags:["fouling","maintenance","hull"]},
       "Speed-Consumption Curve":{headline:"16 kn burns 106% more fuel than 13 kn",dir:{l:"Non-linear",c:"#A32D2D"},chg:{l:"+106% penalty",c:"#A32D2D"},obs:"Optimal band 12–13 kn (26–32 t/day); cost curve steepens sharply past 14 kn",rec:"Cap fleet speed at 13.5 kn unless contract requires higher; saves ~$8K/day",tags:["speed-opt","fuel-curve","savings"]},
@@ -2432,6 +2436,274 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
     }
 
+    // ── AER Voyage Chart — module level
+    function AERVoyageChart(){
+      var aerData=[
+        {v:"215",m:"May 25",attained:5.8,required:7.4},
+        {v:"216",m:"Jun 25",attained:6.6,required:7.4},
+        {v:"217",m:"Aug 25",attained:5.2,required:7.4},
+        {v:"218",m:"Sep 25",attained:5.4,required:7.4},
+        {v:"219",m:"Oct 25",attained:1.3,required:7.4},
+        {v:"220",m:"Nov 25",attained:1.5,required:7.4},
+      ];
+      var aerBands=[
+        {id:"E",y1:7.4,y2:20,  fill:"rgba(252,165,165,0.32)",color:"#EF4444",label:"Very Poor", desc:"AER > 7.4"},
+        {id:"D",y1:6.2,y2:7.4, fill:"rgba(253,186,116,0.32)",color:"#F97316",label:"Poor",      desc:"6.2 < AER ≤ 7.4"},
+        {id:"C",y1:5.0,y2:6.2, fill:"rgba(253,224,71,0.32)", color:"#EAB308",label:"Moderate",  desc:"5.0 < AER ≤ 6.2"},
+        {id:"B",y1:3.7,y2:5.0, fill:"rgba(187,247,208,0.32)",color:"#22C55E",label:"Good",      desc:"3.7 < AER ≤ 5.0"},
+        {id:"A",y1:0,  y2:3.7, fill:"rgba(134,239,172,0.30)",color:"#16A34A",label:"Excellent",  desc:"AER ≤ 3.7"},
+      ];
+      var AerXTick=function(props){
+        var vv=["215","216","217","218","219","220"];
+        var mm=["May 25","Jun 25","Aug 25","Sep 25","Oct 25","Nov 25"];
+        var idx=vv.indexOf(String(props.payload.value));
+        return (
+          <g transform={"translate("+props.x+","+props.y+")"}>
+            <text x={0} y={0} dy={14} textAnchor="middle" fontSize={11} fill="#64748B" fontWeight={500}>{props.payload.value}</text>
+            {idx>=0&&<text x={0} y={0} dy={27} textAnchor="middle" fontSize={10} fill="#94A3B8">{mm[idx]}</text>}
+          </g>
+        );
+      };
+      var AerAttainedDot=function(p){
+        if(p.cx==null||p.cy==null) return null;
+        return (
+          <g>
+            <circle cx={p.cx} cy={p.cy} r={7} fill="#1B5E20" stroke="#fff" strokeWidth={2.5}/>
+            <text x={p.cx} y={p.cy-13} textAnchor="middle" fontSize={11} fontWeight={700} fill="#1B5E20">{p.payload.attained}</text>
+          </g>
+        );
+      };
+      var AerRequiredDot=function(p){
+        if(p.cx==null||p.cy==null) return null;
+        return <circle cx={p.cx} cy={p.cy} r={4} fill="#F59E0B" stroke="#fff" strokeWidth={2}/>;
+      };
+      return (
+        <div style={{display:"flex",width:"100%",height:"100%",minWidth:0}}>
+          <div style={{flex:1,minWidth:0,height:"100%"}}>
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={aerData} margin={{top:16,right:10,bottom:52,left:8}}>
+                {aerBands.map(function(b){
+                  return <ReferenceArea key={b.id} y1={b.y1} y2={b.y2} fill={b.fill} strokeOpacity={0}
+                    label={{value:b.id,position:"insideTopRight",fill:b.color,fontSize:13,fontWeight:800,offset:4}}/>;
+                })}
+                <ReferenceLine y={7.4} stroke="#F97316" strokeDasharray="3 2" strokeWidth={1} strokeOpacity={0.5}/>
+                <ReferenceLine y={6.2} stroke="#EAB308" strokeDasharray="3 2" strokeWidth={1} strokeOpacity={0.5}/>
+                <ReferenceLine y={5.0} stroke="#84CC16" strokeDasharray="3 2" strokeWidth={1} strokeOpacity={0.5}/>
+                <ReferenceLine y={3.7} stroke="#16A34A" strokeDasharray="3 2" strokeWidth={1} strokeOpacity={0.5}/>
+                <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.10)" strokeDasharray="0"/>
+                <XAxis dataKey="v" tick={<AerXTick/>} axisLine={{stroke:"#E2E8F0"}} tickLine={false} height={52}
+                  label={{value:"Voyage Number",position:"insideBottom",offset:-6,style:axLabel}}/>
+                <YAxis domain={[0,20]} ticks={[0,2,4,6,8,10,12,14,16,18,20]} tick={axTick} axisLine={false} tickLine={false}
+                  label={{value:"AER Rating",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
+                <Tooltip content={<ModernTooltip/>}/>
+                <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:6}}/>
+                <Line type="monotone" dataKey="required" stroke="#F59E0B" strokeWidth={2} strokeDasharray="6 3"
+                  dot={<AerRequiredDot/>} activeDot={{r:5,fill:"#F59E0B",stroke:"#fff",strokeWidth:2}} name="Required AER"/>
+                <Line type="monotone" dataKey="attained" stroke="#1B5E20" strokeWidth={2.5}
+                  dot={<AerAttainedDot/>} activeDot={{r:8,fill:"#1B5E20",stroke:"#fff",strokeWidth:2}} name="Attained AER (Voyage based)"/>
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{width:132,paddingLeft:8,paddingTop:16,flexShrink:0,display:"flex",flexDirection:"column"}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#374151",marginBottom:8,lineHeight:"1.4"}}>
+              CII Rating<br/><span style={{fontSize:10,fontWeight:400,color:"#94A3B8"}}>(Lower is better)</span>
+            </div>
+            {aerBands.map(function(b){
+              return (
+                <div key={b.id} style={{display:"flex",alignItems:"flex-start",gap:5,marginBottom:7}}>
+                  <div style={{width:13,height:13,borderRadius:3,background:b.color,flexShrink:0,marginTop:2}}/>
+                  <div>
+                    <div style={{fontSize:11,fontWeight:700,color:b.color,lineHeight:"1.2"}}>
+                      {b.id} <span style={{color:"#374151",fontWeight:600}}>{b.label}</span>
+                    </div>
+                    <div style={{fontSize:9,color:"#94A3B8",marginTop:1}}>{b.desc}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    // ── Global GHG Emissions Chart — module level
+    function GlobalGHGChart(){
+      var [ghgYear,setGhgYear]=React.useState("2025");
+      var MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      function makeGHG(co2Base,n2oBase,ch4Base){
+        return MN.map(function(m,i){
+          var t=i/11;
+          return {
+            m:m,
+            co2:Math.round(co2Base+(1060-co2Base)*t+Math.sin(i*0.8)*22),
+            n2o:Math.round(n2oBase+(520-n2oBase)*t+Math.sin(i*1.1)*16),
+            ch4:Math.round(ch4Base+(170-ch4Base)*t+Math.sin(i*0.7)*9),
+          };
+        });
+      }
+      var ghgData=ghgYear==="2025"?makeGHG(490,100,30):makeGHG(445,88,24);
+      var last=ghgData[ghgData.length-1];
+      return (
+        <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
+          <div style={{display:"flex",justifyContent:"flex-end",marginBottom:4,marginRight:4,gap:4}}>
+            {["2025","2024"].map(function(y){
+              return (
+                <button key={y} onClick={function(){setGhgYear(y);}}
+                  style={{padding:"3px 10px",fontSize:11,fontWeight:600,borderRadius:5,
+                    border:"1px solid "+(ghgYear===y?"#1852FE":"#E2E8F0"),cursor:"pointer",
+                    background:ghgYear===y?"#1852FE":"#fff",
+                    color:ghgYear===y?"#fff":"#64748B",lineHeight:"1.4"}}>
+                  {y}
+                </button>
+              );
+            })}
+          </div>
+          <div style={{flex:1,minHeight:0}}>
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={ghgData} margin={{top:4,right:16,bottom:20,left:8}}>
+                <defs>
+                  <linearGradient id="ghgG1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3B82F6" stopOpacity={0.22}/><stop offset="100%" stopColor="#3B82F6" stopOpacity={0.02}/></linearGradient>
+                  <linearGradient id="ghgG2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#EAB308" stopOpacity={0.28}/><stop offset="100%" stopColor="#EAB308" stopOpacity={0.02}/></linearGradient>
+                  <linearGradient id="ghgG3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#22C55E" stopOpacity={0.22}/><stop offset="100%" stopColor="#22C55E" stopOpacity={0.02}/></linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.10)" strokeDasharray="0"/>
+                <XAxis dataKey="m" tick={axTick} axisLine={false} tickLine={false}
+                  label={{value:"Month",offset:-4,position:"insideBottom",style:axLabel}}/>
+                <YAxis domain={[0,1200]} ticks={[0,200,400,600,800,1000,1200]} tick={axTick} axisLine={false} tickLine={false}
+                  label={{value:"tCO₂eq",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
+                <Tooltip content={<ModernTooltip/>}/>
+                <Legend verticalAlign="bottom" wrapperStyle={{fontSize:11,paddingTop:4}} iconType="circle" iconSize={8}/>
+                <Area type="monotone" dataKey="co2" stroke="#3B82F6" strokeWidth={2} fill="url(#ghgG1)"
+                  dot={{r:3,fill:"#3B82F6",stroke:"#fff",strokeWidth:1.5}} activeDot={{r:5}} name="CO₂"/>
+                <Area type="monotone" dataKey="n2o" stroke="#EAB308" strokeWidth={2} fill="url(#ghgG2)"
+                  dot={{r:3,fill:"#EAB308",stroke:"#fff",strokeWidth:1.5}} activeDot={{r:5}} name="N₂O"/>
+                <Area type="monotone" dataKey="ch4" stroke="#22C55E" strokeWidth={2} fill="url(#ghgG3)"
+                  dot={{r:3,fill:"#22C55E",stroke:"#fff",strokeWidth:1.5}} activeDot={{r:5}} name="CH₄"/>
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{display:"flex",gap:6,justifyContent:"center",paddingBottom:2,flexWrap:"wrap"}}>
+            {[
+              {label:"Total CO₂",value:last.co2.toLocaleString(),color:"#3B82F6"},
+              {label:"Total N₂O",value:last.n2o.toLocaleString(),color:"#EAB308"},
+              {label:"Total CH₄",value:last.ch4.toLocaleString(),color:"#22C55E"},
+            ].map(function(it){
+              return (
+                <div key={it.label} style={{background:"#fff",border:"1px solid #E2E8F0",borderRadius:8,
+                  padding:"3px 9px",fontSize:10,fontWeight:600,color:"#374151",
+                  boxShadow:"0 1px 4px rgba(0,0,0,0.06)",display:"flex",alignItems:"center",gap:4}}>
+                  <div style={{width:7,height:7,borderRadius:"50%",background:it.color,flexShrink:0}}/>
+                  {it.label}: <span style={{color:it.color,fontWeight:700,marginLeft:2}}>{it.value}</span> tCO₂eq
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    // ── EU Emissions Chart — module level
+    function EUEmissionsChart(){
+      var euData=[
+        {cat:"EU → EU",   emissions:86, consumption:58},
+        {cat:"EU → NonEU",emissions:96, consumption:72},
+        {cat:"NonEU → EU",emissions:56, consumption:42},
+        {cat:"EU",        emissions:46, consumption:30},
+      ];
+      return (
+        <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
+          <div style={{flex:1,minHeight:0}}>
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={euData} margin={{top:16,right:48,bottom:36,left:8}} barGap={3} barCategoryGap="28%">
+                <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.10)" strokeDasharray="0"/>
+                <XAxis dataKey="cat" tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}/>
+                <YAxis yAxisId="left" domain={[0,120]} ticks={[0,20,40,60,80,100,120]} tick={axTick} axisLine={false} tickLine={false}
+                  label={{value:"Total emissions",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
+                <YAxis yAxisId="right" orientation="right" domain={[0,100]} ticks={[0,20,40,60,80,100]} tick={axTick} axisLine={false} tickLine={false}
+                  label={{value:"Consumption",angle:90,position:"insideRight",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
+                <Tooltip content={<ModernTooltip/>}/>
+                <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:8}}/>
+                <Bar yAxisId="left" dataKey="emissions" name="Total emissions" fill="#4C6EF5" radius={[4,4,0,0]} maxBarSize={36}/>
+                <Bar yAxisId="right" dataKey="consumption" name="Consumption" fill="#F59E0B" radius={[4,4,0,0]} maxBarSize={36}/>
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{display:"flex",paddingLeft:52,paddingRight:48,paddingBottom:4,gap:0}}>
+            <div style={{flex:"0 0 50%",textAlign:"center",fontSize:10,color:"#94A3B8",borderTop:"1.5px solid #E2E8F0",paddingTop:3}}>Sea passages</div>
+            <div style={{flex:"0 0 50%",textAlign:"center",fontSize:10,color:"#94A3B8",borderTop:"1.5px solid #E2E8F0",paddingTop:3}}>Port stay</div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── Fuel EU Emissions Chart — module level
+    function FuelEUEmissionsChart(){
+      var fuelEUData=[
+        {voy:"VY-001",balance:50,   euas:2400},
+        {voy:"VY-002",balance:-80,  euas:2600},
+        {voy:"VY-003",balance:120,  euas:1600},
+        {voy:"VY-004",balance:-130, euas:3200},
+        {voy:"VY-005",balance:30,   euas:2600},
+        {voy:"VY-006",balance:-220, euas:4000},
+        {voy:"VY-007",balance:150,  euas:1550},
+        {voy:"VY-008",balance:-80,  euas:3000},
+        {voy:"VY-009",balance:80,   euas:2400},
+        {voy:"VY-010",balance:-80,  euas:2800},
+      ];
+      var FuelEUBar=function(props){
+        var x=props.x,y=props.y,width=props.width,height=props.height,value=props.value;
+        if(width==null||height==null) return null;
+        var isPos=(value||0)>=0;
+        var color=isPos?"#22C55E":"#DC2626";
+        var r=Math.min(4,Math.abs(width)/2);
+        var absH=Math.abs(height||0);
+        if(absH<1) return null;
+        if(isPos){
+          return (
+            <g>
+              <rect x={x} y={y+r} width={width} height={Math.max(0,absH-r)} fill={color} opacity={0.85}/>
+              <rect x={x} y={y} width={width} height={r*2} rx={r} ry={r} fill={color} opacity={0.85}/>
+            </g>
+          );
+        }
+        return (
+          <g>
+            <rect x={x} y={y} width={width} height={Math.max(0,absH-r)} fill={color} opacity={0.85}/>
+            <rect x={x} y={y+Math.max(0,absH-r)} width={width} height={r*2} rx={r} ry={r} fill={color} opacity={0.85}/>
+          </g>
+        );
+      };
+      var EUALineDot=function(p){
+        if(p.cx==null||p.cy==null) return null;
+        return <circle cx={p.cx} cy={p.cy} r={5} fill="#3B82F6" stroke="#fff" strokeWidth={2}/>;
+      };
+      return (
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={fuelEUData} margin={{top:16,right:56,bottom:24,left:8}}>
+            <defs>
+              <linearGradient id="fuelEULine" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.15}/>
+                <stop offset="100%" stopColor="#3B82F6" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.10)" strokeDasharray="0"/>
+            <ReferenceLine yAxisId="left" y={0} stroke="#CBD5E1" strokeWidth={1.5}/>
+            <XAxis dataKey="voy" tick={{...axTick,fontSize:10}} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
+              label={{value:"Voyage",position:"insideBottom",offset:-4,style:axLabel}}/>
+            <YAxis yAxisId="left" domain={[-250,250]} ticks={[-200,-100,0,100,200]} tick={axTick} axisLine={false} tickLine={false}
+              label={{value:"Compliance balance (EUAs)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
+            <YAxis yAxisId="right" orientation="right" domain={[0,5000]} ticks={[0,1000,2000,3000,4000]} tick={axTick} axisLine={false} tickLine={false}
+              label={{value:"EUAs required",angle:90,position:"insideRight",offset:8,style:{...axLabel,textAnchor:"middle"}}}/>
+            <Tooltip content={<ModernTooltip/>}/>
+            <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:8}}/>
+            <Bar yAxisId="left" dataKey="balance" name="Compliance balance" shape={<FuelEUBar/>} maxBarSize={30} fill="#22C55E"/>
+            <Line yAxisId="right" type="monotone" dataKey="euas" stroke="#3B82F6" strokeWidth={2}
+              dot={<EUALineDot/>} activeDot={{r:7,fill:"#3B82F6",stroke:"#fff",strokeWidth:2}} name="EUAs required"/>
+          </ComposedChart>
+        </ResponsiveContainer>
+      );
+    }
+
     function SectionCharts({section, resetKey=0, cfg, STATUS_PILL, RATING_PILL, monthCount=6, customCharts=[], dashTab, setDashTab, selectedVessel, onLayoutSave, onLayoutReset}) {
       // Deterministic per-vessel data offset so charts visibly update
       var vSeed = selectedVessel ? (selectedVessel.name.charCodeAt(3)||1) / 20 : 0;
@@ -2631,191 +2903,16 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           function(n){return mkArea(fd(utilData,n,100),"v","#48AB87","#E0F5EE","Month","% Util.","Utilisation %");}, 2, {sample:true}),
       ];
 
-      // CII Voyage Chart data & component
-      var ciiVoyageData=[
-        {voyage:215,attained:5.8,required:7.5},
-        {voyage:216,attained:6.6,required:7.5},
-        {voyage:217,attained:5.2,required:7.5},
-        {voyage:218,attained:5.4,required:7.5},
-        {voyage:219,attained:1.3,required:7.5},
-        {voyage:220,attained:1.5,required:7.5},
-      ];
-      var CII_BANDS=[
-        {id:"E",y1:8.1,y2:10,  fill:"rgba(239,68,68,0.18)", dash:"#EF4444", letterColor:"#DC2626"},
-        {id:"D",y1:6.3,y2:8.1, fill:"rgba(249,115,22,0.16)",dash:"#F97316", letterColor:"#EA580C"},
-        {id:"C",y1:4.9,y2:6.3, fill:"rgba(234,179,8,0.16)", dash:"#CA8A04", letterColor:"#CA8A04"},
-        {id:"B",y1:3.7,y2:4.9, fill:"rgba(163,230,53,0.18)",dash:"#65A30D", letterColor:"#65A30D"},
-        {id:"A",y1:0,  y2:3.7, fill:"rgba(34,197,94,0.15)", dash:"#16A34A", letterColor:"#16A34A"},
-      ];
-      var CII_LEGEND_ITEMS=[
-        {letter:"E",label:"Very Poor", desc:"AER > 7.4",         bg:"#FEE2E2",border:"#EF4444",text:"#DC2626"},
-        {letter:"D",label:"Poor",      desc:"6.2 < AER ≤ 7.4",   bg:"#FFEDD5",border:"#F97316",text:"#EA580C"},
-        {letter:"C",label:"Moderate",  desc:"5.0 < AER ≤ 6.2",   bg:"#FEF9C3",border:"#EAB308",text:"#CA8A04"},
-        {letter:"B",label:"Good",      desc:"3.7 < AER ≤ 5.0",   bg:"#F0FDF4",border:"#84CC16",text:"#65A30D"},
-        {letter:"A",label:"Excellent", desc:"AER ≤ 3.7",          bg:"#DCFCE7",border:"#22C55E",text:"#16A34A"},
-      ];
-      var CIIAttainedDot=function(props){
-        var cx=props.cx,cy=props.cy,payload=props.payload;
-        if(cx==null||cy==null) return null;
-        return (
-          <g>
-            <circle cx={cx} cy={cy} r={6} fill="#16A34A" stroke="#ffffff" strokeWidth={2.5}/>
-            <text x={cx} y={cy-13} textAnchor="middle" fontSize={12} fontWeight={700} fill="#15803D">{payload.attained}</text>
-          </g>
-        );
-      };
-      var CIIRequiredDot=function(props){
-        var cx=props.cx,cy=props.cy;
-        if(cx==null||cy==null) return null;
-        return <circle cx={cx} cy={cy} r={4} fill="#F59E0B" stroke="#ffffff" strokeWidth={2}/>;
-      };
-      var ciiVesselTitle="Voyage based CII rating — "+(selectedVessel?selectedVessel.name:"Vessel");
-      var CIIVoyageChartEl=(
-        <div style={{position:"relative",width:"100%",height:"100%"}}>
-          <div style={{position:"absolute",inset:0}}>
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={ciiVoyageData} margin={{top:12,right:32,bottom:36,left:12}}>
-                <defs>
-                  <linearGradient id="ciiAttainedFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#16A34A" stopOpacity={0.18}/>
-                    <stop offset="100%" stopColor="#16A34A" stopOpacity={0.02}/>
-                  </linearGradient>
-                </defs>
-                {CII_BANDS.map(function(b){
-                  return <ReferenceArea key={b.id} y1={b.y1} y2={b.y2} fill={b.fill} strokeOpacity={0}
-                    label={{value:b.id,position:"right",fill:b.letterColor,fontSize:13,fontWeight:800,offset:8}}/>;
-                })}
-                <ReferenceLine y={8.1} stroke="#EF4444" strokeDasharray="4 3" strokeWidth={1.5} strokeOpacity={0.4}/>
-                <ReferenceLine y={6.3} stroke="#F97316" strokeDasharray="4 3" strokeWidth={1.5} strokeOpacity={0.4}/>
-                <ReferenceLine y={4.9} stroke="#CA8A04" strokeDasharray="4 3" strokeWidth={1.5} strokeOpacity={0.4}/>
-                <ReferenceLine y={3.7} stroke="#65A30D" strokeDasharray="4 3" strokeWidth={1.5} strokeOpacity={0.4}/>
-                <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.12)" strokeDasharray="0"/>
-                <XAxis dataKey="voyage" tick={{fontSize:12,fill:"#64748B",fontWeight:500}} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
-                  label={{value:"Voyage Number",position:"insideBottom",offset:-22,fontSize:11,fill:"#94A3B8"}}/>
-                <YAxis domain={[0,10]} ticks={[0,2,4,6,8,10]} tick={{fontSize:12,fill:"#64748B"}} axisLine={false} tickLine={false}
-                  label={{value:"AER Rating",angle:-90,position:"insideLeft",offset:20,fontSize:11,fill:"#94A3B8"}}/>
-                <Tooltip content={<ModernTooltip/>}/>
-                <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:12,paddingTop:4,paddingBottom:8}}/>
-                <Area type="monotone" dataKey="attained" stroke="none" fill="url(#ciiAttainedFill)" legendType="none"/>
-                <Line type="monotone" dataKey="required" stroke="#F59E0B" strokeWidth={2} strokeDasharray="6 3"
-                  dot={<CIIRequiredDot/>} activeDot={{r:5,stroke:"#fff",strokeWidth:2}} name="Required AER"/>
-                <Line type="monotone" dataKey="attained" stroke="#16A34A" strokeWidth={3}
-                  dot={<CIIAttainedDot/>} activeDot={{r:7,stroke:"#fff",strokeWidth:2,fill:"#16A34A"}} name="Attained AER"/>
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      );
-
-      // Annual CII Score chart data & component
-      var ciiAnnualData=[
-        {year:"2020",attained:7.2,required:8.0,rating:"D"},
-        {year:"2021",attained:6.5,required:7.8,rating:"D"},
-        {year:"2022",attained:5.8,required:7.5,rating:"C"},
-        {year:"2023",attained:5.1,required:7.2,rating:"C"},
-        {year:"2024",attained:4.3,required:7.0,rating:"B"},
-        {year:"2025",attained:3.6,required:6.8,rating:"A"},
-      ];
-      var CII_RATING_COLOR={A:"#16A34A",B:"#65A30D",C:"#CA8A04",D:"#EA580C",E:"#DC2626"};
-      var CIIAnnualBar=function(props){
-        var x=props.x,y=props.y,width=props.width,height=props.height,payload=props.payload;
-        if(!payload||width==null||height==null||height<=0) return null;
-        var color=CII_RATING_COLOR[payload.rating]||"#94A3B8";
-        var r=Math.min(8,width/2);
-        var gid="ciibar_"+payload.year;
-        return (
-          <g>
-            <defs>
-              <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={color} stopOpacity={1}/>
-                <stop offset="100%" stopColor={color} stopOpacity={0.65}/>
-              </linearGradient>
-            </defs>
-            <rect x={x} y={y+r} width={width} height={Math.max(0,height-r)} fill={"url(#"+gid+")"}/>
-            <rect x={x} y={y} width={width} height={r*2} rx={r} ry={r} fill={"url(#"+gid+")"}/>
-            <text x={x+width/2} y={y-8} textAnchor="middle" fontSize={12} fontWeight={700} fill={color}>{payload.attained}</text>
-          </g>
-        );
-      };
-      var CIIAnnualChartEl=(
-        <div style={{position:"relative",width:"100%",height:"100%"}}>
-          <div style={{position:"absolute",inset:0}}>
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={ciiAnnualData} margin={{top:12,right:32,bottom:36,left:12}}>
-                {CII_BANDS.map(function(b){
-                  return <ReferenceArea key={b.id} y1={b.y1} y2={b.y2} fill={b.fill} strokeOpacity={0}
-                    label={{value:b.id,position:"right",fill:b.letterColor,fontSize:13,fontWeight:800,offset:8}}/>;
-                })}
-                <ReferenceLine y={8.1} stroke="#EF4444" strokeDasharray="4 3" strokeWidth={1.5} strokeOpacity={0.4}/>
-                <ReferenceLine y={6.3} stroke="#F97316" strokeDasharray="4 3" strokeWidth={1.5} strokeOpacity={0.4}/>
-                <ReferenceLine y={4.9} stroke="#CA8A04" strokeDasharray="4 3" strokeWidth={1.5} strokeOpacity={0.4}/>
-                <ReferenceLine y={3.7} stroke="#65A30D" strokeDasharray="4 3" strokeWidth={1.5} strokeOpacity={0.4}/>
-                <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.12)" strokeDasharray="0"/>
-                <XAxis dataKey="year" tick={{fontSize:12,fill:"#64748B",fontWeight:500}} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
-                  label={{value:"Year",position:"insideBottom",offset:-22,fontSize:11,fill:"#94A3B8"}}/>
-                <YAxis domain={[0,10]} ticks={[0,2,4,6,8,10]} tick={{fontSize:12,fill:"#64748B"}} axisLine={false} tickLine={false}
-                  label={{value:"AER Rating",angle:-90,position:"insideLeft",offset:20,fontSize:11,fill:"#94A3B8"}}/>
-                <Tooltip content={<ModernTooltip/>}/>
-                <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:12,paddingTop:4,paddingBottom:8}}/>
-                <Bar dataKey="attained" name="Attained AER" shape={<CIIAnnualBar/>} maxBarSize={48} fill="#16A34A"/>
-                <Line type="monotone" dataKey="required" stroke="#F59E0B" strokeWidth={2.5} strokeDasharray="6 3"
-                  dot={{r:4,fill:"#F59E0B",stroke:"#fff",strokeWidth:2}}
-                  activeDot={{r:6,stroke:"#fff",strokeWidth:2,fill:"#F59E0B"}} name="Required AER"/>
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      );
-      var ciiAnnualTitle="Annual CII Score — "+(selectedVessel?selectedVessel.name:"Vessel");
-
-      // Environmental tab items
+      // Environmental tab — 4 charts 2×2
       var environmentalItems=[
-        {el:<ChartCard title={ciiVesselTitle} subtitle="AER per voyage vs required">{CIIVoyageChartEl}</ChartCard>, makeEl:null, span:3, rowHeight:450},
-        {el:<ChartCard title={ciiAnnualTitle} subtitle="Attained vs required AER by year">{CIIAnnualChartEl}</ChartCard>, makeEl:null, span:3, rowHeight:450},
-        cc("GHG Trend","CO2, SOx, NOx",
-          function(n){return (
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={fd(ghgTrend,n)} margin={{bottom:20,left:4,right:10,top:10}}>
-                <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
-                {xAx("m","Month")} {yAx("Tonnes")}
-                <Tooltip content={<ModernTooltip/>}/><Legend {...lgStyle}/>
-                <Line type="monotone" dataKey="co2" stroke="#EF4444" strokeWidth={2.5} dot={false} activeDot={{r:5,strokeWidth:2,stroke:"#fff",fill:"#EF4444"}} name="CO2"/>
-                <Line type="monotone" dataKey="sox" stroke="#F59E0B" strokeWidth={2.5} dot={false} activeDot={{r:5,strokeWidth:2,stroke:"#fff",fill:"#F59E0B"}} name="SOx"/>
-                <Line type="monotone" dataKey="nox" stroke="#8B5CF6" strokeWidth={2.5} dot={false} activeDot={{r:5,strokeWidth:2,stroke:"#fff",fill:"#8B5CF6"}} name="NOx"/>
-              </LineChart>
-            </ResponsiveContainer>
-          );}, 2),
-        cc("CII Ratings","By vessel",
-          <div style={{width:"100%",display:"flex",flexDirection:"column",justifyContent:"center",gap:10}}>
-            {ciiData.map(function(d){
-              var rc=d.rating==="A"?"#10B981":d.rating==="B"?"#3B82F6":d.rating==="C"?"#F59E0B":"#EF4444";
-              return <div key={d.vessel}>
-                <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
-                  <span style={{fontSize:11,color:"#64748B",fontWeight:500}}>{d.vessel}</span>
-                  <span style={{fontSize:11,fontWeight:700,color:rc,background:rc+"18",padding:"1px 7px",borderRadius:20}}>CII {d.rating}</span>
-                </div>
-                <div style={{height:8,borderRadius:8,background:"#F1F5F9"}}>
-                  <div style={{height:"100%",width:d.cii+"%",borderRadius:8,background:"linear-gradient(90deg,"+rc+"99,"+rc+")"}}/>
-                </div>
-              </div>;
-            })}
-          </div>, 2),
-        cc("Carbon Intensity","gCO2/t·nm",
-          function(n){return mkArea(fd(ciData,n),"ci","#7B70C4","#EEEDFE","Month","gCO2/t·nm");}, 2),
-        cc("SOx Emissions","Tonnes",
-          function(n){return mkArea(fd(soxData,n),"sox","#D87870","#FCEBEB","Month","Tonnes");}, 3),
-        cc("NOx Emissions","Tonnes",
-          function(n){return mkArea(fd(noxData,n),"nox","#D4995A","#FAEEDA","Month","Tonnes");}, 3),
-        cc("Energy Efficiency","EEDI score",
-          function(n){return mkLine2(fd(eediData,n),"eedi","#48AB87","target","#b0b8c4","Month","EEDI","EEDI","Target");}, 2),
-        cc("Waste Generated","Tonnes",
-          function(n){return mkBar(fd(wasteData,n),"w","#7B70C4","Month","Tonnes");}, 2),
-        cc("Ballast Water Volume","m³",
-          function(n){return mkArea(fd(ballastData,n),"bw","#5499D8","#EEF4FB","Month","m³");}, 2),
-        cc("ETS Cost Trend","USD",
-          function(n){return mkBar(fd(etsCostData,n),"cost","#C96868","Month","USD");}, 2),
-        cc("Biofouling Risk","Vessel index score",
-          mkBar([{v:"MV Andes",r:22},{v:"MV Baltic",r:41},{v:"MV Coral",r:68},{v:"MV Delta",r:18},{v:"MV Eagle",r:55}],"r","#D4995A","Vessel","Risk Index"), 2),
+        cc("Required and Attained AER vs Month","CII voyage rating — voyage based",
+          function(){return <AERVoyageChart/>;}, 3),
+        cc("Global GHG Emissions","Month-on-month cumulative emissions",
+          function(){return <GlobalGHGChart/>;}, 3),
+        cc("EU Emissions","Sea passages & port stay — total emissions vs consumption",
+          function(){return <EUEmissionsChart/>;}, 3),
+        cc("Fuel EU Emissions","Compliance balance (EUAs) vs EUAs required per voyage",
+          function(){return <FuelEUEmissionsChart/>;}, 3),
       ];
 
       // Technical tab items (spans: [3,3, 3,3, 3,3, 3,3, 6])
