@@ -2905,14 +2905,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       // Environmental tab — 4 charts 2×2
       var environmentalItems=[
-        cc("Required and Attained AER vs Month","CII voyage rating — voyage based",
-          function(){return <AERVoyageChart/>;}, 3),
-        cc("Global GHG Emissions","Month-on-month cumulative emissions",
-          function(){return <GlobalGHGChart/>;}, 3),
-        cc("EU Emissions","Sea passages & port stay — total emissions vs consumption",
-          function(){return <EUEmissionsChart/>;}, 3),
-        cc("Fuel EU Emissions","Compliance balance (EUAs) vs EUAs required per voyage",
-          function(){return <FuelEUEmissionsChart/>;}, 3),
+        Object.assign(cc("Required and Attained AER vs Month","CII voyage rating — voyage based",
+          function(){return <AERVoyageChart/>;}, 3),{rowHeight:420}),
+        Object.assign(cc("Global GHG Emissions","Month-on-month cumulative emissions",
+          function(){return <GlobalGHGChart/>;}, 3),{rowHeight:420}),
+        Object.assign(cc("EU Emissions","Sea passages & port stay — total emissions vs consumption",
+          function(){return <EUEmissionsChart/>;}, 3),{rowHeight:420}),
+        Object.assign(cc("Fuel EU Emissions","Compliance balance (EUAs) vs EUAs required per voyage",
+          function(){return <FuelEUEmissionsChart/>;}, 3),{rowHeight:420}),
       ];
 
       // Technical tab items (spans: [3,3, 3,3, 3,3, 3,3, 6])
