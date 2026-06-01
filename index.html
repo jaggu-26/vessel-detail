@@ -2650,29 +2650,6 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         {voy:"VY-009",balance:80,   euas:2400},
         {voy:"VY-010",balance:-80,  euas:2800},
       ];
-      var FuelEUBar=function(props){
-        var x=props.x,y=props.y,width=props.width,height=props.height,value=props.value,clipPath=props.clipPath;
-        if(width==null||height==null) return null;
-        var isPos=(value||0)>=0;
-        var color=isPos?"#22C55E":"#DC2626";
-        var r=Math.min(4,Math.abs(width)/2);
-        var absH=Math.abs(height||0);
-        if(absH<1) return null;
-        if(isPos){
-          return (
-            <g clipPath={clipPath}>
-              <rect x={x} y={y+r} width={width} height={Math.max(0,absH-r)} fill={color} opacity={0.85}/>
-              <rect x={x} y={y} width={width} height={r*2} rx={r} ry={r} fill={color} opacity={0.85}/>
-            </g>
-          );
-        }
-        return (
-          <g clipPath={clipPath}>
-            <rect x={x} y={y} width={width} height={Math.max(0,absH-r)} fill={color} opacity={0.85}/>
-            <rect x={x} y={y+Math.max(0,absH-r)} width={width} height={r*2} rx={r} ry={r} fill={color} opacity={0.85}/>
-          </g>
-        );
-      };
       var EUALineDot=function(p){
         if(p.cx==null||p.cy==null) return null;
         return <circle cx={p.cx} cy={p.cy} r={5} fill="#3B82F6" stroke="#fff" strokeWidth={2}/>;
@@ -2696,7 +2673,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               label={{value:"EUAs required",angle:90,position:"insideRight",offset:8,style:{...axLabel,textAnchor:"middle"}}}/>
             <Tooltip content={<ModernTooltip/>}/>
             <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:8}}/>
-            <Bar yAxisId="left" dataKey="balance" name="Compliance balance" shape={<FuelEUBar/>} maxBarSize={30} fill="#22C55E"/>
+            <Bar yAxisId="left" dataKey="balance" name="Compliance balance" maxBarSize={30} radius={[4,4,4,4]} fillOpacity={0.85}>
+              {fuelEUData.map(function(entry,i){return <Cell key={i} fill={entry.balance>=0?"#22C55E":"#DC2626"}/>;}) }
+            </Bar>
             <Line yAxisId="right" type="monotone" dataKey="euas" stroke="#3B82F6" strokeWidth={2}
               dot={<EUALineDot/>} activeDot={{r:7,fill:"#3B82F6",stroke:"#fff",strokeWidth:2}} name="EUAs required"/>
           </ComposedChart>
