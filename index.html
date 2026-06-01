@@ -2651,7 +2651,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         {voy:"VY-010",balance:-80,  euas:2800},
       ];
       var FuelEUBar=function(props){
-        var x=props.x,y=props.y,width=props.width,height=props.height,value=props.value;
+        var x=props.x,y=props.y,width=props.width,height=props.height,value=props.value,clipPath=props.clipPath;
         if(width==null||height==null) return null;
         var isPos=(value||0)>=0;
         var color=isPos?"#22C55E":"#DC2626";
@@ -2660,14 +2660,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         if(absH<1) return null;
         if(isPos){
           return (
-            <g>
+            <g clipPath={clipPath}>
               <rect x={x} y={y+r} width={width} height={Math.max(0,absH-r)} fill={color} opacity={0.85}/>
               <rect x={x} y={y} width={width} height={r*2} rx={r} ry={r} fill={color} opacity={0.85}/>
             </g>
           );
         }
         return (
-          <g>
+          <g clipPath={clipPath}>
             <rect x={x} y={y} width={width} height={Math.max(0,absH-r)} fill={color} opacity={0.85}/>
             <rect x={x} y={y+Math.max(0,absH-r)} width={width} height={r*2} rx={r} ry={r} fill={color} opacity={0.85}/>
           </g>
