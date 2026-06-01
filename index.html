@@ -262,7 +262,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       "Voyage Performance":    {headline:"Jun best month: 80 voyages, 90.1% completion",dir:{l:"Improving",c:"#0F6E56"},chg:{l:"+3.2%",c:"#0F6E56"},obs:"Delays fell from 10 in Mar to 5 in May; Jun uptick to 9 needs monitoring",rec:"Apply May scheduling efficiency to Jun; add weather buffer for Atlantic routes",tags:["on-track","delay-trend","voyage"]},
       "Fuel Consumption":      {headline:"Jan fuel 5% over target: 420 vs 400",dir:{l:"Stabilising",c:"#BA7517"},chg:{l:"−14.3%",c:"#0F6E56"},obs:"Feb dips below target (395 t); Mar rebounds to 410 — volatile pattern",rec:"Investigate Feb success factors; replicate in slow-steam policy for Apr",tags:["over-target","trend-volatile","fuel"]},
       "Cargo Volume":          {headline:"Jun peak 1,740 t — 45% growth since Jan",dir:{l:"Growing",c:"#0F6E56"},chg:{l:"+45%",c:"#0F6E56"},obs:"Mar dip to 1,150 t breaks trend; strong Apr–Jun recovery of +590 t",rec:"Pre-position capacity for Jul; Mar dip pattern may recur — add buffer",tags:["growth","seasonality","cargo"]},
-      "CO2 Trend":             {headline:"23.4% CO2 cut in 6 months — IMO track",dir:{l:"Declining",c:"#0F6E56"},chg:{l:"−23.4%",c:"#0F6E56"},obs:"Consistent ~13 t/mo reduction; Jun at 245 t is lowest on record",rec:"Maintain current speed & fuel mix; document for CII compliance filing",tags:["compliant","emissions","IMO-2030"]},
+      "Laden Slip & SOG":      {headline:"Slip trending up +3.7% over 6 months — fouling signal",dir:{l:"Worsening",c:"#C96868"},chg:{l:"+3.7%",c:"#C96868"},obs:"7D avg slip crossed 4% threshold in Oct — correlates with SOG decline from 13.6 to 12.4 kn",rec:"Schedule hull cleaning — projected 0.8 kn speed recovery and 4% fuel saving",tags:["hull","performance","maintenance"]},
       "Top Port Calls":        {headline:"Rotterdam leads with 82 calls — 26% share",dir:{l:"Concentrated",c:"#BA7517"},chg:{l:"318 MTD",c:"#1852FE"},obs:"Asia trio (SGP + SHA + DXB) accounts for 60% of non-EU call volume",rec:"Evaluate Singapore frequency for bunker consolidation opportunity",tags:["route-mix","port-ops","Asia"]},
       "Fleet Performance":     {headline:"Compliance tops at 92; Fuel drags at 70",dir:{l:"Balanced",c:"#BA7517"},chg:{l:"81.7 avg",c:"#1852FE"},obs:"Fuel KPI at 70 is pulling fleet score down by ~2 pts vs peers",rec:"Target fuel KPI to 80+ via speed optimisation; compliance headroom available",tags:["kpi-gap","fuel-drag","compliance"]},
       "Incident Breakdown":    {headline:"30 YTD incidents — 40% weather-driven",dir:{l:"Concerning",c:"#A32D2D"},chg:{l:"30 events",c:"#A32D2D"},obs:"Weather (12) and Mechanical (8) account for 67% — both preventable",rec:"Add weather routing for 3 high-risk routes; schedule ME inspection Q3",tags:["risk","weather","mechanical"]},
@@ -1466,7 +1466,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     }
     // ── end Simulator ──────────────────────────────────────────────────────────
 
-    function ChartCard({title, subtitle, children, onDelete}) {
+    function ChartCard({title, subtitle, children, onDelete, sample}) {
       var [hov,setHov]=useState(false);
       var [simOpen,setSimOpen]=useState(false);
       var [insightAnchor,setInsightAnchor]=useState(null);
@@ -1501,7 +1501,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       <div className="skel" style={{height:10,width:80}}/>
                     </React.Fragment>
                   : <React.Fragment>
-                      <div style={{fontWeight:600,fontSize:13,color:"#1E293B",lineHeight:"20px"}}>{title}</div>
+                      <div style={{fontWeight:600,fontSize:13,color:"#1E293B",lineHeight:"20px",display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
+                        {sample&&<span style={{fontSize:10,fontWeight:500,color:"#94A3B8",letterSpacing:0.2,flexShrink:0}}>Sample</span>}
+                        <span>{title}</span>
+                      </div>
                       {subtitle&&<div style={{fontSize:10,color:THEME.textMuted,marginTop:1}}>{subtitle}</div>}
                     </React.Fragment>
                 }
@@ -2295,6 +2298,52 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
     }
 
+    // ── Laden Slip % & SOG chart — module level for stable identity
+    function SlipSOGChart(props){
+      var months=props.months||6;
+      var MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      var today=new Date();
+      var numWeeks=months*4+2;
+      var chartData=[];
+      for(var i=0;i<numWeeks;i++){
+        var t=i/(numWeeks-1);
+        var daysAgo=(numWeeks-1-i)*7;
+        var wDate=new Date(today.getTime()-daysAgo*86400000);
+        var mIdx=wDate.getMonth();
+        var prevDate=i>0?new Date(today.getTime()-(numWeeks-i)*7*86400000):null;
+        var isNew=!prevDate||prevDate.getMonth()!==mIdx;
+        var m=isNew?MN[mIdx]:"";
+        var slipTrend=1.8+3.7*t;
+        var slipNoise=Math.sin(t*15.7+0.8)*0.7+Math.sin(t*31.4+2.1)*0.35+Math.sin(t*6.2)*0.45;
+        var slip=Math.max(1.2,+(slipTrend+slipNoise).toFixed(2));
+        var slip7d=+(slipTrend+slipNoise*0.25).toFixed(2);
+        var sogTrend=13.6-1.2*t;
+        var sogNoise=Math.sin(t*10.5+1.5)*0.12+Math.sin(t*22.0+0.5)*0.08;
+        var sog=+(sogTrend+sogNoise).toFixed(2);
+        chartData.push({m:m,slip:slip,slip7d:slip7d,sog:sog});
+      }
+      return (
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={chartData} margin={{bottom:20,left:4,right:40,top:4}}>
+            <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
+            <XAxis dataKey="m" tick={axTick} axisLine={false} tickLine={false} dy={6}
+              label={{value:"Month",offset:-8,position:"insideBottom",style:axLabel}}/>
+            <YAxis yAxisId="left" tick={axTick} width={40} axisLine={false} tickLine={false}
+              domain={[1,7]} tickCount={4}
+              label={{value:"Slip (%)",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
+            <YAxis yAxisId="right" orientation="right" tick={axTick} width={38} axisLine={false} tickLine={false}
+              domain={[12,14]} tickCount={5}
+              label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
+            <Tooltip content={<ModernTooltip/>}/>
+            <Legend {...lgStyle}/>
+            <Line yAxisId="left" type="monotone" dataKey="slip" name="Laden Slip %" stroke="#3B82F6" dot={false} strokeWidth={1.5}/>
+            <Line yAxisId="left" type="monotone" dataKey="slip7d" name="Laden Slip % (7D Avg)" stroke="#F97316" dot={false} strokeWidth={2}/>
+            <Line yAxisId="right" type="monotone" dataKey="sog" name="Laden SOG" stroke="#3B82F6" strokeDasharray="5 3" dot={false} strokeWidth={1.5}/>
+          </ComposedChart>
+        </ResponsiveContainer>
+      );
+    }
+
     // ── Avg Fuel Consumption chart — defined at module level so its identity
     //    is stable across SectionCharts re-renders (hover state, etc.)
     function AvgFuelConsChart(props){
@@ -2443,10 +2492,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         return Math.max(6, Math.min(12, 6 + Math.round(t * 6)));
       }
 
-      function cc(title,subtitle,childrenOrFn,span){
+      function cc(title,subtitle,childrenOrFn,span,opts){
         var isFactory=typeof childrenOrFn==="function";
-        var makeEl=isFactory?function(n){return <ChartCard title={title} subtitle={subtitle}>{childrenOrFn(n)}</ChartCard>;}:null;
-        var el=isFactory?<ChartCard title={title} subtitle={subtitle}>{childrenOrFn(6)}</ChartCard>:<ChartCard title={title} subtitle={subtitle}>{childrenOrFn}</ChartCard>;
+        var sample=(opts&&opts.sample)||false;
+        var makeEl=isFactory?function(n){return <ChartCard title={title} subtitle={subtitle} sample={sample}>{childrenOrFn(n)}</ChartCard>;}:null;
+        var el=isFactory?<ChartCard title={title} subtitle={subtitle} sample={sample}>{childrenOrFn(6)}</ChartCard>:<ChartCard title={title} subtitle={subtitle} sample={sample}>{childrenOrFn}</ChartCard>;
         return {el:el,makeEl:makeEl,span:span||2};
       }
 
@@ -2533,8 +2583,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           }, 2),
         cc("Avg Fuel Consumption / Day","Main engine & auxiliary",
           function(n){return <AvgFuelConsChart months={n}/>;}, 2),
-        cc("CO2 Trend","Tonnes per month",
-          function(n){return mkArea(fd(emissionsD,n),"co2","#C96868","#FCEBEB","Month","CO2 (t)");}, 3),
+        cc("Laden Slip & SOG","Laden condition — slip & speed over ground",
+          function(n){return <SlipSOGChart months={n}/>;}, 3),
         cc("Top Port Calls","Month-to-date",
           <ResponsiveContainer width="100%" height="100%">
             <BarChart layout="vertical" data={portCallData} barSize={22} margin={{bottom:20,left:8,right:10,top:10}}>
@@ -2551,7 +2601,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <Bar dataKey="calls" fill="url(#bgCalls)" radius={[0,8,8,0]} name="Calls" maxBarSize={36}
                 background={{fill:"#F1F5F9",radius:8}}/>
             </BarChart>
-          </ResponsiveContainer>, 3),
+          </ResponsiveContainer>, 3, {sample:true}),
         cc("Fleet Performance","KPI radar",
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart data={radarData} margin={{top:10,bottom:10,left:10,right:10}}>
@@ -2561,9 +2611,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <Legend {...lgStyle}/>
               <Tooltip content={<ModernTooltip/>}/>
             </RadarChart>
-          </ResponsiveContainer>, 2),
+          </ResponsiveContainer>, 2, {sample:true}),
         cc("Incident Breakdown","By category YTD",
-          mkBar(incidentData,"count","#D87870","Category","Count",36,"Incidents"), 2),
+          mkBar(incidentData,"count","#D87870","Category","Count",36,"Incidents"), 2, {sample:true}),
         cc("Fleet Composition","Vessel type",
           <ResponsiveContainer width="100%" height="100%">
             <PieChart margin={{top:4,bottom:4,left:4,right:4}}>
@@ -2574,11 +2624,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <Legend iconType="circle" iconSize={8} wrapperStyle={{fontSize:11}}/>
               <Tooltip content={<ModernTooltip/>} formatter={function(v){return v+"%";}}/>
             </PieChart>
-          </ResponsiveContainer>, 2),
+          </ResponsiveContainer>, 2, {sample:true}),
         cc("On-time Delivery","% rate",
-          function(n){return mkArea(fd(onTimeData,n,100),"v","#5499D8","#EEF4FB","Month","% rate","Rate %");}, 2),
+          function(n){return mkArea(fd(onTimeData,n,100),"v","#5499D8","#EEF4FB","Month","% rate","Rate %");}, 2, {sample:true}),
         cc("Vessel Utilisation","Fleet average %",
-          function(n){return mkArea(fd(utilData,n,100),"v","#48AB87","#E0F5EE","Month","% Util.","Utilisation %");}, 2),
+          function(n){return mkArea(fd(utilData,n,100),"v","#48AB87","#E0F5EE","Month","% Util.","Utilisation %");}, 2, {sample:true}),
       ];
 
       // CII Voyage Chart data & component
