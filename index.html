@@ -1719,7 +1719,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     {k.label}
                   </div>
                   {k.subRows ? (
-                    <div style={{display:"flex",alignItems:"center",gap:14,marginTop:"auto"}}>
+                    <div style={{display:"flex",alignItems:"flex-end",gap:14,marginTop:"auto"}}>
                       {k.subRows.map(function(row){
                         return (
                           <div key={row.label} style={{display:"flex",flexDirection:"column",gap:4}}>
