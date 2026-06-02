@@ -1718,19 +1718,16 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     {k.label}
                   </div>
                   {k.subRows ? (
-                    <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"nowrap"}}>
-                      {k.subRows.map(function(row, ri){
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"nowrap"}}>
+                      {k.subRows.map(function(row){
                         return (
-                          <React.Fragment key={row.label}>
-                            {ri>0 && <span style={{color:"rgba(255,255,255,0.2)",fontSize:14,flexShrink:0}}>|</span>}
-                            <div style={{display:"flex",flexDirection:"column",lineHeight:1.2,flexShrink:0}}>
-                              <span style={{fontSize:10,color:"rgba(255,255,255,0.45)",fontWeight:500}}>{row.label}</span>
-                              <span style={{fontSize:16,fontWeight:700,color:"#ffffff",letterSpacing:"-0.3px"}}>{row.value}</span>
-                            </div>
-                          </React.Fragment>
+                          <div key={row.label} style={{display:"flex",flexDirection:"column",lineHeight:1.25}}>
+                            <span style={{fontSize:10,color:"rgba(255,255,255,0.45)",fontWeight:500}}>{row.label}</span>
+                            <span style={{fontSize:18,fontWeight:700,color:"#ffffff",letterSpacing:"-0.3px"}}>{row.value}</span>
+                          </div>
                         );
                       })}
-                      <div style={{marginLeft:"auto",flexShrink:0}}>
+                      <div style={{flexShrink:0,alignSelf:"center"}}>
                         {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/>}
                       </div>
                     </div>
