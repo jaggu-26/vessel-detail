@@ -1711,7 +1711,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   background:"rgba(255,255,255,0.06)",borderRadius:8,
                   border:"0.5px solid rgba(255,255,255,0.1)",
                   padding:"14px 16px",boxSizing:"border-box",
-                  minHeight:91,
+                  minHeight:91,display:"flex",flexDirection:"column",
                   transition:"background 0.15s"}}
                   onMouseEnter={function(e){e.currentTarget.style.background="rgba(255,255,255,0.1)";}}
                   onMouseLeave={function(e){e.currentTarget.style.background="rgba(255,255,255,0.06)";}}>
@@ -1719,7 +1719,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     {k.label}
                   </div>
                   {k.subRows ? (
-                    <div style={{display:"flex",alignItems:"flex-end",gap:14}}>
+                    <div style={{display:"flex",alignItems:"flex-end",gap:14,marginTop:"auto"}}>
                       {k.subRows.map(function(row){
                         return (
                           <div key={row.label} style={{display:"flex",flexDirection:"column",gap:4}}>
@@ -1733,7 +1733,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       </div>
                     </div>
                   ) : (
-                    <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"nowrap"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"nowrap",marginTop:"auto"}}>
                       <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:"#ffffff",lineHeight:1.4,overflowWrap:"break-word",minWidth:0,flex:"1 1 auto"}}>{k.value}</span>
                       {k.label==="Prolonged Port Stays" && <PortStayViewLink count={k.value}/>}
                       {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/>}
