@@ -1710,7 +1710,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   minWidth:0,
                   background:"rgba(255,255,255,0.06)",borderRadius:8,
                   border:"0.5px solid rgba(255,255,255,0.1)",
-                  padding:"14px 16px",boxSizing:"border-box",
+                  padding:k.subRows?"14px 16px 24px":"14px 16px",boxSizing:"border-box",
                   transition:"background 0.15s"}}
                   onMouseEnter={function(e){e.currentTarget.style.background="rgba(255,255,255,0.1)";}}
                   onMouseLeave={function(e){e.currentTarget.style.background="rgba(255,255,255,0.06)";}}>
