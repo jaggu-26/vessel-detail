@@ -1812,11 +1812,22 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
     }
 
+    var OPERATIONAL_KPIS_DATA = [
+      {label:"Total Voyages",    value:"47",              up:true},
+      {label:"Distance",         value:"1,234,567 NM",    up:false},
+      {label:"Laden Days",       value:"140",             up:true},
+      {label:"Ballast Days",     value:"40",              up:true},
+      {label:"Port Days",        value:"23",              up:false},
+      {label:"EEOI",             value:"12 t/(NM·CT)",    up:true},
+    ];
+
     var TECHNICAL_KPIS_DATA = [
-      {label:"Hull Health",             value:"Good",        change:"Speed loss 9.8%",   up:false},
-      {label:"Main Engine Health",      value:"Good",        change:"Fuel loss 9.8%",    up:false},
-      {label:"Last UW Service",         value:"12 Dec 2025", change:"Propeller polish",  up:true},
-      {label:"Scavenge Air Cooler",     value:"Good",        change:"40mmWG · 30°C drop", up:true},
+      {label:"Hull Health",          value:"Good",          up:false},
+      {label:"Main Engine Health",   value:"Good",          up:false},
+      {label:"Last UW Service",      value:"12 Dec 2025",   up:true},
+      {label:"Scavenge Air Cooler",  value:"Good",          up:true},
+      {label:"Propeller RPM",        value:"111 RPM",       up:true},
+      {label:"Fuel Consumption",     value:"18.4 t/day",    up:true},
     ];
 
     var ENVIRONMENTAL_KPIS_DATA = [
@@ -6951,6 +6962,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
               {(function(){
                 var activeKpis = (activeNav==="emissions" && dashTab==="technical") ? TECHNICAL_KPIS_DATA
                                : (activeNav==="emissions" && dashTab==="environmental") ? ENVIRONMENTAL_KPIS_DATA
+                               : (activeNav==="emissions" && dashTab==="operational") ? OPERATIONAL_KPIS_DATA
                                : kpis;
                 return kpiMode==="highlight"
                   ? <KpiHighlight kpis={activeKpis} vessel={selectedVessel}/>
