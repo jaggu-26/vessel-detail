@@ -1711,10 +1711,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   background:"rgba(255,255,255,0.06)",borderRadius:8,
                   border:"0.5px solid rgba(255,255,255,0.1)",
                   padding:k.subRows?"16px 16px 24px":"16px",boxSizing:"border-box",
-                  transition:"background 0.15s"}}
+                  transition:"background 0.15s",
+                  display:"flex",flexDirection:"column",justifyContent:"space-between"}}
                   onMouseEnter={function(e){e.currentTarget.style.background="rgba(255,255,255,0.1)";}}
                   onMouseLeave={function(e){e.currentTarget.style.background="rgba(255,255,255,0.06)";}}>
-                  <div style={{fontSize:12,color:"#5FA5F9",fontWeight:500,letterSpacing:0.3,lineHeight:1.2,marginBottom:18}}>
+                  <div style={{fontSize:12,color:"#5FA5F9",fontWeight:500,letterSpacing:0.3,lineHeight:1.2}}>
                     {k.label}
                   </div>
                   {k.subRows ? (
