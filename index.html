@@ -2794,104 +2794,115 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     // ── Hull Health Chart — Speed Loss vs Month
     function HullHealthChart(){
       var months=["May 25","Jun 25","Aug 25","Sep 25","Oct 25","Nov 25"];
-      // Wavy irregular weighted average line — many intermediate points
-      var avgLine=[
-        {x:0,y:10},{x:0.08,y:11},{x:0.15,y:8},{x:0.22,y:9},{x:0.3,y:7},
-        {x:0.38,y:8},{x:0.45,y:9},{x:0.52,y:7},{x:0.6,y:8},{x:0.68,y:9},
-        {x:0.75,y:8},{x:0.82,y:9},{x:0.9,y:10},{x:0.97,y:9},{x:1.05,y:11},
-        {x:1.12,y:10},{x:1.2,y:11},{x:1.28,y:10},{x:1.35,y:11},{x:1.42,y:10},
-        {x:1.5,y:11},{x:1.58,y:10},{x:1.65,y:11},{x:1.72,y:10},{x:1.8,y:11},
-        {x:1.88,y:12},{x:1.95,y:11},{x:2.02,y:12},{x:2.1,y:11},{x:2.18,y:12},
-        {x:2.25,y:11},{x:2.32,y:12},{x:2.4,y:11},{x:2.48,y:10},{x:2.55,y:11},
-        {x:2.62,y:10},{x:2.7,y:11},{x:2.78,y:14},{x:2.85,y:18},{x:2.92,y:20},
-        {x:3.0,y:22},{x:3.05,y:21},{x:3.1,y:22},{x:3.15,y:20},{x:3.2,y:21},
-        {x:3.25,y:6},{x:3.3,y:4},{x:3.35,y:3},{x:3.42,y:4},{x:3.5,y:3},
-        {x:3.58,y:4},{x:3.65,y:5},{x:3.72,y:6},{x:3.8,y:8},{x:3.88,y:10},
-        {x:3.95,y:12},{x:4.02,y:14},{x:4.1,y:16},{x:4.18,y:18},{x:4.25,y:20},
-        {x:4.32,y:19},{x:4.4,y:20},{x:4.48,y:19},{x:4.55,y:18},{x:4.62,y:19},
-        {x:4.7,y:18},{x:4.78,y:17},{x:4.85,y:16},{x:4.92,y:15},{x:5.0,y:16},
-        {x:5.08,y:15},{x:5.15,y:14},{x:5.2,y:15},
-      ];
-      // Many blue scatter dots
-      var lossPts=[
-        {x:-0.05,y:8},{x:0.02,y:14},{x:0.08,y:6},{x:0.14,y:11},{x:0.2,y:9},{x:0.28,y:5},{x:0.35,y:10},{x:0.42,y:7},
-        {x:0.5,y:8},{x:0.58,y:11},{x:0.65,y:7},{x:0.72,y:9},{x:0.8,y:8},{x:0.88,y:10},{x:0.95,y:12},
-        {x:1.02,y:9},{x:1.08,y:13},{x:1.15,y:10},{x:1.22,y:12},{x:1.3,y:9},{x:1.38,y:11},{x:1.45,y:10},
-        {x:1.52,y:12},{x:1.6,y:10},{x:1.68,y:13},{x:1.75,y:11},{x:1.82,y:14},{x:1.9,y:12},
-        {x:1.95,y:16},{x:2.02,y:13},{x:2.1,y:15},{x:2.18,y:12},{x:2.25,y:14},{x:2.32,y:11},
-        {x:2.4,y:13},{x:2.48,y:10},{x:2.55,y:12},{x:2.62,y:11},{x:2.7,y:15},
-        {x:2.78,y:18},{x:2.85,y:20},{x:2.92,y:24},{x:3.0,y:28},{x:3.05,y:22},
-        {x:3.08,y:31},{x:3.12,y:26},{x:3.16,y:29},{x:3.2,y:20},{x:3.22,y:18},
-        {x:3.28,y:7},{x:3.35,y:5},{x:3.42,y:3},{x:3.5,y:6},{x:3.58,y:4},{x:3.65,y:2},
-        {x:3.72,y:5},{x:3.8,y:7},{x:3.88,y:9},{x:3.95,y:11},{x:4.02,y:14},
-        {x:4.1,y:17},{x:4.18,y:20},{x:4.25,y:18},{x:4.32,y:22},{x:4.4,y:19},{x:4.48,y:21},
-        {x:4.55,y:17},{x:4.62,y:20},{x:4.7,y:18},{x:4.78,y:15},{x:4.85,y:17},
-        {x:4.92,y:11},{x:5.0,y:14},{x:5.08,y:9},{x:5.12,y:13},{x:5.18,y:8},{x:5.22,y:6},{x:5.28,y:5},
-      ];
-      // Port stay diamond markers at top (y=37) with labels
-      var portStayPts=[
-        {x:0.35,y:37,lbl:"11"},{x:0.75,y:37,lbl:"20"},{x:1.5,y:37,lbl:"17"},
-        {x:3.1,y:37,lbl:"85"},{x:3.42,y:37,lbl:"UWI"},{x:4.82,y:37,lbl:"99"},
-      ];
-      // Hull service event orange square at top
-      var svcPts=[{x:3.28,y:37}];
 
-      var HullDot=function(p){
+      // Weighted average — many pts for natural wavy shape
+      var avgLine=[
+        {x:0,y:10},{x:0.08,y:8},{x:0.15,y:9},{x:0.25,y:7},{x:0.35,y:8},
+        {x:0.45,y:7},{x:0.55,y:8},{x:0.65,y:9},{x:0.75,y:8},{x:0.85,y:9},
+        {x:0.95,y:10},{x:1.05,y:9},{x:1.15,y:11},{x:1.25,y:10},{x:1.35,y:11},
+        {x:1.45,y:10},{x:1.55,y:11},{x:1.65,y:10},{x:1.75,y:12},{x:1.85,y:11},
+        {x:1.95,y:12},{x:2.05,y:11},{x:2.15,y:12},{x:2.25,y:11},{x:2.35,y:12},
+        {x:2.45,y:11},{x:2.55,y:10},{x:2.65,y:11},{x:2.75,y:14},{x:2.85,y:18},
+        {x:2.92,y:20},{x:3.0,y:22},{x:3.05,y:21},{x:3.1,y:22},{x:3.15,y:21},
+        {x:3.2,y:22},{x:3.25,y:5},{x:3.32,y:3},{x:3.4,y:4},{x:3.5,y:3},
+        {x:3.6,y:4},{x:3.7,y:6},{x:3.8,y:8},{x:3.9,y:11},{x:4.0,y:14},
+        {x:4.1,y:17},{x:4.2,y:19},{x:4.3,y:20},{x:4.4,y:19},{x:4.5,y:20},
+        {x:4.6,y:19},{x:4.7,y:18},{x:4.8,y:17},{x:4.9,y:16},{x:5.0,y:15},
+        {x:5.1,y:14},{x:5.2,y:15},
+      ];
+
+      // Blue scatter dots
+      var lossPts=[
+        {x:0,y:8},{x:0.05,y:14},{x:0.1,y:6},{x:0.18,y:11},{x:0.25,y:5},{x:0.32,y:9},{x:0.4,y:7},
+        {x:0.48,y:8},{x:0.56,y:11},{x:0.62,y:7},{x:0.7,y:9},{x:0.78,y:8},{x:0.86,y:10},{x:0.92,y:12},
+        {x:1.0,y:9},{x:1.08,y:13},{x:1.14,y:10},{x:1.22,y:8},{x:1.3,y:12},{x:1.38,y:9},{x:1.44,y:11},
+        {x:1.52,y:10},{x:1.6,y:13},{x:1.68,y:11},{x:1.76,y:14},{x:1.84,y:12},{x:1.9,y:10},
+        {x:1.98,y:16},{x:2.06,y:13},{x:2.12,y:15},{x:2.2,y:12},{x:2.28,y:14},{x:2.34,y:11},
+        {x:2.42,y:13},{x:2.5,y:10},{x:2.58,y:12},{x:2.64,y:11},{x:2.72,y:15},
+        {x:2.8,y:19},{x:2.87,y:22},{x:2.94,y:25},{x:3.0,y:29},{x:3.04,y:24},
+        {x:3.07,y:31},{x:3.11,y:26},{x:3.15,y:20},{x:3.18,y:18},
+        {x:3.27,y:6},{x:3.35,y:4},{x:3.43,y:2},{x:3.52,y:5},{x:3.6,y:3},{x:3.68,y:1},
+        {x:3.76,y:4},{x:3.84,y:7},{x:3.92,y:10},{x:4.0,y:13},
+        {x:4.08,y:16},{x:4.16,y:20},{x:4.24,y:18},{x:4.3,y:22},{x:4.38,y:19},{x:4.46,y:21},
+        {x:4.54,y:17},{x:4.62,y:20},{x:4.7,y:18},{x:4.76,y:15},{x:4.84,y:17},
+        {x:4.9,y:11},{x:4.98,y:13},{x:5.06,y:9},{x:5.12,y:12},{x:5.18,y:7},{x:5.24,y:5},
+      ];
+
+      // Port stay diamonds at top with badge labels
+      var portStayPts=[
+        {x:0.35,y:37,lbl:"11"},{x:0.72,y:37,lbl:"20"},{x:1.48,y:37,lbl:"17"},
+        {x:3.08,y:37,lbl:"85"},{x:3.4,y:37,lbl:"UWI"},{x:4.8,y:37,lbl:"99"},
+      ];
+
+      // Hull service event orange square
+      var svcPts=[{x:3.25,y:37}];
+
+      // Custom shapes
+      var BlueDot=function(p){
         if(p.cx==null||p.cy==null) return null;
-        return <circle cx={p.cx} cy={p.cy} r={3.5} fill="#3B82F6" fillOpacity={0.78} stroke="rgba(255,255,255,0.6)" strokeWidth={0.8}/>;
+        return <circle cx={p.cx} cy={p.cy} r={3} fill="#3B82F6" fillOpacity={0.8} stroke="#fff" strokeWidth={0.5}/>;
       };
-      var DiamondShape=function(p){
+      var DiamondMark=function(p){
         if(p.cx==null||p.cy==null) return null;
-        var d=6; var lbl=p.payload&&p.payload.lbl;
+        var d=7; var lbl=p.payload&&p.payload.lbl;
+        var lw=lbl?Math.max(22,lbl.length*6+8):22;
         return (
           <g>
-            {lbl&&(
-              <g>
-                <rect x={p.cx-14} y={p.cy-26} width={28} height={14} rx={3} fill="#E2E8F0"/>
-                <text x={p.cx} y={p.cy-16} textAnchor="middle" fontSize={9} fontWeight={600} fill="#475569">{lbl}</text>
-              </g>
-            )}
-            <polygon points={p.cx+","+(p.cy-d)+" "+(p.cx+d)+","+p.cy+" "+p.cx+","+(p.cy+d)+" "+(p.cx-d)+","+p.cy} fill="#7C3AED"/>
+            {lbl&&<rect x={p.cx-lw/2} y={p.cy-26} width={lw} height={14} rx={3} fill="#E2E8F0"/>}
+            {lbl&&<text x={p.cx} y={p.cy-16} textAnchor="middle" fontSize={9} fontWeight={600} fill="#475569">{lbl}</text>}
+            <polygon points={[p.cx+","+(p.cy-d),(p.cx+d)+","+p.cy,p.cx+","+(p.cy+d),(p.cx-d)+","+p.cy].join(" ")} fill="#7C3AED"/>
           </g>
         );
       };
-      var SvcShape=function(p){
+      var OrangeSquare=function(p){
         if(p.cx==null||p.cy==null) return null;
         return <rect x={p.cx-6} y={p.cy-6} width={12} height={12} rx={2} fill="#F97316"/>;
       };
 
+      var legItems=[
+        {value:"Speed Loss",        color:"#3B82F6", type:"circle"},
+        {value:"Weighted Average",  color:"#1D4ED8", type:"line"},
+        {value:"Hull Service Event",color:"#F97316", type:"square"},
+        {value:"Port Stay",         color:"#7C3AED", type:"diamond"},
+      ];
+
       return (
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={avgLine} margin={{top:32,right:20,bottom:28,left:8}}>
+          <ScatterChart margin={{top:36,right:20,bottom:28,left:8}}>
             {/* Horizontal risk bands */}
-            <ReferenceArea y1={0}  y2={8}  strokeOpacity={0} fill="rgba(134,239,172,0.28)"/>
-            <ReferenceArea y1={8}  y2={16} strokeOpacity={0} fill="rgba(253,224,71,0.20)"/>
-            <ReferenceArea y1={16} y2={40} strokeOpacity={0} fill="rgba(252,165,165,0.10)"/>
-            {/* Vertical port stay bands */}
-            <ReferenceArea x1={1.75} x2={2.35} strokeOpacity={0} fill="rgba(253,224,71,0.32)"/>
-            <ReferenceArea x1={3.05} x2={3.85} strokeOpacity={0} fill="rgba(253,224,71,0.32)"/>
-            <ReferenceArea x1={4.6}  x2={5.35} strokeOpacity={0} fill="rgba(253,224,71,0.32)"/>
+            <ReferenceArea y1={0}  y2={8}  strokeOpacity={0} fill="rgba(134,239,172,0.30)"/>
+            <ReferenceArea y1={8}  y2={16} strokeOpacity={0} fill="rgba(250,204,21,0.18)"/>
+            <ReferenceArea y1={16} y2={40} strokeOpacity={0} fill="rgba(252,165,165,0.09)"/>
+            {/* Vertical port-stay bands */}
+            <ReferenceArea x1={1.8}  x2={2.4}  strokeOpacity={0} fill="rgba(250,204,21,0.30)"/>
+            <ReferenceArea x1={3.06} x2={3.82} strokeOpacity={0} fill="rgba(250,204,21,0.30)"/>
+            <ReferenceArea x1={4.62} x2={5.32} strokeOpacity={0} fill="rgba(250,204,21,0.30)"/>
 
-            <CartesianGrid stroke="rgba(148,163,184,0.12)" strokeDasharray="3 3"/>
+            <CartesianGrid stroke="rgba(148,163,184,0.14)" strokeDasharray="3 3"/>
             <XAxis type="number" dataKey="x" domain={[-0.3,5.4]} ticks={[0,1,2,3,4,5]}
-              tickFormatter={function(v){return months[Math.round(v)]||"";}}
+              tickFormatter={function(v){var i=Math.round(v);return months[i]||"";}}
               tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
               label={{value:"Month",position:"insideBottom",offset:-6,style:axLabel}}/>
-            <YAxis domain={[0,40]} ticks={[0,10,20,30,40]} tick={axTick} axisLine={false} tickLine={false}
+            <YAxis type="number" dataKey="y" domain={[0,40]} ticks={[0,10,20,30,40]}
+              tick={axTick} axisLine={false} tickLine={false}
               label={{value:"Speed % loss",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
             <Tooltip content={<ModernTooltip/>}/>
             <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:4}}
-              payload={[
-                {value:"Speed Loss",       type:"circle", color:"#3B82F6"},
-                {value:"Weighted Average", type:"line",   color:"#1D4ED8"},
-                {value:"Hull Service Event",type:"square",color:"#F97316"},
-                {value:"Port Stay",        type:"diamond",color:"#7C3AED"},
-              ]}/>
-            <Line type="linear" dataKey="y" stroke="#1D4ED8" strokeWidth={2} dot={false} name="Weighted Average" legendType="none"/>
-            <Scatter data={lossPts}     name="Speed Loss"          shape={<HullDot/>}    legendType="none"/>
-            <Scatter data={portStayPts} name="Port Stay"           shape={<DiamondShape/>} legendType="none"/>
-            <Scatter data={svcPts}      name="Hull Service Event"  shape={<SvcShape/>}   legendType="none"/>
-          </ComposedChart>
+              payload={legItems.map(function(l){return {value:l.value,type:l.type,color:l.color};})}/>
+
+            {/* Weighted average as connected line through scatter */}
+            <Scatter data={avgLine} name="Weighted Average"
+              line={{stroke:"#1D4ED8",strokeWidth:2}} lineType="joint" dot={false} legendType="none"/>
+
+            {/* Blue speed-loss dots */}
+            <Scatter data={lossPts} name="Speed Loss" shape={<BlueDot/>} legendType="none"/>
+
+            {/* Port-stay diamonds */}
+            <Scatter data={portStayPts} name="Port Stay" shape={<DiamondMark/>} legendType="none"/>
+
+            {/* Hull service event */}
+            <Scatter data={svcPts} name="Hull Service Event" shape={<OrangeSquare/>} legendType="none"/>
+          </ScatterChart>
         </ResponsiveContainer>
       );
     }
