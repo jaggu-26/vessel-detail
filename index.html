@@ -1733,10 +1733,13 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       </div>
                     </div>
                   ) : (
-                    <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"nowrap",marginTop:"auto"}}>
-                      <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:"#ffffff",lineHeight:1.4,overflowWrap:"break-word",minWidth:0,flex:"1 1 auto"}}>{k.value}</span>
-                      {k.label==="Prolonged Port Stays" && <PortStayViewLink count={k.value}/>}
-                      {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/>}
+                    <div style={{marginTop:"auto"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"nowrap"}}>
+                        <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:"#ffffff",lineHeight:1.2,overflowWrap:"break-word",minWidth:0,flex:"1 1 auto"}}>{k.value}</span>
+                        {k.label==="Prolonged Port Stays" && <PortStayViewLink count={k.value}/>}
+                        {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/>}
+                      </div>
+                      {k.detail && <div style={{fontSize:10,color:"rgba(255,255,255,0.45)",fontWeight:500,marginTop:3,lineHeight:1.3}}>{k.detail}</div>}
                     </div>
                   )}
                 </div>
@@ -1823,12 +1826,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     ];
 
     var TECHNICAL_KPIS_DATA = [
-      {label:"Hull Health",          value:"Good",          up:false},
-      {label:"Main Engine Health",   value:"Good",          up:false},
-      {label:"Last UW Service",      value:"12 Dec 2025",   up:true},
-      {label:"Scavenge Air Cooler",  value:"Good",          up:true},
-      {label:"Propeller RPM",        value:"111 RPM",       up:true},
-      {label:"Fuel Consumption",     value:"18.4 t/day",    up:true},
+      {label:"Hull Health",             value:"Good",        detail:"Current speed loss: 9.8%",              up:false},
+      {label:"Main Engine Health",      value:"Good",        detail:"Current fuel loss: 9.8%",               up:false},
+      {label:"Last UW Service",         value:"12 Dec 2025", detail:"Propeller polishing",                   up:true},
+      {label:"Scavenge Air Cooler",     value:"Good",        detail:"Pressure drop 40mmWG · 30°C drop",      up:true},
     ];
 
     var ENVIRONMENTAL_KPIS_DATA = [
