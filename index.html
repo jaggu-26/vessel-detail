@@ -88,7 +88,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       LineChart, Line, BarChart, Bar, AreaChart, Area,
       PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis,
       ScatterChart, Scatter, ZAxis, XAxis, YAxis, CartesianGrid, Tooltip,
-      ResponsiveContainer, ComposedChart, Legend, Label, ReferenceLine, ReferenceArea
+      ResponsiveContainer, ComposedChart, Legend, Label, ReferenceLine, ReferenceArea,
+      Customized
     } = Recharts;
 
     const B = "#1852FE";
@@ -2844,26 +2845,36 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       // Hull service event orange square
       var svcPts=[{x:3.25,y:37}];
 
-      // Custom shapes
-      var BlueDot=function(p){
-        if(p.cx==null||p.cy==null) return null;
-        return <circle cx={p.cx} cy={p.cy} r={3} fill="#3B82F6" fillOpacity={0.8} stroke="#fff" strokeWidth={0.5}/>;
-      };
-      var DiamondMark=function(p){
-        if(p.cx==null||p.cy==null) return null;
-        var d=7; var lbl=p.payload&&p.payload.lbl;
-        var lw=lbl?Math.max(22,lbl.length*6+8):22;
+      // Custom SVG overlay using Customized — bypasses Scatter rendering issues
+      var OverlayLayer=function(props){
+        var xMap=props.xAxisMap; var yMap=props.yAxisMap;
+        if(!xMap||!yMap) return null;
+        var xs=xMap[0]&&xMap[0].scale; var ys=yMap[0]&&yMap[0].scale;
+        if(!xs||!ys) return null;
         return (
           <g>
-            {lbl&&<rect x={p.cx-lw/2} y={p.cy-26} width={lw} height={14} rx={3} fill="#E2E8F0"/>}
-            {lbl&&<text x={p.cx} y={p.cy-16} textAnchor="middle" fontSize={9} fontWeight={600} fill="#475569">{lbl}</text>}
-            <polygon points={[p.cx+","+(p.cy-d),(p.cx+d)+","+p.cy,p.cx+","+(p.cy+d),(p.cx-d)+","+p.cy].join(" ")} fill="#7C3AED"/>
+            {lossPts.map(function(p,i){
+              var cx=xs(p.x),cy=ys(p.y);
+              if(isNaN(cx)||isNaN(cy)) return null;
+              return <circle key={"d"+i} cx={cx} cy={cy} r={3} fill="#3B82F6" fillOpacity={0.82} stroke="#fff" strokeWidth={0.5}/>;
+            })}
+            {portStayPts.map(function(p,i){
+              var cx=xs(p.x),cy=ys(p.y); if(isNaN(cx)||isNaN(cy)) return null;
+              var d=7; var lw=Math.max(22,p.lbl.length*7+8);
+              return (
+                <g key={"ps"+i}>
+                  <rect x={cx-lw/2} y={cy-26} width={lw} height={14} rx={3} fill="#E2E8F0"/>
+                  <text x={cx} y={cy-15} textAnchor="middle" fontSize={9} fontWeight={600} fill="#475569">{p.lbl}</text>
+                  <polygon points={[cx+","+(cy-d),(cx+d)+","+cy,cx+","+(cy+d),(cx-d)+","+cy].join(" ")} fill="#7C3AED"/>
+                </g>
+              );
+            })}
+            {svcPts.map(function(p,i){
+              var cx=xs(p.x),cy=ys(p.y); if(isNaN(cx)||isNaN(cy)) return null;
+              return <rect key={"sv"+i} x={cx-6} y={cy-6} width={12} height={12} rx={2} fill="#F97316"/>;
+            })}
           </g>
         );
-      };
-      var OrangeSquare=function(p){
-        if(p.cx==null||p.cy==null) return null;
-        return <rect x={p.cx-6} y={p.cy-6} width={12} height={12} rx={2} fill="#F97316"/>;
       };
 
       var legItems=[
@@ -2875,7 +2886,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       return (
         <ResponsiveContainer width="100%" height="100%">
-          <ScatterChart margin={{top:52,right:20,bottom:28,left:8}}>
+          <ComposedChart data={avgLine} margin={{top:52,right:20,bottom:28,left:8}}>
             {/* Horizontal risk bands */}
             <ReferenceArea y1={0}  y2={8}  strokeOpacity={0} fill="rgba(134,239,172,0.30)"/>
             <ReferenceArea y1={8}  y2={16} strokeOpacity={0} fill="rgba(250,204,21,0.18)"/>
@@ -2890,26 +2901,20 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               tickFormatter={function(v){var i=Math.round(v);return months[i]||"";}}
               tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
               label={{value:"Month",position:"insideBottom",offset:-6,style:axLabel}}/>
-            <YAxis type="number" dataKey="y" domain={[0,40]} ticks={[0,10,20,30,40]}
+            <YAxis domain={[0,40]} ticks={[0,10,20,30,40]}
               tick={axTick} axisLine={false} tickLine={false}
               label={{value:"Speed % loss",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
             <Tooltip content={<ModernTooltip/>}/>
             <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:4}}
               payload={legItems.map(function(l){return {value:l.value,type:l.type,color:l.color};})}/>
 
-            {/* Weighted average as connected line through scatter */}
-            <Scatter data={avgLine} name="Weighted Average"
-              line={{stroke:"#60A5FA",strokeWidth:1.8,strokeOpacity:0.85}} lineType="joint" dot={false} legendType="none"/>
+            {/* Weighted average line — ComposedChart Line is rock-solid */}
+            <Line type="linear" dataKey="y" stroke="#60A5FA" strokeWidth={2} dot={false}
+              legendType="none" isAnimationActive={false}/>
 
-            {/* Blue speed-loss dots */}
-            <Scatter data={lossPts} name="Speed Loss" shape={<BlueDot/>} legendType="none"/>
-
-            {/* Port-stay diamonds */}
-            <Scatter data={portStayPts} name="Port Stay" shape={<DiamondMark/>} legendType="none"/>
-
-            {/* Hull service event */}
-            <Scatter data={svcPts} name="Hull Service Event" shape={<OrangeSquare/>} legendType="none"/>
-          </ScatterChart>
+            {/* All scatter elements via Customized SVG layer */}
+            <Customized component={OverlayLayer}/>
+          </ComposedChart>
         </ResponsiveContainer>
       );
     }
