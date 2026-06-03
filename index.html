@@ -2792,8 +2792,15 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     }
 
     // ── Hull Health Chart — Speed Loss vs Month
-    function HullHealthChart(){
-      var months=["May 25","Jun 25","Aug 25","Sep 25","Oct 25","Nov 25"];
+    function HullHealthChart({n}){
+      var count=n||6;
+      var _MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      var _d=new Date(); var _m=_d.getMonth(); var _y=_d.getFullYear();
+      var months=[];
+      for(var _i=count-1;_i>=0;_i--){
+        var _dt=new Date(_y,_m-_i,1);
+        months.push(_MN[_dt.getMonth()]+" "+String(_dt.getFullYear()).slice(-2));
+      }
 
       // Weighted average — many pts for natural wavy shape
       var avgLine=[
@@ -2861,14 +2868,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       var legItems=[
         {value:"Speed Loss",        color:"#3B82F6", type:"circle"},
-        {value:"Weighted Average",  color:"#1D4ED8", type:"line"},
+        {value:"Weighted Average",  color:"#60A5FA", type:"line"},
         {value:"Hull Service Event",color:"#F97316", type:"square"},
         {value:"Port Stay",         color:"#7C3AED", type:"diamond"},
       ];
 
       return (
         <ResponsiveContainer width="100%" height="100%">
-          <ScatterChart margin={{top:36,right:20,bottom:28,left:8}}>
+          <ScatterChart margin={{top:52,right:20,bottom:28,left:8}}>
             {/* Horizontal risk bands */}
             <ReferenceArea y1={0}  y2={8}  strokeOpacity={0} fill="rgba(134,239,172,0.30)"/>
             <ReferenceArea y1={8}  y2={16} strokeOpacity={0} fill="rgba(250,204,21,0.18)"/>
@@ -2892,7 +2899,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
             {/* Weighted average as connected line through scatter */}
             <Scatter data={avgLine} name="Weighted Average"
-              line={{stroke:"#1D4ED8",strokeWidth:2}} lineType="joint" dot={false} legendType="none"/>
+              line={{stroke:"#60A5FA",strokeWidth:1.8,strokeOpacity:0.85}} lineType="joint" dot={false} legendType="none"/>
 
             {/* Blue speed-loss dots */}
             <Scatter data={lossPts} name="Speed Loss" shape={<BlueDot/>} legendType="none"/>
@@ -3271,7 +3278,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       // Technical tab — 4 charts in 2×2 layout
       var technicalItems=[
         Object.assign(cc("Hull Health","Speed loss vs month",
-          function(){return <HullHealthChart/>;},3),{rowHeight:420}),
+          function(n){return <HullHealthChart n={n}/>;},3),{rowHeight:420}),
         Object.assign(cc("Speed Power Curve","Sea trial vs reported power",
           function(){return <SpeedPowerChart/>;},3),{rowHeight:420}),
         Object.assign(cc("Predicted vs Reported Consumption","By speed — laden / ballast",
