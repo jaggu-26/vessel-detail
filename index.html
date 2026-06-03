@@ -2791,6 +2791,204 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
     }
 
+    // ── Hull Health Chart — Speed Loss vs Month
+    function HullHealthChart(){
+      var months=["May 25","Jun 25","Aug 25","Sep 25","Oct 25","Nov 25"];
+      var avgLine=[
+        {x:0,y:12},{x:0.4,y:19},{x:0.8,y:24},{x:1,y:22},{x:1.3,y:16},
+        {x:1.6,y:10},{x:2,y:8},{x:2.5,y:11},{x:3,y:7},{x:3.5,y:5},{x:4,y:3},{x:4.5,y:4},{x:5,y:5}
+      ];
+      var lossPts=[
+        {x:-0.1,y:8},{x:0,y:14},{x:0.1,y:6},{x:0.05,y:18},{x:0.2,y:10},
+        {x:0.7,y:20},{x:0.85,y:26},{x:0.95,y:22},{x:1.1,y:18},{x:1.2,y:15},
+        {x:1.5,y:12},{x:1.7,y:8},{x:1.9,y:11},{x:2.1,y:7},{x:2.2,y:13},
+        {x:2.4,y:10},{x:2.6,y:9},{x:2.9,y:8},{x:3.1,y:6},{x:3.2,y:10},
+        {x:3.4,y:5},{x:3.6,y:6},{x:3.8,y:4},{x:4,y:2},{x:4.1,y:5},
+        {x:4.3,y:3},{x:4.6,y:4},{x:4.8,y:6},{x:5,y:4},{x:5.1,y:7}
+      ];
+      var svcPts=[{x:0.85,y:1},{x:3.95,y:1}];
+      var CustomDot=function(p){
+        if(p.cx==null||p.cy==null)return null;
+        return <circle cx={p.cx} cy={p.cy} r={4} fill="#3B82F6" fillOpacity={0.75} stroke="#fff" strokeWidth={1}/>;
+      };
+      return (
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={avgLine} margin={{top:16,right:20,bottom:28,left:8}}>
+            <defs>
+              <linearGradient id="hullGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#1D4ED8" stopOpacity={0.35}/>
+                <stop offset="100%" stopColor="#1D4ED8" stopOpacity={0.03}/>
+              </linearGradient>
+            </defs>
+            <ReferenceArea x1={2.7} x2={3.6} fill="rgba(250,204,21,0.15)" strokeOpacity={0}
+              label={{value:"Port Stay",position:"insideTop",fontSize:9,fill:"#B45309",offset:4}}/>
+            <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
+            <XAxis type="number" dataKey="x" domain={[-0.3,5.4]} ticks={[0,1,2,3,4,5]}
+              tickFormatter={function(v){return months[Math.round(v)]||"";}}
+              tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
+              label={{value:"Month",position:"insideBottom",offset:-6,style:axLabel}}/>
+            <YAxis domain={[0,40]} ticks={[0,10,20,30,40]} tick={axTick} axisLine={false} tickLine={false}
+              label={{value:"Speed % loss",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
+            <Tooltip content={<ModernTooltip/>}/>
+            <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:6}}/>
+            <Area type="monotone" dataKey="y" stroke="#1D4ED8" strokeWidth={2.5} fill="url(#hullGrad)" dot={false} name="Weighted Average"/>
+            <Scatter data={lossPts} name="Speed Loss" shape={<CustomDot/>}/>
+            <Scatter data={svcPts} name="Hull Service Event" fill="#EF4444" shape={function(p){if(p.cx==null)return null;return <rect x={p.cx-4} y={p.cy-4} width={8} height={8} fill="#EF4444" rx={2}/>;}}/>
+          </ComposedChart>
+        </ResponsiveContainer>
+      );
+    }
+
+    // ── Speed Power Curve Chart
+    function SpeedPowerChart(){
+      var sp=[7.2,8.2,9.1,10.1,11.1,12.1,13.0,14.0,15.0,15.9,16.9];
+      var curveData=sp.map(function(s){
+        var k=s-7;
+        var laden=Math.round(1200+280*k*k);
+        var ballast=Math.round(900+210*k*k);
+        return {s:s,laden:laden,ballast:ballast,ladenP:Math.round(laden*1.05),ballastP:Math.round(ballast*1.05)};
+      });
+      var repLaden=[
+        {s:11.8,p:7200},{s:12.0,p:7800},{s:12.2,p:8100},{s:12.4,p:8600},
+        {s:12.6,p:9000},{s:13.0,p:9600},{s:13.2,p:10100}
+      ];
+      var repBallast=[
+        {s:11.2,p:5400},{s:11.5,p:5800},{s:11.8,p:6100},{s:12.0,p:6500},{s:12.3,p:6900}
+      ];
+      return (
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={curveData} margin={{top:16,right:20,bottom:28,left:8}}>
+            <defs>
+              <linearGradient id="spLadenGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#1E3A8A" stopOpacity={0.18}/>
+                <stop offset="100%" stopColor="#1E3A8A" stopOpacity={0.03}/>
+              </linearGradient>
+              <linearGradient id="spBallastGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#7DD3FC" stopOpacity={0.22}/>
+                <stop offset="100%" stopColor="#7DD3FC" stopOpacity={0.03}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
+            <XAxis type="number" dataKey="s" domain={[7,17.2]} ticks={[7.2,8.2,9.1,10.1,11.1,12.1,13.0,14.0,15.0,15.9]}
+              tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
+              label={{value:"Speed (knots)",position:"insideBottom",offset:-6,style:axLabel}}/>
+            <YAxis domain={[0,18000]} ticks={[0,2251,4503,6754,9006,11257,13508,15760,18011]}
+              tickFormatter={function(v){return v>=1000?(v/1000).toFixed(1)+"k":v;}}
+              tick={axTick} axisLine={false} tickLine={false}
+              label={{value:"Power (kW)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
+            <Tooltip content={<ModernTooltip/>}/>
+            <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:6}}/>
+            <Area type="monotone" dataKey="ladenP" stroke="none" fill="url(#spLadenGrad)" legendType="none"/>
+            <Area type="monotone" dataKey="ballastP" stroke="none" fill="url(#spBallastGrad)" legendType="none"/>
+            <Line type="monotone" dataKey="laden" stroke="#1E3A8A" strokeWidth={2.5} dot={false} name="Sea Trial Laden"/>
+            <Line type="monotone" dataKey="ballast" stroke="#7DD3FC" strokeWidth={2} dot={false} name="Sea Trial Ballast"/>
+            <Scatter data={repLaden} name="Power Reported Laden" fill="#1E3A8A"/>
+            <Scatter data={repBallast} name="Power Reported Ballast" fill="#93C5FD"/>
+          </ComposedChart>
+        </ResponsiveContainer>
+      );
+    }
+
+    // ── Predicted vs Reported Consumption by Speed
+    function ConsumptionSpeedChart(){
+      var [cond,setCond]=React.useState("laden");
+      var speeds=[10,10.5,11,11.5,12,12.5,13,13.5,14,14.5,15];
+      function predLine(base,exp){ return speeds.map(function(s){return {s:s,p:Math.round(base*Math.pow(s/12,exp))};});}
+      var ladenPred=predLine(28,3.2);
+      var ballastPred=predLine(22,3.0);
+      var ladenReport=[
+        {s:11.0,p:22},{s:11.2,p:23},{s:11.5,p:25},{s:11.8,p:27},
+        {s:12.0,p:29},{s:12.2,p:30},{s:12.5,p:33},{s:13.0,p:38}
+      ];
+      var ballastReport=[
+        {s:10.8,p:17},{s:11.2,p:19},{s:11.5,p:21},{s:12.0,p:24},{s:12.4,p:27}
+      ];
+      var pred=cond==="laden"?ladenPred:ballastPred;
+      var report=cond==="laden"?ladenReport:ballastReport;
+      var color=cond==="laden"?"#16A34A":"#F97316";
+      var gradId="csPredGrad"+cond;
+      return (
+        <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
+          <div style={{display:"flex",justifyContent:"flex-end",gap:4,marginBottom:4,marginRight:4}}>
+            {["laden","ballast"].map(function(c){
+              return <button key={c} onClick={function(){setCond(c);}}
+                style={{padding:"3px 10px",fontSize:11,fontWeight:600,borderRadius:5,
+                  border:"1px solid "+(cond===c?"#1852FE":"#E2E8F0"),cursor:"pointer",
+                  background:cond===c?"#1852FE":"#fff",color:cond===c?"#fff":"#64748B",lineHeight:"1.4",textTransform:"capitalize"}}>
+                {c}
+              </button>;
+            })}
+          </div>
+          <div style={{flex:1,minHeight:0}}>
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={pred} margin={{top:8,right:20,bottom:28,left:8}}>
+                <defs>
+                  <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={color} stopOpacity={0.25}/>
+                    <stop offset="100%" stopColor={color} stopOpacity={0.03}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
+                <XAxis type="number" dataKey="s" domain={[10,15.2]} ticks={[10,11,12,13,14,15]}
+                  tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
+                  label={{value:"Speed (knots)",position:"insideBottom",offset:-6,style:axLabel}}/>
+                <YAxis domain={[10,55]} ticks={[10,20,30,40,50]} tick={axTick} axisLine={false} tickLine={false}
+                  label={{value:"Consumption (MT)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
+                <Tooltip content={<ModernTooltip/>}/>
+                <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:4}}/>
+                <Area type="monotone" dataKey="p" stroke={color} strokeWidth={2.5} fill={"url(#"+gradId+")"} name="Predicted Consumption" dot={false}/>
+                <Scatter data={report} name="Reported Consumption" fill={color} opacity={0.85}/>
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      );
+    }
+
+    // ── Load SFOC Curve Chart
+    function LoadSFOCChart(){
+      var loads=[30,35,40,45,50,55,60,65,70,75,80,85,90,95,100];
+      var shopTrial=loads.map(function(l){
+        var base=190-0.35*l+0.003*l*l;
+        return {l:l,sfoc:Math.round(base),sfocP:Math.round(base*1.05),mean:Math.round(base*0.92-10)};
+      });
+      var noonMeasured=[
+        {l:35,s:218},{l:38,s:224},{l:40,s:220},{l:42,s:214},{l:45,s:208},{l:47,s:215},
+        {l:50,s:210},{l:52,s:205},{l:55,s:212},{l:58,s:206},{l:60,s:200},
+        {l:62,s:195},{l:65,s:202},{l:68,s:198},{l:70,s:195}
+      ];
+      var noonCorrected=[
+        {l:36,s:196},{l:40,s:192},{l:43,s:188},{l:46,s:184},{l:49,s:188},
+        {l:52,s:182},{l:55,s:185},{l:58,s:180},{l:61,s:177},{l:64,s:181},
+        {l:67,s:175},{l:70,s:178},{l:72,s:172}
+      ];
+      return (
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={shopTrial} margin={{top:16,right:20,bottom:28,left:8}}>
+            <defs>
+              <linearGradient id="sfocBandGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#93C5FD" stopOpacity={0.35}/>
+                <stop offset="100%" stopColor="#93C5FD" stopOpacity={0.08}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
+            <XAxis type="number" dataKey="l" domain={[28,102]} ticks={[30,40,50,60,70,80,90,100]}
+              tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
+              label={{value:"Load (%)",position:"insideBottom",offset:-6,style:axLabel}}/>
+            <YAxis domain={[125,265]} ticks={[130,150,170,190,210,230,250]} tick={axTick} axisLine={false} tickLine={false}
+              label={{value:"SFOC (g/kWh)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
+            <Tooltip content={<ModernTooltip/>}/>
+            <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:6}}/>
+            <Area type="monotone" dataKey="sfocP" stroke="none" fill="url(#sfocBandGrad)" legendType="none"/>
+            <Line type="monotone" dataKey="sfoc" stroke="#3B82F6" strokeWidth={2.5} dot={false} name="Shop Trial SFOC"/>
+            <Line type="monotone" dataKey="mean" stroke="#3B82F6" strokeWidth={1.5} strokeDasharray="5 3" dot={false} name="Mean SFOC corrected"/>
+            <Scatter data={noonMeasured} name="SFOC Noon Measured" fill="#EF4444" opacity={0.85}/>
+            <Scatter data={noonCorrected} name="SFOC Noon Corrected" fill="#22C55E" opacity={0.85}/>
+          </ComposedChart>
+        </ResponsiveContainer>
+      );
+    }
+
     function SectionCharts({section, resetKey=0, cfg, STATUS_PILL, RATING_PILL, monthCount=6, customCharts=[], dashTab, setDashTab, selectedVessel, onLayoutSave, onLayoutReset}) {
       // Deterministic per-vessel data offset so charts visibly update
       var vSeed = selectedVessel ? (selectedVessel.name.charCodeAt(3)||1) / 20 : 0;
@@ -3002,38 +3200,16 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           function(){return <FuelEUEmissionsChart/>;}, 3),{rowHeight:420}),
       ];
 
-      // Technical tab items (spans: [3,3, 3,3, 3,3, 3,3, 6])
+      // Technical tab — 4 charts in 2×2 layout
       var technicalItems=[
-        cc("Hull Resistance Trend","Index",
-          function(n){return mkArea(fd(hullTrend,n),"resistance","#D4995A","#FAEEDA","Month","Resistance Index");}, 2),
-        cc("Propeller RPM","Monthly trend",
-          function(n){return mkLine2(fd(propellerData,n),"rpm","#5499D8","efficiency","#48AB87","Month","Value","RPM","Efficiency (%)");}, 2),
-        cc("ME Load & Temp","% load and C",
-          function(n){return (
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={fd(meData,n)} margin={{bottom:20,left:4,right:10,top:10}}>
-                <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
-                {xAx("m","Month")} {yAx("Value")}
-                <Tooltip content={<ModernTooltip/>}/><Legend {...lgStyle}/>
-                <Bar dataKey="load" fill="url(#bgCompleted)" radius={[8,8,0,0]} barSize={22} name="Load (%)" maxBarSize={36}/>
-                <Line type="monotone" dataKey="temp" stroke="#EF4444" strokeWidth={2.5} dot={false} activeDot={{r:5,strokeWidth:2,stroke:"#fff",fill:"#EF4444"}} name="Temp (C)"/>
-              </ComposedChart>
-            </ResponsiveContainer>
-          );}, 2),
-        cc("Speed Optimisation","Actual vs optimal",
-          function(n){return mkLine2(fd(speedOpt,n),"actual",B,"optimal","#0F6E56","Month","Speed (kn)","Actual","Optimal");}, 3),
-        cc("ME Vibration","mm/s amplitude",
-          function(n){return mkArea(fd(meData,n),"vibration","#BA7517","#FAEEDA","Month","mm/s");}, 3),
-        cc("Lube Oil Pressure","bar",
-          function(n){return mkArea(fd(lopData,n),"lop","#534AB7","#EEEDFE","Month","bar");}, 2),
-        cc("Cooling Water Temp","°C",
-          function(n){return mkLine2(fd(cwtData,n),"cwt","#1852FE","limit","#E24B4A","Month","°C","CWT","Limit");}, 2),
-        cc("Exhaust Temperature","°C",
-          function(n){return mkArea(fd(extData,n),"ext","#BA7517","#FAEEDA","Month","°C");}, 2),
-        cc("Turbocharger RPM","RPM",
-          function(n){return mkLine2(fd(tcRpmData,n),"tc","#0F6E56","opt","#aaa","Month","RPM","TC RPM","Optimal");}, 2),
-        cc("Auxiliary Engine Load","% load by unit",
-          mkBar(auxData.map(function(d){return{unit:d.name,load:d.load};}), "load", "#534AB7", "Unit", "Load %"), 2),
+        Object.assign(cc("Hull Health","Speed loss vs month",
+          function(){return <HullHealthChart/>;},3),{rowHeight:420}),
+        Object.assign(cc("Speed Power Curve","Sea trial vs reported power",
+          function(){return <SpeedPowerChart/>;},3),{rowHeight:420}),
+        Object.assign(cc("Predicted vs Reported Consumption","By speed — laden / ballast",
+          function(){return <ConsumptionSpeedChart/>;},3),{rowHeight:420}),
+        Object.assign(cc("Load SFOC Curve","Shop trial vs noon measurements",
+          function(){return <LoadSFOCChart/>;},3),{rowHeight:420}),
       ];
 
       // Legacy flat card arrays for backward compatibility (non-dashboard sections)
