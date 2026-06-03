@@ -2971,56 +2971,140 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Predicted vs Reported Consumption by Speed
     function ConsumptionSpeedChart(){
-      var [cond,setCond]=React.useState("laden");
-      var speeds=[10,10.5,11,11.5,12,12.5,13,13.5,14,14.5,15];
-      function predLine(base,exp){ return speeds.map(function(s){return {s:s,p:Math.round(base*Math.pow(s/12,exp))};});}
-      var ladenPred=predLine(28,3.2);
-      var ballastPred=predLine(22,3.0);
-      var ladenReport=[
-        {s:11.0,p:22},{s:11.2,p:23},{s:11.5,p:25},{s:11.8,p:27},
-        {s:12.0,p:29},{s:12.2,p:30},{s:12.5,p:33},{s:13.0,p:38}
+      var [activeV,setActiveV]=React.useState(null);
+
+      // Curve data — U-shaped consumption vs speed (7.5 to 15.5 knots)
+      var lineData=[];
+      for(var _sv=7.5;_sv<=15.6;_sv=Math.round((_sv+0.1)*10)/10){
+        var d=_sv-10.2;
+        lineData.push({
+          v:_sv,
+          laden:  Math.round((1.05*d*d+14+0.4*_sv)*10)/10,   // green — lower
+          ballast:Math.round((1.25*d*d+17+0.4*_sv)*10)/10,   // brown — middle
+          weather:Math.round((1.65*d*d+21+0.5*_sv)*10)/10,   // dashed — upper
+        });
+      }
+
+      // Scatter: reported (dark navy) and predicted (gold)
+      var reportedPts=[
+        {v:8.4,c:28},{v:9.0,c:22},{v:9.4,c:18},{v:9.8,c:17},{v:10.2,c:16},
+        {v:10.8,c:17},{v:11.2,c:19},{v:11.8,c:22},{v:12.2,c:26},{v:12.6,c:32},{v:13.0,c:42}
       ];
-      var ballastReport=[
-        {s:10.8,p:17},{s:11.2,p:19},{s:11.5,p:21},{s:12.0,p:24},{s:12.4,p:27}
+      var predictedPts=[
+        {v:8.6,c:24},{v:9.2,c:19},{v:9.6,c:16},{v:10.0,c:15},{v:10.5,c:15},
+        {v:11.0,c:17},{v:11.5,c:20},{v:12.0,c:23},{v:12.4,c:29},{v:12.9,c:37}
       ];
-      var pred=cond==="laden"?ladenPred:ballastPred;
-      var report=cond==="laden"?ladenReport:ballastReport;
-      var color=cond==="laden"?"#16A34A":"#F97316";
-      var gradId="csPredGrad"+cond;
-      return (
-        <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
-          <div style={{display:"flex",justifyContent:"flex-end",gap:4,marginBottom:4,marginRight:4}}>
-            {["laden","ballast"].map(function(c){
-              return <button key={c} onClick={function(){setCond(c);}}
-                style={{padding:"3px 10px",fontSize:11,fontWeight:600,borderRadius:5,
-                  border:"1px solid "+(cond===c?"#1852FE":"#E2E8F0"),cursor:"pointer",
-                  background:cond===c?"#1852FE":"#fff",color:cond===c?"#fff":"#64748B",lineHeight:"1.4",textTransform:"capitalize"}}>
-                {c}
-              </button>;
+
+      // Find closest curve value at given speed
+      function curveAt(v,key){
+        var pt=lineData.reduce(function(a,b){return Math.abs(b.v-v)<Math.abs(a.v-v)?b:a;});
+        return pt?pt[key]:null;
+      }
+      // Find closest scatter point at given speed
+      function nearestPt(pts,v){
+        return pts.reduce(function(a,b){return Math.abs(b.v-v)<Math.abs(a.v-v)?b:a;});
+      }
+
+      // Customized SVG overlay: scatter dots + crosshair
+      var OverlayLayer=function(props){
+        var xm=props.xAxisMap; var ym=props.yAxisMap;
+        if(!xm||!ym) return null;
+        var xs=xm[0]&&xm[0].scale; var ys=ym[0]&&ym[0].scale;
+        if(!xs||!ys) return null;
+
+        // Crosshair elements
+        var crosshair=null;
+        if(activeV!=null){
+          var cx=xs(activeV);
+          var rPt=nearestPt(reportedPts,activeV);
+          var pPt=nearestPt(predictedPts,activeV);
+          var ry=ys(rPt.c); var py=ys(pPt.c);
+          var yBot=ys(0); var yTopLine=Math.min(ry,py)-16;
+          var labelW=148;
+          crosshair=(
+            <g>
+              {/* Vertical dashed line */}
+              <line x1={cx} y1={yTopLine} x2={cx} y2={yBot} stroke="#9CA3AF" strokeDasharray="5 3" strokeWidth={1.5}/>
+              {/* Open circle top */}
+              <circle cx={cx} cy={yTopLine} r={5} fill="#fff" stroke="#9CA3AF" strokeWidth={1.5}/>
+              {/* Open circle bottom on x-axis */}
+              <circle cx={cx} cy={yBot} r={5} fill="#fff" stroke="#9CA3AF" strokeWidth={1.5}/>
+              {/* Reported callout */}
+              <g transform={"translate("+(cx+10)+","+(ry-22)+")"}>
+                <rect x={0} y={0} width={labelW} height={32} rx={6} fill="#fff" stroke="#CBD5E1" strokeWidth={1}/>
+                <polygon points={"0,12 -7,16 0,20"} fill="#fff" stroke="#CBD5E1" strokeWidth={1}/>
+                <text x={8} y={12} fontSize={10} fontWeight={600} fill="#1E293B">{"● Reported Cons"}</text>
+                <text x={8} y={25} fontSize={11} fontWeight={700} fill="#1E3A5F">{rPt.c+" MT"}</text>
+              </g>
+              {/* Predicted callout */}
+              <g transform={"translate("+(cx+10)+","+(py+4)+")"}>
+                <rect x={0} y={0} width={labelW} height={32} rx={6} fill="#fff" stroke="#CBD5E1" strokeWidth={1}/>
+                <polygon points={"0,12 -7,16 0,20"} fill="#fff" stroke="#CBD5E1" strokeWidth={1}/>
+                <text x={8} y={12} fontSize={10} fontWeight={600} fill="#1E293B">{"● Predicted Cons"}</text>
+                <text x={8} y={25} fontSize={11} fontWeight={700} fill="#92400E">{pPt.c+" MT"}</text>
+              </g>
+              {/* Highlight circles on active points */}
+              <circle cx={xs(rPt.v)} cy={ry} r={9} fill="none" stroke="#1E3A5F" strokeWidth={2}/>
+              <circle cx={xs(pPt.v)} cy={py} r={9} fill="none" stroke="#D97706" strokeWidth={2}/>
+            </g>
+          );
+        }
+
+        return (
+          <g>
+            {/* Gold predicted dots */}
+            {predictedPts.map(function(p,i){
+              var cx=xs(p.v),cy=ys(p.c); if(isNaN(cx)||isNaN(cy)) return null;
+              return <circle key={"gd"+i} cx={cx} cy={cy} r={7} fill="#F59E0B" fillOpacity={0.9} stroke="#fff" strokeWidth={1.5}/>;
             })}
-          </div>
-          <div style={{flex:1,minHeight:0}}>
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={pred} margin={{top:8,right:20,bottom:28,left:8}}>
-                <defs>
-                  <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={color} stopOpacity={0.25}/>
-                    <stop offset="100%" stopColor={color} stopOpacity={0.03}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
-                <XAxis type="number" dataKey="s" domain={[10,15.2]} ticks={[10,11,12,13,14,15]}
-                  tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
-                  label={{value:"Speed (knots)",position:"insideBottom",offset:-6,style:axLabel}}/>
-                <YAxis domain={[10,55]} ticks={[10,20,30,40,50]} tick={axTick} axisLine={false} tickLine={false}
-                  label={{value:"Consumption (MT)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
-                <Tooltip content={<ModernTooltip/>}/>
-                <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:4}}/>
-                <Area type="monotone" dataKey="p" stroke={color} strokeWidth={2.5} fill={"url(#"+gradId+")"} name="Predicted Consumption" dot={false}/>
-                <Scatter data={report} name="Reported Consumption" fill={color} opacity={0.85}/>
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
+            {/* Navy reported dots */}
+            {reportedPts.map(function(p,i){
+              var cx=xs(p.v),cy=ys(p.c); if(isNaN(cx)||isNaN(cy)) return null;
+              return <circle key={"nd"+i} cx={cx} cy={cy} r={7} fill="#1E3A5F" fillOpacity={0.9} stroke="#fff" strokeWidth={1.5}/>;
+            })}
+            {crosshair}
+          </g>
+        );
+      };
+
+      return (
+        <div style={{width:"100%",height:"100%",position:"relative"}}>
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={lineData} margin={{top:16,right:20,bottom:28,left:8}}
+              onMouseMove={function(e){
+                if(e&&e.activePayload&&e.activePayload.length>0){
+                  setActiveV(e.activePayload[0].payload.v);
+                }
+              }}
+              onMouseLeave={function(){setActiveV(null);}}>
+              <CartesianGrid stroke="rgba(148,163,184,0.10)" strokeDasharray="3 3"/>
+              <XAxis dataKey="v" type="number" domain={[7.2,15.8]}
+                ticks={[8,9,10,11,12,13,14,15]} tick={axTick}
+                axisLine={{stroke:"#E2E8F0"}} tickLine={false}
+                label={{value:"Speed (knots)",position:"insideBottom",offset:-6,style:axLabel}}/>
+              <YAxis domain={[0,65]} ticks={[0,10,20,30,40,50,60]} tick={axTick}
+                axisLine={{stroke:"#E2E8F0"}} tickLine={false}
+                label={{value:"Consumption",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
+              <Tooltip content={function(){return null;}}/>
+              <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:6}}
+                payload={[
+                  {value:"Reported Consumption", color:"#1E3A5F", type:"circle"},
+                  {value:"Predicted Consumption",color:"#F59E0B", type:"circle"},
+                  {value:"Laden curve",           color:"#16A34A", type:"line"},
+                  {value:"Ballast curve",          color:"#A0522D", type:"line"},
+                  {value:"Weather limit",          color:"#94A3B8", type:"line"},
+                ]}/>
+              {/* Green laden curve */}
+              <Line type="monotone" dataKey="laden" stroke="#16A34A" strokeWidth={2} dot={false} legendType="none" isAnimationActive={false}/>
+              {/* Brown ballast curve */}
+              <Line type="monotone" dataKey="ballast" stroke="#A0522D" strokeWidth={2} dot={false} legendType="none" isAnimationActive={false}/>
+              {/* Grey dashed weather curve */}
+              <Line type="monotone" dataKey="weather" stroke="#94A3B8" strokeWidth={1.5}
+                strokeDasharray="6 4" dot={false} legendType="none" isAnimationActive={false}/>
+              {/* All scatter + crosshair via Customized */}
+              <Customized component={OverlayLayer}/>
+            </ComposedChart>
+          </ResponsiveContainer>
         </div>
       );
     }
