@@ -3612,16 +3612,35 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var [poi,setPoi]=useState(null);
       useEffect(function(){setPinnedOrd([]);setPdi(null);setPoi(null);},[section]);
 
+      // ── Mosaic persistence helpers ──
+      function mosaicStorageKey(tab){ return "mosaicOrd_"+(tab||activeDashTab); }
+      function loadMosaicOrd(tab){
+        try{ var s=localStorage.getItem(mosaicStorageKey(tab)); if(s){ var p=JSON.parse(s); if(Array.isArray(p)) return p; } }catch(e){}
+        return null;
+      }
+      function saveMosaicOrd(ord,tab){
+        try{ localStorage.setItem(mosaicStorageKey(tab),JSON.stringify(ord)); }catch(e){}
+      }
+      function clearMosaicOrd(tab){
+        try{ localStorage.removeItem(mosaicStorageKey(tab)); }catch(e){}
+      }
+
       // Mosaic grid for dashboard tabs
-      var [mosaicOrd,setMosaicOrd]=useState(function(){return operationalDashItems.map(function(_,i){return i;});});
+      var [mosaicOrd,setMosaicOrd]=useState(function(){
+        var baseLen=dashTabItems.length;
+        var saved=loadMosaicOrd(activeDashTab);
+        if(saved) return saved;
+        return dashTabItems.map(function(_,i){return i;});
+      });
       var [mdi,setMdi]=useState(null);
       var [moi2,setMoi2]=useState(null);
       useEffect(function(){
-        // Reset base-tab cards; preserve custom chart positions at the end
-        var baseLen=4;
+        // Tab changed: load saved order or reset to default
+        var baseLen=dashTabItems.length;
+        var saved=loadMosaicOrd(activeDashTab);
+        if(saved){ setMosaicOrd(saved); setMdi(null); setMoi2(null); return; }
         setMosaicOrd(function(prev){
           var baseArr=[];for(var ii=0;ii<baseLen;ii++)baseArr.push(ii);
-          // Keep any custom-chart indices already in mosaicOrd
           var existingCustom=prev.filter(function(i){return i>=baseLen&&i<baseLen+customCharts.length;});
           return baseArr.concat(existingCustom);
         });
@@ -3693,8 +3712,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         if(resetKey>0){
           try{localStorage.removeItem("chartOrder_"+(section||"default"));}catch(e){}
           try{localStorage.removeItem("draggableLayout_"+(section||"default"));}catch(e){}
-          // Also reset the in-memory mosaic order to default
-          var baseLen=10;
+          clearMosaicOrd(activeDashTab);
+          var baseLen=dashTabItems.length;
           var defaultOrd=[];for(var _ri=0;_ri<baseLen;_ri++) defaultOrd.push(_ri);
           for(var _rj=0;_rj<customCharts.length;_rj++) defaultOrd.push(baseLen+_rj);
           setMosaicOrd(defaultOrd);
@@ -3711,20 +3730,19 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       }
       function dismissToast(){
         setShowToast(false);
+        saveMosaicOrd(mosaicOrd, activeDashTab);
         if(onLayoutSave) onLayoutSave();
         if(toastRef.current) clearTimeout(toastRef.current);
       }
       function handleReset(){
-        // Reset base card order; keep custom charts at the end
-        var baseLen=10;
+        var baseLen=dashTabItems.length;
         var defaultOrd=[];for(var _i=0;_i<baseLen;_i++) defaultOrd.push(_i);
         for(var _j=0;_j<customCharts.length;_j++) defaultOrd.push(baseLen+_j);
         setMosaicOrd(defaultOrd);
         setMdi(null); setMoi2(null);
-        // Reset any user-applied width adjustments
         setUserWeights({});
         setHovMosaic(null); setActiveMosaicResize(null);
-        // Reset child grids (SimpleDraggableGrid / DraggableLayout)
+        clearMosaicOrd(activeDashTab);
         try{localStorage.removeItem("chartOrder_"+(section||"default"));}catch(e){}
         try{localStorage.removeItem("draggableLayout_"+(section||"default"));}catch(e){}
         setLocalResetKey(function(k){return k+1;});
@@ -3739,17 +3757,18 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       useEffect(function(){
         if(customCharts.length===0) return;
-        var baseLen=10;
+        var baseLen=dashTabItems.length;
         setMosaicOrd(function(prev){
           var newIdx=baseLen+customCharts.length-1;
-          if(prev.indexOf(newIdx)!==-1) return prev; // already tracked
+          if(prev.indexOf(newIdx)!==-1) return prev;
           return prev.concat([newIdx]);
         });
       },[customCharts.length]);
 
       useEffect(function(){
         if(customCharts.length>prevCustomLen.current&&customCharts.length>0){
-          var newItemIdx=10+customCharts.length-1;
+          var baseLen=dashTabItems.length;
+          var newItemIdx=baseLen+customCharts.length-1;
           setHighlightIdx(newItemIdx);
           if(hlTimerRef.current)clearTimeout(hlTimerRef.current);
           hlTimerRef.current=setTimeout(function(){setHighlightIdx(null);},5000);
