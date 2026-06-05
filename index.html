@@ -1043,7 +1043,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           draggable={false}
           onMouseDown={function(e){e.stopPropagation();}}
           onDragStart={function(e){e.preventDefault();e.stopPropagation();}}
-          style={{display:"flex",alignItems:"center",gap:2,flexShrink:0,cursor:"pointer"}}>
+          style={{display:"flex",alignItems:"center",gap:8,flexShrink:0,cursor:"pointer"}}>
           {/* AI Insights — always visible */}
           <div ref={aiRef} style={{cursor:"pointer"}}>
             <IconTooltipBtn tip="AI Insights" onClick={handleAIClick}>
