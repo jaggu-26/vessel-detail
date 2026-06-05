@@ -3295,6 +3295,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           function(){return <FuelEUEmissionsChart/>;}, 3),{rowHeight:420}),
       ];
 
+      // Operational tab — first 4 non-sample charts in 2×2 layout (sample items hidden, restorable)
+      var operationalDashItems = operationalItems.slice(0,4).map(function(item){
+        return Object.assign({},item,{span:3,rowHeight:420});
+      });
+
       // Technical tab — 4 charts in 2×2 layout
       var technicalItems=[
         Object.assign(cc("Hull Health","Speed loss vs month",
@@ -3584,7 +3589,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       // For dashboard, select items by tab
       var activeDashTab = dashTab || "operational";
-      var dashTabItems = activeDashTab==="environmental" ? environmentalItems : activeDashTab==="technical" ? technicalItems : operationalItems;
+      var dashTabItems = activeDashTab==="environmental" ? environmentalItems : activeDashTab==="technical" ? technicalItems : operationalDashItems;
 
       // Convert custom charts to cc()-compatible items so they join the mosaic grid
       var customCcItems=customCharts.map(function(c){
@@ -3608,12 +3613,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       useEffect(function(){setPinnedOrd([]);setPdi(null);setPoi(null);},[section]);
 
       // Mosaic grid for dashboard tabs
-      var [mosaicOrd,setMosaicOrd]=useState(function(){return operationalItems.map(function(_,i){return i;});});
+      var [mosaicOrd,setMosaicOrd]=useState(function(){return operationalDashItems.map(function(_,i){return i;});});
       var [mdi,setMdi]=useState(null);
       var [moi2,setMoi2]=useState(null);
       useEffect(function(){
         // Reset base-tab cards; preserve custom chart positions at the end
-        var baseLen=10;
+        var baseLen=4;
         setMosaicOrd(function(prev){
           var baseArr=[];for(var ii=0;ii<baseLen;ii++)baseArr.push(ii);
           // Keep any custom-chart indices already in mosaicOrd
