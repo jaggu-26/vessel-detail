@@ -7078,15 +7078,19 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
 /* KPI grid — default 4-col; 8-col only on very wide screens; 2-col on small */
 .kpi-grid{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns:repeat(3,1fr);
   gap:12px;
   width:100%;
   box-sizing:border-box;
 }
-/* Wide desktop: show all cards in one row + smaller font to prevent value wrapping */
+/* Wide desktop: show all cards in one row */
 @media(min-width:1600px){
-  .kpi-grid{grid-template-columns:repeat(var(--kpi-cols,8),1fr);}
+  .kpi-grid{grid-template-columns:repeat(var(--kpi-cols,6),1fr);}
   .kpi-val{font-size:20px!important;}
+}
+/* Tablet: 3 columns */
+@media(min-width:641px) and (max-width:1599px){
+  .kpi-grid{grid-template-columns:repeat(3,1fr);}
 }
 /* Mobile: 2 columns */
 @media(max-width:640px){
