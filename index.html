@@ -3235,7 +3235,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           }, 2),
         cc("Avg Fuel Consumption / Day","Main engine & auxiliary",
           function(n){return <AvgFuelConsChart months={n}/>;}, 2),
-        cc("Laden Slip & SOG","Laden condition — slip & speed over ground",
+        cc("SOG & Slip Trend","Laden condition — slip & speed over ground",
           function(n){return <SlipSOGChart months={n}/>;}, 3),
         cc("Top Port Calls","Month-to-date",
           <ResponsiveContainer width="100%" height="100%">
