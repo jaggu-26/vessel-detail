@@ -3214,7 +3214,43 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <YAxis type="number" dataKey="y" domain={[0,2.5]}
                     tick={axTick} width={52} tickCount={5} axisLine={false} tickLine={false}
                     label={{value:"Fuel (tons/hr)", angle:-90, position:"insideLeft", offset:6, style:{...axLabel,textAnchor:"middle"}}}/>
-                  <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#E2E8F0",strokeDasharray:"4 2"}}/>
+                  <Tooltip cursor={{stroke:"#E2E8F0",strokeDasharray:"4 2"}} content={function(props){
+                    var active=props.active,payload=props.payload;
+                    if(!active||!payload||!payload.length) return null;
+                    // Scatter payload: multiple entries per series (one for x dataKey, one for y dataKey)
+                    var byName={};
+                    payload.forEach(function(p){
+                      if(!byName[p.name]) byName[p.name]={name:p.name,color:p.color,fill:p.fill};
+                      if(p.dataKey==="x") byName[p.name].speed=p.value;
+                      if(p.dataKey==="y") byName[p.name].fuel=p.value;
+                    });
+                    var series=Object.keys(byName).map(function(k){return byName[k];}).filter(function(s){return s.speed!=null&&s.fuel!=null;});
+                    if(!series.length) return null;
+                    return (
+                      <div style={{background:"#1E293B",borderRadius:8,padding:"10px 13px",boxShadow:"0 8px 24px rgba(0,0,0,0.25)",minWidth:170}}>
+                        {series.map(function(s,i){
+                          return (
+                            <div key={i} style={{marginBottom:i<series.length-1?8:0}}>
+                              <div style={{display:"flex",alignItems:"center",gap:5,marginBottom:5}}>
+                                <div style={{width:8,height:8,borderRadius:"50%",background:s.fill||s.color,flexShrink:0}}/>
+                                <span style={{fontSize:11,color:"#94A3B8",fontWeight:600}}>{s.name}</span>
+                              </div>
+                              <div style={{paddingLeft:13,display:"flex",flexDirection:"column",gap:3}}>
+                                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                                  <span style={{fontSize:11,color:"#94A3B8",minWidth:70}}>Speed:</span>
+                                  <span style={{fontSize:12,color:"#ffffff",fontWeight:700}}>{s.speed} kn</span>
+                                </div>
+                                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                                  <span style={{fontSize:11,color:"#94A3B8",minWidth:70}}>Fuel:</span>
+                                  <span style={{fontSize:12,color:"#ffffff",fontWeight:700}}>{s.fuel} t/hr</span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  }}/>
                   <Legend verticalAlign="top" align="left"
                     wrapperStyle={{paddingLeft:56,paddingTop:4,fontSize:11}}/>
                   <Scatter name="Ballast Regression" data={bRegData}
