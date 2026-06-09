@@ -7282,44 +7282,43 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                       </div>
                     </React.Fragment>
                   )}
-                  <div style={{flex:1,minWidth:0,maxWidth:340,marginLeft:8}}>
+                  <div style={{minWidth:0,maxWidth:340,marginLeft:8}}>
                     <VesselSearch selectedVessel={selectedVessel} onSelectVessel={function(v){setSelectedVessel(v);}} open={vesselSearchOpen} setOpen={setVesselSearchOpen}/>
+                  </div>
+                  {/* Tabs — right next to search */}
+                  <div style={{display:"flex",alignItems:"center",gap:4,height:36,flexShrink:0,
+                    background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#E2E8F0",
+                    borderRadius:6,padding:"0 4px",marginLeft:4}}>
+                    {[
+                      {id:"operational",label:"Operational"},
+                      {id:"environmental",label:"Environmental"},
+                      {id:"technical",label:"Technical"},
+                      {id:"lngkpis",label:"LNG KPIs",disabled:true}
+                    ].map(function(t){
+                      var isActive=dashTab===t.id;
+                      var isDark=kpiMode==="highlight2"||kpiMode==="highlight3";
+                      return (
+                        <button key={t.id}
+                          onClick={function(){if(!t.disabled)setDashTab(t.id);}}
+                          disabled={t.disabled}
+                          style={{height:28,padding:"0 14px",borderRadius:4,border:"none",
+                            cursor:t.disabled?"not-allowed":"pointer",
+                            fontSize:12,fontWeight:600,
+                            background:isActive?"#1852FE":"transparent",
+                            color:isActive?"#ffffff":t.disabled?(isDark?"rgba(255,255,255,0.3)":THEME.textMuted):(isDark?"rgba(255,255,255,0.65)":THEME.textSub),
+                            opacity:t.disabled?0.45:1,
+                            boxShadow:isActive?"0 1px 3px rgba(24,82,254,0.25)":"none",
+                            transition:"all 0.15s",whiteSpace:"nowrap"}}>
+                          {t.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               ) : (
                 <span style={{fontWeight:700,fontSize:18,color:THEME.text}}>{label}</span>
               )}
               <div style={{flex:1}}/>
-              {activeNav==="emissions"&&selectedVessel&&(
-                <div style={{display:"flex",alignItems:"center",gap:4,height:36,
-                  background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#E2E8F0",
-                  borderRadius:6,padding:"0 4px",marginRight:12,flexShrink:0}}>
-                  {[
-                    {id:"operational",label:"Operational"},
-                    {id:"environmental",label:"Environmental"},
-                    {id:"technical",label:"Technical"},
-                    {id:"lngkpis",label:"LNG KPIs",disabled:true}
-                  ].map(function(t){
-                    var isActive=dashTab===t.id;
-                    var isDark=kpiMode==="highlight2"||kpiMode==="highlight3";
-                    return (
-                      <button key={t.id}
-                        onClick={function(){if(!t.disabled)setDashTab(t.id);}}
-                        disabled={t.disabled}
-                        style={{height:28,padding:"0 14px",borderRadius:4,border:"none",
-                          cursor:t.disabled?"not-allowed":"pointer",
-                          fontSize:12,fontWeight:600,
-                          background:isActive?"#1852FE":"transparent",
-                          color:isActive?"#ffffff":t.disabled?(isDark?"rgba(255,255,255,0.3)":THEME.textMuted):(isDark?"rgba(255,255,255,0.65)":THEME.textSub),
-                          opacity:t.disabled?0.45:1,
-                          boxShadow:isActive?"0 1px 3px rgba(24,82,254,0.25)":"none",
-                          transition:"all 0.15s",whiteSpace:"nowrap"}}>
-                        {t.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
               <div style={{display:"flex",alignItems:"center",gap:12}}>
                 <span style={{fontSize:12,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.5)":THEME.textMuted}}>Last updated: 19 Jun 06:00 UTC</span>
                 <DateRangeDropdown key={dashTab} defaultLabel={dashTab==="environmental"?"YTD":"Last 180 Days"} onRangeChange={setMonthCount} dark={kpiMode==="highlight2"||kpiMode==="highlight3"}/>
