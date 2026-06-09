@@ -3086,6 +3086,17 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     }
 
     function SectionCharts({section, resetKey=0, cfg, STATUS_PILL, RATING_PILL, monthCount=6, customCharts=[], dashTab, setDashTab, selectedVessel, onLayoutSave, onLayoutReset}) {
+      // Track viewport height for responsive card sizing
+      var [windowH, setWindowH] = useState(window.innerHeight);
+      useEffect(function(){
+        function onResize(){ setWindowH(window.innerHeight); }
+        window.addEventListener("resize", onResize);
+        return function(){ window.removeEventListener("resize", onResize); };
+      },[]);
+      // Dynamic row height: fits ~2.25 rows in available viewport → ~25% peek on 3rd row
+      // 96px = top header, 24px = gap between rows
+      var dynamicRowH = Math.min(420, Math.max(200, Math.round((windowH - 96) / 2.25)));
+
       // Deterministic per-vessel data offset so charts visibly update
       var vSeed = selectedVessel ? (selectedVessel.name.charCodeAt(3)||1) / 20 : 0;
       // Month labels for the past 12 months ending at current month
@@ -3885,7 +3896,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   var rowMinPx=Math.round(CARD_MIN_PCT*(cw-rowGaps));
                   // Row height: use rowHeight from first item that defines it, else default CARD_H
                   var rowH=CARD_H;
-                  for(var ri2=0;ri2<rowCards.length;ri2++){var ritem=allDashItems[rowCards[ri2].itemIdx];if(ritem&&ritem.rowHeight){rowH=ritem.rowHeight;break;}}
+                  for(var ri2=0;ri2<rowCards.length;ri2++){var ritem=allDashItems[rowCards[ri2].itemIdx];if(ritem&&ritem.rowHeight){rowH=isDash?dynamicRowH:ritem.rowHeight;break;}}
                   return (
                     <div key={ri} style={{display:"flex",gap:24,marginBottom:ri<rows.length-1?24:0,alignItems:"stretch"}}>
                       {rowCards.map(function(card){
