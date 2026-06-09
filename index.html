@@ -7321,6 +7321,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
               )}
               <div style={{flex:1}}/>
               <div style={{display:"flex",alignItems:"center",gap:12}}>
+                <span style={{fontSize:12,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.5)":THEME.textMuted}}>Last updated: 19 Jun 06:00 UTC</span>
+                <DateRangeDropdown key={dashTab} defaultLabel={dashTab==="environmental"?"YTD":"Last 180 Days"} onRangeChange={setMonthCount} dark={kpiMode==="highlight2"||kpiMode==="highlight3"}/>
                 {activeNav==="emissions"&&selectedVessel&&(
                   <React.Fragment>
                     <button onClick={function(){setCompareOpen(true);}}
@@ -7339,8 +7341,6 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                     {compareOpen&&<CompareModal currentVessel={selectedVessel} onClose={function(){setCompareOpen(false);}} onCompare={function(vessels){setCompareVessels(vessels);setCompareOpen(false);}}/>}
                   </React.Fragment>
                 )}
-                <span style={{fontSize:12,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.5)":THEME.textMuted}}>Last updated: 19 Jun 06:00 UTC</span>
-                <DateRangeDropdown key={dashTab} defaultLabel={dashTab==="environmental"?"YTD":"Last 180 Days"} onRangeChange={setMonthCount} dark={kpiMode==="highlight2"||kpiMode==="highlight3"}/>
               </div>
             </div>
             <div style={{flex:1,overflowY:"auto",padding:"20px 24px 24px",background:darkBg?"#EAEFF4":THEME.bg,transition:"background 0.2s"}}>
