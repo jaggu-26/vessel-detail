@@ -1617,7 +1617,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
     }
 
-    function KpiHighlight2({kpis, vessel, selectedVessel, vesselSearchOpen, setVesselSearchOpen, onSelectVessel}) {
+    function KpiHighlight2({kpis, vessel, selectedVessel, vesselSearchOpen, setVesselSearchOpen, onSelectVessel, theme}) {
+      var isGrey = theme === "analytics2";
       var flatKpis = [];
       var eeIdx = kpis.findIndex(function(k){ return k.label==="EEOI"; });
       kpis.filter(function(_,i){ return eeIdx < 0 ? true : i <= eeIdx; })
@@ -1629,9 +1630,17 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             flatKpis.push(k);
           }
         });
+      var stripBg = isGrey ? "#DFE6EF" : "#001E4C";
+      var stripShadow = isGrey ? "0 8px 32px rgba(0,0,0,0.08)" : "0 8px 32px rgba(0,30,76,0.22)";
+      var cardBg = isGrey ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.06)";
+      var cardBgHover = isGrey ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.1)";
+      var cardBorder = isGrey ? "0.5px solid rgba(0,0,0,0.08)" : "0.5px solid rgba(255,255,255,0.1)";
+      var labelColor = isGrey ? "#5D7A9A" : "#5FA5F9";
+      var valueColor = isGrey ? "#1E293B" : "#ffffff";
+      var subColor = isGrey ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.45)";
       return (
-        <div style={{margin:"-20px -24px 20px",background:"#001E4C",padding:"4px 28px 28px",
-          boxShadow:"0 8px 32px rgba(0,30,76,0.22)"}}>
+        <div style={{margin:"-20px -24px 20px",background:stripBg,padding:"4px 28px 28px",
+          boxShadow:stripShadow}}>
           {/* KPI cards grid */}
           <div className="kpi-grid" style={{"--kpi-cols":flatKpis.length}}>
             {flatKpis.map(function(k, idx){
@@ -1641,14 +1650,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               return (
                 <div key={k.label} style={{
                   minWidth:0,
-                  background:"rgba(255,255,255,0.06)",borderRadius:8,
-                  border:"0.5px solid rgba(255,255,255,0.1)",
+                  background:cardBg,borderRadius:8,
+                  border:cardBorder,
                   padding:"14px 16px",boxSizing:"border-box",
                   height:91,overflow:"hidden",display:"flex",flexDirection:"column",
                   transition:"background 0.15s"}}
-                  onMouseEnter={function(e){e.currentTarget.style.background="rgba(255,255,255,0.1)";}}
-                  onMouseLeave={function(e){e.currentTarget.style.background="rgba(255,255,255,0.06)";}}>
-                  <div style={{fontSize:12,color:"#5FA5F9",fontWeight:500,letterSpacing:0.3,lineHeight:1.8,marginBottom:4}}>
+                  onMouseEnter={function(e){e.currentTarget.style.background=cardBgHover;}}
+                  onMouseLeave={function(e){e.currentTarget.style.background=cardBg;}}>
+                  <div style={{fontSize:12,color:labelColor,fontWeight:500,letterSpacing:0.3,lineHeight:1.8,marginBottom:4}}>
                     {k.label}
                   </div>
                   {k.subRows ? (
@@ -1656,23 +1665,23 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       {k.subRows.map(function(row){
                         return (
                           <div key={row.label} style={{display:"flex",flexDirection:"column",gap:4}}>
-                            <span style={{fontSize:12,lineHeight:1,color:"rgba(255,255,255,0.45)",fontWeight:500,whiteSpace:"nowrap"}}>{row.label}</span>
-                            <span style={{fontSize:18,fontWeight:700,color:"#ffffff",letterSpacing:"-0.3px",lineHeight:1.2}}>{row.value}</span>
+                            <span style={{fontSize:12,lineHeight:1,color:subColor,fontWeight:500,whiteSpace:"nowrap"}}>{row.label}</span>
+                            <span style={{fontSize:18,fontWeight:700,color:valueColor,letterSpacing:"-0.3px",lineHeight:1.2}}>{row.value}</span>
                           </div>
                         );
                       })}
                       <div style={{marginLeft:"auto",flexShrink:0,marginBottom:2}}>
-                        {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/>}
+                        {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={!isGrey} isLast={isLast}/>}
                       </div>
                     </div>
                   ) : (
                     <div style={{marginTop:"auto",display:"flex",alignItems:"flex-start",gap:6}}>
                       <div style={{flex:"1 1 auto",minWidth:0}}>
-                        <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:"#ffffff",lineHeight:1,overflowWrap:"break-word",display:"block"}}>{k.value}</span>
+                        <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:valueColor,lineHeight:1,overflowWrap:"break-word",display:"block"}}>{k.value}</span>
                         {k.label==="Prolonged Port Stays" && <PortStayViewLink count={k.value}/>}
-                        {k.detail && <div style={{fontSize:12,color:"rgba(255,255,255,0.45)",fontWeight:500,marginTop:3,lineHeight:1.3}}>{k.detail}</div>}
+                        {k.detail && <div style={{fontSize:12,color:subColor,fontWeight:500,marginTop:3,lineHeight:1.3}}>{k.detail}</div>}
                       </div>
-                      {k.up!==undefined && <div style={{flexShrink:0,marginTop:k.detail?25:3}}><ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/></div>}
+                      {k.up!==undefined && <div style={{flexShrink:0,marginTop:k.detail?25:3}}><ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={!isGrey} isLast={isLast}/></div>}
                     </div>
                   )}
                 </div>
@@ -7271,7 +7280,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           <style>{fontStyles}</style>
           {sidebarEl}
           <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0}}>
-            <div style={{background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#001E4C":darkBg?"#EAEFF4":"transparent",display:"flex",alignItems:"center",padding:(kpiMode==="highlight2"||kpiMode==="highlight3")?"20px 24px 20px":"20px 24px 0px",flexShrink:0,gap:8,transition:"background 0.2s",minHeight:96,boxSizing:"border-box"}}>
+            <div style={{background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#001E4C":kpiMode==="analytics2"?"#D4DCE8":darkBg?"#EAEFF4":"transparent",display:"flex",alignItems:"center",padding:(kpiMode==="highlight2"||kpiMode==="highlight3"||kpiMode==="analytics2")?"20px 24px 20px":"20px 24px 0px",flexShrink:0,gap:8,transition:"background 0.2s",minHeight:96,boxSizing:"border-box"}}>
               {activeNav==="emissions" && selectedVessel ? (
                 <div style={{display:"flex",alignItems:"center",gap:0,flex:1,minWidth:0}}>
                   {!vesselSearchOpen && (
@@ -7370,6 +7379,68 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                   </React.Fragment>
                 )}
                 <DateRangeDropdown key={dashTab} defaultLabel={dashTab==="environmental"?"YTD":"Last 180 Days"} onRangeChange={setMonthCount} dark={kpiMode==="highlight2"||kpiMode==="highlight3"}/>
+                {/* Colour-wheel theme picker */}
+                <div ref={cwRef} style={{position:"relative",display:"inline-flex"}}>
+                  <button
+                    onClick={function(){setCwOpen(function(o){return !o;});}}
+                    title="Theme"
+                    style={{display:"flex",alignItems:"center",justifyContent:"center",
+                      width:36,height:36,borderRadius:6,border:"none",
+                      background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#e2e8ef",
+                      cursor:"pointer",flexShrink:0,transition:"background 0.15s",
+                      color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.88)":"#64748B"}}
+                    onMouseEnter={function(e){e.currentTarget.style.background=(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.2)":"#d0d8e4";}}
+                    onMouseLeave={function(e){e.currentTarget.style.background=(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#e2e8ef";}}>
+                    {/* Colour-wheel SVG */}
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.1 0 2-.9 2-2v-.5c0-.53-.21-1.01-.54-1.37-.32-.35-.52-.84-.52-1.37 0-1.1.9-2 2-2H17c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z" fill="currentColor" opacity="0.18"/>
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.1 0 2-.9 2-2v-.5c0-.53-.21-1.01-.54-1.37-.32-.35-.52-.84-.52-1.37 0-1.1.9-2 2-2H17c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z" stroke="currentColor" strokeWidth="1.8" fill="none"/>
+                      <circle cx="6.5" cy="11.5" r="1.25" fill="currentColor"/>
+                      <circle cx="9" cy="7" r="1.25" fill="currentColor"/>
+                      <circle cx="15" cy="7" r="1.25" fill="currentColor"/>
+                      <circle cx="17.5" cy="11.5" r="1.25" fill="currentColor"/>
+                    </svg>
+                  </button>
+                  {cwOpen && (
+                    <div style={{position:"absolute",top:"calc(100% + 8px)",right:0,
+                      background:"#ffffff",borderRadius:12,
+                      boxShadow:"0 8px 28px rgba(0,0,0,0.14),0 1px 4px rgba(0,0,0,0.06)",
+                      border:"1px solid #E2E8F0",zIndex:200,width:214,padding:"8px 6px"}}>
+                      <div style={{fontSize:10,fontWeight:700,color:"#94A3B8",letterSpacing:1,
+                        padding:"2px 8px 8px",textTransform:"uppercase"}}>
+                        Colour Theme
+                      </div>
+                      {[
+                        {id:"highlight2", label:"Analytics 1", desc:"Dark navy header", swatch:"#001E4C"},
+                        {id:"analytics2", label:"Analytics 2", desc:"Light grey header", swatch:"#DFE6EF"}
+                      ].map(function(t){
+                        var isActive = kpiMode===t.id;
+                        return (
+                          <button key={t.id}
+                            onClick={function(){setKpiMode(t.id);setCwOpen(false);}}
+                            style={{display:"flex",alignItems:"center",gap:10,width:"100%",
+                              padding:"9px 10px",borderRadius:8,border:"none",
+                              background:isActive?"#EEF2FF":"transparent",
+                              cursor:"pointer",textAlign:"left",transition:"background 0.12s"}}>
+                            <div style={{width:26,height:26,borderRadius:6,flexShrink:0,
+                              background:t.swatch,
+                              border:"1px solid rgba(0,0,0,0.1)",
+                              boxShadow:"inset 0 1px 2px rgba(255,255,255,0.25)"}}/>
+                            <div style={{flex:1,minWidth:0}}>
+                              <div style={{fontSize:13,fontWeight:600,color:"#1E293B",lineHeight:1.3}}>{t.label}</div>
+                              <div style={{fontSize:11,color:"#94A3B8",lineHeight:1.4}}>{t.desc}</div>
+                            </div>
+                            {isActive && (
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1852FE" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}>
+                                <polyline points="20 6 9 17 4 12"/>
+                              </svg>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <div style={{flex:1,overflowY:"auto",padding:"20px 24px 24px",background:darkBg?"#EAEFF4":THEME.bg,transition:"background 0.2s"}}>
@@ -7380,10 +7451,10 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                                : kpis;
                 return kpiMode==="highlight"
                   ? <KpiHighlight kpis={activeKpis} vessel={selectedVessel}/>
-                  : kpiMode==="highlight2"
+                  : (kpiMode==="highlight2"||kpiMode==="analytics2")
                   ? <KpiHighlight2 kpis={activeKpis} vessel={selectedVessel} selectedVessel={selectedVessel}
                       vesselSearchOpen={vesselSearchOpen} setVesselSearchOpen={setVesselSearchOpen}
-                      onSelectVessel={function(v){setSelectedVessel(v);}}/>
+                      onSelectVessel={function(v){setSelectedVessel(v);}} theme={kpiMode}/>
                   : kpiMode==="highlight3"
                   ? <KpiHighlight3 kpis={activeKpis} vessel={selectedVessel} selectedVessel={selectedVessel}
                       vesselSearchOpen={vesselSearchOpen} setVesselSearchOpen={setVesselSearchOpen}
