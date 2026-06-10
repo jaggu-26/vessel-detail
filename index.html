@@ -1618,7 +1618,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     }
 
     function KpiHighlight2({kpis, vessel, selectedVessel, vesselSearchOpen, setVesselSearchOpen, onSelectVessel, theme}) {
-      var isGrey = theme === "analytics2";
+      var isGrey = theme === "analytics2" || theme === "analytics3";
+      var isAuto = theme === "analytics3";
       var flatKpis = [];
       var eeIdx = kpis.findIndex(function(k){ return k.label==="EEOI"; });
       kpis.filter(function(_,i){ return eeIdx < 0 ? true : i <= eeIdx; })
@@ -1641,15 +1642,19 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       return (
         <div style={{margin:isGrey?"-20px -24px 0":"-20px -24px 20px",background:stripBg,padding:isGrey?"0 28px 20px":"4px 28px 20px",
           boxShadow:stripShadow}}>
-          {/* KPI cards grid */}
-          <div className="kpi-grid" style={{"--kpi-cols":flatKpis.length}}>
+          {/* KPI cards */}
+          <div style={isAuto
+            ? {display:"flex",flexWrap:"wrap",gap:12,justifyContent:"flex-start"}
+            : {display:"grid",gridTemplateColumns:"repeat(var(--kpi-cols,3),1fr)",gap:12,"--kpi-cols":flatKpis.length}}>
             {flatKpis.map(function(k, idx){
               var isLast = idx === flatKpis.length - 1;
               var tipFn = vessel && KPI_BENCHMARKS[k.label];
               var tip = tipFn ? tipFn(vessel) : null;
               return (
                 <div key={k.label} style={{
-                  minWidth:0,
+                  flexShrink:0,
+                  width:isAuto?"fit-content":"auto",
+                  minWidth:isAuto?0:0,
                   background:cardBg,borderRadius:8,
                   border:cardBorder,
                   padding:"14px 16px",boxSizing:"border-box",
@@ -1657,7 +1662,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   transition:"background 0.15s"}}
                   onMouseEnter={function(e){e.currentTarget.style.background=cardBgHover;}}
                   onMouseLeave={function(e){e.currentTarget.style.background=cardBg;}}>
-                  <div style={{fontSize:12,color:labelColor,fontWeight:500,letterSpacing:0.3,lineHeight:1.8,marginBottom:4}}>
+                  <div style={{fontSize:12,color:labelColor,fontWeight:500,letterSpacing:0.3,lineHeight:1.8,marginBottom:4,whiteSpace:isAuto?"nowrap":"normal"}}>
                     {k.label}
                   </div>
                   {k.subRows ? (
@@ -1676,12 +1681,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     </div>
                   ) : (
                     <div style={{marginTop:"auto",display:"flex",alignItems:"flex-start",gap:6}}>
-                      <div style={{flex:"1 1 auto",minWidth:0}}>
-                        <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:valueColor,lineHeight:1,overflowWrap:"break-word",display:"block"}}>{k.value}</span>
+                      <div style={{flex:isAuto?"0 0 auto":"1 1 auto",minWidth:0}}>
+                        <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:valueColor,lineHeight:1,whiteSpace:"nowrap",display:"block"}}>{k.value}</span>
                         {k.label==="Prolonged Port Stays" && <PortStayViewLink count={k.value}/>}
-                        {k.detail && <div style={{fontSize:12,color:subColor,fontWeight:500,marginTop:3,lineHeight:1.3}}>{k.detail}</div>}
+                        {k.detail && <div style={{fontSize:12,color:subColor,fontWeight:500,marginTop:3,lineHeight:1.3,whiteSpace:isAuto?"nowrap":"normal"}}>{k.detail}</div>}
                       </div>
-                      {k.up!==undefined && <div style={{flexShrink:0,marginTop:k.detail?25:3}}><ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/></div>}
+                      {k.up!==undefined && <div style={{flexShrink:0,marginTop:k.detail?25:3,marginLeft:12}}><ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/></div>}
                     </div>
                   )}
                 </div>
@@ -7280,7 +7285,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           <style>{fontStyles}</style>
           {sidebarEl}
           <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0}}>
-            <div style={{background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#001E4C":kpiMode==="analytics2"?THEME.bg:darkBg?"#EAEFF4":"transparent",display:"flex",alignItems:"center",position:"relative",padding:(kpiMode==="highlight2"||kpiMode==="highlight3"||kpiMode==="analytics2")?"20px 24px 20px":"20px 24px 0px",flexShrink:0,gap:8,transition:"background 0.2s",minHeight:kpiMode==="analytics2"?76:96,boxSizing:"border-box"}}>
+            <div style={{background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#001E4C":(kpiMode==="analytics2"||kpiMode==="analytics3")?THEME.bg:darkBg?"#EAEFF4":"transparent",display:"flex",alignItems:"center",position:"relative",padding:(kpiMode==="highlight2"||kpiMode==="highlight3"||kpiMode==="analytics2"||kpiMode==="analytics3")?"20px 24px 20px":"20px 24px 0px",flexShrink:0,gap:8,transition:"background 0.2s",minHeight:(kpiMode==="analytics2"||kpiMode==="analytics3")?76:96,boxSizing:"border-box"}}>
               {activeNav==="emissions" && selectedVessel ? (
                 <React.Fragment>
                   {/* Left: vessel info */}
@@ -7299,10 +7304,10 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                             <path d="M19 12H5M12 19l-7-7 7-7"/>
                           </svg>
                         </button>
-                        <div style={{marginLeft:16,flexShrink:0}}><VesselIcon size={kpiMode==="analytics2"?36:56} bg={getVesselColor(selectedVessel.type)}/></div>
+                        <div style={{marginLeft:16,flexShrink:0}}><VesselIcon size={(kpiMode==="analytics2"||kpiMode==="analytics3")?36:56} bg={getVesselColor(selectedVessel.type)}/></div>
                         <div style={{lineHeight:1,flexShrink:0,marginLeft:12}}>
-                          <div style={{fontSize:kpiMode==="analytics2"?13:14,fontWeight:700,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#ffffff":THEME.text}}>{selectedVessel.name}</div>
-                          <div style={{fontSize:11,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.5)":"#94A3B8",marginTop:kpiMode==="analytics2"?4:10}}>
+                          <div style={{fontSize:(kpiMode==="analytics2"||kpiMode==="analytics3")?13:14,fontWeight:700,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#ffffff":THEME.text}}>{selectedVessel.name}</div>
+                          <div style={{fontSize:11,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.5)":"#94A3B8",marginTop:(kpiMode==="analytics2"||kpiMode==="analytics3")?4:10}}>
                             {selectedVessel.imo.replace("IMO ","")}
                             <span style={{margin:"0 5px",color:"#CBD5E1"}}>|</span>
                             {selectedVessel.type}
@@ -7412,7 +7417,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                       </div>
                       {[
                         {id:"highlight2", label:"Analytics 1", desc:"Dark navy header", swatch:"#001E4C"},
-                        {id:"analytics2", label:"Analytics 2", desc:"Light grey header", swatch:"#F1F5F9"}
+                        {id:"analytics2", label:"Analytics 2", desc:"Light grey header", swatch:"#F1F5F9"},
+                        {id:"analytics3", label:"Analytics 3", desc:"Content-width KPI cards", swatch:"#E2E8F0"}
                       ].map(function(t){
                         var isActive = kpiMode===t.id;
                         return (
@@ -7451,7 +7457,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                                : kpis;
                 return kpiMode==="highlight"
                   ? <KpiHighlight kpis={activeKpis} vessel={selectedVessel}/>
-                  : (kpiMode==="highlight2"||kpiMode==="analytics2")
+                  : (kpiMode==="highlight2"||kpiMode==="analytics2"||kpiMode==="analytics3")
                   ? <KpiHighlight2 kpis={activeKpis} vessel={selectedVessel} selectedVessel={selectedVessel}
                       vesselSearchOpen={vesselSearchOpen} setVesselSearchOpen={setVesselSearchOpen}
                       onSelectVessel={function(v){setSelectedVessel(v);}} theme={kpiMode}/>
