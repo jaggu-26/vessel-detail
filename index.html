@@ -7301,8 +7301,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                         </button>
                         <div style={{marginLeft:16,flexShrink:0}}><VesselIcon size={kpiMode==="analytics2"?36:56} bg={getVesselColor(selectedVessel.type)}/></div>
                         <div style={{lineHeight:1,flexShrink:0,marginLeft:12}}>
-                          <div style={{fontSize:14,fontWeight:700,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#ffffff":THEME.text}}>{selectedVessel.name}</div>
-                          <div style={{fontSize:12,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.5)":"#94A3B8",marginTop:10}}>
+                          <div style={{fontSize:kpiMode==="analytics2"?13:14,fontWeight:700,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#ffffff":THEME.text}}>{selectedVessel.name}</div>
+                          <div style={{fontSize:11,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.5)":"#94A3B8",marginTop:kpiMode==="analytics2"?4:10}}>
                             {selectedVessel.imo.replace("IMO ","")}
                             <span style={{margin:"0 5px",color:"#CBD5E1"}}>|</span>
                             {selectedVessel.type}
