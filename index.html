@@ -7280,7 +7280,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           <style>{fontStyles}</style>
           {sidebarEl}
           <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0}}>
-            <div style={{background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#001E4C":kpiMode==="analytics2"?"#D4DCE8":darkBg?"#EAEFF4":"transparent",display:"flex",alignItems:"center",padding:(kpiMode==="highlight2"||kpiMode==="highlight3"||kpiMode==="analytics2")?"20px 24px 20px":"20px 24px 0px",flexShrink:0,gap:8,transition:"background 0.2s",minHeight:96,boxSizing:"border-box"}}>
+            <div style={{background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#001E4C":kpiMode==="analytics2"?THEME.bg:darkBg?"#EAEFF4":"transparent",display:"flex",alignItems:"center",padding:(kpiMode==="highlight2"||kpiMode==="highlight3"||kpiMode==="analytics2")?"20px 24px 20px":"20px 24px 0px",flexShrink:0,gap:8,transition:"background 0.2s",minHeight:96,boxSizing:"border-box"}}>
               {activeNav==="emissions" && selectedVessel ? (
                 <div style={{display:"flex",alignItems:"center",gap:0,flex:1,minWidth:0}}>
                   {!vesselSearchOpen && (
