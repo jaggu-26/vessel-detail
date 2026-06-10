@@ -1639,7 +1639,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var valueColor = "#ffffff";
       var subColor = "rgba(255,255,255,0.45)";
       return (
-        <div style={{margin:"-20px -24px 0",background:stripBg,padding:isGrey?"0 28px 20px":"4px 28px 20px",
+        <div style={{margin:isGrey?"-20px -24px 0":"-20px -24px 20px",background:stripBg,padding:isGrey?"0 28px 20px":"4px 28px 20px",
           boxShadow:stripShadow}}>
           {/* KPI cards grid */}
           <div className="kpi-grid" style={{"--kpi-cols":flatKpis.length}}>
