@@ -1640,46 +1640,60 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var valueColor = "#ffffff";
       var subColor = "rgba(255,255,255,0.45)";
       if(isAuto){
+        function renderAutoItem(k, showDivider){
+          var tipFn = vessel && KPI_BENCHMARKS[k.label];
+          var tip = tipFn ? tipFn(vessel) : null;
+          return (
+            <React.Fragment key={k.label}>
+              {showDivider && (
+                <div style={{width:1,background:"rgba(255,255,255,0.12)",flexShrink:0,margin:"14px 0"}}/>
+              )}
+              <div style={{flex:"0 0 auto",display:"flex",flexDirection:"column",justifyContent:"center",
+                alignItems:"center",padding:"0 24px"}}>
+                <div style={{fontSize:11,fontWeight:700,color:"#5FA5F9",letterSpacing:0.9,
+                  textTransform:"uppercase",lineHeight:1,whiteSpace:"nowrap",marginBottom:8,textAlign:"center"}}>
+                  {k.label}
+                </div>
+                {k.subRows ? (
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>
+                    {k.subRows.map(function(row){
+                      return (
+                        <div key={row.label} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
+                          <span style={{fontSize:10,color:"rgba(255,255,255,0.45)",fontWeight:500}}>{row.label}</span>
+                          <span style={{fontSize:22,fontWeight:700,color:"#fff",letterSpacing:"-0.3px",lineHeight:1}}>{row.value}</span>
+                        </div>
+                      );
+                    })}
+                    {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={false}/>}
+                  </div>
+                ) : (
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>
+                    <span style={{fontSize:22,fontWeight:700,color:"#fff",lineHeight:1,letterSpacing:"-0.3px",whiteSpace:"nowrap"}}>{k.value}</span>
+                    {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={false}/>}
+                  </div>
+                )}
+              </div>
+            </React.Fragment>
+          );
+        }
+        var visibleItem = flatKpis[0];        // Total Voyages — stays fully visible
+        var gradientItems = flatKpis.slice(1); // remaining items covered by gradient
         return (
-          <div style={{margin:"-20px 0 20px",background:stripBg,borderRadius:12,boxShadow:"0 4px 20px rgba(0,0,0,0.18)"}}>
+          <div style={{margin:"-20px 0 20px",background:stripBg,borderRadius:12,
+            boxShadow:"0 4px 20px rgba(0,0,0,0.18)",overflow:"hidden"}}>
             <div style={{display:"flex",alignItems:"stretch",justifyContent:"center",height:98}}>
-              {flatKpis.map(function(k, idx){
-                var isLast = idx === flatKpis.length - 1;
-                var tipFn = vessel && KPI_BENCHMARKS[k.label];
-                var tip = tipFn ? tipFn(vessel) : null;
-                return (
-                  <React.Fragment key={k.label}>
-                    {idx > 0 && (
-                      <div style={{width:1,background:"rgba(255,255,255,0.12)",flexShrink:0,margin:"14px 0"}}/>
-                    )}
-                    <div style={{flex:"0 0 auto",display:"flex",flexDirection:"column",justifyContent:"center",
-                      alignItems:"center",padding:"0 24px"}}>
-                      <div style={{fontSize:11,fontWeight:700,color:"#5FA5F9",letterSpacing:0.9,
-                        textTransform:"uppercase",lineHeight:1,whiteSpace:"nowrap",marginBottom:8,textAlign:"center"}}>
-                        {k.label}
-                      </div>
-                      {k.subRows ? (
-                        <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>
-                          {k.subRows.map(function(row){
-                            return (
-                              <div key={row.label} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
-                                <span style={{fontSize:10,color:"rgba(255,255,255,0.45)",fontWeight:500}}>{row.label}</span>
-                                <span style={{fontSize:22,fontWeight:700,color:"#fff",letterSpacing:"-0.3px",lineHeight:1}}>{row.value}</span>
-                              </div>
-                            );
-                          })}
-                          {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/>}
-                        </div>
-                      ) : (
-                        <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>
-                          <span style={{fontSize:22,fontWeight:700,color:"#fff",lineHeight:1,letterSpacing:"-0.3px",whiteSpace:"nowrap"}}>{k.value}</span>
-                          {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/>}
-                        </div>
-                      )}
-                    </div>
-                  </React.Fragment>
-                );
-              })}
+              {/* Total Voyages — fully visible, outside gradient wrapper */}
+              {visibleItem && renderAutoItem(visibleItem, false)}
+              {/* Items from EEOI area → wrapped with gradient overlay */}
+              {gradientItems.length > 0 && (
+                <div style={{display:"flex",alignItems:"stretch",position:"relative"}}>
+                  {gradientItems.map(function(k, i){ return renderAutoItem(k, true); })}
+                  {/* Gradient: transparent at Total-Voyages side → solid #001E4C at EEOI */}
+                  <div style={{position:"absolute",top:0,left:0,right:0,bottom:0,
+                    background:"linear-gradient(to right, transparent 0%, #001E4C 78%)",
+                    pointerEvents:"none",zIndex:10}}/>
+                </div>
+              )}
             </div>
           </div>
         );
