@@ -1639,7 +1639,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var valueColor = "#ffffff";
       var subColor = "rgba(255,255,255,0.45)";
       return (
-        <div style={{margin:"-20px -24px 0",background:stripBg,padding:"4px 28px 20px",
+        <div style={{margin:"-20px -24px 0",background:stripBg,padding:isGrey?"0 28px 20px":"4px 28px 20px",
           boxShadow:stripShadow}}>
           {/* KPI cards grid */}
           <div className="kpi-grid" style={{"--kpi-cols":flatKpis.length}}>
@@ -7280,7 +7280,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           <style>{fontStyles}</style>
           {sidebarEl}
           <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0}}>
-            <div style={{background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#001E4C":kpiMode==="analytics2"?THEME.bg:darkBg?"#EAEFF4":"transparent",display:"flex",alignItems:"center",position:"relative",padding:(kpiMode==="highlight2"||kpiMode==="highlight3"||kpiMode==="analytics2")?"20px 24px 20px":"20px 24px 0px",flexShrink:0,gap:8,transition:"background 0.2s",minHeight:96,boxSizing:"border-box"}}>
+            <div style={{background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#001E4C":kpiMode==="analytics2"?THEME.bg:darkBg?"#EAEFF4":"transparent",display:"flex",alignItems:"center",position:"relative",padding:(kpiMode==="highlight2"||kpiMode==="highlight3"||kpiMode==="analytics2")?"20px 24px 20px":"20px 24px 0px",flexShrink:0,gap:8,transition:"background 0.2s",minHeight:kpiMode==="analytics2"?76:96,boxSizing:"border-box"}}>
               {activeNav==="emissions" && selectedVessel ? (
                 <React.Fragment>
                   {/* Left: vessel info */}
