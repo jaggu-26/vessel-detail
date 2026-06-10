@@ -7299,7 +7299,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                             <path d="M19 12H5M12 19l-7-7 7-7"/>
                           </svg>
                         </button>
-                        <div style={{marginLeft:16,flexShrink:0}}><VesselIcon size={56} bg={getVesselColor(selectedVessel.type)}/></div>
+                        <div style={{marginLeft:16,flexShrink:0}}><VesselIcon size={kpiMode==="analytics2"?36:56} bg={getVesselColor(selectedVessel.type)}/></div>
                         <div style={{lineHeight:1,flexShrink:0,marginLeft:12}}>
                           <div style={{fontSize:14,fontWeight:700,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#ffffff":THEME.text}}>{selectedVessel.name}</div>
                           <div style={{fontSize:12,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.5)":"#94A3B8",marginTop:10}}>
