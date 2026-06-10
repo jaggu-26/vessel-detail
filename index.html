@@ -1630,11 +1630,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             flatKpis.push(k);
           }
         });
-      var stripBg = isGrey ? "#DFE6EF" : "#001E4C";
-      var stripShadow = isGrey ? "0 8px 32px rgba(0,0,0,0.08)" : "0 8px 32px rgba(0,30,76,0.22)";
-      var cardBg = isGrey ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.06)";
-      var cardBgHover = isGrey ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.1)";
-      var cardBorder = isGrey ? "0.5px solid rgba(0,0,0,0.08)" : "0.5px solid rgba(255,255,255,0.1)";
+      var stripBg = isGrey ? "#F1F5F9" : "#001E4C";
+      var stripShadow = isGrey ? "none" : "0 8px 32px rgba(0,30,76,0.22)";
+      var cardBg = isGrey ? "#ffffff" : "rgba(255,255,255,0.06)";
+      var cardBgHover = isGrey ? "#F8FAFC" : "rgba(255,255,255,0.1)";
+      var cardBorder = isGrey ? "0.5px solid #E2E8F0" : "0.5px solid rgba(255,255,255,0.1)";
       var labelColor = isGrey ? "#5D7A9A" : "#5FA5F9";
       var valueColor = isGrey ? "#1E293B" : "#ffffff";
       var subColor = isGrey ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.45)";
@@ -7409,7 +7409,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                       </div>
                       {[
                         {id:"highlight2", label:"Analytics 1", desc:"Dark navy header", swatch:"#001E4C"},
-                        {id:"analytics2", label:"Analytics 2", desc:"Light grey header", swatch:"#DFE6EF"}
+                        {id:"analytics2", label:"Analytics 2", desc:"Light grey header", swatch:"#F1F5F9"}
                       ].map(function(t){
                         var isActive = kpiMode===t.id;
                         return (
