@@ -7201,6 +7201,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         document.addEventListener("mousedown",handleClick);
         return function(){ document.removeEventListener("mousedown",handleClick); };
       },[cwOpen]);
+      var leftGroupRef=useRef(null);
+      var [vesselSpanW,setVesselSpanW]=useState(340);
       var [showCustomise,setShowCustomise]=useState(false);
       var [compareOpen,setCompareOpen]=useState(false);
       var [compareVessels,setCompareVessels]=useState(null);
@@ -7210,6 +7212,14 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       var [selectedVessel,setSelectedVessel]=useState(null);
       var [showMap,setShowMap]=useState(true);
       var [vesselSearchOpen,setVesselSearchOpen]=useState(false);
+      // Measure vessel-info span (back arrow → search icon) while closed,
+      // so the opened search bar can match that exact width
+      useEffect(function(){
+        if(!vesselSearchOpen && leftGroupRef.current){
+          var w=Math.round(leftGroupRef.current.getBoundingClientRect().width);
+          if(w>100 && w!==vesselSpanW) setVesselSpanW(w);
+        }
+      });
       _setDetailChart = setDetailChart;
 
       var fontStyles = `
@@ -7344,7 +7354,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
               {activeNav==="emissions" && selectedVessel ? (
                 <React.Fragment>
                   {/* Left: vessel info */}
-                  <div style={{display:"flex",alignItems:"center",gap:0,flexShrink:0}}>
+                  <div ref={leftGroupRef} style={{display:"flex",alignItems:"center",gap:0,flexShrink:0}}>
                     {!vesselSearchOpen && (
                       <React.Fragment>
                         <button onClick={function(){setShowMap(true);}}
@@ -7372,7 +7382,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                         </div>
                       </React.Fragment>
                     )}
-                    <div style={{minWidth:0,maxWidth:340,flexShrink:0,marginLeft:12}}>
+                    <div style={{minWidth:0,width:vesselSearchOpen?vesselSpanW:"auto",flexShrink:0,marginLeft:vesselSearchOpen?0:12}}>
                       <VesselSearch selectedVessel={selectedVessel} onSelectVessel={function(v){setSelectedVessel(v);}} open={vesselSearchOpen} setOpen={setVesselSearchOpen}/>
                     </div>
                   </div>
