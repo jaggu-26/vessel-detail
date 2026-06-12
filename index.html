@@ -7372,6 +7372,9 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                         </div>
                       </React.Fragment>
                     )}
+                    <div style={{minWidth:0,maxWidth:340,flexShrink:0,marginLeft:12}}>
+                      <VesselSearch selectedVessel={selectedVessel} onSelectVessel={function(v){setSelectedVessel(v);}} open={vesselSearchOpen} setOpen={setVesselSearchOpen}/>
+                    </div>
                   </div>
                   {/* Centre: tabs — absolutely centred in the bar */}
                   <div style={{position:"absolute",left:"50%",transform:"translateX(-50%)",
