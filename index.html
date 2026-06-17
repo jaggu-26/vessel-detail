@@ -7390,7 +7390,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           <style>{fontStyles}</style>
           {sidebarEl}
           <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0}}>
-            <div style={{background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#001E4C":(kpiMode==="analytics2"||kpiMode==="analytics3")?THEME.bg:darkBg?"#EAEFF4":"transparent",display:"flex",alignItems:"center",padding:(kpiMode==="highlight2"||kpiMode==="highlight3"||kpiMode==="analytics2"||kpiMode==="analytics3")?"20px 24px 20px":"20px 24px 0px",flexShrink:0,transition:"background 0.2s",minHeight:(kpiMode==="analytics2"||kpiMode==="analytics3")?76:96,boxSizing:"border-box"}}>
+            <div style={{background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#001E4C":(kpiMode==="analytics2"||kpiMode==="analytics3")?THEME.bg:darkBg?"#EAEFF4":"transparent",display:"flex",alignItems:"center",position:"relative",padding:(kpiMode==="highlight2"||kpiMode==="highlight3"||kpiMode==="analytics2"||kpiMode==="analytics3")?"20px 24px 20px":"20px 24px 0px",flexShrink:0,transition:"background 0.2s",minHeight:(kpiMode==="analytics2"||kpiMode==="analytics3")?76:96,boxSizing:"border-box"}}>
               {activeNav==="emissions" && selectedVessel ? (
                 <React.Fragment>
                   {/* Left: vessel info — flex-shrink:0 so it never compresses */}
@@ -7426,8 +7426,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                       <VesselSearch selectedVessel={selectedVessel} onSelectVessel={function(v){setSelectedVessel(v);}} open={vesselSearchOpen} setOpen={setVesselSearchOpen}/>
                     </div>
                   </div>
-                  {/* Tabs — 14px fixed gap from search icon; right gap is flex:1 spacer that shrinks first */}
-                  <div ref={tabsRef} style={{marginLeft:14,flexShrink:0,display:"flex",alignItems:"center",gap:4,height:36,
+                  {/* Tabs — absolutely centred in the header bar */}
+                  <div ref={tabsRef} style={{position:"absolute",left:"50%",transform:"translateX(-50%)",display:"flex",alignItems:"center",gap:4,height:36,
                     background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#E2E8F0",
                     borderRadius:6,padding:"0 4px"}}>
                     {[
@@ -7454,8 +7454,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                       );
                     })}
                   </div>
-                  {/* Spacer: absorbs right gap — shrinks as screen narrows, min 14px before right group */}
-                  <div style={{flex:1,minWidth:14}}/>
+                  {/* Spacer pushes right group to the right */}
+                  <div style={{flex:1}}/>
                 </React.Fragment>
               ) : (
                 <React.Fragment>
