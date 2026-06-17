@@ -7204,16 +7204,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         window.addEventListener("resize",onResize);
         return function(){ window.removeEventListener("resize",onResize); };
       },[]);
-      var [kpiMode,setKpiMode]=useState("highlight2"); // 'light' | 'dark' | 'highlight' | 'highlight2' | 'highlight3'
+      var [kpiMode,setKpiMode]=useState("highlight2");
       var [darkBg,setDarkBg]=useState(false);
-      var [cwOpen,setCwOpen]=useState(false);
-      var cwRef=useRef(null);
-      useEffect(function(){
-        if(!cwOpen) return;
-        function handleClick(e){ if(cwRef.current&&!cwRef.current.contains(e.target)) setCwOpen(false); }
-        document.addEventListener("mousedown",handleClick);
-        return function(){ document.removeEventListener("mousedown",handleClick); };
-      },[cwOpen]);
       var leftGroupRef=useRef(null);
       var tabsRef=useRef(null);
       var rightGroupRef=useRef(null);
@@ -7497,68 +7489,6 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                   </React.Fragment>
                 )}
                 <DateRangeDropdown key={dashTab} defaultLabel={dashTab==="environmental"?"YTD":"Last 180 Days"} onRangeChange={setMonthCount} dark={kpiMode==="highlight2"||kpiMode==="highlight3"}/>
-                {/* Colour-wheel theme picker */}
-                <div ref={cwRef} style={{position:"relative",display:"inline-flex"}}>
-                  <button
-                    onClick={function(){setCwOpen(function(o){return !o;});}}
-                    title="Theme"
-                    style={{display:"flex",alignItems:"center",justifyContent:"center",
-                      width:36,height:36,borderRadius:6,border:"none",
-                      background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#e2e8ef",
-                      cursor:"pointer",flexShrink:0,transition:"background 0.15s",
-                      color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.88)":"#64748B"}}
-                    onMouseEnter={function(e){e.currentTarget.style.background=(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.2)":"#d0d8e4";}}
-                    onMouseLeave={function(e){e.currentTarget.style.background=(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#e2e8ef";}}>
-                    {/* Colour-wheel SVG */}
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.1 0 2-.9 2-2v-.5c0-.53-.21-1.01-.54-1.37-.32-.35-.52-.84-.52-1.37 0-1.1.9-2 2-2H17c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z" fill="currentColor" opacity="0.18"/>
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.1 0 2-.9 2-2v-.5c0-.53-.21-1.01-.54-1.37-.32-.35-.52-.84-.52-1.37 0-1.1.9-2 2-2H17c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z" stroke="currentColor" strokeWidth="1.8" fill="none"/>
-                      <circle cx="6.5" cy="11.5" r="1.25" fill="currentColor"/>
-                      <circle cx="9" cy="7" r="1.25" fill="currentColor"/>
-                      <circle cx="15" cy="7" r="1.25" fill="currentColor"/>
-                      <circle cx="17.5" cy="11.5" r="1.25" fill="currentColor"/>
-                    </svg>
-                  </button>
-                  {cwOpen && (
-                    <div style={{position:"absolute",top:"calc(100% + 8px)",right:0,
-                      background:"#ffffff",borderRadius:12,
-                      boxShadow:"0 8px 28px rgba(0,0,0,0.14),0 1px 4px rgba(0,0,0,0.06)",
-                      border:"1px solid #E2E8F0",zIndex:200,width:214,padding:"8px 6px"}}>
-                      <div style={{fontSize:10,fontWeight:700,color:"#94A3B8",letterSpacing:1,
-                        padding:"2px 8px 8px",textTransform:"uppercase"}}>
-                        Colour Theme
-                      </div>
-                      {[
-                        {id:"highlight2", label:"Analytics 1", desc:"Dark navy header", swatch:"#001E4C"},
-                        {id:"analytics2", label:"Analytics 2", desc:"Light grey header", swatch:"#F1F5F9"}
-                      ].map(function(t){
-                        var isActive = kpiMode===t.id;
-                        return (
-                          <button key={t.id}
-                            onClick={function(){setKpiMode(t.id);setCwOpen(false);}}
-                            style={{display:"flex",alignItems:"center",gap:10,width:"100%",
-                              padding:"9px 10px",borderRadius:8,border:"none",
-                              background:isActive?"#EEF2FF":"transparent",
-                              cursor:"pointer",textAlign:"left",transition:"background 0.12s"}}>
-                            <div style={{width:26,height:26,borderRadius:6,flexShrink:0,
-                              background:t.swatch,
-                              border:"1px solid rgba(0,0,0,0.1)",
-                              boxShadow:"inset 0 1px 2px rgba(255,255,255,0.25)"}}/>
-                            <div style={{flex:1,minWidth:0}}>
-                              <div style={{fontSize:13,fontWeight:600,color:"#1E293B",lineHeight:1.3}}>{t.label}</div>
-                              <div style={{fontSize:11,color:"#94A3B8",lineHeight:1.4}}>{t.desc}</div>
-                            </div>
-                            {isActive && (
-                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1852FE" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}>
-                                <polyline points="20 6 9 17 4 12"/>
-                              </svg>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
             <div style={{flex:1,overflowY:"auto",padding:"20px 24px 24px",background:darkBg?"#EAEFF4":THEME.bg,transition:"background 0.2s"}}>
