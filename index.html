@@ -7359,10 +7359,10 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           <style>{fontStyles}</style>
           {sidebarEl}
           <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0}}>
-            <div style={{background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#001E4C":(kpiMode==="analytics2"||kpiMode==="analytics3")?THEME.bg:darkBg?"#EAEFF4":"transparent",display:"grid",gridTemplateColumns:"1fr auto 1fr",alignItems:"center",padding:(kpiMode==="highlight2"||kpiMode==="highlight3"||kpiMode==="analytics2"||kpiMode==="analytics3")?"20px 24px 20px":"20px 24px 0px",flexShrink:0,transition:"background 0.2s",minHeight:(kpiMode==="analytics2"||kpiMode==="analytics3")?76:96,boxSizing:"border-box"}}>
+            <div style={{background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#001E4C":(kpiMode==="analytics2"||kpiMode==="analytics3")?THEME.bg:darkBg?"#EAEFF4":"transparent",display:"flex",alignItems:"center",padding:(kpiMode==="highlight2"||kpiMode==="highlight3"||kpiMode==="analytics2"||kpiMode==="analytics3")?"20px 24px 20px":"20px 24px 0px",flexShrink:0,transition:"background 0.2s",minHeight:(kpiMode==="analytics2"||kpiMode==="analytics3")?76:96,boxSizing:"border-box"}}>
               {activeNav==="emissions" && selectedVessel ? (
                 <React.Fragment>
-                  {/* Left: vessel info */}
+                  {/* Left: vessel info — flex-shrink:0 so it never compresses */}
                   <div ref={leftGroupRef} style={{display:"flex",alignItems:"center",gap:0,flexShrink:0}}>
                     {!vesselSearchOpen && (
                       <React.Fragment>
@@ -7395,8 +7395,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                       <VesselSearch selectedVessel={selectedVessel} onSelectVessel={function(v){setSelectedVessel(v);}} open={vesselSearchOpen} setOpen={setVesselSearchOpen}/>
                     </div>
                   </div>
-                  {/* Centre: tabs — col 2 of 3-col grid, naturally centred */}
-                  <div ref={tabsRef} style={{display:"flex",alignItems:"center",gap:4,height:36,justifySelf:"center",
+                  {/* Tabs — 14px fixed gap from search icon; right gap is flex:1 spacer that shrinks first */}
+                  <div ref={tabsRef} style={{marginLeft:14,flexShrink:0,display:"flex",alignItems:"center",gap:4,height:36,
                     background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#E2E8F0",
                     borderRadius:6,padding:"0 4px"}}>
                     {[
@@ -7423,14 +7423,16 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                       );
                     })}
                   </div>
+                  {/* Spacer: absorbs right gap — shrinks as screen narrows, min 14px before right group */}
+                  <div style={{flex:1,minWidth:14}}/>
                 </React.Fragment>
               ) : (
                 <React.Fragment>
                   <span style={{fontWeight:700,fontSize:18,color:THEME.text}}>{label}</span>
-                  <div/>
+                  <div style={{flex:1}}/>
                 </React.Fragment>
               )}
-              <div ref={rightGroupRef} style={{display:"flex",alignItems:"center",gap:12,justifySelf:"end"}}>
+              <div ref={rightGroupRef} style={{display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
                 {showLastUpdated&&<span style={{fontSize:12,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.5)":THEME.textMuted,whiteSpace:"nowrap"}}>Last updated: 19 Jun 06:00 UTC</span>}
                 {activeNav==="emissions"&&selectedVessel&&(
                   <React.Fragment>
