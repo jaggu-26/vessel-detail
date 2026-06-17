@@ -1639,6 +1639,18 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var labelColor = "#5FA5F9";
       var valueColor = "#ffffff";
       var subColor = "rgba(255,255,255,0.45)";
+      // Measure strip width to detect when arrow would crowd the value text
+      var kpiStripRef = useRef(null);
+      var [kpiCw, setKpiCw] = useState(1400);
+      useEffect(function(){
+        if(!kpiStripRef.current) return;
+        var ro = new ResizeObserver(function(e){ if(e[0]) setKpiCw(e[0].contentRect.width); });
+        ro.observe(kpiStripRef.current);
+        setKpiCw(kpiStripRef.current.offsetWidth);
+        return function(){ ro.disconnect(); };
+      }, []);
+      // Below ~1120px the arrow starts crowding "1,234,567 NM" — switch to 3×2 / 2×2
+      var kpiCols = kpiCw < 1120 ? Math.ceil(flatKpis.length/2) : flatKpis.length;
       if(isAuto){
         function renderAutoItem(k, showDivider){
           var tipFn = vessel && KPI_BENCHMARKS[k.label];
@@ -1699,10 +1711,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         );
       }
       return (
-        <div style={{margin:isGrey?"-20px -24px 0":"-20px -24px 20px",background:stripBg,padding:isGrey?"0 28px 20px":"4px 28px 20px",
+        <div ref={kpiStripRef} style={{margin:isGrey?"-20px -24px 0":"-20px -24px 20px",background:stripBg,padding:isGrey?"0 28px 20px":"4px 28px 20px",
           boxShadow:stripShadow}}>
-          {/* KPI cards grid — 3 cols for 6-card, 2 cols for 4-card */}
-          <div className="kpi-grid" style={{"--kpi-cols":flatKpis.length}}>
+          <div className="kpi-grid" style={{"--kpi-cols":kpiCols}}>
             {flatKpis.map(function(k, idx){
               var isLast = idx === flatKpis.length - 1;
               var tipFn = vessel && KPI_BENCHMARKS[k.label];
