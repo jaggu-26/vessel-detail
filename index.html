@@ -1701,8 +1701,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       return (
         <div style={{margin:isGrey?"-20px -24px 0":"-20px -24px 20px",background:stripBg,padding:isGrey?"0 28px 20px":"4px 28px 20px",
           boxShadow:stripShadow}}>
-          {/* KPI cards grid — responsive: fits as many columns as width allows, wraps cleanly */}
-          <div className="kpi-grid" style={{"--kpi-cols":flatKpis.length}}>
+          {/* KPI cards grid — 3 cols for 6-card, 2 cols for 4-card */}
+          <div className="kpi-grid" style={{"--kpi-cols":Math.ceil(flatKpis.length/2)}}>
             {flatKpis.map(function(k, idx){
               var isLast = idx === flatKpis.length - 1;
               var tipFn = vessel && KPI_BENCHMARKS[k.label];
@@ -1771,7 +1771,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             boxShadow:"0 8px 32px rgba(0,30,76,0.22)"}}/>
           {/* White cards straddling the strip bottom edge */}
           <div style={{padding:"0 28px",marginTop:"-52px",position:"relative",zIndex:2}}>
-            <div className="kpi-grid" style={{"--kpi-cols":flatKpis.length}}>
+            <div className="kpi-grid" style={{"--kpi-cols":Math.ceil(flatKpis.length/2)}}>
               {flatKpis.map(function(k, idx){
                 var isLast = idx === flatKpis.length - 1;
                 var tipFn = vessel && KPI_BENCHMARKS[k.label];
@@ -1891,7 +1891,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       return (
         <div style={{marginBottom:20}}>
-          <div className="kpi-grid" style={{"--kpi-cols":flatKpis.length}}>
+          <div className="kpi-grid" style={{"--kpi-cols":Math.ceil(flatKpis.length/2)}}>
             {flatKpis.map(function(k, idx){
               var tipFn = vessel && KPI_BENCHMARKS[k.label];
               var tip = tipFn ? tipFn(vessel) : null;
@@ -7232,17 +7232,21 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
 /* KPI grid — default 4-col; 8-col only on very wide screens; 2-col on small */
 .kpi-grid{
   display:grid;
-  /* Fit as many ~160px columns as the width allows, never more than the card count.
-     Wide screens show all 6 (or 4) in one row; it wraps to 3 / 2 / 1 as space shrinks. */
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  /* Always use --kpi-cols: 3 for 6-card tabs (3×2), 2 for 4-card tabs (2×2) */
+  grid-template-columns:repeat(var(--kpi-cols,3),minmax(0,1fr));
   gap:12px;
   width:100%;
   box-sizing:border-box;
 }
-/* Wide desktop: cap columns at the actual card count so 4-card tabs don't over-stretch */
 @media(min-width:1280px){
-  .kpi-grid{grid-template-columns:repeat(var(--kpi-cols,6),minmax(0,1fr));}
   .kpi-val{font-size:20px!important;}
+}
+/* Very small screens: drop to 2-col then 1-col */
+@media(max-width:400px){
+  .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:260px){
+  .kpi-grid{grid-template-columns:1fr;}
 }
 @media(max-width:640px){
   .kpi-grid{gap:8px;}
