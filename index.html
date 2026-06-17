@@ -1701,8 +1701,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       return (
         <div style={{margin:isGrey?"-20px -24px 0":"-20px -24px 20px",background:stripBg,padding:isGrey?"0 28px 20px":"4px 28px 20px",
           boxShadow:stripShadow}}>
-          {/* KPI cards grid */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(var(--kpi-cols,3),1fr)",gap:12,"--kpi-cols":flatKpis.length}}>
+          {/* KPI cards grid — responsive: fits as many columns as width allows, wraps cleanly */}
+          <div className="kpi-grid" style={{"--kpi-cols":flatKpis.length}}>
             {flatKpis.map(function(k, idx){
               var isLast = idx === flatKpis.length - 1;
               var tipFn = vessel && KPI_BENCHMARKS[k.label];
@@ -3947,10 +3947,13 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             // Build rows: group by effectiveSpans (stable structure independent of user resize)
             // userWeights only affects the visual flex-width within each row
             var rows=[]; var curRow=[]; var curSpan=0;
+            // Narrow viewports: stack every chart card full-width (one per row)
+            var stackCards = cw < 720;
             displayOrd.forEach(function(itemIdx,ordIdx){
               if(!allDashItems[itemIdx]) return;
               var effSpan=effectiveSpans[ordIdx]||2;               // row grouping uses config spans → stable rows
               var weight=userWeights[itemIdx]!=null?userWeights[itemIdx]:effSpan; // flex weight for visual width
+              if(stackCards){ rows.push([{itemIdx:itemIdx,span:6,weight:6}]); return; }
               if(curSpan+effSpan>6&&curRow.length>0){rows.push(curRow);curRow=[];curSpan=0;}
               curRow.push({itemIdx:itemIdx,span:effSpan,weight:weight});curSpan+=effSpan;
             });
@@ -7229,26 +7232,20 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
 /* KPI grid — default 4-col; 8-col only on very wide screens; 2-col on small */
 .kpi-grid{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+  /* Fit as many ~160px columns as the width allows, never more than the card count.
+     Wide screens show all 6 (or 4) in one row; it wraps to 3 / 2 / 1 as space shrinks. */
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
   gap:12px;
   width:100%;
   box-sizing:border-box;
 }
-/* Wide desktop: show all cards in one row */
-@media(min-width:1600px){
-  .kpi-grid{grid-template-columns:repeat(var(--kpi-cols,6),1fr);}
+/* Wide desktop: cap columns at the actual card count so 4-card tabs don't over-stretch */
+@media(min-width:1280px){
+  .kpi-grid{grid-template-columns:repeat(var(--kpi-cols,6),minmax(0,1fr));}
   .kpi-val{font-size:20px!important;}
 }
-/* Tablet: 3 columns */
-@media(min-width:641px) and (max-width:1599px){
-  .kpi-grid{grid-template-columns:repeat(3,1fr);}
-}
-/* Mobile: 2 columns */
 @media(max-width:640px){
-  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
-}
-@media(max-width:320px){
-  .kpi-grid{grid-template-columns:1fr;}
+  .kpi-grid{gap:8px;}
 }
 .kpi-card{min-width:0;}
 /* Prevent comma-breaks inside numbers — only break at spaces */
