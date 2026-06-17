@@ -7215,6 +7215,15 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         return function(){ document.removeEventListener("mousedown",handleClick); };
       },[cwOpen]);
       var leftGroupRef=useRef(null);
+      var tabsRef=useRef(null);
+      var rightGroupRef=useRef(null);
+      // Measure gap between tabs right-edge and right-group left-edge each render
+      var headerCompact = false;
+      if(tabsRef.current && rightGroupRef.current){
+        var tabsRight = tabsRef.current.getBoundingClientRect().right;
+        var rgLeft = rightGroupRef.current.getBoundingClientRect().left;
+        headerCompact = rgLeft - tabsRight < 60;
+      }
       var [vesselSpanW,setVesselSpanW]=useState(340);
       var [showCustomise,setShowCustomise]=useState(false);
       var [compareOpen,setCompareOpen]=useState(false);
@@ -7391,7 +7400,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                     </div>
                   </div>
                   {/* Centre: tabs — absolutely centred in the bar */}
-                  <div style={{position:"absolute",left:"50%",transform:"translateX(-50%)",
+                  <div ref={tabsRef} style={{position:"absolute",left:"50%",transform:"translateX(-50%)",
                     display:"flex",alignItems:"center",gap:4,height:36,
                     background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#E2E8F0",
                     borderRadius:6,padding:"0 4px"}}>
@@ -7424,7 +7433,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                 <span style={{fontWeight:700,fontSize:18,color:THEME.text}}>{label}</span>
               )}
               <div style={{flex:1}}/>
-              <div style={{display:"flex",alignItems:"center",gap:12}}>
+              <div ref={rightGroupRef} style={{display:"flex",alignItems:"center",gap:12}}>
                 <span style={{fontSize:12,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.5)":THEME.textMuted}}>Last updated: 19 Jun 06:00 UTC</span>
                 {activeNav==="emissions"&&selectedVessel&&(
                   <React.Fragment>
@@ -7432,9 +7441,9 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                     <button onClick={function(){setCompareOpen(true);}}
                       title="Compare"
                       style={{display:"flex",alignItems:"center",justifyContent:"center",
-                        gap:windowW>1136?7:0,
-                        width:windowW>1136?"auto":36,height:36,
-                        padding:windowW>1136?"0 12px":"0",
+                        gap:!headerCompact?7:0,
+                        width:!headerCompact?"auto":36,height:36,
+                        padding:!headerCompact?"0 12px":"0",
                         borderRadius:6,border:"none",
                         background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#e2e8ef",
                         cursor:"pointer",flexShrink:0,userSelect:"none",transition:"background 0.15s, width 0.2s",
@@ -7445,12 +7454,14 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                       </svg>
-                      {windowW>1136&&<span>Compare</span>}
+                      {!headerCompact&&<span>Compare</span>}
                     </button>
-                    <span style={{position:"absolute",bottom:-28,left:"50%",transform:"translateX(-50%)",
-                      background:"#1e293b",color:"#fff",fontSize:11,fontWeight:500,padding:"3px 8px",
-                      borderRadius:4,whiteSpace:"nowrap",pointerEvents:"none",opacity:0,transition:"opacity 0.15s"}}
-                      className="cmp-tip">Compare</span>
+                    {headerCompact&&(
+                      <span style={{position:"absolute",bottom:-28,left:"50%",transform:"translateX(-50%)",
+                        background:"#1e293b",color:"#fff",fontSize:11,fontWeight:500,padding:"3px 8px",
+                        borderRadius:4,whiteSpace:"nowrap",pointerEvents:"none",opacity:0,transition:"opacity 0.15s"}}
+                        className="cmp-tip">Compare</span>
+                    )}
                     </div>
                     {compareOpen&&<CompareModal currentVessel={selectedVessel} onClose={function(){setCompareOpen(false);}} onCompare={function(vessels){setCompareVessels(vessels);setCompareOpen(false);}}/>}
                   </React.Fragment>
