@@ -7243,14 +7243,13 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
 /* KPI grid — default 4-col; 8-col only on very wide screens; 2-col on small */
 .kpi-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  /* --kpi-cols is set by ResizeObserver: 6 (or 4) on wide screens, 3 (or 2) when cramped */
+  grid-template-columns:repeat(var(--kpi-cols,6),minmax(0,1fr));
   gap:12px;
   width:100%;
   box-sizing:border-box;
 }
-/* Wide desktop: enforce exact card count so 6-card tabs show 6 and 4-card shows 4 */
 @media(min-width:1280px){
-  .kpi-grid{grid-template-columns:repeat(var(--kpi-cols,6),minmax(0,1fr));}
   .kpi-val{font-size:20px!important;}
 }
 @media(max-width:640px){
