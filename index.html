@@ -1029,7 +1029,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
     }
 
-    function ChartIcons({title, subtitle, chartContent, onShowInsights, onSimulate, onDelete}) {
+    function ChartIcons({title, subtitle, chartContent, onShowInsights, onSimulate, onDelete, tableData}) {
       var aiRef = useRef(null);
       var [confirmDelete, setConfirmDelete] = useState(false);
       function handleAIClick() {
@@ -1065,7 +1065,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             </svg>
           </IconTooltipBtn>
           {/* More Details */}
-          <IconTooltipBtn tip="More Details" onClick={function(){if(_setDetailChart)_setDetailChart({title:title,subtitle:subtitle||"",tab:_currentDashTab||"operational",chartEl:chartContent});}}>
+          <IconTooltipBtn tip="More Details" onClick={function(){if(_setDetailChart)_setDetailChart({title:title,subtitle:subtitle||"",tab:_currentDashTab||"operational",chartEl:chartContent,tableData:tableData||null});}}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4a5568" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
               <circle cx="12" cy="12" r="3"/>
@@ -1403,7 +1403,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     }
     // ── end Simulator ──────────────────────────────────────────────────────────
 
-    function ChartCard({title, subtitle, children, onDelete, sample}) {
+    function ChartCard({title, subtitle, children, onDelete, sample, tableData}) {
       var [hov,setHov]=useState(false);
       var [simOpen,setSimOpen]=useState(false);
       var [insightAnchor,setInsightAnchor]=useState(null);
@@ -1450,7 +1450,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <div data-chart-icons style={{position:"relative",zIndex:10,flexShrink:0,pointerEvents:"all",cursor:"pointer"}}
               onMouseDown={function(e){e.stopPropagation();}}
               onMouseEnter={function(e){e.stopPropagation();}}>
-              <ChartIcons title={title} subtitle={subtitle} chartContent={children} onShowInsights={handleShowInsights} onSimulate={function(){setSimOpen(true);}} onDelete={onDelete}/>
+              <ChartIcons title={title} subtitle={subtitle} chartContent={children} tableData={tableData} onShowInsights={handleShowInsights} onSimulate={function(){setSimOpen(true);}} onDelete={onDelete}/>
             </div>
           </div>
           <div style={{flex:1,minHeight:0,display:"flex",alignItems:"center",justifyContent:"center",paddingTop:15,overflow:"hidden",borderRadius:"0 0 10px 10px"}}>
@@ -3239,23 +3239,24 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       function cc(title,subtitle,childrenOrFn,span,opts){
         var isFactory=typeof childrenOrFn==="function";
         var sample=(opts&&opts.sample)||false;
-        var makeEl=isFactory?function(n){return <ChartCard title={title} subtitle={subtitle} sample={sample}>{childrenOrFn(n)}</ChartCard>;}:null;
-        var el=isFactory?<ChartCard title={title} subtitle={subtitle} sample={sample}>{childrenOrFn(6)}</ChartCard>:<ChartCard title={title} subtitle={subtitle} sample={sample}>{childrenOrFn}</ChartCard>;
+        var tableData=(opts&&opts.tableData)||null;
+        var makeEl=isFactory?function(n){return <ChartCard title={title} subtitle={subtitle} sample={sample} tableData={tableData}>{childrenOrFn(n)}</ChartCard>;}:null;
+        var el=isFactory?<ChartCard title={title} subtitle={subtitle} sample={sample} tableData={tableData}>{childrenOrFn(6)}</ChartCard>:<ChartCard title={title} subtitle={subtitle} sample={sample} tableData={tableData}>{childrenOrFn}</ChartCard>;
         return {el:el,makeEl:makeEl,span:span||2};
       }
 
       // Operational tab items (spans: [3,3, 3,3, 6, 6, 3,3, 6])
+      var wscData=[
+        {m:"Jan",speedBreach:3,consBreach:2},{m:"Feb",speedBreach:5,consBreach:4},
+        {m:"Mar",speedBreach:2,consBreach:3},{m:"Apr",speedBreach:6,consBreach:5},
+        {m:"May",speedBreach:4,consBreach:6},{m:"Jun",speedBreach:7,consBreach:4},
+        {m:"Jul",speedBreach:3,consBreach:5},{m:"Aug",speedBreach:8,consBreach:7},
+        {m:"Sep",speedBreach:5,consBreach:3},{m:"Oct",speedBreach:4,consBreach:6},
+        {m:"Nov",speedBreach:6,consBreach:4},{m:"Dec",speedBreach:3,consBreach:2},
+      ];
       var operationalItems=[
         cc("Warranted Speed & Consumption Breach","Monthly breach count",
           function(n){
-            var wscData=[
-              {m:"Jan",speedBreach:3,consBreach:2},{m:"Feb",speedBreach:5,consBreach:4},
-              {m:"Mar",speedBreach:2,consBreach:3},{m:"Apr",speedBreach:6,consBreach:5},
-              {m:"May",speedBreach:4,consBreach:6},{m:"Jun",speedBreach:7,consBreach:4},
-              {m:"Jul",speedBreach:3,consBreach:5},{m:"Aug",speedBreach:8,consBreach:7},
-              {m:"Sep",speedBreach:5,consBreach:3},{m:"Oct",speedBreach:4,consBreach:6},
-              {m:"Nov",speedBreach:6,consBreach:4},{m:"Dec",speedBreach:3,consBreach:2},
-            ];
             return (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={fd(wscData,n)} barSize={18} margin={{bottom:20,left:4,right:10,top:10}}>
@@ -3277,25 +3278,42 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 </BarChart>
               </ResponsiveContainer>
             );
-          }, 2),
-        cc("Speed Consumption Curve","Ballast vs Laden — Head sea",
-          function(n){
-            function bReg(x){return Math.max(0,0.00082*Math.pow(x,2.9));}
-            function lReg(x){return Math.max(0,0.00108*Math.pow(x,2.95));}
-            var bRegData=[],lRegData=[];
-            for(var i=0;i<=56;i++){var s=i*0.25;bRegData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(bReg(s).toFixed(3))});lRegData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(lReg(s).toFixed(3))});}
-            var ballastPts=[
-              {x:10.1,y:0.82},{x:10.4,y:0.88},{x:10.8,y:0.99},{x:11.1,y:1.08},
-              {x:11.4,y:1.18},{x:11.7,y:1.28},{x:12.0,y:1.38},{x:12.3,y:1.46},
-              {x:12.5,y:1.52},{x:12.8,y:1.58},{x:13.0,y:1.62},{x:13.1,y:1.60}
-            ];
-            var ladenPts=[
-              {x:9.9,y:1.00},{x:10.2,y:1.10},{x:10.5,y:1.20},{x:10.8,y:1.32},
-              {x:11.1,y:1.42},{x:11.3,y:1.52},{x:11.6,y:1.62},{x:11.9,y:1.74},
-              {x:12.1,y:1.82},{x:12.3,y:1.90},{x:12.6,y:2.04},{x:12.9,y:2.18},
-              {x:13.1,y:2.22},{x:13.3,y:2.28}
-            ];
-            return (
+          }, 2, {tableData:{
+            columns:[
+              {key:"m",label:"Month"},
+              {key:"speedBreach",label:"Speed Breach"},
+              {key:"consBreach",label:"Consumption Breach"}
+            ],
+            rows: fd(wscData,12)
+          }}),
+        (function(){
+          var ballastPts=[
+            {x:10.1,y:0.82},{x:10.4,y:0.88},{x:10.8,y:0.99},{x:11.1,y:1.08},
+            {x:11.4,y:1.18},{x:11.7,y:1.28},{x:12.0,y:1.38},{x:12.3,y:1.46},
+            {x:12.5,y:1.52},{x:12.8,y:1.58},{x:13.0,y:1.62},{x:13.1,y:1.60}
+          ];
+          var ladenPts=[
+            {x:9.9,y:1.00},{x:10.2,y:1.10},{x:10.5,y:1.20},{x:10.8,y:1.32},
+            {x:11.1,y:1.42},{x:11.3,y:1.52},{x:11.6,y:1.62},{x:11.9,y:1.74},
+            {x:12.1,y:1.82},{x:12.3,y:1.90},{x:12.6,y:2.04},{x:12.9,y:2.18},
+            {x:13.1,y:2.22},{x:13.3,y:2.28}
+          ];
+          var sccTableRows=(function(){
+            var map={};
+            ballastPts.forEach(function(p){map[p.x]={speed:p.x,ballast:p.y,laden:null};});
+            ladenPts.forEach(function(p){
+              if(map[p.x]) map[p.x].laden=p.y;
+              else map[p.x]={speed:p.x,ballast:null,laden:p.y};
+            });
+            return Object.keys(map).map(function(k){return map[k];}).sort(function(a,b){return a.speed-b.speed;});
+          })();
+          return cc("Speed Consumption Curve","Ballast vs Laden — Head sea",
+            function(n){
+              function bReg(x){return Math.max(0,0.00082*Math.pow(x,2.9));}
+              function lReg(x){return Math.max(0,0.00108*Math.pow(x,2.95));}
+              var bRegData=[],lRegData=[];
+              for(var i=0;i<=56;i++){var s=i*0.25;bRegData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(bReg(s).toFixed(3))});lRegData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(lReg(s).toFixed(3))});}
+              return (
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart margin={{bottom:20,left:4,right:10,top:10}}>
                   <CartesianGrid stroke="#F1F5F9" strokeDasharray="0" vertical={false}/>
@@ -3359,12 +3377,75 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill="#F97316"/>;}}/>
                 </ScatterChart>
               </ResponsiveContainer>
-            );
-          }, 2),
+              );
+            }, 2, {tableData:{
+              columns:[
+                {key:"speed",label:"Ship Speed (kn)"},
+                {key:"ballast",label:"Ballast Fuel (t/hr)"},
+                {key:"laden",label:"Laden Fuel (t/hr)"}
+              ],
+              rows: sccTableRows
+            }});
+        })(),
         cc("Avg Fuel Consumption / Day","Main engine & auxiliary",
-          function(n){return <AvgFuelConsChart months={n}/>;}, 2),
+          function(n){return <AvgFuelConsChart months={n}/>;}, 2,
+          {tableData:(function(){
+            var _rawRows=[
+              {propulsion:120,manoeuvring:18,boiler:28,igs:20,incinerator:10,cargoCooling:22,others:12},
+              {propulsion:135,manoeuvring:22,boiler:25,igs:18,incinerator:8, cargoCooling:25,others:14},
+              {propulsion:115,manoeuvring:16,boiler:32,igs:22,incinerator:12,cargoCooling:28,others:11},
+              {propulsion:148,manoeuvring:24,boiler:26,igs:19,incinerator:9, cargoCooling:23,others:13},
+              {propulsion:108,manoeuvring:15,boiler:35,igs:21,incinerator:14,cargoCooling:26,others:15},
+              {propulsion:162,manoeuvring:26,boiler:24,igs:17,incinerator:8, cargoCooling:21,others:10},
+              {propulsion:140,manoeuvring:20,boiler:30,igs:20,incinerator:11,cargoCooling:24,others:12},
+            ];
+            var _MN2=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+            var _todayM2=new Date().getMonth();
+            var _rows=_rawRows.map(function(row,i){
+              var monthsAgo=_rawRows.length-1-i;
+              return Object.assign({},row,{m:_MN2[(_todayM2-monthsAgo+120)%12]});
+            });
+            return {
+              columns:[
+                {key:"m",label:"Month"},
+                {key:"propulsion",label:"ME Prop. (t)"},
+                {key:"manoeuvring",label:"Manoeuv. (t)"},
+                {key:"boiler",label:"Boiler (t)"},
+                {key:"igs",label:"IGS (t)"},
+                {key:"incinerator",label:"Inciner. (t)"},
+                {key:"cargoCooling",label:"Cargo Cool. (t)"},
+                {key:"others",label:"Others (t)"}
+              ],
+              rows:_rows
+            };
+          })()}),
         cc("SOG & Slip Trend","Laden condition — slip & speed over ground",
-          function(n){return <SlipSOGChart months={n}/>;}, 3),
+          function(n){return <SlipSOGChart months={n}/>;}, 3,
+          {tableData:(function(){
+            var _MN3=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+            var numWeeks=26;
+            var today=new Date();
+            var rows=[];
+            for(var i=0;i<numWeeks;i++){
+              var t=i/(numWeeks-1);
+              var daysAgo=(numWeeks-1-i)*7;
+              var wDate=new Date(today.getTime()-daysAgo*86400000);
+              var slip=Math.max(1.2,parseFloat((1.8+3.7*t+Math.sin(t*15.7+0.8)*0.7+Math.sin(t*31.4+2.1)*0.35+Math.sin(t*6.2)*0.45).toFixed(2)));
+              var slip7d=parseFloat((1.8+3.7*t+(Math.sin(t*15.7+0.8)*0.7+Math.sin(t*31.4+2.1)*0.35+Math.sin(t*6.2)*0.45)*0.25).toFixed(2));
+              var sog=parseFloat((13.6-1.2*t+Math.sin(t*10.5+1.5)*0.12+Math.sin(t*22.0+0.5)*0.08).toFixed(2));
+              var weekStr=String(wDate.getDate()).padStart(2,"0")+" "+_MN3[wDate.getMonth()]+" "+wDate.getFullYear();
+              rows.push({week:weekStr,slip:slip,slip7d:slip7d,sog:sog});
+            }
+            return {
+              columns:[
+                {key:"week",label:"Week"},
+                {key:"slip",label:"Laden Slip (%)"},
+                {key:"slip7d",label:"Slip 7D Avg (%)"},
+                {key:"sog",label:"Laden SOG (kn)"}
+              ],
+              rows:rows
+            };
+          })()}),
         cc("Top Port Calls","Month-to-date",
           <ResponsiveContainer width="100%" height="100%">
             <BarChart layout="vertical" data={portCallData} barSize={22} margin={{bottom:20,left:8,right:10,top:10}}>
@@ -4544,6 +4625,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     function ChartDetailPage({chart, onBack, monthCount}) {
       var [viewMode, setViewMode] = useState("month");
+      var [sortCol, setSortCol] = useState(null);
+      var [sortDir, setSortDir] = useState("asc");
       var [showFilter, setShowFilter] = useState(false);
       var [filterVis, setFilterVis] = useState(false);
       useEffect(function(){
@@ -4858,32 +4941,97 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
             )}
 
             {/* ── Data table ── */}
-            <div style={{background:"#fff",borderRadius:14,border:"1px solid #E8ECF1",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,0.05)",fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif"}}>
-              {/* Title */}
-              <div style={{padding:"20px 24px 16px"}}>
-                <span style={{fontSize:16,fontWeight:700,color:"#0D1B2A"}}>Voyage Data </span>
-                <span style={{fontSize:16,fontWeight:700,color:"#0D1B2A"}}>({filteredRows.length})</span>
-              </div>
-              {/* Column headers */}
-              <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",background:"#F6F8FA",borderTop:"1px solid #E8ECF1",borderBottom:"1px solid #E8ECF1"}}>
-                {hdrs.map(function(h,i){return(
-                  <div key={i} style={{padding:"12px 16px",fontSize:14,fontWeight:600,color:"#64748B",whiteSpace:"nowrap",letterSpacing:0.1}}>{h}</div>
-                );})}
-              </div>
-              {/* Rows */}
-              {tableData.length===0&&(
-                <div style={{padding:"40px 24px",textAlign:"center",color:"#94A3B8",fontSize:14}}>No records match the current filters.</div>
-              )}
-              {tableData.map(function(row,ri){return(
-                <div key={ri} style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",borderBottom:"1px solid #F0F3F6",background:"#fff",transition:"background 0.12s"}}
-                  onMouseEnter={function(e){e.currentTarget.style.background="#FAFBFC";}}
-                  onMouseLeave={function(e){e.currentTarget.style.background="#fff";}}>
-                  {[row.voyageNum,row.dateStr,row.hours,row.reportType,row.loadCondition,row.fuelGroup,row.sog+" kn"].map(function(cell,ci){return(
-                    <div key={ci} style={{padding:"14px 16px",fontSize:14,color:"#030712",fontWeight:ci===0?600:400,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{cell}</div>
+            {chart.tableData ? (function(){
+              var td = chart.tableData;
+              var sortedRows = td.rows.slice();
+              if(sortCol){
+                sortedRows.sort(function(a,b){
+                  var va=a[sortCol], vb=b[sortCol];
+                  if(va==null) return 1; if(vb==null) return -1;
+                  var cmp = typeof va==="number" ? va-vb : String(va).localeCompare(String(vb));
+                  return sortDir==="asc" ? cmp : -cmp;
+                });
+              }
+              return (
+                <div style={{background:"#fff",borderRadius:14,border:"1px solid #E8ECF1",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,0.05)",fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif"}}>
+                  <div style={{padding:"20px 24px 16px",display:"flex",alignItems:"center",gap:12}}>
+                    <span style={{fontSize:16,fontWeight:700,color:"#0D1B2A"}}>{chart.title} — Data</span>
+                    <span style={{fontSize:14,color:"#94A3B8",fontWeight:400}}>({sortedRows.length} rows)</span>
+                  </div>
+                  {/* Header */}
+                  <div style={{display:"grid",gridTemplateColumns:"repeat("+td.columns.length+",1fr)",background:"#F6F8FA",borderTop:"1px solid #E8ECF1",borderBottom:"1px solid #E8ECF1"}}>
+                    {td.columns.map(function(col){
+                      var isActive=sortCol===col.key;
+                      return (
+                        <div key={col.key}
+                          onClick={function(){
+                            if(sortCol===col.key){ setSortDir(function(d){return d==="asc"?"desc":"asc";}); }
+                            else { setSortCol(col.key); setSortDir("asc"); }
+                          }}
+                          style={{padding:"12px 16px",fontSize:13,fontWeight:600,color:isActive?"#1852FE":"#64748B",
+                            whiteSpace:"nowrap",letterSpacing:0.1,cursor:"pointer",userSelect:"none",
+                            display:"flex",alignItems:"center",gap:4,
+                            background:isActive?"#EEF2FF":"transparent",transition:"background 0.12s"}}>
+                          {col.label}
+                          <span style={{opacity:isActive?1:0.3,fontSize:10,color:isActive?"#1852FE":"#94A3B8"}}>
+                            {isActive&&sortDir==="asc"?"↑":isActive&&sortDir==="desc"?"↓":"↕"}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {/* Rows */}
+                  {sortedRows.length===0&&(
+                    <div style={{padding:"40px 24px",textAlign:"center",color:"#94A3B8",fontSize:14}}>No data available.</div>
+                  )}
+                  {sortedRows.map(function(row,ri){
+                    return (
+                      <div key={ri}
+                        style={{display:"grid",gridTemplateColumns:"repeat("+td.columns.length+",1fr)",borderBottom:"1px solid #F0F3F6",background:"#fff",transition:"background 0.12s"}}
+                        onMouseEnter={function(e){e.currentTarget.style.background="#FAFBFC";}}
+                        onMouseLeave={function(e){e.currentTarget.style.background="#fff";}}>
+                        {td.columns.map(function(col,ci){
+                          var val=row[col.key];
+                          var display = val==null ? "—" : val;
+                          return (
+                            <div key={col.key} style={{padding:"12px 16px",fontSize:13,color:"#030712",fontWeight:ci===0?600:400,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+                              {display}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })() : (
+              <div style={{background:"#fff",borderRadius:14,border:"1px solid #E8ECF1",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,0.05)",fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif"}}>
+                {/* Title */}
+                <div style={{padding:"20px 24px 16px"}}>
+                  <span style={{fontSize:16,fontWeight:700,color:"#0D1B2A"}}>Voyage Data </span>
+                  <span style={{fontSize:16,fontWeight:700,color:"#0D1B2A"}}>({filteredRows.length})</span>
+                </div>
+                {/* Column headers */}
+                <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",background:"#F6F8FA",borderTop:"1px solid #E8ECF1",borderBottom:"1px solid #E8ECF1"}}>
+                  {hdrs.map(function(h,i){return(
+                    <div key={i} style={{padding:"12px 16px",fontSize:14,fontWeight:600,color:"#64748B",whiteSpace:"nowrap",letterSpacing:0.1}}>{h}</div>
                   );})}
                 </div>
-              );})}
-            </div>
+                {/* Rows */}
+                {tableData.length===0&&(
+                  <div style={{padding:"40px 24px",textAlign:"center",color:"#94A3B8",fontSize:14}}>No records match the current filters.</div>
+                )}
+                {tableData.map(function(row,ri){return(
+                  <div key={ri} style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",borderBottom:"1px solid #F0F3F6",background:"#fff",transition:"background 0.12s"}}
+                    onMouseEnter={function(e){e.currentTarget.style.background="#FAFBFC";}}
+                    onMouseLeave={function(e){e.currentTarget.style.background="#fff";}}>
+                    {[row.voyageNum,row.dateStr,row.hours,row.reportType,row.loadCondition,row.fuelGroup,row.sog+" kn"].map(function(cell,ci){return(
+                      <div key={ci} style={{padding:"14px 16px",fontSize:14,color:"#030712",fontWeight:ci===0?600:400,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{cell}</div>
+                    );})}
+                  </div>
+                );})}
+              </div>
+            )}
           </div>
         </div>
       );
