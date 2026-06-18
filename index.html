@@ -332,8 +332,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       "Grace Dahlia":      [{label:"Total Voyages",value:"32",up:false},{label:"Distance Travelled",value:"1,156,340 NM",up:false},{label:"Laden Days",value:"139",up:false},{label:"Ballast Days",value:"38",up:false},{label:"Port Days",value:"24",label2:"Prolonged Port Stays",value2:"6",up:false},{label:"Cargo Carried",value:"8,456,700 MT",up:false},{label:"EEOI",value:"12 t/(NM·CT)",up:true},{label:"CII Rating",value:"B (81)",up:true},{label:"Status",value:"In Port",change:"",up:true},{label:"Utilization",value:"83%",change:"-0.5%",up:false},{label:"Fuel eff.",value:"18.0 kt/t",change:"-0.1",up:false},{label:"Port calls (MTD)",value:"6",change:"+1",up:true},{label:"On-time",value:"92.0%",change:"-0.4%",up:false},{label:"Incidents",value:"1",change:"",up:true},{label:"Avg speed",value:"13.3 kn",change:"-0.1",up:false},{label:"Bunker (MTD)",value:"$276K",change:"-2%",up:true},{label:"CO2 (MTD)",value:"16.2 t",change:"-1%",up:true},{label:"Idle days",value:"5",change:"+1",up:false},{label:"CII score",value:"81 (B)",change:"+1",up:true},{label:"Voyages MTD",value:"3",change:"",up:true}],
     };
 
-    const axTick = {fontSize:11, fill:"#94A3B8", fontWeight:400};
-    const axLabel = {fontSize:10, fill:"#CBD5E1"};
+    const axTick = {fontSize:13, fill:"#64748B", fontWeight:400};
+    const axLabel = {fontSize:12, fill:"#64748B"};
     const lgStyle = {wrapperStyle:{paddingTop:6,fontSize:11}};
 
     // ── Smart chart-type picker ──────────────────────────────────────────────
@@ -411,7 +411,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
     }
     var ccLg = {wrapperStyle:{paddingTop:8,fontSize:11,color:"#64748B"}};
-    var ccTick = {fontSize:11,fill:"#94A3B8",fontWeight:400};
+    var ccTick = {fontSize:13,fill:"#64748B",fontWeight:400};
     function ccXAx(key){ return <XAxis dataKey={key} tick={ccTick} axisLine={false} tickLine={false} dy={6}/>; }
     function ccYAx(){ return <YAxis tick={ccTick} axisLine={false} tickLine={false} width={36} tickCount={5}/>; }
 
@@ -494,7 +494,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             </defs>
             {ccGrid}
             <XAxis dataKey="x" type="number" tick={ccTick} axisLine={false} tickLine={false}
-              label={{value:xLabel||"X",position:"insideBottom",offset:-2,style:{fontSize:10,fill:"#94A3B8"}}}/>
+              label={{value:xLabel||"X",position:"insideBottom",offset:-2,style:{fontSize:12,fill:"#64748B"}}}/>
             <YAxis dataKey="y" type="number" tick={ccTick} axisLine={false} tickLine={false} width={36}
               label={{value:yLabel||"Y",angle:-90,position:"insideLeft",offset:8,style:{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}}/>
             <ZAxis range={[48,48]}/>
@@ -1029,7 +1029,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
     }
 
-    function ChartIcons({title, subtitle, chartContent, onShowInsights, onSimulate, onDelete, tableData}) {
+    function ChartIcons({title, subtitle, chartContent, onShowInsights, onSimulate, onDelete, tableData, makeChart}) {
       var aiRef = useRef(null);
       var [confirmDelete, setConfirmDelete] = useState(false);
       function handleAIClick() {
@@ -1065,7 +1065,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             </svg>
           </IconTooltipBtn>
           {/* More Details */}
-          <IconTooltipBtn tip="More Details" onClick={function(){if(_setDetailChart)_setDetailChart({title:title,subtitle:subtitle||"",tab:_currentDashTab||"operational",chartEl:chartContent,tableData:tableData||null});}}>
+          <IconTooltipBtn tip="More Details" onClick={function(){if(_setDetailChart)_setDetailChart({title:title,subtitle:subtitle||"",tab:_currentDashTab||"operational",chartEl:chartContent,tableData:tableData||null,makeChart:makeChart||null});}}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4a5568" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
               <circle cx="12" cy="12" r="3"/>
@@ -1088,7 +1088,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             style={{position:"fixed",inset:0,background:"rgba(12,30,53,0.45)",zIndex:9999,
               display:"flex",alignItems:"center",justifyContent:"center"}}>
             <div style={{background:"#fff",borderRadius:14,width:420,padding:"32px 28px 24px",
-              boxShadow:"0 24px 64px rgba(0,0,0,0.22)",position:"relative",textAlign:"center"}}>
+              position:"relative",textAlign:"center"}}>
 
               {/* Warning icon */}
               <div style={{width:52,height:52,borderRadius:"50%",background:"#FEF2F2",
@@ -1243,7 +1243,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           style={{position:"fixed",inset:0,background:"rgba(12,30,53,0.45)",zIndex:9998,display:"flex",
             alignItems:"center",justifyContent:"center"}}>
           <div style={{background:"#fff",borderRadius:14,width:"min(1080px,95vw)",maxHeight:"90vh",
-            display:"flex",overflow:"hidden",boxShadow:"0 24px 64px rgba(0,0,0,0.22)"}}>
+            display:"flex",overflow:"hidden"}}>
 
             {/* ── Controls ── */}
             <div style={{width:268,flexShrink:0,background:"#f5f7fa",borderRight:"1px solid #e8eaed",
@@ -1403,7 +1403,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     }
     // ── end Simulator ──────────────────────────────────────────────────────────
 
-    function ChartCard({title, subtitle, children, onDelete, sample, tableData}) {
+    function ChartCard({title, subtitle, children, onDelete, sample, tableData, makeChart}) {
       var [hov,setHov]=useState(false);
       var [simOpen,setSimOpen]=useState(false);
       var [insightAnchor,setInsightAnchor]=useState(null);
@@ -1438,11 +1438,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       <div className="skel" style={{height:10,width:80}}/>
                     </React.Fragment>
                   : <React.Fragment>
-                      <div style={{fontWeight:600,fontSize:13,color:"#1E293B",lineHeight:"20px",display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
+                      <div style={{fontWeight:600,fontSize:14,color:"#1E293B",lineHeight:"20px",display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
                         {sample&&<span style={{fontSize:10,fontWeight:500,color:"#94A3B8",letterSpacing:0.2,flexShrink:0}}>Sample</span>}
                         <span>{title}</span>
                       </div>
-                      {subtitle&&<div style={{fontSize:10,color:THEME.textMuted,marginTop:1}}>{subtitle}</div>}
+                      {subtitle&&<div style={{fontSize:12,color:THEME.textMuted,marginTop:1}}>{subtitle}</div>}
                     </React.Fragment>
                 }
               </div>
@@ -1450,7 +1450,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <div data-chart-icons style={{position:"relative",zIndex:10,flexShrink:0,pointerEvents:"all",cursor:"pointer"}}
               onMouseDown={function(e){e.stopPropagation();}}
               onMouseEnter={function(e){e.stopPropagation();}}>
-              <ChartIcons title={title} subtitle={subtitle} chartContent={children} tableData={tableData} onShowInsights={handleShowInsights} onSimulate={function(){setSimOpen(true);}} onDelete={onDelete}/>
+              <ChartIcons title={title} subtitle={subtitle} chartContent={children} tableData={tableData} makeChart={makeChart||null} onShowInsights={handleShowInsights} onSimulate={function(){setSimOpen(true);}} onDelete={onDelete}/>
             </div>
           </div>
           <div style={{flex:1,minHeight:0,display:"flex",alignItems:"center",justifyContent:"center",paddingTop:15,overflow:"hidden",borderRadius:"0 0 10px 10px"}}>
@@ -1621,16 +1621,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var isGrey = theme === "analytics2";
       var isAuto = theme === "analytics3";
       var flatKpis = [];
-      var eeIdx = kpis.findIndex(function(k){ return k.label==="EEOI"; });
-      kpis.filter(function(_,i){ return eeIdx < 0 ? true : i <= eeIdx; })
-        .forEach(function(k){
-          if(k.label2 && k.value2){
-            flatKpis.push({label:k.label, value:k.value, up:k.up, change:k.change});
-            flatKpis.push({label:k.label2, value:k.value2});
-          } else {
-            flatKpis.push(k);
-          }
-        });
+      kpis.forEach(function(k){
+        if(k.label2 && k.value2){
+          flatKpis.push({label:k.label, value:k.value, up:k.up, change:k.change});
+          flatKpis.push({label:k.label2, value:k.value2});
+        } else {
+          flatKpis.push(k);
+        }
+      });
       var stripBg = isGrey ? "#F1F5F9" : isAuto ? "#0D2347" : "#001E4C";
       var stripShadow = isGrey ? "none" : "0 8px 32px rgba(0,30,76,0.22)";
       var cardBg = "#0E2954";
@@ -1718,42 +1716,88 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               var isLast = idx === flatKpis.length - 1;
               var tipFn = vessel && KPI_BENCHMARKS[k.label];
               var tip = tipFn ? tipFn(vessel) : null;
+              var valLen = k.value ? String(k.value).length : 0;
+              var approxCardW = kpiCols > 0 ? (kpiCw - 56 - (kpiCols - 1) * 12) / kpiCols : 260;
+              var valFs = valLen > 16
+                ? (approxCardW < 190 ? 11 : approxCardW < 215 ? 12 : approxCardW < 240 ? 14 : approxCardW < 265 ? 16 : 18)
+                : valLen > 10 ? 15 : 18;
               return (
                 <div key={k.label} style={{
                   minWidth:0,
                   background:cardBg,borderRadius:8,
                   border:cardBorder,
-                  padding:"14px 16px",boxSizing:"border-box",
-                  height:91,overflow:"hidden",display:"flex",flexDirection:"column",
+                  boxSizing:"border-box",
+                  height:91,display:"flex",
+                  flexDirection:(k.portStayCount!==undefined||k.split)?"row":"column",
+                  padding:(k.portStayCount!==undefined||k.split)?0:"14px 16px",
+                  overflow:"hidden",
                   transition:"background 0.15s"}}
                   onMouseEnter={function(e){e.currentTarget.style.background=cardBgHover;}}
                   onMouseLeave={function(e){e.currentTarget.style.background=cardBg;}}>
-                  <div style={{fontSize:12,color:labelColor,fontWeight:500,letterSpacing:0.3,lineHeight:1.8,marginBottom:4}}>
-                    {k.label}
-                  </div>
-                  {k.subRows ? (
-                    <div style={{display:"flex",alignItems:"flex-end",gap:14,marginTop:"auto"}}>
-                      {k.subRows.map(function(row){
-                        return (
-                          <div key={row.label} style={{display:"flex",flexDirection:"column",gap:4}}>
-                            <span style={{fontSize:12,lineHeight:1,color:subColor,fontWeight:500,whiteSpace:"nowrap"}}>{row.label}</span>
-                            <span style={{fontSize:18,fontWeight:700,color:valueColor,letterSpacing:"-0.3px",lineHeight:1.2}}>{row.value}</span>
-                          </div>
-                        );
-                      })}
-                      <div style={{marginLeft:"auto",flexShrink:0,marginBottom:2}}>
-                        {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/>}
+                  {k.split ? (
+                    <React.Fragment>
+                      <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",padding:"14px 16px"}}>
+                        <div style={{fontSize:12,color:labelColor,fontWeight:500,letterSpacing:0.3,lineHeight:1.8,marginBottom:4}}>{k.label}</div>
+                        <div style={{marginTop:"auto",display:"flex",alignItems:"center",gap:6}}>
+                          <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:valueColor,lineHeight:1}}>{k.value}</span>
+                          {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={null} change={k.change||""} dark={true} isLast={false}/>}
+                        </div>
                       </div>
-                    </div>
+                      <div style={{width:1,background:"rgba(255,255,255,0.12)",flexShrink:0,margin:"12px 0"}}/>
+                      <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",padding:"14px 16px"}}>
+                        <div style={{fontSize:12,color:labelColor,fontWeight:500,letterSpacing:0.3,lineHeight:1.8,marginBottom:4}}>{k.split.label}</div>
+                        <div style={{marginTop:"auto",display:"flex",alignItems:"center",gap:6}}>
+                          <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:valueColor,lineHeight:1}}>{k.split.value}</span>
+                          {k.split.up!==undefined && <ArrowTooltip up={k.split.up} tooltip={null} change={k.split.change||""} dark={true} isLast={true}/>}
+                        </div>
+                      </div>
+                    </React.Fragment>
+                  ) : k.portStayCount!==undefined ? (
+                    <React.Fragment>
+                      <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",padding:"14px 16px"}}>
+                        <div style={{fontSize:12,color:labelColor,fontWeight:500,letterSpacing:0.3,lineHeight:1.8,marginBottom:4}}>Port Days</div>
+                        <div style={{marginTop:"auto"}}>
+                          <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:valueColor,lineHeight:1,display:"block"}}>{k.value}</span>
+                        </div>
+                      </div>
+                      <div style={{width:1,background:"rgba(255,255,255,0.12)",flexShrink:0,margin:"12px 0"}}/>
+                      <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",padding:"14px 16px"}}>
+                        <div style={{fontSize:12,color:labelColor,fontWeight:500,letterSpacing:0.3,lineHeight:1.5,marginBottom:4}}>Prolonged Port Stays</div>
+                        <div style={{marginTop:"auto",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                          <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:valueColor,lineHeight:1}}>{k.portStayCount}</span>
+                          <PortStayViewLink count={k.portStayCount}/>
+                        </div>
+                      </div>
+                    </React.Fragment>
                   ) : (
-                    <div style={{marginTop:"auto",display:"flex",alignItems:"flex-start",gap:6}}>
-                      <div style={{flex:"1 1 auto",minWidth:0}}>
-                        <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:valueColor,lineHeight:1,overflowWrap:"break-word",display:"block"}}>{k.value}</span>
-                        {k.label==="Prolonged Port Stays" && <PortStayViewLink count={k.value}/>}
-                        {k.detail && <div style={{fontSize:12,color:subColor,fontWeight:500,marginTop:3,lineHeight:1.3}}>{k.detail}</div>}
+                    <React.Fragment>
+                      <div style={{fontSize:12,color:labelColor,fontWeight:500,letterSpacing:0.3,lineHeight:1.8,marginBottom:4}}>
+                        {k.label}
                       </div>
-                      {k.up!==undefined && <div style={{flexShrink:0,marginTop:k.detail?25:3}}><ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/></div>}
-                    </div>
+                      {k.subRows ? (
+                        <div style={{display:"flex",alignItems:"flex-end",gap:14,marginTop:"auto"}}>
+                          {k.subRows.map(function(row){
+                            return (
+                              <div key={row.label} style={{display:"flex",flexDirection:"column",gap:4}}>
+                                <span style={{fontSize:12,lineHeight:1,color:subColor,fontWeight:500,whiteSpace:"nowrap"}}>{row.label}</span>
+                                <span style={{fontSize:18,fontWeight:700,color:valueColor,letterSpacing:"-0.3px",lineHeight:1.2}}>{row.value}</span>
+                              </div>
+                            );
+                          })}
+                          <div style={{marginLeft:"auto",flexShrink:0,marginBottom:2}}>
+                            {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/>}
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{marginTop:"auto",display:"flex",alignItems:"flex-start",gap:6}}>
+                          <div style={{flex:"1 1 auto",minWidth:0}}>
+                            <span className="kpi-val" style={{fontSize:valFs,fontWeight:700,color:valueColor,lineHeight:1,whiteSpace:valLen>16?"nowrap":"normal",overflowWrap:valLen>16?"normal":"break-word",display:"block"}}>{k.value}</span>
+                            {k.detail && <div style={{fontSize:12,color:subColor,fontWeight:500,marginTop:3,lineHeight:1.3}}>{k.detail}</div>}
+                          </div>
+                          {k.up!==undefined && <div style={{flexShrink:0,marginTop:k.detail?25:3}}><ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/></div>}
+                        </div>
+                      )}
+                    </React.Fragment>
                   )}
                 </div>
               );
@@ -1765,16 +1809,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     function KpiHighlight3({kpis, vessel, selectedVessel, vesselSearchOpen, setVesselSearchOpen, onSelectVessel}) {
       var flatKpis = [];
-      var eeIdx = kpis.findIndex(function(k){ return k.label==="EEOI"; });
-      kpis.filter(function(_,i){ return eeIdx < 0 ? true : i <= eeIdx; })
-        .forEach(function(k){
-          if(k.label2 && k.value2){
-            flatKpis.push({label:k.label, value:k.value, up:k.up, change:k.change});
-            flatKpis.push({label:k.label2, value:k.value2});
-          } else {
-            flatKpis.push(k);
-          }
-        });
+      kpis.forEach(function(k){
+        if(k.label2 && k.value2){
+          flatKpis.push({label:k.label, value:k.value, up:k.up, change:k.change});
+          flatKpis.push({label:k.label2, value:k.value2});
+        } else {
+          flatKpis.push(k);
+        }
+      });
       return (
         <div style={{margin:"-20px -24px 24px",position:"relative"}}>
           {/* Dark strip — extra bottom padding so cards can overlap */}
@@ -1816,7 +1858,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     ) : (
                       <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"nowrap"}}>
                         <span className="kpi-val" style={{fontSize:20,fontWeight:600,color:"#1E293B",lineHeight:1.4,overflowWrap:"break-word",minWidth:0,flex:"1 1 auto"}}>{k.value}</span>
-                        {k.label==="Prolonged Port Stays" && <PortStayViewLink count={k.value}/>}
+                        {k.portStayCount!==undefined && (
+                          <div style={{display:"flex",alignItems:"center",gap:5,marginTop:4}}>
+                            <span style={{fontSize:11,fontWeight:500,color:"#64748B",whiteSpace:"nowrap"}}>Prolonged: {k.portStayCount}</span>
+                            <PortStayViewLink count={k.portStayCount}/>
+                          </div>
+                        )}
                         {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={false} isLast={isLast}/>}
                       </div>
                     )}
@@ -1829,30 +1876,39 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
     }
 
-    var OPERATIONAL_KPIS_DATA = [
-      {label:"Total Voyages",    value:"47",              up:true},
-      {label:"Distance",         value:"1,234,567 NM",    up:false},
-      {label:"Laden Days",       value:"140",             up:true},
-      {label:"Ballast Days",     value:"40",              up:true},
-      {label:"Port Days",        value:"23",              up:false},
-      {label:"EEOI",             value:"12 t/(NM·CT)",    up:true},
-    ];
+    function _kfmt(n){ return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+
+    function getOperationalKpis(m) {
+      var s = m / 6;
+      var stays = Math.max(1, Math.round(7 * s));
+      return [
+        {label:"Total Voyages",      value:_kfmt(Math.round(45*s)),                up:true},
+        {label:"Laden Days",         value:_kfmt(Math.round(140*s)),               up:true,  split:{label:"Ballast Days", value:_kfmt(Math.round(40*s)), up:false}},
+        {label:"Port Days",          value:_kfmt(Math.round(40*s)),                portStayCount:String(stays)},
+        {label:"EEOI",               value:"12t/ (NM*CargoTonnes)",                up:false},
+        {label:"Distance Travelled", value:_kfmt(Math.round(77777*s))+" NM",       up:false},
+        {label:"Cargo Carried",      value:_kfmt(Math.round(77777990*s))+" MT",    up:false},
+      ];
+    }
 
     var TECHNICAL_KPIS_DATA = [
-      {label:"Hull Health",             value:"Good",        detail:"Current speed loss: 9.8%",              up:false},
-      {label:"Main Engine Health",      value:"Good",        detail:"Current fuel loss: 9.8%",               up:false},
-      {label:"Last Under Water Service",  value:"12 Dec 2025", detail:"Propeller polishing",                   up:true},
-      {label:"Scavenge Air Cooler",     value:"Good",        detail:"Pressure drop 40mmWG · 30°C drop",      up:true},
+      {label:"Hull Health",              value:"Good",        detail:"Current speed loss: 9.8%",         up:false},
+      {label:"Main Engine Health",       value:"Good",        detail:"Current fuel loss: 9.8%",          up:false},
+      {label:"Last Under Water Service", value:"12 Dec 2025", detail:"Propeller polishing",              up:true},
+      {label:"Scavenge Air Cooler",      value:"Good",        detail:"Pressure drop 40mmWG · 30°C drop", up:true},
     ];
 
-    var ENVIRONMENTAL_KPIS_DATA = [
-      {label:"CII Rating",        subRows:[{label:"Current",value:"A (68)"},{label:"Projected",value:"B (72)"}], up:true},
-      {label:"AER",              subRows:[{label:"Attained",value:"7.2 g/t·nm"},{label:"Required",value:"8.9 g/t·nm"}], up:true},
-      {label:"Distance",         value:"18,420 nm",    up:false},
-      {label:"Transport Work",   value:"12.4 M t·nm",  up:false},
-      {label:"EUA",              value:"$ 42,800",     up:false},
-      {label:"Fuel EU YTD",      value:"Compliant",    up:false},
-    ];
+    function getEnvironmentalKpis(m) {
+      var s = m / 6;
+      return [
+        {label:"CII Rating",      subRows:[{label:"Current",value:"A (68)"},{label:"Projected",value:"B (72)"}], up:true},
+        {label:"AER",             subRows:[{label:"Attained",value:"7.2 g/t·nm"},{label:"Required",value:"8.9 g/t·nm"}], up:true},
+        {label:"Distance",        value:_kfmt(Math.round(18420*s))+" nm",  up:false},
+        {label:"Transport Work",  value:(12.4*s).toFixed(1)+" M t·nm",    up:false},
+        {label:"EUA",             value:"$ "+_kfmt(Math.round(42800*s)),   up:false},
+        {label:"Fuel EU YTD",     value:"Compliant",                        up:false},
+      ];
+    }
 
     function KpiGrid({kpis, vessel, dark}) {
       var scrollRef = useRef(null);
@@ -1937,70 +1993,104 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       ["34",     "20", "Madagascar", "Non Tropical", "15 JAN 2025, 15:04", "15 JAN 2025, 15:04"],
       ["202523", "20", "Madagascar", "Non Tropical", "15 JAN 2025, 15:04", "15 JAN 2025, 15:04"],
       ["202529", "20", "Madagascar", "Non Tropical", "15 JAN 2025, 15:04", "15 JAN 2025, 15:04"],
-      ["47",     "21", "Rotterdam",  "Non Tropical", "18 JAN 2025, 09:30", "18 JAN 2025, 09:30"],
-      ["202541", "22", "Singapore",  "Tropical",     "22 JAN 2025, 11:15", "22 JAN 2025, 11:15"],
     ];
 
     function PortStayModal({count, onClose}) {
       var cols = ["Voyage No.","Stay Days","Port Name","Region","Arrival (UTC)","Departure (UTC)"];
+      var REGION_CHIP = {
+        "Tropical":     {bg:"#FEF9C3", color:"#92400E"},
+        "Non Tropical": {bg:"#F1F4F9", color:"#5A6B85"},
+      };
       return (
         <div onClick={function(e){if(e.target===e.currentTarget)onClose();}}
           style={{position:"fixed",inset:0,zIndex:99990,display:"flex",alignItems:"center",
-            justifyContent:"center",background:"rgba(15,23,42,0.45)"}}>
-          <div style={{background:"#fff",borderRadius:16,width:920,maxWidth:"95vw",maxHeight:"85vh",
-            display:"flex",flexDirection:"column",
+            justifyContent:"center",background:"rgba(8,18,38,0.50)"}}>
+          <div style={{background:"#ffffff",borderRadius:16,width:940,maxWidth:"95vw",maxHeight:"88vh",
+            display:"flex",flexDirection:"column",overflow:"hidden",
             fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif",
-            boxShadow:"0 24px 80px rgba(0,0,0,0.22)"}}>
-            {/* Header */}
-            <div style={{padding:"24px 28px 14px",display:"flex",alignItems:"flex-start",
+            }}>
+
+            {/* ── Header ── */}
+            <div style={{padding:"22px 24px 18px",display:"flex",alignItems:"center",
               justifyContent:"space-between",flexShrink:0,
-              borderBottom:"0.5px solid "+THEME.border}}>
+              borderBottom:"1px solid #E4E9F2"}}>
               <div>
-                <div style={{fontSize:20,fontWeight:700,color:THEME.text,letterSpacing:"-0.01em"}}>Prolonged Port Stays</div>
-                <div style={{fontSize:13,color:THEME.textMuted,marginTop:4}}>{count} Stays</div>
+                <div style={{fontSize:18,fontWeight:700,color:"#0E1A33",letterSpacing:"-0.01em",lineHeight:1.2}}>
+                  Prolonged Port Stays
+                </div>
+                <div style={{fontSize:13,color:"#5A6B85",marginTop:4,fontWeight:400}}>
+                  {count} stays recorded
+                </div>
               </div>
               <button onClick={onClose}
-                style={{width:32,height:32,border:"none",background:"none",cursor:"pointer",
-                  display:"flex",alignItems:"center",justifyContent:"center",
-                  color:THEME.textMuted,borderRadius:6,fontSize:22,padding:0,lineHeight:1,
-                  flexShrink:0,transition:"all 0.15s"}}
-                onMouseEnter={function(e){e.currentTarget.style.background="#F1F5F9";e.currentTarget.style.color=THEME.text;}}
-                onMouseLeave={function(e){e.currentTarget.style.background="none";e.currentTarget.style.color=THEME.textMuted;}}>
-                ×
+                style={{background:"transparent",border:"none",cursor:"pointer",width:32,height:32,borderRadius:8,
+                  display:"flex",alignItems:"center",justifyContent:"center",color:"#5A6B85",flexShrink:0}}
+                onMouseEnter={function(e){e.currentTarget.style.background="#F0F2F7";}}
+                onMouseLeave={function(e){e.currentTarget.style.background="transparent";}}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
               </button>
             </div>
-            {/* Table */}
-            <div style={{overflowY: PORT_STAY_ROWS.length > 10 ? "auto" : "visible", flex:1}}>
+
+            {/* ── Table ── */}
+            <div style={{overflowY:"auto",flex:1}}>
               <table style={{width:"100%",borderCollapse:"collapse",fontSize:13,
                 fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif"}}>
-                <thead>
-                  <tr style={{background:THEME.surfaceAlt}}>
+                <thead style={{position:"sticky",top:0,zIndex:1}}>
+                  <tr style={{background:"#F0F2F7"}}>
                     {cols.map(function(h,i){
-                      return <th key={i} style={{padding:"10px 16px",textAlign:"left",fontWeight:600,
-                        color:THEME.textSub,fontSize:12,
-                        borderBottom:"0.5px solid "+THEME.border,whiteSpace:"nowrap"}}>{h}</th>;
+                      return (
+                        <th key={i} style={{
+                          padding:"0 16px",height:44,textAlign:"left",
+                          fontWeight:600,color:"#5A6B85",fontSize:12,
+                          letterSpacing:0.4,whiteSpace:"nowrap",
+                          borderBottom:"1px solid #E4E9F2"}}>
+                          {h}
+                        </th>
+                      );
                     })}
                   </tr>
                 </thead>
                 <tbody>
-                  {PORT_STAY_ROWS.map(function(row,ri){
-                    var isLast = ri === PORT_STAY_ROWS.length - 1;
+                  {(function(){ var visRows=PORT_STAY_ROWS.slice(0,parseInt(count)||PORT_STAY_ROWS.length); return visRows.map(function(row,ri){
+                    var isLast = ri === visRows.length - 1;
                     return (
                       <tr key={ri}
-                        style={{borderBottom: isLast ? "none" : "0.5px solid "+THEME.borderLight, transition:"background 0.1s"}}
-                        onMouseEnter={function(e){e.currentTarget.style.background=THEME.surfaceAlt;}}
-                        onMouseLeave={function(e){e.currentTarget.style.background="transparent";}}>
+                        style={{borderBottom: isLast ? "none" : "1px solid #E4E9F2",
+                          background:"#ffffff", transition:"background 0.12s"}}
+                        onMouseEnter={function(e){e.currentTarget.style.background="#F7F9FC";}}
+                        onMouseLeave={function(e){e.currentTarget.style.background="#ffffff";}}>
                         {row.map(function(cell,ci){
-                          return <td key={ci} style={{padding:"11px 16px",
-                            color:ci===0?THEME.text:THEME.textSub,
-                            fontWeight:ci===0?600:400,whiteSpace:"nowrap"}}>{cell}</td>;
+                          /* Region column → chip */
+                          if(ci === 3){
+                            var chip = REGION_CHIP[cell] || {bg:"#F1F4F9",color:"#5A6B85"};
+                            return (
+                              <td key={ci} style={{padding:"0 16px",height:44,whiteSpace:"nowrap"}}>
+                                <span style={{display:"inline-block",padding:"3px 10px",
+                                  borderRadius:9999,fontSize:11,fontWeight:600,
+                                  background:chip.bg,color:chip.color}}>
+                                  {cell}
+                                </span>
+                              </td>
+                            );
+                          }
+                          return (
+                            <td key={ci} style={{padding:"0 16px",height:44,
+                              color: ci===0 ? "#0E1A33" : "#5A6B85",
+                              fontWeight: ci===0 ? 600 : 400,
+                              whiteSpace:"nowrap"}}>
+                              {cell}
+                            </td>
+                          );
                         })}
                       </tr>
                     );
-                  })}
+                  }); })()}
                 </tbody>
               </table>
             </div>
+
           </div>
         </div>
       );
@@ -2016,7 +2106,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             onMouseLeave={function(e){e.currentTarget.style.textDecoration="underline";}}
             style={{fontSize:12,fontWeight:600,color:"#ffffff",textDecoration:"underline",
               textUnderlineOffset:2,cursor:"pointer",flexShrink:0,lineHeight:1}}>
-            view
+            View
           </span>
           {open && ReactDOM.createPortal(
             <PortStayModal count={count} onClose={function(){setOpen(false);}}/>,
@@ -2386,7 +2476,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       }
       return (
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={chartData} margin={{bottom:20,left:4,right:40,top:4}}>
+          <ComposedChart data={chartData} margin={{bottom:20,left:4,right:40,top:8}}>
             <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
             <XAxis dataKey="m" tick={axTick} axisLine={false} tickLine={false} dy={6}
               label={{value:"Month",offset:-8,position:"insideBottom",style:axLabel}}/>
@@ -2397,7 +2487,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               domain={[12,14]} tickCount={5}
               label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
             <Tooltip content={<ModernTooltip/>}/>
-            <Legend {...lgStyle}/>
+            <Legend verticalAlign="top" align="center" wrapperStyle={{paddingBottom:8,fontSize:11}}/>
             <Line yAxisId="left" type="monotone" dataKey="slip" name="Laden Slip %" stroke="#3B82F6" dot={false} strokeWidth={1.5}/>
             <Line yAxisId="left" type="monotone" dataKey="slip7d" name="Laden Slip % (7D Avg)" stroke="#F97316" dot={false} strokeWidth={2}/>
             <Line yAxisId="right" type="monotone" dataKey="sog" name="Laden SOG" stroke="#3B82F6" strokeDasharray="5 3" dot={false} strokeWidth={1.5}/>
@@ -2473,7 +2563,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           </div>
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{bottom:20,left:4,right:10,top:4}} barSize={18} barGap={3}>
+              <BarChart data={chartData} margin={{bottom:20,left:4,right:10,top:4}} barSize={38} barGap={3}>
                 <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
                 {xAx("m","Month")}
                 <YAxis tick={axTick} width={52} axisLine={false} tickLine={false}
@@ -3240,8 +3330,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         var isFactory=typeof childrenOrFn==="function";
         var sample=(opts&&opts.sample)||false;
         var tableData=(opts&&opts.tableData)||null;
-        var makeEl=isFactory?function(n){return <ChartCard title={title} subtitle={subtitle} sample={sample} tableData={tableData}>{childrenOrFn(n)}</ChartCard>;}:null;
-        var el=isFactory?<ChartCard title={title} subtitle={subtitle} sample={sample} tableData={tableData}>{childrenOrFn(6)}</ChartCard>:<ChartCard title={title} subtitle={subtitle} sample={sample} tableData={tableData}>{childrenOrFn}</ChartCard>;
+        var makeChart=isFactory?childrenOrFn:null;
+        var makeEl=isFactory?function(n){return <ChartCard title={title} subtitle={subtitle} sample={sample} tableData={tableData} makeChart={makeChart}>{childrenOrFn(n)}</ChartCard>;}:null;
+        var el=isFactory?<ChartCard title={title} subtitle={subtitle} sample={sample} tableData={tableData} makeChart={makeChart}>{childrenOrFn(6)}</ChartCard>:<ChartCard title={title} subtitle={subtitle} sample={sample} tableData={tableData}>{childrenOrFn}</ChartCard>;
         return {el:el,makeEl:makeEl,span:span||2};
       }
 
@@ -3259,7 +3350,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           function(n){
             return (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={fd(wscData,n)} barSize={18} margin={{bottom:20,left:4,right:10,top:10}}>
+                <BarChart data={fd(wscData,n)} barSize={38} margin={{bottom:20,left:4,right:10,top:10}}>
                   <defs>
                     <linearGradient id="bgSpeedBreach" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#3B82F6" stopOpacity={1}/>
@@ -3273,8 +3364,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
                   {xAx("m","Month")} {yAx("Breaches")}
                   <Tooltip content={<ModernTooltip/>}/><Legend {...lgStyle}/>
-                  <Bar dataKey="speedBreach" fill="url(#bgSpeedBreach)" radius={[6,6,0,0]} name="Speed Breach" maxBarSize={28}/>
-                  <Bar dataKey="consBreach"  fill="url(#bgConsBreach)"  radius={[6,6,0,0]} name="Consumption Breach" maxBarSize={28}/>
+                  <Bar dataKey="speedBreach" fill="url(#bgSpeedBreach)" radius={[6,6,0,0]} name="Speed Breach" maxBarSize={38}/>
+                  <Bar dataKey="consBreach"  fill="url(#bgConsBreach)"  radius={[6,6,0,0]} name="Consumption Breach" maxBarSize={38}/>
                 </BarChart>
               </ResponsiveContainer>
             );
@@ -3495,13 +3586,79 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       // Environmental tab — 4 charts 2×2
       var environmentalItems=[
         Object.assign(cc("Required and Attained AER vs Month","CII voyage rating — voyage based",
-          function(){return <AERVoyageChart/>;}, 3),{rowHeight:420}),
+          function(){return <AERVoyageChart/>;}, 3, {tableData:{
+            columns:[
+              {key:"v",        label:"Voyage No."},
+              {key:"m",        label:"Month"},
+              {key:"attained", label:"Attained AER"},
+              {key:"required", label:"Required AER"},
+              {key:"rating",   label:"CII Rating"}
+            ],
+            rows:[
+              {v:"215",m:"May 25",attained:5.8,required:7.4,rating:"C"},
+              {v:"216",m:"Jun 25",attained:6.6,required:7.4,rating:"D"},
+              {v:"217",m:"Aug 25",attained:5.2,required:7.4,rating:"C"},
+              {v:"218",m:"Sep 25",attained:5.4,required:7.4,rating:"C"},
+              {v:"219",m:"Oct 25",attained:1.3,required:7.4,rating:"A"},
+              {v:"220",m:"Nov 25",attained:1.5,required:7.4,rating:"A"},
+            ]
+          }}),{rowHeight:420}),
         Object.assign(cc("Global GHG Emissions","Month-on-month cumulative emissions",
-          function(){return <GlobalGHGChart/>;}, 3),{rowHeight:420}),
+          function(){return <GlobalGHGChart/>;}, 3, {tableData:(function(){
+            var _MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+            var _rows=_MN.map(function(m,i){
+              var t=i/11;
+              var co2=Math.round(490+(1060-490)*t+Math.sin(i*0.8)*22);
+              var n2o=Math.round(100+(520-100)*t+Math.sin(i*1.1)*16);
+              var ch4=Math.round(30+(170-30)*t+Math.sin(i*0.7)*9);
+              return {m:m,co2:co2,n2o:n2o,ch4:ch4,total:co2+n2o+ch4};
+            });
+            return {
+              columns:[
+                {key:"m",     label:"Month"},
+                {key:"co2",   label:"CO₂ (t)"},
+                {key:"n2o",   label:"N₂O (tCO₂eq)"},
+                {key:"ch4",   label:"CH₄ (tCO₂eq)"},
+                {key:"total", label:"Total (tCO₂eq)"}
+              ],
+              rows:_rows
+            };
+          })()}),{rowHeight:420}),
         Object.assign(cc("EU Emissions","Sea passages & port stay — total emissions vs consumption",
-          function(){return <EUEmissionsChart/>;}, 3),{rowHeight:420}),
+          function(){return <EUEmissionsChart/>;}, 3, {tableData:{
+            columns:[
+              {key:"cat",         label:"Route Category"},
+              {key:"emissions",   label:"Total Emissions (t)"},
+              {key:"consumption", label:"Consumption (t)"}
+            ],
+            rows:[
+              {cat:"EU → EU",    emissions:86,consumption:58},
+              {cat:"EU → NonEU", emissions:96,consumption:72},
+              {cat:"NonEU → EU", emissions:56,consumption:42},
+              {cat:"EU",         emissions:46,consumption:30},
+            ]
+          }}),{rowHeight:420}),
         Object.assign(cc("Fuel EU Emissions","Compliance balance (EUAs) vs EUAs required per voyage",
-          function(){return <FuelEUEmissionsChart/>;}, 3),{rowHeight:420}),
+          function(){return <FuelEUEmissionsChart/>;}, 3, {tableData:{
+            columns:[
+              {key:"voy",     label:"Voyage"},
+              {key:"balance", label:"Compliance Balance (EUA)"},
+              {key:"euas",    label:"EUAs Required"},
+              {key:"status",  label:"Status"}
+            ],
+            rows:[
+              {voy:"VY-001",balance:50,   euas:2400,status:"Compliant"},
+              {voy:"VY-002",balance:-80,  euas:2600,status:"Non-compliant"},
+              {voy:"VY-003",balance:120,  euas:1600,status:"Compliant"},
+              {voy:"VY-004",balance:-130, euas:3200,status:"Non-compliant"},
+              {voy:"VY-005",balance:30,   euas:2600,status:"Compliant"},
+              {voy:"VY-006",balance:-220, euas:4000,status:"Non-compliant"},
+              {voy:"VY-007",balance:150,  euas:1550,status:"Compliant"},
+              {voy:"VY-008",balance:-80,  euas:3000,status:"Non-compliant"},
+              {voy:"VY-009",balance:80,   euas:2400,status:"Compliant"},
+              {voy:"VY-010",balance:-80,  euas:2800,status:"Non-compliant"},
+            ]
+          }}),{rowHeight:420}),
       ];
 
       // Operational tab — first 4 non-sample charts in 2×2 layout (sample items hidden, restorable)
@@ -3512,13 +3669,128 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       // Technical tab — 4 charts in 2×2 layout
       var technicalItems=[
         Object.assign(cc("Hull Health","Speed loss vs month",
-          function(n){return <HullHealthChart n={n}/>;},3),{rowHeight:420}),
+          function(n){return <HullHealthChart n={n}/>;},3,{tableData:(function(){
+            var _MN2=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+            var _d2=new Date(); var _m2=_d2.getMonth(); var _y2=_d2.getFullYear();
+            var _months=[];
+            for(var _i2=5;_i2>=0;_i2--){
+              var _dt2=new Date(_y2,_m2-_i2,1);
+              _months.push(_MN2[_dt2.getMonth()]+" "+String(_dt2.getFullYear()).slice(-2));
+            }
+            var _lossPts=[
+              {x:0,y:8},{x:0.05,y:14},{x:0.1,y:6},{x:0.18,y:11},{x:0.25,y:5},{x:0.32,y:9},{x:0.4,y:7},
+              {x:0.48,y:8},{x:0.56,y:11},{x:0.62,y:7},{x:0.7,y:9},{x:0.78,y:8},{x:0.86,y:10},{x:0.92,y:12},
+              {x:1.0,y:9},{x:1.08,y:13},{x:1.14,y:10},{x:1.22,y:8},{x:1.3,y:12},{x:1.38,y:9},{x:1.44,y:11},
+              {x:1.52,y:10},{x:1.6,y:13},{x:1.68,y:11},{x:1.76,y:14},{x:1.84,y:12},{x:1.9,y:10},
+              {x:1.98,y:16},{x:2.06,y:13},{x:2.12,y:15},{x:2.2,y:12},{x:2.28,y:14},{x:2.34,y:11},
+              {x:2.42,y:13},{x:2.5,y:10},{x:2.58,y:12},{x:2.64,y:11},{x:2.72,y:15},
+              {x:2.8,y:19},{x:2.87,y:22},{x:2.94,y:25},{x:3.0,y:29},{x:3.04,y:24},
+              {x:3.07,y:31},{x:3.11,y:26},{x:3.15,y:20},{x:3.18,y:18},
+              {x:3.27,y:6},{x:3.35,y:4},{x:3.43,y:2},{x:3.52,y:5},{x:3.6,y:3},{x:3.68,y:1},
+              {x:3.76,y:4},{x:3.84,y:7},{x:3.92,y:10},{x:4.0,y:13},
+              {x:4.08,y:16},{x:4.16,y:20},{x:4.24,y:18},{x:4.3,y:22},{x:4.38,y:19},{x:4.46,y:21},
+              {x:4.54,y:17},{x:4.62,y:20},{x:4.7,y:18},{x:4.76,y:15},{x:4.84,y:17},
+              {x:4.9,y:11},{x:4.98,y:13},{x:5.06,y:9},{x:5.12,y:12},{x:5.18,y:7},{x:5.24,y:5},
+            ];
+            var _portStayPts=[
+              {x:0.35,lbl:"11"},{x:0.72,lbl:"20"},{x:1.48,lbl:"17"},
+              {x:3.08,lbl:"85"},{x:3.4,lbl:"UWI"},{x:4.8,lbl:"99"},
+            ];
+            var _rows2=_months.map(function(month,mi){
+              var pts=_lossPts.filter(function(p){return p.x>=mi&&p.x<mi+1;});
+              var avgLoss=pts.length?Math.round(pts.reduce(function(s,p){return s+p.y;},0)/pts.length):null;
+              var stays=_portStayPts.filter(function(p){return p.x>=mi&&p.x<mi+1;});
+              var portDays=stays.map(function(s){return s.lbl;}).join(", ")||"—";
+              var event=mi===3?"Hull Service":"—";
+              return {month:month,avgLoss:avgLoss,portDays:portDays,event:event};
+            });
+            return {
+              columns:[
+                {key:"month",   label:"Month"},
+                {key:"avgLoss", label:"Avg Speed Loss (%)"},
+                {key:"portDays",label:"Port Stay (days)"},
+                {key:"event",   label:"Event"}
+              ],
+              rows:_rows2
+            };
+          })()}),{rowHeight:420}),
         Object.assign(cc("Speed Power Curve","Sea trial vs reported power",
-          function(){return <SpeedPowerChart/>;},3),{rowHeight:420}),
+          function(){return <SpeedPowerChart/>;},3,{tableData:(function(){
+            var _sp=[7.2,8.2,9.1,10.1,11.1,12.1,13.0,14.0,15.0,15.9,16.9];
+            var _curveRows=_sp.map(function(s){
+              var k=s-7;
+              return {speed:s,trialLaden:Math.round(1200+280*k*k),trialBallast:Math.round(900+210*k*k),repLaden:null,repBallast:null};
+            });
+            var _repLaden=[{s:11.8,p:7200},{s:12.0,p:7800},{s:12.2,p:8100},{s:12.4,p:8600},{s:12.6,p:9000},{s:13.0,p:9600},{s:13.2,p:10100}];
+            var _repBallast=[{s:11.2,p:5400},{s:11.5,p:5800},{s:11.8,p:6100},{s:12.0,p:6500},{s:12.3,p:6900}];
+            _repLaden.forEach(function(rp){
+              var cl=_curveRows.reduce(function(a,b){return Math.abs(b.speed-rp.s)<Math.abs(a.speed-rp.s)?b:a;});
+              if(cl.repLaden===null) cl.repLaden=rp.p;
+            });
+            _repBallast.forEach(function(rp){
+              var cl=_curveRows.reduce(function(a,b){return Math.abs(b.speed-rp.s)<Math.abs(a.speed-rp.s)?b:a;});
+              if(cl.repBallast===null) cl.repBallast=rp.p;
+            });
+            return {
+              columns:[
+                {key:"speed",       label:"Speed (kn)"},
+                {key:"trialLaden",  label:"Sea Trial Laden (kW)"},
+                {key:"trialBallast",label:"Sea Trial Ballast (kW)"},
+                {key:"repLaden",    label:"Reported Laden (kW)"},
+                {key:"repBallast",  label:"Reported Ballast (kW)"}
+              ],
+              rows:_curveRows.map(function(r){return {speed:r.speed,trialLaden:r.trialLaden,trialBallast:r.trialBallast,repLaden:r.repLaden||"—",repBallast:r.repBallast||"—"};})
+            };
+          })()}),{rowHeight:420}),
         Object.assign(cc("Predicted vs Reported Consumption","By speed — laden / ballast",
-          function(){return <ConsumptionSpeedChart/>;},3),{rowHeight:420}),
+          function(){return <ConsumptionSpeedChart/>;},3,{tableData:(function(){
+            var _ld=[];
+            for(var _sv=7.5;_sv<=15.6;_sv=Math.round((_sv+0.1)*10)/10){
+              var _dd=_sv-10.2;
+              _ld.push({v:_sv,laden:Math.round((1.05*_dd*_dd+14+0.4*_sv)*10)/10,ballast:Math.round((1.25*_dd*_dd+17+0.4*_sv)*10)/10});
+            }
+            function _cAt(v,key){return _ld.reduce(function(a,b){return Math.abs(b.v-v)<Math.abs(a.v-v)?b:a;})[key];}
+            var _rPts=[{v:8.4,c:28},{v:9.0,c:22},{v:9.4,c:18},{v:9.8,c:17},{v:10.2,c:16},{v:10.8,c:17},{v:11.2,c:19},{v:11.8,c:22},{v:12.2,c:26},{v:12.6,c:32},{v:13.0,c:42}];
+            var _pPts=[{v:8.6,c:24},{v:9.2,c:19},{v:9.6,c:16},{v:10.0,c:15},{v:10.5,c:15},{v:11.0,c:17},{v:11.5,c:20},{v:12.0,c:23},{v:12.4,c:29},{v:12.9,c:37}];
+            var _aS={};
+            _rPts.forEach(function(p){_aS[p.v]={speed:p.v,reported:p.c,predicted:null,laden:_cAt(p.v,"laden"),ballast:_cAt(p.v,"ballast")};});
+            _pPts.forEach(function(p){
+              if(_aS[p.v]) _aS[p.v].predicted=p.c;
+              else _aS[p.v]={speed:p.v,reported:null,predicted:p.c,laden:_cAt(p.v,"laden"),ballast:_cAt(p.v,"ballast")};
+            });
+            var _sRows=Object.keys(_aS).map(function(k){return _aS[k];}).sort(function(a,b){return a.speed-b.speed;});
+            return {
+              columns:[
+                {key:"speed",    label:"Speed (kn)"},
+                {key:"reported", label:"Reported Cons. (MT)"},
+                {key:"predicted",label:"Predicted Cons. (MT)"},
+                {key:"laden",    label:"Laden Curve (MT)"},
+                {key:"ballast",  label:"Ballast Curve (MT)"}
+              ],
+              rows:_sRows.map(function(r){return {speed:r.speed,reported:r.reported!==null?r.reported:"—",predicted:r.predicted!==null?r.predicted:"—",laden:r.laden,ballast:r.ballast};})
+            };
+          })()}),{rowHeight:420}),
         Object.assign(cc("Load SFOC Curve","Shop trial vs noon measurements",
-          function(){return <LoadSFOCChart/>;},3),{rowHeight:420}),
+          function(){return <LoadSFOCChart/>;},3,{tableData:(function(){
+            var _loads=[30,35,40,45,50,55,60,65,70,75,80,85,90,95,100];
+            var _st=_loads.map(function(l){var base=190-0.35*l+0.003*l*l;return {l:l,sfoc:Math.round(base),mean:Math.round(base*0.92-10)};});
+            var _nm=[{l:35,s:218},{l:38,s:224},{l:40,s:220},{l:42,s:214},{l:45,s:208},{l:47,s:215},{l:50,s:210},{l:52,s:205},{l:55,s:212},{l:58,s:206},{l:60,s:200},{l:62,s:195},{l:65,s:202},{l:68,s:198},{l:70,s:195}];
+            var _nc=[{l:36,s:196},{l:40,s:192},{l:43,s:188},{l:46,s:184},{l:49,s:188},{l:52,s:182},{l:55,s:185},{l:58,s:180},{l:61,s:177},{l:64,s:181},{l:67,s:175},{l:70,s:178},{l:72,s:172}];
+            function _near(arr,l){return arr.length?arr.reduce(function(a,b){return Math.abs(b.l-l)<Math.abs(a.l-l)?b:a;}):null;}
+            return {
+              columns:[
+                {key:"load",          label:"Load (%)"},
+                {key:"shopTrial",     label:"Shop Trial SFOC (g/kWh)"},
+                {key:"meanCorrected", label:"Mean Corrected (g/kWh)"},
+                {key:"noonMeasured",  label:"Noon Measured (g/kWh)"},
+                {key:"noonCorrected", label:"Noon Corrected (g/kWh)"}
+              ],
+              rows:_st.map(function(st){
+                var nm=_near(_nm,st.l); var nc=_near(_nc,st.l);
+                return {load:st.l,shopTrial:st.sfoc,meanCorrected:st.mean,noonMeasured:nm&&Math.abs(nm.l-st.l)<=5?nm.s:"—",noonCorrected:nc&&Math.abs(nc.l-st.l)<=5?nc.s:"—"};
+              })
+            };
+          })()}),{rowHeight:420}),
       ];
 
       // Legacy flat card arrays for backward compatibility (non-dashboard sections)
@@ -4624,6 +4896,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     }
 
     function ChartDetailPage({chart, onBack, monthCount}) {
+      var [localMonths, setLocalMonths] = useState(monthCount||6);
       var [viewMode, setViewMode] = useState("month");
       var [sortCol, setSortCol] = useState(null);
       var [sortDir, setSortDir] = useState("asc");
@@ -4667,8 +4940,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var [appliedF, setAppliedF] = useState(null); // null = no filter applied yet
       var [activeFilterCount, setActiveFilterCount] = useState(0);
 
-      // Apply filters to data
+      // Apply date-range + filters to data
+      var maxMonthIdx = localMonths; // keep rows from the last localMonths months
       var filteredRows = ALL_ROWS.filter(function(row){
+        if(row.month >= maxMonthIdx) return false;
         if(!appliedF) return true;
         if(appliedF.loadCondition && row.loadCondition !== appliedF.loadCondition) return false;
         var checkedTypes = Object.keys(appliedF.reportTypes).filter(function(k){return appliedF.reportTypes[k];});
@@ -4715,7 +4990,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var filterModal = showFilter && ReactDOM.createPortal(
         <div style={{position:"fixed",inset:0,zIndex:99999}}>
           <div onClick={cancelFilter} style={{position:"absolute",inset:0,background:"rgba(15,27,62,0.35)",transition:"opacity 0.27s",opacity:filterVis?1:0}}/>
-          <div style={{position:"absolute",top:16,right:16,bottom:16,width:480,background:"#fff",display:"flex",flexDirection:"column",borderRadius:16,border:"1px solid #E2E8F0",overflow:"hidden",boxShadow:"0 24px 80px rgba(0,0,0,0.18)",transform:filterVis?"translateX(0)":"translateX(calc(100% + 32px))",transition:"transform 0.3s cubic-bezier(0.4,0,0.2,1)"}}>
+          <div style={{position:"absolute",top:16,right:16,bottom:16,width:480,background:"#fff",display:"flex",flexDirection:"column",borderRadius:16,border:"1px solid #E2E8F0",overflow:"hidden",transform:filterVis?"translateX(0)":"translateX(calc(100% + 32px))",transition:"transform 0.3s cubic-bezier(0.4,0,0.2,1)"}}>
             {/* Header */}
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"22px 24px 18px"}}>
               <span style={{fontWeight:700,fontSize:18,color:"#0F172A"}}>Filters</span>
@@ -4857,7 +5132,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
               </svg>
               Download Report
             </button>
-            <DateRangeDropdown onRangeChange={function(){}}/>
+            <DateRangeDropdown defaultLabel="Last 180 Days" onRangeChange={function(m){setLocalMonths(m);setSortCol(null);}}/>
           </div>
 
           {/* Content */}
@@ -4879,10 +5154,10 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
             </div>
 
             {/* ── Full-width chart ── */}
-            {chart.chartEl ? (
+            {(chart.makeChart||chart.chartEl) ? (
               <div style={{background:"#fff",borderRadius:12,border:"0.5px solid #E2E8F0",padding:"24px 24px 20px",marginBottom:24}}>
                 <div style={{width:"100%",height:420}}>
-                  {chart.chartEl}
+                  {chart.makeChart ? chart.makeChart(localMonths) : chart.chartEl}
                 </div>
               </div>
             ) : null}
@@ -4943,7 +5218,10 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
             {/* ── Data table ── */}
             {chart.tableData ? (function(){
               var td = chart.tableData;
-              var sortedRows = td.rows.slice();
+              var fraction = Math.min(localMonths, 6) / 6;
+              var visibleCount = Math.max(1, Math.round(td.rows.length * fraction));
+              var baseRows = td.rows.slice(-visibleCount);
+              var sortedRows = baseRows.slice();
               if(sortCol){
                 sortedRows.sort(function(a,b){
                   var va=a[sortCol], vb=b[sortCol];
@@ -5624,7 +5902,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       return ReactDOM.createPortal(
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:99999,display:"flex",alignItems:"center",justifyContent:"center"}}
           onClick={function(e){if(e.target===e.currentTarget)onClose();}}>
-          <div style={{background:"#fff",borderRadius:16,width:540,maxWidth:"95vw",maxHeight:"85vh",display:"flex",flexDirection:"column",boxShadow:"0 24px 80px rgba(0,0,0,0.2)"}}>
+          <div style={{background:"#fff",borderRadius:16,width:540,maxWidth:"95vw",maxHeight:"85vh",display:"flex",flexDirection:"column"}}>
             {/* Header */}
             <div style={{padding:"28px 28px 0",position:"relative"}}>
               <button onClick={onClose} style={{position:"absolute",top:20,right:20,background:"none",border:"none",cursor:"pointer",padding:4,borderRadius:6,color:"#64748B",fontSize:20,lineHeight:1}}>✕</button>
@@ -5771,7 +6049,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       return (
         <div style={{position:"fixed",inset:0,zIndex:9999,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(15,23,42,0.45)"}}>
           <div style={{background:"#fff",borderRadius:16,width:560,maxHeight:"82vh",display:"flex",flexDirection:"column",
-            boxShadow:"0 24px 64px rgba(0,0,0,0.2)",overflow:"hidden"}}>
+            overflow:"hidden"}}>
 
             {/* Header */}
             <div style={{padding:"22px 24px 0",flexShrink:0}}>
@@ -7394,19 +7672,12 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
   width:100%;
   box-sizing:border-box;
 }
-@media(min-width:1280px){
-  .kpi-val{font-size:20px!important;}
-}
 @media(max-width:640px){
   .kpi-grid{gap:8px;}
 }
 .kpi-card{min-width:0;}
 /* Prevent comma-breaks inside numbers — only break at spaces */
 .kpi-val{word-break:keep-all;}
-/* Medium screens (4-col): slightly smaller font so values fit on one line */
-@media(max-width:1200px) and (min-width:641px){
-  .kpi-val{font-size:17px!important;}
-}
 @media(max-width:640px){
   .kpi-card-padding{padding:12px!important;}
   .kpi-val{font-size:20px!important;}
@@ -7642,8 +7913,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
             <div style={{flex:1,overflowY:"auto",padding:"20px 24px 24px",background:darkBg?"#EAEFF4":THEME.bg,transition:"background 0.2s"}}>
               {(function(){
                 var activeKpis = (activeNav==="emissions" && dashTab==="technical") ? TECHNICAL_KPIS_DATA
-                               : (activeNav==="emissions" && dashTab==="environmental") ? ENVIRONMENTAL_KPIS_DATA
-                               : (activeNav==="emissions" && dashTab==="operational") ? OPERATIONAL_KPIS_DATA
+                               : (activeNav==="emissions" && dashTab==="environmental") ? getEnvironmentalKpis(monthCount)
+                               : (activeNav==="emissions" && dashTab==="operational") ? getOperationalKpis(monthCount)
                                : kpis;
                 return kpiMode==="highlight"
                   ? <KpiHighlight kpis={activeKpis} vessel={selectedVessel}/>
