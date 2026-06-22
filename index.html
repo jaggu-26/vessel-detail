@@ -709,12 +709,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     var _currentDashTab = "operational";
 
     function DateRangeDropdown({onRangeChange, defaultLabel, dark}) {
-      var ytdMonths=new Date().getMonth()+1;
       var PRESETS=[
-        {label:"Last 30 Days",months:2},
-        {label:"Last 90 Days",months:3},
+        {label:"Last 30 Days",months:1},
+        {label:"Last 60 Days",months:2},
         {label:"Last 180 Days",months:6},
-        {label:"YTD",months:ytdMonths},
+        {label:"Year",months:12},
         {label:"Custom",months:null}
       ];
       var initLabel=defaultLabel||"Last 180 Days";
@@ -2454,33 +2453,54 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     // ── Laden Slip % & SOG chart — module level for stable identity
     function SlipSOGChart(props){
       var months=props.months||6;
+      var viewMode=props.viewMode||"month";
+      var isVoyage=viewMode==="voyage";
       var MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       var today=new Date();
-      var numWeeks=months*4+2;
       var chartData=[];
-      for(var i=0;i<numWeeks;i++){
-        var t=i/(numWeeks-1);
-        var daysAgo=(numWeeks-1-i)*7;
-        var wDate=new Date(today.getTime()-daysAgo*86400000);
-        var mIdx=wDate.getMonth();
-        var prevDate=i>0?new Date(today.getTime()-(numWeeks-i)*7*86400000):null;
-        var isNew=!prevDate||prevDate.getMonth()!==mIdx;
-        var m=isNew?MN[mIdx]:"";
-        var slipTrend=1.8+3.7*t;
-        var slipNoise=Math.sin(t*15.7+0.8)*0.7+Math.sin(t*31.4+2.1)*0.35+Math.sin(t*6.2)*0.45;
-        var slip=Math.max(1.2,+(slipTrend+slipNoise).toFixed(2));
-        var slip7d=+(slipTrend+slipNoise*0.25).toFixed(2);
-        var sogTrend=13.6-1.2*t;
-        var sogNoise=Math.sin(t*10.5+1.5)*0.12+Math.sin(t*22.0+0.5)*0.08;
-        var sog=+(sogTrend+sogNoise).toFixed(2);
-        chartData.push({m:m,slip:slip,slip7d:slip7d,sog:sog});
+
+      if(isVoyage){
+        // Voyage mode — one point per voyage (~2 voyages per month)
+        var numVoyages=Math.max(4,Math.round(months*2));
+        for(var i=0;i<numVoyages;i++){
+          var t=i/(numVoyages-1);
+          var slipTrend=1.8+3.7*t;
+          var slipNoise=Math.sin(t*9.4+0.8)*0.8+Math.sin(t*18.8+2.1)*0.4;
+          var slip=Math.max(1.2,+(slipTrend+slipNoise).toFixed(2));
+          var slip7d=+(slipTrend+slipNoise*0.3).toFixed(2);
+          var sogTrend=13.6-1.2*t;
+          var sogNoise=Math.sin(t*7.5+1.5)*0.14+Math.sin(t*15.0+0.5)*0.09;
+          var sog=+(sogTrend+sogNoise).toFixed(2);
+          chartData.push({m:"V"+(i+1),slip:slip,slip7d:slip7d,sog:sog});
+        }
+      } else {
+        // Month mode — one point per week
+        var numWeeks=months*4+2;
+        for(var i=0;i<numWeeks;i++){
+          var t=i/(numWeeks-1);
+          var daysAgo=(numWeeks-1-i)*7;
+          var wDate=new Date(today.getTime()-daysAgo*86400000);
+          var mIdx=wDate.getMonth();
+          var prevDate=i>0?new Date(today.getTime()-(numWeeks-i)*7*86400000):null;
+          var isNew=!prevDate||prevDate.getMonth()!==mIdx;
+          var m=isNew?MN[mIdx]:"";
+          var slipTrend=1.8+3.7*t;
+          var slipNoise=Math.sin(t*15.7+0.8)*0.7+Math.sin(t*31.4+2.1)*0.35+Math.sin(t*6.2)*0.45;
+          var slip=Math.max(1.2,+(slipTrend+slipNoise).toFixed(2));
+          var slip7d=+(slipTrend+slipNoise*0.25).toFixed(2);
+          var sogTrend=13.6-1.2*t;
+          var sogNoise=Math.sin(t*10.5+1.5)*0.12+Math.sin(t*22.0+0.5)*0.08;
+          var sog=+(sogTrend+sogNoise).toFixed(2);
+          chartData.push({m:m,slip:slip,slip7d:slip7d,sog:sog});
+        }
       }
+
       return (
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={chartData} margin={{bottom:20,left:4,right:40,top:8}}>
             <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
             <XAxis dataKey="m" tick={axTick} axisLine={false} tickLine={false} dy={6}
-              label={{value:"Month",offset:-8,position:"insideBottom",style:axLabel}}/>
+              label={{value:isVoyage?"Voyage":"Month",offset:-8,position:"insideBottom",style:axLabel}}/>
             <YAxis yAxisId="left" tick={axTick} width={40} axisLine={false} tickLine={false}
               domain={[1,7]} tickCount={4}
               label={{value:"Slip (%)",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
@@ -3122,7 +3142,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   tick={axTick} axisLine={false} tickLine={false}
                   label={{value:"% Speed Loss",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={<HullTip/>} cursor={{stroke:"#334155",strokeWidth:1}}/>
-                <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:13,paddingBottom:6}}
+                <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:13,paddingBottom:20}}
                   payload={legItems.map(function(l){return {value:l.value,type:l.type,color:l.color};})}/>
                 <Line type="monotone" dataKey="y" stroke="#162C7C" strokeWidth={2.5} dot={false}
                   legendType="none" isAnimationActive={false}/>
@@ -3566,8 +3586,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       </div>
                     );
                   }}/>
-                  <Legend verticalAlign="top" align="left"
-                    wrapperStyle={{paddingLeft:56,paddingTop:4,fontSize:11}}/>
+                  <Legend verticalAlign="top" align="center"
+                    wrapperStyle={{paddingTop:4,paddingBottom:16,fontSize:11}}/>
                   <Scatter name="Ballast Regression" data={bRegData}
                     line={{stroke:"#0EA5E9",strokeWidth:2}} lineType="joint"
                     dot={false} fill="#0EA5E9" legendType="line"/>
@@ -3625,7 +3645,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             };
           })()}),
         cc("SOG & Slip Trend","Laden condition — slip & speed over ground",
-          function(n){return <SlipSOGChart months={n}/>;}, 3,
+          function(n,detailViewMode){return <SlipSOGChart months={n} viewMode={detailViewMode||"month"}/>;}, 3,
           {tableData:(function(){
             var _MN3=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
             var numWeeks=26;
