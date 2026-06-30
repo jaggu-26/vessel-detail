@@ -1339,39 +1339,108 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       {id:"BF6_DSS5",label:"Weather BF6 DSS5"},
     ];
 
-    function SimDot({cx,cy,value,fill}) {
-      if(value==null||cx==null||cy==null) return null;
-      return <circle cx={cx} cy={cy} r={5} fill={fill} stroke="#fff" strokeWidth={1}/>;
+    var SIM_SCATTER_SEEDS=[0.05,-0.18,0.12,-0.08,0.22,-0.14,0.09,-0.25,0.16,-0.06,0.28,-0.11,0.04,0.19,-0.20];
+
+    function SpeedRangeSlider({min,max,low,high,onLow,onHigh}){
+      var trackRef=useRef(null);
+      var dragRef=useRef(null);
+      var stateRef=useRef({low:low,high:high,onLow:onLow,onHigh:onHigh});
+      useEffect(function(){stateRef.current={low:low,high:high,onLow:onLow,onHigh:onHigh};},[low,high,onLow,onHigh]);
+      function pct(v){return(v-min)/(max-min)*100;}
+      useEffect(function(){
+        function onMove(e){
+          if(!dragRef.current||!trackRef.current)return;
+          var r=trackRef.current.getBoundingClientRect();
+          var p=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
+          var v=Math.round((min+p*(max-min))*10)/10;
+          var st=stateRef.current;
+          if(dragRef.current==='low')st.onLow(Math.min(v,st.high-0.5));
+          else st.onHigh(Math.max(v,st.low+0.5));
+        }
+        function onUp(){dragRef.current=null;}
+        document.addEventListener('mousemove',onMove);
+        document.addEventListener('mouseup',onUp);
+        return function(){document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);};
+      },[]);
+      var lp=pct(low),hp=pct(high);
+      var hBase={position:"absolute",top:"50%",transform:"translate(-50%,-50%)",width:16,height:16,
+        borderRadius:"50%",background:"#fff",border:"2px solid "+B,cursor:"ew-resize",
+        boxShadow:"0 1px 6px rgba(0,0,0,0.20)",zIndex:2};
+      return(
+        <div>
+          <div ref={trackRef} style={{position:"relative",height:4,background:"#e2e4e8",borderRadius:2,
+            margin:"14px 8px 14px",userSelect:"none"}}>
+            <div style={{position:"absolute",left:lp+"%",width:(hp-lp)+"%",height:"100%",background:B,borderRadius:2}}/>
+            <div onMouseDown={function(e){e.preventDefault();dragRef.current='low';}} style={{...hBase,left:lp+"%"}}/>
+            <div onMouseDown={function(e){e.preventDefault();dragRef.current='high';}} style={{...hBase,left:hp+"%"}}/>
+          </div>
+          <div style={{display:"flex",gap:8}}>
+            {[{label:"MIN",val:low,set:onLow,ok:function(v){return v>=min&&v<high-0.4;}},
+              {label:"MAX",val:high,set:onHigh,ok:function(v){return v>low+0.4&&v<=max;}}].map(function(f){
+              return(
+                <div key={f.label} style={{flex:1}}>
+                  <div style={{fontSize:10,fontWeight:600,color:THEME.textSub,marginBottom:3}}>{f.label} (kn)</div>
+                  <input type="number" value={f.val} step="0.5"
+                    onChange={function(e){var v=parseFloat(e.target.value);if(!isNaN(v)&&f.ok(v))f.set(v);}}
+                    style={{width:"100%",padding:"7px 8px",border:"1px solid #e2e4e8",borderRadius:6,fontSize:13,
+                      color:THEME.text,background:"#fff",outline:"none",boxSizing:"border-box"}}
+                    onFocus={function(e){e.target.style.borderColor=B;}}
+                    onBlur={function(e){e.target.style.borderColor="#e2e4e8";}}/>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
     }
 
-    function SimulatorModal({title, onClose}) {
+    function SpeedConsumptionModal({title,onClose}){
       var [loadCond,setLoadCond]=useState("laden");
       var [weather,setWeather]=useState("BF4_DSS3");
+      var [speedMin,setSpeedMin]=useState(10);
+      var [speedMax,setSpeedMax]=useState(14);
+      var [consumer,setConsumer]=useState("me");
       var [plotType,setPlotType]=useState("scatter");
-      var [simTab,setSimTab]=useState("speed");
       var [wDrop,setWDrop]=useState(false);
+      var [activeX,setActiveX]=useState(null);
 
-      var wf = weather==="BF2_DSS1"?1.12:weather==="BF6_DSS5"?0.87:1.0;
-      var td = SIM_TAB_DATA[simTab];
-      var chartData = SIM_DAYS.map(function(day,i){
-        function w(v){return v!=null?Math.round(v*wf*10)/10:null;}
-        return {
-          day:day,
-          laden:    loadCond!=="ballast"?w(td.laden[i]):null,
-          laden2:   loadCond!=="ballast"?w(td.laden2[i]):null,
-          ballast:  loadCond!=="laden"  ?w(td.ballast[i]):null,
-          ballast2: loadCond!=="laden"  ?w(td.ballast2[i]):null,
-          ordered:  w(td.ordered[i])
-        };
+      var wf=weather==="BF2_DSS1"?1.12:weather==="BF6_DSS5"?0.87:1.0;
+      var baseFactor=loadCond==="laden"?0.040:0.032;
+      var auxFactor=consumer==="me_aux"?1.12:1.0;
+      var tf=baseFactor*auxFactor*wf;
+
+      var curveData=[];
+      var cStep=Math.max(0.1,(speedMax-speedMin)/60);
+      for(var cs=speedMin;cs<=speedMax+0.01;cs+=cStep){
+        var csv=Math.round(cs*100)/100;
+        var cv=tf*csv*csv;
+        curveData.push({speed:csv,
+          value:Math.round(cv*100)/100,
+          upper:Math.round(cv*1.18*100)/100,
+          lower:Math.round(cv*0.82*100)/100});
+      }
+
+      var scatterData=SIM_SCATTER_SEEDS.map(function(noise,i){
+        var frac=(i+0.5)/SIM_SCATTER_SEEDS.length;
+        var sp=speedMin+frac*(speedMax-speedMin);
+        sp=Math.round(sp*10)/10;
+        var base=tf*sp*sp;
+        return{speed:sp,consumption:Math.round(base*(1+noise)*100)/100};
       });
-      var sw = plotType==="curve"?2:0;
 
-      function RadioGroup({options, value, onChange}) {
-        return (
-          <div style={{display:"flex",gap:20}}>
+      var yBase=tf*speedMin*speedMin;
+      var yTop=tf*speedMax*speedMax;
+      var yPad=(yTop-yBase)*0.18+0.1;
+      var yMin=Math.max(0,Math.round((yBase-yPad)*10)/10);
+      var yMax=Math.round((yTop+yPad)*10)/10;
+      var yLabel=consumer==="me_aux"?"ME + AUX Consumption (MT/d)":"ME Consumption (MT/d)";
+
+      function RadioGroup({options,value,onChange}){
+        return(
+          <div style={{display:"flex",gap:16}}>
             {options.map(function(o){
               var on=value===o.v;
-              return (
+              return(
                 <label key={o.v} onClick={function(){onChange(o.v);}}
                   style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer",fontSize:13,
                     color:THEME.text,fontWeight:on?600:400}}>
@@ -1384,6 +1453,214 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               );
             })}
           </div>
+        );
+      }
+
+      function ScatterLayer(props){
+        var xAx=props.xAxisMap&&(props.xAxisMap[0]||Object.values(props.xAxisMap)[0]);
+        var yAx=props.yAxisMap&&(props.yAxisMap[0]||Object.values(props.yAxisMap)[0]);
+        if(!xAx||!yAx||!xAx.scale||!yAx.scale)return null;
+        return(
+          <g>
+            {scatterData.map(function(pt,i){
+              var cx=xAx.scale(pt.speed),cy=yAx.scale(pt.consumption);
+              if(typeof cx!=="number"||isNaN(cx)||isNaN(cy))return null;
+              return <circle key={i} cx={cx} cy={cy} r={8} fill="#1e3a8a" fillOpacity={0.80} stroke="#fff" strokeWidth={1.5}/>;
+            })}
+          </g>
+        );
+      }
+
+      function SimTooltip({active,payload}){
+        if(!active||!payload||!payload.length)return null;
+        var pt=payload[0]&&payload[0].payload;
+        if(!pt||pt.speed==null)return null;
+        return(
+          <div style={{background:"#fff",border:"1px solid #e2e4e8",borderRadius:8,padding:"10px 14px",
+            boxShadow:"0 4px 16px rgba(0,0,0,0.10)",minWidth:200,pointerEvents:"none"}}>
+            <div style={{fontWeight:700,fontSize:13,color:THEME.text,marginBottom:9}}>
+              {loadCond==="laden"?"Laden":"Ballast"}&nbsp;·&nbsp;{pt.speed} kn
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",gap:24,fontSize:11,color:THEME.textSub,marginBottom:4}}>
+              <span>Upper</span><span style={{fontWeight:500,color:THEME.text}}>{pt.upper!=null?pt.upper.toFixed(2):"—"}</span>
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",gap:24,fontSize:11,color:B,fontWeight:600,marginBottom:4}}>
+              <span>— Total Consumptions</span><span>{pt.value!=null?pt.value.toFixed(2):"—"}</span>
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",gap:24,fontSize:11,color:THEME.textSub}}>
+              <span>Lower</span><span style={{fontWeight:500,color:THEME.text}}>{pt.lower!=null?pt.lower.toFixed(2):"—"}</span>
+            </div>
+          </div>
+        );
+      }
+
+      return ReactDOM.createPortal(
+        <div onClick={function(e){if(e.target===e.currentTarget)onClose();}}
+          style={{position:"fixed",inset:0,background:"rgba(12,30,53,0.45)",zIndex:9998,display:"flex",
+            alignItems:"center",justifyContent:"center"}}>
+          <div style={{background:"#fff",borderRadius:14,width:"min(1080px,95vw)",maxHeight:"90vh",
+            display:"flex",overflow:"hidden"}}>
+
+            {/* ── Controls ── */}
+            <div style={{width:268,flexShrink:0,background:"#f5f7fa",borderRight:"1px solid #e8eaed",
+              padding:"28px 22px",display:"flex",flexDirection:"column",gap:22,overflowY:"auto"}}>
+              <div style={{fontSize:16,fontWeight:700,color:THEME.text,letterSpacing:-0.2}}>Controls</div>
+
+              {/* 1. Date Range */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Date Range</div>
+                <ReportDatePicker/>
+              </div>
+
+              {/* 2. Weather */}
+              <div style={{position:"relative"}}>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Weather</div>
+                <div onClick={function(){setWDrop(!wDrop);}}
+                  style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:"#fff",
+                    border:"1px solid #e2e4e8",borderRadius:8,padding:"9px 12px",cursor:"pointer",userSelect:"none"}}>
+                  <span style={{fontSize:13,color:THEME.text}}>{SIM_WEATHERS.find(function(w){return w.id===weather;}).label}</span>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={THEME.textSub} strokeWidth="2">
+                    {wDrop?<polyline points="18 15 12 9 6 15"/>:<polyline points="6 9 12 15 18 9"/>}
+                  </svg>
+                </div>
+                {wDrop&&(
+                  <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,right:0,background:"#fff",
+                    border:"1px solid #e2e4e8",borderRadius:8,boxShadow:"0 6px 20px rgba(0,0,0,0.10)",zIndex:10,overflow:"hidden"}}>
+                    {SIM_WEATHERS.map(function(wo){
+                      var sel=weather===wo.id;
+                      return(
+                        <div key={wo.id} onClick={function(){setWeather(wo.id);setWDrop(false);}}
+                          style={{padding:"10px 14px",fontSize:13,cursor:"pointer",
+                            color:sel?B:THEME.text,fontWeight:sel?600:400,background:sel?"#f0f4ff":"#fff",
+                            display:"flex",alignItems:"center",justifyContent:"space-between"}}
+                          onMouseEnter={function(e){if(!sel)e.currentTarget.style.background="#f8f9fb";}}
+                          onMouseLeave={function(e){if(!sel)e.currentTarget.style.background="#fff";}}>
+                          {wo.label}
+                          {sel&&<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={B} strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* 3. Load Condition */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>Load Condition</div>
+                <RadioGroup options={[{v:"laden",l:"Laden"},{v:"ballast",l:"Ballast"}]} value={loadCond} onChange={setLoadCond}/>
+              </div>
+
+              {/* 4. Speed Range */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:4,textTransform:"uppercase",letterSpacing:0.5}}>Speed Range</div>
+                <SpeedRangeSlider min={5} max={20} low={speedMin} high={speedMax} onLow={setSpeedMin} onHigh={setSpeedMax}/>
+              </div>
+
+              {/* 5. Consumer */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>Consumer</div>
+                <RadioGroup options={[{v:"me",l:"ME"},{v:"me_aux",l:"ME+AUX"}]} value={consumer} onChange={setConsumer}/>
+              </div>
+
+              {/* 6. Plot Type */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>Plot Type</div>
+                <RadioGroup options={[{v:"scatter",l:"Scatter"},{v:"curve",l:"Curve"}]} value={plotType} onChange={setPlotType}/>
+              </div>
+            </div>
+
+            {/* ── Chart area ── */}
+            <div style={{flex:1,display:"flex",flexDirection:"column",padding:"24px 28px",minWidth:0,overflow:"hidden",minHeight:510}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,flexShrink:0}}>
+                <div>
+                  <div style={{fontSize:18,fontWeight:700,color:THEME.text,letterSpacing:-0.3}}>
+                    Simulation
+                  </div>
+                  <div style={{fontSize:12,color:THEME.textSub,marginTop:2}}>Speed Consumption Curve</div>
+                </div>
+                <button onClick={onClose}
+                  style={{background:"transparent",border:"none",cursor:"pointer",width:32,height:32,borderRadius:8,
+                    display:"flex",alignItems:"center",justifyContent:"center",color:THEME.textSub,flexShrink:0}}
+                  onMouseEnter={function(e){e.currentTarget.style.background="#f0f2f5";}}
+                  onMouseLeave={function(e){e.currentTarget.style.background="transparent";}}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+
+              <div style={{flex:1,display:"flex",alignItems:"center"}}>
+                <ResponsiveContainer width="100%" height={400}>
+                  <ComposedChart data={curveData} margin={{top:10,right:30,bottom:60,left:20}}
+                    onMouseMove={function(e){if(e&&e.activeLabel!=null)setActiveX(e.activeLabel);else setActiveX(null);}}
+                    onMouseLeave={function(){setActiveX(null);}}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e8eaed" vertical={false}/>
+                    <XAxis type="number" dataKey="speed" domain={[speedMin-0.3,speedMax+0.3]}
+                      tick={{fontSize:11,fill:"#94A3B8"}} tickLine={false} axisLine={{stroke:"#e2e4e8"}} tickCount={6}>
+                      <Label value="Speed through water" offset={-26} position="insideBottom" style={{fontSize:12,fill:"#94A3B8"}}/>
+                    </XAxis>
+                    <YAxis domain={[yMin,yMax]} tick={{fontSize:11,fill:"#94A3B8"}} tickLine={false} axisLine={false} width={56}>
+                      <Label value={yLabel} angle={-90} position="insideLeft" offset={8}
+                        style={{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}/>
+                    </YAxis>
+                    <Tooltip content={<SimTooltip/>} cursor={false}/>
+                    <Area type="monotone" dataKey="upper" fill="#dbeafe" stroke="none" fillOpacity={0.55}
+                      dot={false} activeDot={false} legendType="none" isAnimationActive={false}/>
+                    <Area type="monotone" dataKey="lower" fill="#fff" stroke="none" fillOpacity={1}
+                      dot={false} activeDot={false} legendType="none" isAnimationActive={false}/>
+                    <Line type="monotone" dataKey="value" stroke="#2563eb" strokeWidth={2.5}
+                      dot={false} activeDot={false} legendType="none" isAnimationActive={false}/>
+                    {plotType==="scatter"&&<Customized component={ScatterLayer}/>}
+                    {activeX!=null&&<ReferenceLine x={activeX} stroke="#94A3B8" strokeDasharray="4 4" strokeWidth={1.5}/>}
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.getElementById('tooltip-root')
+      );
+    }
+    function SimDot({cx,cy,value,fill}) {
+      if(value==null||cx==null||cy==null) return null;
+      return <circle cx={cx} cy={cy} r={5} fill={fill} stroke="#fff" strokeWidth={1}/>;
+    }
+
+    function SimulatorModal({title, onClose}) {
+      var [simTab,setSimTab]=useState("speed");
+
+      var BD=["12 Dec","13 Dec","14 Dec","15 Dec","16 Dec","17 Dec","18 Dec",
+              "19 Dec","20 Dec","21 Dec","22 Dec","23 Dec","24 Dec","25 Dec",
+              "26 Dec","27 Dec","28 Dec","29 Dec","30 Dec","31 Dec","01 Jan","02 Jan"];
+      var DS=["D","NS","NS","NS","NS","","","","","","","","","","","","","","","","",""];
+      var ORD_S=[14,14,14,14,11.5,11.5,11.5,11.5,11.5,11.5,11.5,11.5,11.5,11.5,11.5,11.5,11.5,15,15,15,15,15];
+      var ORD_M=[22,22,22,22,19,19,19,19,19,19,19,19,19,19,19,19,19,24,24,24,24,24];
+      var S1_S=[null,15.2,13.8,15.8,null,12.2,null,13.2,8.3,null,14.0,11.6,8.5,null,11.8,7.2,null,18.5,null,null,11.5,null];
+      var S2_S=[5,14.8,13.1,13.0,12.8,null,null,9.1,null,null,null,11.6,null,null,11.9,9.2,11.6,null,14.8,13.2,null,null];
+      var S1_M=[null,24.1,22.1,25.2,null,19.5,null,21.0,16.5,null,22.0,18.8,15.2,null,18.5,12.8,null,28.2,null,null,19.0,null];
+      var S2_M=[8,23.5,21.0,20.8,20.2,null,null,15.0,null,null,null,18.5,null,null,19.1,14.8,18.5,null,23.8,21.2,null,null];
+
+      var isSpd=simTab==="speed";
+      var ord=isSpd?ORD_S:ORD_M;
+      var s1d=isSpd?S1_S:S1_M;
+      var s2d=isSpd?S2_S:S2_M;
+      var bw=isSpd?2.5:4.0;
+      var yMx=isSpd?26:34;
+      var yLbl=isSpd?"SOG / Ordered Speed (KN / KT)":"ME Consumption (MT/Day)";
+
+      var chartData=BD.map(function(day,i){
+        return{day:day,status:DS[i],ordered:ord[i],upper:ord[i]+bw,lower:Math.max(0,ord[i]-bw),s1:s1d[i],s2:s2d[i]};
+      });
+
+      function BkTick(props){
+        var x=props.x,y=props.y,payload=props.payload;
+        var idx=BD.indexOf(payload.value);
+        var st=idx>=0?DS[idx]:"";
+        return(
+          <g transform={"translate("+x+","+y+")"}>
+            <text x={0} y={0} dy={12} textAnchor="middle" fill="#94A3B8" fontSize={9}>{payload.value}</text>
+            {st&&<text x={0} y={0} dy={23} textAnchor="middle" fill={st==="D"?"#F59E0B":"#94A3B8"} fontSize={9} fontWeight={700}>{st}</text>}
+          </g>
         );
       }
 
@@ -1405,53 +1682,30 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <ReportDatePicker/>
               </div>
 
-              {/* Load Condition */}
+              {/* View radio */}
               <div>
-                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>Load Condition</div>
-                <RadioGroup options={[{v:"laden",l:"Laden"},{v:"ballast",l:"Ballast"}]} value={loadCond} onChange={setLoadCond}/>
-              </div>
-
-              {/* Weather */}
-              <div style={{position:"relative"}}>
-                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Weather</div>
-                <div onClick={function(){setWDrop(!wDrop);}}
-                  style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:"#fff",
-                    border:"1px solid #e2e4e8",borderRadius:8,padding:"9px 12px",cursor:"pointer",userSelect:"none"}}>
-                  <span style={{fontSize:13,color:THEME.text}}>{SIM_WEATHERS.find(function(w){return w.id===weather;}).label}</span>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={THEME.textSub} strokeWidth="2">
-                    {wDrop?<polyline points="18 15 12 9 6 15"/>:<polyline points="6 9 12 15 18 9"/>}
-                  </svg>
-                </div>
-                {wDrop&&(
-                  <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,right:0,background:"#fff",
-                    border:"1px solid #e2e4e8",borderRadius:8,boxShadow:"0 6px 20px rgba(0,0,0,0.10)",zIndex:10,overflow:"hidden"}}>
-                    {SIM_WEATHERS.map(function(wo){
-                      var sel=weather===wo.id;
-                      return (
-                        <div key={wo.id} onClick={function(){setWeather(wo.id);setWDrop(false);}}
-                          style={{padding:"10px 14px",fontSize:13,cursor:"pointer",
-                            color:sel?B:THEME.text,fontWeight:sel?600:400,background:sel?"#f0f4ff":"#fff",
-                            display:"flex",alignItems:"center",justifyContent:"space-between"}}
-                          onMouseEnter={function(e){if(!sel)e.currentTarget.style.background="#f8f9fb";}}
-                          onMouseLeave={function(e){if(!sel)e.currentTarget.style.background="#fff";}}>
-                          {wo.label}
-                          {sel&&<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={B} strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>}
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>View</div>
+                <div style={{display:"flex",flexDirection:"row",gap:16}}>
+                  {[["speed","Speed"],["me","ME Consumption"]].map(function(t){
+                    var act=simTab===t[0];
+                    return(
+                      <label key={t[0]} onClick={function(){setSimTab(t[0]);}}
+                        style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}>
+                        <div style={{width:16,height:16,borderRadius:"50%",border:"2px solid",
+                          borderColor:act?B:"#cbd5e1",background:"#fff",flexShrink:0,
+                          display:"flex",alignItems:"center",justifyContent:"center",transition:"border-color 0.15s"}}>
+                          {act&&<div style={{width:8,height:8,borderRadius:"50%",background:B}}/>}
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Plot Type */}
-              <div>
-                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>Plot Type</div>
-                <RadioGroup options={[{v:"scatter",l:"Scatter"},{v:"curve",l:"Curve"}]} value={plotType} onChange={setPlotType}/>
+                        <span style={{fontSize:13,color:act?THEME.text:THEME.textSub,fontWeight:act?600:400}}>{t[1]}</span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
             {/* ── Simulation ── */}
-            <div style={{flex:1,display:"flex",flexDirection:"column",padding:"24px 28px",minWidth:0,overflowY:"auto"}}>
+            <div style={{flex:1,display:"flex",flexDirection:"column",padding:"24px 28px",minWidth:0,overflow:"hidden",minHeight:510}}>
 
               {/* Header */}
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,flexShrink:0}}>
@@ -1470,73 +1724,73 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 </button>
               </div>
 
-              {/* Tabs */}
-              <div style={{display:"flex",gap:4,marginBottom:20,flexShrink:0,background:"#f0f2f5",
-                borderRadius:8,padding:4,alignSelf:"flex-start"}}>
-                {[["speed","Speed"],["me","ME Consumption"],["aux","AUX Consumption"]].map(function(t){
-                  var act=simTab===t[0];
-                  return (
-                    <button key={t[0]} onClick={function(){setSimTab(t[0]);}}
-                      style={{padding:"8px 18px",fontSize:13,fontWeight:600,border:"none",borderRadius:6,
-                        cursor:"pointer",background:act?B:"transparent",color:act?"#fff":THEME.textSub,
-                        transition:"all 0.15s",whiteSpace:"nowrap"}}>
-                      {t[1]}
-                    </button>
-                  );
-                })}
-              </div>
-
               {/* Chart */}
-              <div style={{flex:1,minHeight:340}}>
-                <ResponsiveContainer width="100%" height={380}>
-                  <ComposedChart data={chartData} margin={{top:10,right:20,bottom:36,left:20}}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#d8dce3" vertical={false}/>
-                    <XAxis dataKey="day" tick={{fontSize:11,fill:"#94A3B8"}} interval={0}
-                      tickLine={false} axisLine={{stroke:"#e2e4e8"}}>
-                      <Label value="Days" offset={-10} position="insideBottom" style={{fontSize:12,fill:"#B8C4D0"}}/>
-                    </XAxis>
-                    <YAxis domain={[0,td.yMax]} tick={{fontSize:11,fill:"#94A3B8"}} width={12}
-                      tickLine={false} axisLine={false} tickFormatter={function(v){return v;}}/>
+              <div style={{marginTop:"auto",marginBottom:0,position:"relative"}}>
+                {/* Nav arrows */}
+                <div style={{position:"absolute",left:0,top:"50%",transform:"translateY(-50%)",zIndex:2}}>
+                  <span style={{fontSize:16,color:"#CBD5E1",cursor:"pointer",lineHeight:1}}>«</span>
+                </div>
+                <div style={{position:"absolute",right:0,top:"50%",transform:"translateY(-50%)",zIndex:2}}>
+                  <span style={{fontSize:16,color:"#CBD5E1",cursor:"pointer",lineHeight:1}}>»</span>
+                </div>
+                <ResponsiveContainer width="100%" height={360}>
+                  <ComposedChart data={chartData} margin={{top:10,right:24,bottom:36,left:44}}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e8eaed" vertical={false}/>
+                    <XAxis dataKey="day" tick={<BkTick/>} interval={0} tickLine={false}
+                      axisLine={{stroke:"#e2e4e8"}} height={52}
+                      label={{value:"Days",position:"insideBottom",offset:2,style:{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}}/>
+                    <YAxis domain={[0,yMx]} tick={{fontSize:10,fill:"#94A3B8"}} tickLine={false}
+                      axisLine={false} width={36}>
+                      <Label value={yLbl} angle={-90} position="insideLeft" offset={-4}
+                        style={{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}/>
+                    </YAxis>
                     <Tooltip contentStyle={{fontSize:12,borderRadius:8,border:"1px solid #e2e4e8",boxShadow:"0 4px 12px rgba(0,0,0,0.08)"}}/>
 
-                    {/* Unwarranted Passage — filled band with centred vertical label */}
-                    <ReferenceArea x1="28 Dec" x2="29 Dec"
-                      fill="#EEF6FF" fillOpacity={1} strokeOpacity={0}
-                      label={{value:"Unwarranted Passage", position:"center", angle:-90,
-                        fill:B, fontSize:10, fontWeight:600}}/>
-                    <ReferenceLine x="28 Dec" stroke={B} strokeDasharray="6 4" strokeWidth={1.5}/>
-                    <ReferenceLine x="29 Dec" stroke={B} strokeDasharray="6 4" strokeWidth={1.5}/>
+                    {/* Confidence band upper */}
+                    <Area type="stepAfter" dataKey="upper" fill="#e8ecf0" stroke="none"
+                      fillOpacity={0.85} dot={false} activeDot={false} legendType="none" isAnimationActive={false}/>
+                    {/* Confidence band lower mask */}
+                    <Area type="stepAfter" dataKey="lower" fill="#fff" stroke="none"
+                      fillOpacity={1} dot={false} activeDot={false} legendType="none" isAnimationActive={false}/>
+
+                    {/* Unwarranted passage zone */}
+                    <ReferenceArea x1="19 Dec" x2="22 Dec" fill="#EEF6FF" fillOpacity={0.7} strokeOpacity={0}
+                      label={{value:"Unwarranted passage",position:"center",angle:-90,fill:"#2563eb",fontSize:9,fontWeight:600}}/>
+                    <ReferenceLine x="19 Dec" stroke="#2563eb" strokeDasharray="5 4" strokeWidth={1.5}/>
+                    <ReferenceLine x="22 Dec" stroke="#2563eb" strokeDasharray="5 4" strokeWidth={1.5}/>
 
                     {/* Ordered step line */}
-                    <Line dataKey="ordered" type="stepAfter" stroke="#1a1a1a" strokeWidth={1.8}
-                      dot={false} name="Ordered" legendType="none" connectNulls={false}/>
+                    <Line type="stepAfter" dataKey="ordered" stroke="#4a8a9a" strokeWidth={2}
+                      dot={false} name="Ordered" legendType="none" connectNulls={false} isAnimationActive={false}/>
 
-                    {/* Laden */}
-                    <Line dataKey="laden" stroke={sw?"#0F6E56":"none"} strokeWidth={sw}
-                      dot={function(p){return <SimDot key={p.index} cx={p.cx} cy={p.cy} value={p.value} fill="#0F6E56"/>;}}
-                      activeDot={{r:6,fill:"#0F6E56"}} name="Laden" connectNulls={false}/>
-                    <Line dataKey="laden2" stroke={sw?"#0F6E56":"none"} strokeWidth={sw}
-                      dot={function(p){return <SimDot key={p.index} cx={p.cx} cy={p.cy} value={p.value} fill="#0F6E56"/>;}}
-                      activeDot={{r:6,fill:"#0F6E56"}} legendType="none" connectNulls={false}/>
+                    {/* Series 1: dark red filled dots */}
+                    <Line dataKey="s1" stroke="none" strokeWidth={0} name="Breach"
+                      dot={function(p){
+                        if(p.value==null||p.cx==null||p.cy==null)return null;
+                        return <circle key={p.index} cx={p.cx} cy={p.cy} r={6} fill="#7B2830" stroke="none"/>;
+                      }}
+                      activeDot={{r:7,fill:"#7B2830"}} connectNulls={false} legendType="none" isAnimationActive={false}/>
 
-                    {/* Ballast */}
-                    <Line dataKey="ballast" stroke={sw?"#E879A0":"none"} strokeWidth={sw}
-                      dot={function(p){return <SimDot key={p.index} cx={p.cx} cy={p.cy} value={p.value} fill="#E879A0"/>;}}
-                      activeDot={{r:6,fill:"#E879A0"}} name="Ballast" connectNulls={false}/>
-                    <Line dataKey="ballast2" stroke={sw?"#E879A0":"none"} strokeWidth={sw}
-                      dot={function(p){return <SimDot key={p.index} cx={p.cx} cy={p.cy} value={p.value} fill="#E879A0"/>;}}
-                      activeDot={{r:6,fill:"#E879A0"}} legendType="none" connectNulls={false}/>
+                    {/* Series 2: green hollow dots */}
+                    <Line dataKey="s2" stroke="none" strokeWidth={0} name="SOG"
+                      dot={function(p){
+                        if(p.value==null||p.cx==null||p.cy==null)return null;
+                        return <circle key={p.index} cx={p.cx} cy={p.cy} r={6} fill="none" stroke="#2E7D52" strokeWidth={2}/>;
+                      }}
+                      activeDot={{r:7,fill:"none",stroke:"#2E7D52",strokeWidth:2}} connectNulls={false} legendType="none" isAnimationActive={false}/>
 
+                    {/* Legend */}
                     <Legend iconType="circle" iconSize={8}
-                      wrapperStyle={{fontSize:10,paddingTop:12,paddingLeft:40}}
-                      formatter={function(v){return <span style={{color:THEME.textSub}}>{v}</span>;}}/>
+                      verticalAlign="top" align="center"
+                      wrapperStyle={{fontSize:10,paddingBottom:8}}
+                      payload={[
+                        {value:"Ordered",type:"line",color:"#4a8a9a"},
+                        {value:"Breach",type:"circle",color:"#7B2830"},
+                        {value:"SOG",type:"circle",color:"#2E7D52"}
+                      ]}
+                      formatter={function(v){return <span style={{color:THEME.textSub,marginLeft:2}}>{v}</span>;}}/>
                   </ComposedChart>
                 </ResponsiveContainer>
-
-                {/* Y-axis side label */}
-                <div style={{display:"flex",alignItems:"center",justifyContent:"center",marginTop:4}}>
-                  <span style={{fontSize:11,color:"#aaa",transform:"none"}}>{td.yLabel}</span>
-                </div>
               </div>
             </div>
           </div>
@@ -1545,6 +1799,383 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
     }
     // ── end Simulator ──────────────────────────────────────────────────────────
+
+    // ── SOG & Slip Trend Modal ─────────────────────────────────────────────────
+    function SOGSlipModal({onClose}){
+      var [dateFrom,setDateFrom]=useState("2025-12-03");
+      var [dateTo,setDateTo]=useState("2026-03-01");
+      var [weather,setWeather]=useState("all");
+      var [loadCond,setLoadCond]=useState("laden");
+      var [speedLow,setSpeedLow]=useState(10);
+      var [speedHigh,setSpeedHigh]=useState(16);
+      var [activeTab,setActiveTab]=useState("me");
+
+      var TABS=[["me","Main Engine"],["gen","Generator"],["boiler","Boiler"],["cargo","Cargo Heating"]];
+      var WEATHER_OPTS=[["all","All Conditions"],["calm","Calm (Bft 0-3)"],["moderate","Moderate (Bft 4-5)"],["rough","Rough (Bft 6+)"]];
+
+      // Generate chart data — ~26 daily points
+      var chartData=[];
+      var n=26;
+      for(var i=0;i<n;i++){
+        var t=i/(n-1);
+        var slipTrend=1.8+3.7*t;
+        var slipNoise=Math.sin(t*15.7+0.8)*0.7+Math.sin(t*31.4+2.1)*0.35+Math.sin(t*6.2)*0.45;
+        var slip=Math.max(1.2,+(slipTrend+slipNoise).toFixed(2));
+        var slip7d=+(slipTrend+slipNoise*0.25).toFixed(2);
+        var sogTrend=13.6-1.2*t;
+        var sogNoise=Math.sin(t*10.5+1.5)*0.12+Math.sin(t*22.0+0.5)*0.08;
+        var sog=+(sogTrend+sogNoise).toFixed(2);
+        var dayNum=i+1;
+        chartData.push({day:"D"+dayNum,slip:slip,slip7d:slip7d,sog:sog});
+      }
+
+      var inputStyle={width:"100%",padding:"8px 10px",fontSize:12,borderRadius:8,
+        border:"1px solid #e2e4e8",background:"#fff",color:THEME.text,outline:"none",
+        boxSizing:"border-box"};
+
+      return ReactDOM.createPortal(
+        <div onClick={function(e){if(e.target===e.currentTarget)onClose();}}
+          style={{position:"fixed",inset:0,background:"rgba(12,30,53,0.45)",zIndex:9998,
+            display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <div style={{background:"#fff",borderRadius:14,width:"min(1080px,95vw)",maxHeight:"90vh",
+            display:"flex",overflow:"hidden"}}>
+
+            {/* ── Controls ── */}
+            <div style={{width:268,flexShrink:0,background:"#f5f7fa",borderRight:"1px solid #e8eaed",
+              padding:"28px 22px",display:"flex",flexDirection:"column",gap:24,overflowY:"auto"}}>
+              <div style={{fontSize:16,fontWeight:700,color:THEME.text,letterSpacing:-0.2}}>Controls</div>
+
+              {/* Report Date */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Report Date</div>
+                <ReportDatePicker/>
+              </div>
+
+              {/* Weather */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Weather</div>
+                <select value={weather} onChange={function(e){setWeather(e.target.value);}}
+                  style={{...inputStyle,cursor:"pointer"}}>
+                  {WEATHER_OPTS.map(function(o){return <option key={o[0]} value={o[0]}>{o[1]}</option>;})}
+                </select>
+              </div>
+
+              {/* Load Condition */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Load Condition</div>
+                <div style={{display:"flex",gap:16}}>
+                  {[["laden","Laden"],["ballast","Ballast"]].map(function(r){
+                    var act=loadCond===r[0];
+                    return(
+                      <label key={r[0]} onClick={function(){setLoadCond(r[0]);}}
+                        style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer"}}>
+                        <div style={{width:16,height:16,borderRadius:"50%",border:"2px solid",
+                          borderColor:act?B:"#cbd5e1",background:"#fff",flexShrink:0,
+                          display:"flex",alignItems:"center",justifyContent:"center"}}>
+                          {act&&<div style={{width:8,height:8,borderRadius:"50%",background:B}}/>}
+                        </div>
+                        <span style={{fontSize:13,color:act?THEME.text:THEME.textSub,fontWeight:act?600:400}}>{r[1]}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Speed Range */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>Speed Range</div>
+                <SpeedRangeSlider min={0} max={25} low={speedLow} high={speedHigh}
+                  onLow={function(v){setSpeedLow(v);}} onHigh={function(v){setSpeedHigh(v);}}/>
+              </div>
+            </div>
+
+            {/* ── Chart panel ── */}
+            <div style={{flex:1,display:"flex",flexDirection:"column",padding:"24px 28px",
+              minWidth:0,overflow:"hidden",minHeight:510}}>
+
+              {/* Header */}
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16,flexShrink:0}}>
+                <div>
+                  <div style={{fontSize:18,fontWeight:700,color:THEME.text,letterSpacing:-0.3}}>Simulation</div>
+                  <div style={{fontSize:12,color:THEME.textSub,marginTop:2}}>SOG &amp; Slip Trend</div>
+                </div>
+                <button onClick={onClose}
+                  style={{background:"transparent",border:"none",cursor:"pointer",width:32,height:32,borderRadius:8,
+                    display:"flex",alignItems:"center",justifyContent:"center",color:THEME.textSub}}
+                  onMouseEnter={function(e){e.currentTarget.style.background="#f0f2f5";}}
+                  onMouseLeave={function(e){e.currentTarget.style.background="transparent";}}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+
+              {/* 4 Tabs */}
+              <div style={{display:"flex",gap:8,marginBottom:16,flexShrink:0}}>
+                {TABS.map(function(t){
+                  var act=activeTab===t[0];
+                  return(
+                    <button key={t[0]} onClick={function(){setActiveTab(t[0]);}}
+                      style={{padding:"6px 14px",fontSize:12,
+                        fontWeight:600,border:"1.5px solid",borderRadius:20,cursor:"pointer",
+                        borderColor:act?B:"#e2e4e8",background:act?"#EEF4FF":"#fff",
+                        color:act?B:THEME.textSub,transition:"all 0.15s"}}>
+                      {t[1]}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Chart */}
+              <div style={{marginTop:"auto",marginBottom:0,position:"relative"}}>
+                <ResponsiveContainer width="100%" height={360}>
+                  <ComposedChart data={chartData} margin={{top:10,right:50,bottom:44,left:44}}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e8eaed" vertical={false}/>
+                    <XAxis dataKey="day" tick={{fontSize:10,fill:"#94A3B8"}} tickLine={false}
+                      axisLine={{stroke:"#e2e4e8"}} interval={3}
+                      label={{value:"Days",position:"insideBottom",offset:2,style:{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}}/>
+                    <YAxis yAxisId="left" tick={{fontSize:10,fill:"#94A3B8"}} tickLine={false}
+                      axisLine={false} width={40} domain={[1,7]}>
+                      <Label value="Slip (%)" angle={-90} position="insideLeft" offset={-2}
+                        style={{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}/>
+                    </YAxis>
+                    <YAxis yAxisId="right" orientation="right" tick={{fontSize:10,fill:"#94A3B8"}}
+                      tickLine={false} axisLine={false} width={44} domain={[12.3,13.7]}>
+                      <Label value="SOG (kn)" angle={90} position="insideRight" offset={6}
+                        style={{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}/>
+                    </YAxis>
+                    <Tooltip contentStyle={{fontSize:12,borderRadius:8,border:"1px solid #e2e4e8",boxShadow:"0 4px 12px rgba(0,0,0,0.08)"}}/>
+                    <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:10,paddingBottom:8}}/>
+                    <Line yAxisId="left" type="monotone" dataKey="slip" name="Laden Slip %"
+                      stroke="#3B82F6" dot={false} strokeWidth={1.5} isAnimationActive={false}/>
+                    <Line yAxisId="left" type="monotone" dataKey="slip7d" name="Laden Slip % (7D Avg)"
+                      stroke="#F97316" dot={false} strokeWidth={2} isAnimationActive={false}/>
+                    <Line yAxisId="right" type="monotone" dataKey="sog" name="Laden SOG"
+                      stroke="#3B82F6" strokeDasharray="5 3" dot={false} strokeWidth={1.5} isAnimationActive={false}/>
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.getElementById('tooltip-root')
+      );
+    }
+    // ── end SOGSlipModal ────────────────────────────────────────────────────────
+
+    function AvgFuelModal({onClose}){
+      var [weather,setWeather]=useState("bf4dss3");
+      var [loadCond,setLoadCond]=useState("laden");
+      var [speedLow,setSpeedLow]=useState(6);
+      var [speedHigh,setSpeedHigh]=useState(18);
+      var [ecaSel,setEcaSel]=useState(["eca"]);
+      var [activeTab,setActiveTab]=useState("me");
+
+      var TABS=[["me","Main Engine"],["gen","Generator"],["boiler","Boiler"],["cargo","Cargo Heating"]];
+      var WEATHER_OPTS=[
+        ["bf4dss3","Weather BF4 DSS3"],["bf3dss4","Weather BF3 DSS4"],
+        ["all","All Conditions"],["calm","Calm (Bft 0-3)"],
+        ["moderate","Moderate (Bft 4-5)"],["rough","Rough (Bft 6+)"]
+      ];
+
+      var _MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      var _today=new Date();
+      var _todayM=_today.getMonth();
+      var _todayY=_today.getFullYear();
+      var count=6;
+      var rawRows=[
+        {me1:120,me2:18,gen:28,boiler:20,cargo:10},
+        {me1:135,me2:22,gen:25,boiler:18,cargo:8},
+        {me1:115,me2:16,gen:32,boiler:22,cargo:12},
+        {me1:148,me2:24,gen:26,boiler:19,cargo:9},
+        {me1:108,me2:15,gen:35,boiler:21,cargo:14},
+        {me1:162,me2:26,gen:24,boiler:17,cargo:8},
+      ];
+
+      var lf=loadCond==="laden"?1.0:0.85;
+      var ef=ecaSel.includes("both")||(ecaSel.includes("eca")&&ecaSel.includes("noneca"))||ecaSel.length===0?1.0:ecaSel.includes("eca")?0.9:ecaSel.includes("noneca")?1.1:1.0;
+
+      var chartData=rawRows.map(function(row,i){
+        var monthsAgo=count-1-i;
+        var mIdx=((_todayM-monthsAgo)%12+12)%12;
+        var yr=_todayY-Math.floor((monthsAgo-_todayM+12>12?1:0));
+        var shortYr=String(yr).slice(-2);
+        var rightVal=activeTab==="gen"?+(row.gen*lf*ef).toFixed(1)
+          :activeTab==="boiler"?+(row.boiler*lf*ef).toFixed(1)
+          :activeTab==="cargo"?+(row.cargo*lf*ef).toFixed(1)
+          :+(( row.gen+row.boiler+row.cargo)*lf*ef).toFixed(1);
+        return {
+          m:_MN[mIdx]+" "+shortYr,
+          me1:+(row.me1*lf*ef).toFixed(1),
+          me2:+(row.me2*lf*ef).toFixed(1),
+          right:rightVal
+        };
+      });
+
+      var rightName=activeTab==="gen"?"Generator":activeTab==="boiler"?"Boiler":activeTab==="cargo"?"Cargo Heating":"Aux Total";
+
+      var inputStyle={width:"100%",padding:"8px 10px",fontSize:12,borderRadius:8,
+        border:"1px solid #e2e4e8",background:"#fff",color:THEME.text,outline:"none",
+        boxSizing:"border-box"};
+
+      return ReactDOM.createPortal(
+        <div onClick={function(e){if(e.target===e.currentTarget)onClose();}}
+          style={{position:"fixed",inset:0,background:"rgba(12,30,53,0.45)",zIndex:9998,
+            display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <div style={{background:"#fff",borderRadius:14,width:"min(1080px,95vw)",maxHeight:"90vh",
+            display:"flex",overflow:"hidden"}}>
+
+            {/* ── Controls ── */}
+            <div style={{width:268,flexShrink:0,background:"#f5f7fa",borderRight:"1px solid #e8eaed",
+              padding:"28px 22px",display:"flex",flexDirection:"column",gap:24,overflowY:"auto"}}>
+              <div style={{fontSize:16,fontWeight:700,color:THEME.text,letterSpacing:-0.2}}>Controls</div>
+
+              {/* Report Date */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Report Date</div>
+                <ReportDatePicker/>
+              </div>
+
+              {/* Weather */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Weather</div>
+                <select value={weather} onChange={function(e){setWeather(e.target.value);}}
+                  style={{...inputStyle,cursor:"pointer"}}>
+                  {WEATHER_OPTS.map(function(o){return <option key={o[0]} value={o[0]}>{o[1]}</option>;})}
+                </select>
+              </div>
+
+              {/* Load Condition */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Load Condition</div>
+                <div style={{display:"flex",gap:16}}>
+                  {[["laden","Laden"],["ballast","Ballast"]].map(function(r){
+                    var act=loadCond===r[0];
+                    return(
+                      <label key={r[0]} onClick={function(){setLoadCond(r[0]);}}
+                        style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer"}}>
+                        <div style={{width:16,height:16,borderRadius:"50%",border:"2px solid",
+                          borderColor:act?B:"#cbd5e1",background:"#fff",flexShrink:0,
+                          display:"flex",alignItems:"center",justifyContent:"center"}}>
+                          {act&&<div style={{width:8,height:8,borderRadius:"50%",background:B}}/>}
+                        </div>
+                        <span style={{fontSize:13,color:act?THEME.text:THEME.textSub,fontWeight:act?600:400}}>{r[1]}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Speed Range */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>Speed Range</div>
+                <SpeedRangeSlider min={0} max={25} low={speedLow} high={speedHigh}
+                  onLow={function(v){setSpeedLow(v);}} onHigh={function(v){setSpeedHigh(v);}}/>
+              </div>
+
+              {/* ECA Zone — multi-select */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>ECA Zone</div>
+                <div style={{display:"flex",flexDirection:"row",gap:16}}>
+                  {[["eca","ECA"],["noneca","Non ECA"],["both","Both"]].map(function(f){
+                    var checked=ecaSel.includes(f[0]);
+                    return(
+                      <label key={f[0]} onClick={function(){
+                        setEcaSel(function(prev){
+                          return checked?prev.filter(function(x){return x!==f[0];}):prev.concat([f[0]]);
+                        });
+                      }} style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer"}}>
+                        <div style={{width:16,height:16,borderRadius:4,border:"1.5px solid",
+                          borderColor:checked?B:"#cbd5e1",background:checked?B:"#fff",flexShrink:0,
+                          display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.15s"}}>
+                          {checked&&<svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                            <path d="M1 4L3.5 6.5L9 1" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>}
+                        </div>
+                        <span style={{fontSize:13,color:checked?THEME.text:THEME.textSub,fontWeight:checked?600:400}}>{f[1]}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* ── Chart panel ── */}
+            <div style={{flex:1,display:"flex",flexDirection:"column",padding:"24px 28px",
+              minWidth:0,overflow:"hidden",minHeight:510}}>
+
+              {/* Header */}
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16,flexShrink:0}}>
+                <div>
+                  <div style={{fontSize:18,fontWeight:700,color:THEME.text,letterSpacing:-0.3}}>Deep Dive</div>
+                  <div style={{fontSize:12,color:THEME.textSub,marginTop:2}}>Avg Fuel Consumption / Day</div>
+                </div>
+                <button onClick={onClose}
+                  style={{background:"transparent",border:"none",cursor:"pointer",width:32,height:32,borderRadius:8,
+                    display:"flex",alignItems:"center",justifyContent:"center",color:THEME.textSub}}
+                  onMouseEnter={function(e){e.currentTarget.style.background="#f0f2f5";}}
+                  onMouseLeave={function(e){e.currentTarget.style.background="transparent";}}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+
+              {/* 4 Tabs */}
+              <div style={{display:"flex",gap:8,marginBottom:16,flexShrink:0}}>
+                {TABS.map(function(t){
+                  var act=activeTab===t[0];
+                  return(
+                    <button key={t[0]} onClick={function(){setActiveTab(t[0]);}}
+                      style={{padding:"6px 14px",fontSize:12,fontWeight:600,border:"1.5px solid",
+                        borderRadius:20,cursor:"pointer",
+                        borderColor:act?B:"#e2e4e8",background:act?"#EEF4FF":"#fff",
+                        color:act?B:THEME.textSub,transition:"all 0.15s"}}>
+                      {t[1]}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Chart */}
+              <div style={{marginTop:"auto",marginBottom:0,position:"relative"}}>
+                <ResponsiveContainer width="100%" height={360}>
+                  <BarChart data={chartData} margin={{top:10,right:54,bottom:44,left:44}} barCategoryGap="30%" barGap={3}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e8eaed" vertical={false}/>
+                    <XAxis dataKey="m" tick={{fontSize:10,fill:"#94A3B8"}} tickLine={false}
+                      axisLine={{stroke:"#e2e4e8"}}
+                      label={{value:"Month",position:"insideBottom",offset:2,style:{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}}/>
+                    <YAxis yAxisId="left" tick={{fontSize:10,fill:"#94A3B8"}} tickLine={false}
+                      axisLine={false} width={40} domain={[0,220]}>
+                      <Label value="ME Consumption" angle={-90} position="insideLeft" offset={-2}
+                        style={{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}/>
+                    </YAxis>
+                    <YAxis yAxisId="right" orientation="right" tick={{fontSize:10,fill:"#94A3B8"}}
+                      tickLine={false} axisLine={false} width={48} domain={[0,60]}>
+                      <Label value="Aux Consumption" angle={90} position="insideRight" offset={8}
+                        style={{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}/>
+                    </YAxis>
+                    <Tooltip contentStyle={{fontSize:12,borderRadius:8,border:"1px solid #e2e4e8",boxShadow:"0 4px 12px rgba(0,0,0,0.08)"}}/>
+                    <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:10,paddingBottom:8}}
+                      payload={[
+                        {value:"ME Prop.",type:"rect",color:"#2563EB"},
+                        {value:"Manoeuv.",type:"rect",color:"#93C5FD"},
+                        {value:rightName,type:"rect",color:"#F97316"}
+                      ]}
+                      formatter={function(v){return <span style={{color:THEME.textSub,marginLeft:2}}>{v}</span>;}}/>
+                    <Bar yAxisId="left" dataKey="me1" stackId="me" fill="#2563EB" name="ME Prop." isAnimationActive={false}/>
+                    <Bar yAxisId="left" dataKey="me2" stackId="me" fill="#93C5FD" name="Manoeuv." radius={[4,4,0,0]} isAnimationActive={false}/>
+                    <Bar yAxisId="right" dataKey="right" stackId="aux" fill="#F97316" name={rightName} radius={[4,4,0,0]} isAnimationActive={false}/>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.getElementById('tooltip-root')
+      );
+    }
+    // ── end AvgFuelModal ─────────────────────────────────────────────────────────
 
     function ChartCard({title, subtitle, children, onDelete, sample, tableData, makeChart, headerTabs}) {
       var [hov,setHov]=useState(false);
@@ -1625,7 +2256,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             }
           </div>
           {insightAnchor&&<AIInsightsPanel title={title} anchor={insightAnchor} onClose={handleCloseInsights}/>}
-          {simOpen&&<SimulatorModal title={title} onClose={function(){setSimOpen(false);}}/>}
+          {simOpen&&(title==="Speed Consumption Curve"
+            ?<SpeedConsumptionModal title={title} onClose={function(){setSimOpen(false);}}/>
+            :title==="SOG & Slip Trend"
+            ?<SOGSlipModal onClose={function(){setSimOpen(false);}}/>
+            :title==="Avg Fuel Consumption / Day"
+            ?<AvgFuelModal onClose={function(){setSimOpen(false);}}/>
+            :<SimulatorModal title={title} onClose={function(){setSimOpen(false);}}/>
+          )}
         </div>
       );
     }
