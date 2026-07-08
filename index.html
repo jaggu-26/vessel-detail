@@ -1864,14 +1864,18 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     function SOGSlipModal({onClose}){
       var [dateFrom,setDateFrom]=useState("2025-12-03");
       var [dateTo,setDateTo]=useState("2026-03-01");
-      var [weather,setWeather]=useState("all");
+      var [windBF,setWindBF]=useState("");
+      var [waveDSS,setWaveDSS]=useState("");
       var [loadCond,setLoadCond]=useState("laden");
+      var [steamLow,setSteamLow]=useState(0);
+      var [steamHigh,setSteamHigh]=useState(26);
       var [speedLow,setSpeedLow]=useState(10);
-      var [speedHigh,setSpeedHigh]=useState(16);
+      var [speedHigh,setSpeedHigh]=useState(40);
       var [activeTab,setActiveTab]=useState("me");
 
       var TABS=[["me","Main Engine"],["gen","Generator"],["boiler","Boiler"],["cargo","Cargo Heating"]];
-      var WEATHER_OPTS=[["all","All Conditions"],["calm","Calm (Bft 0-3)"],["moderate","Moderate (Bft 4-5)"],["rough","Rough (Bft 6+)"]];
+      var BF_OPTS=["1","2","3","4","5","6","7","8","9","10","11","12"];
+      var DSS_OPTS=["0","1","2","3","4","5","6","7","8","9"];
 
       // Generate data Jan 1 – Jul 8 2026, every 3 days so dots are visible
       var _MNS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -1907,50 +1911,78 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             display:"flex",overflow:"hidden"}}>
 
             {/* ── Controls ── */}
-            <div style={{width:268,flexShrink:0,background:"#f5f7fa",borderRight:"1px solid #e8eaed",
-              padding:"28px 22px",display:"flex",flexDirection:"column",gap:24,overflowY:"auto"}}>
-              <div style={{fontSize:16,fontWeight:700,color:THEME.text,letterSpacing:-0.2}}>Controls</div>
+            <div style={{width:280,flexShrink:0,background:"#fff",borderRight:"1px solid #e8eaed",
+              padding:"28px 22px",display:"flex",flexDirection:"column",gap:0,overflowY:"auto"}}>
 
               {/* Report Date */}
-              <div>
-                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Report Date</div>
-                <ReportDatePicker/>
-              </div>
-
-              {/* Weather */}
-              <div>
-                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Weather</div>
-                <select value={weather} onChange={function(e){setWeather(e.target.value);}}
-                  style={{...inputStyle,cursor:"pointer"}}>
-                  {WEATHER_OPTS.map(function(o){return <option key={o[0]} value={o[0]}>{o[1]}</option>;})}
-                </select>
-              </div>
-
-              {/* Load Condition */}
-              <div>
-                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Load Condition</div>
-                <div style={{display:"flex",gap:16}}>
-                  {[["laden","Laden"],["ballast","Ballast"]].map(function(r){
-                    var act=loadCond===r[0];
-                    return(
-                      <label key={r[0]} onClick={function(){setLoadCond(r[0]);}}
-                        style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer"}}>
-                        <div style={{width:16,height:16,borderRadius:"50%",border:"2px solid",
-                          borderColor:act?B:"#cbd5e1",background:"#fff",flexShrink:0,
-                          display:"flex",alignItems:"center",justifyContent:"center"}}>
-                          {act&&<div style={{width:8,height:8,borderRadius:"50%",background:B}}/>}
-                        </div>
-                        <span style={{fontSize:13,color:act?THEME.text:THEME.textSub,fontWeight:act?600:400}}>{r[1]}</span>
-                      </label>
-                    );
-                  })}
+              <div style={{paddingBottom:22}}>
+                <div style={{fontSize:14,fontWeight:700,color:THEME.text,marginBottom:10}}>Report Date</div>
+                <div style={{position:"relative"}}>
+                  <div style={{padding:"10px 38px 10px 12px",fontSize:13,color:THEME.text,
+                    border:"1.5px solid #e2e8f0",borderRadius:10,background:"#fff",
+                    cursor:"pointer",userSelect:"none"}}>
+                    {(function(){
+                      var f=dateFrom.split("-");var t=dateTo.split("-");
+                      return f[1]+"/"+f[2]+"/"+f[0]+" to "+t[1]+"/"+t[2]+"/"+t[0];
+                    })()}
+                  </div>
+                  <svg style={{position:"absolute",right:11,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}}
+                    width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
                 </div>
               </div>
 
+              <div style={{borderTop:"1px solid #f1f5f9",paddingTop:22,paddingBottom:22}}>
+                <div style={{fontSize:14,fontWeight:700,color:THEME.text,marginBottom:14}}>Weather Conditions</div>
+                {/* Wind */}
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+                  <span style={{fontSize:13,color:THEME.text,whiteSpace:"nowrap"}}>Wind (BF) ≤</span>
+                  <div style={{position:"relative",width:148}}>
+                    <select value={windBF} onChange={function(e){setWindBF(e.target.value);}}
+                      style={{width:"100%",appearance:"none",WebkitAppearance:"none",
+                        padding:"8px 30px 8px 12px",fontSize:13,color:windBF?"#0E1A33":"#94A3B8",
+                        border:"1.5px solid #e2e8f0",borderRadius:8,background:"#fff",cursor:"pointer",outline:"none"}}>
+                      <option value="">Select value</option>
+                      {BF_OPTS.map(function(v){return <option key={v} value={v}>{v}</option>;})}
+                    </select>
+                    <svg style={{position:"absolute",right:9,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}}
+                      width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </div>
+                </div>
+                {/* Wave */}
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <span style={{fontSize:13,color:THEME.text,whiteSpace:"nowrap"}}>Wave (DSS) ≤</span>
+                  <div style={{position:"relative",width:148}}>
+                    <select value={waveDSS} onChange={function(e){setWaveDSS(e.target.value);}}
+                      style={{width:"100%",appearance:"none",WebkitAppearance:"none",
+                        padding:"8px 30px 8px 12px",fontSize:13,color:waveDSS?"#0E1A33":"#94A3B8",
+                        border:"1.5px solid #e2e8f0",borderRadius:8,background:"#fff",cursor:"pointer",outline:"none"}}>
+                      <option value="">Select value</option>
+                      {DSS_OPTS.map(function(v){return <option key={v} value={v}>{v}</option>;})}
+                    </select>
+                    <svg style={{position:"absolute",right:9,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}}
+                      width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Steaming Time */}
+              <div style={{borderTop:"1px solid #f1f5f9",paddingTop:22,paddingBottom:22}}>
+                <div style={{fontSize:14,fontWeight:700,color:THEME.text,marginBottom:14}}>Steaming Time (hrs/day)</div>
+                <SpeedRangeSlider min={0} max={26} low={steamLow} high={steamHigh}
+                  onLow={function(v){setSteamLow(v);}} onHigh={function(v){setSteamHigh(v);}}/>
+              </div>
+
               {/* Speed Range */}
-              <div>
-                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>Speed Range</div>
-                <SpeedRangeSlider min={0} max={25} low={speedLow} high={speedHigh}
+              <div style={{borderTop:"1px solid #f1f5f9",paddingTop:22}}>
+                <div style={{fontSize:14,fontWeight:700,color:THEME.text,marginBottom:14}}>Speed Range (knots)</div>
+                <SpeedRangeSlider min={0} max={40} low={speedLow} high={speedHigh}
                   onLow={function(v){setSpeedLow(v);}} onHigh={function(v){setSpeedHigh(v);}}/>
               </div>
             </div>
