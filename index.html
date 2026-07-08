@@ -2043,11 +2043,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           <div ref={ref} style={{position:"relative"}}>
             <button onClick={function(){setOpen(function(v){return !v;});}}
               style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,
-                width:"100%",height:34,padding:"0 12px",borderRadius:6,border:"none",
-                background:"#e2e8ef",cursor:"pointer",fontSize:13,fontWeight:600,
-                color:THEME.text,userSelect:"none",transition:"background 0.15s",boxSizing:"border-box"}}
-              onMouseEnter={function(e){e.currentTarget.style.background="#d0d8e4";}}
-              onMouseLeave={function(e){e.currentTarget.style.background="#e2e8ef";}}>
+                width:"100%",height:34,padding:"0 10px",borderRadius:8,
+                border:"1px solid "+(open?"#2563EB":"#e2e4e8"),
+                background:"#fff",cursor:"pointer",fontSize:12,fontWeight:400,
+                color:THEME.text,userSelect:"none",transition:"border-color 0.15s",boxSizing:"border-box"}}
+              onMouseEnter={function(e){e.currentTarget.style.borderColor="#2563EB";}}
+              onMouseLeave={function(e){e.currentTarget.style.borderColor=open?"#2563EB":"#e2e4e8";}}>
               <span>{value}</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={THEME.textSub} strokeWidth="2.5"
                 style={{transform:open?"rotate(180deg)":"rotate(0deg)",transition:"transform 0.2s",flexShrink:0}}>
