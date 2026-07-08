@@ -2095,12 +2095,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         {color:"#93C5FD",label:"Manoeuvring (ECA)"},
       ];
       var AUX_LEGEND=[
-        {color:"#D07030",label:"Boiler (ECA)"},
-        {color:"#B8607A",label:"IGS (ECA)"},
-        {color:"#C07848",label:"Incinerator (ECA)"},
-        {color:"#7272C0",label:"Load/Disch"},
-        {color:"#5F9F6A",label:"Cargo cooling (ECA)"},
-        {color:"#A05828",label:"Others (ECA)"},
+        {color:"#F97316",label:"Boiler (ECA)"},
+        {color:"#FDBA74",label:"IGS (ECA)"},
+        {color:"#FCD34D",label:"Incinerator (ECA)"},
+        {color:"#FB923C",label:"Load/Disch"},
+        {color:"#A78BFA",label:"Cargo cooling (ECA)"},
+        {color:"#CBD5E1",label:"Others (ECA)"},
       ];
 
       function LegendDot({color,label}){
@@ -2277,20 +2277,20 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       <Label value="ME consumption (MT)" angle={-90} position="insideLeft" offset={-4}
                         style={{fontSize:10,fill:"#2563EB",textAnchor:"middle"}}/>
                     </YAxis>
-                    <YAxis yAxisId="right" orientation="right" tick={{fontSize:10,fill:"#D07030"}}
+                    <YAxis yAxisId="right" orientation="right" tick={{fontSize:10,fill:"#F97316"}}
                       tickLine={false} axisLine={false} width={54}>
                       <Label value="Aux consumption (MT)" angle={90} position="insideRight" offset={8}
-                        style={{fontSize:10,fill:"#D07030",textAnchor:"middle"}}/>
+                        style={{fontSize:10,fill:"#F97316",textAnchor:"middle"}}/>
                     </YAxis>
                     <Tooltip contentStyle={{fontSize:12,borderRadius:8,border:"1px solid #e2e4e8",boxShadow:"0 4px 12px rgba(0,0,0,0.08)"}}/>
                     <Bar yAxisId="left" dataKey="prop"   stackId="me"  fill="#2563EB" name="Propulsion" isAnimationActive={false}/>
                     <Bar yAxisId="left" dataKey="mano"   stackId="me"  fill="#93C5FD" name="Manoeuvring" radius={[4,4,0,0]} isAnimationActive={false}/>
-                    <Bar yAxisId="right" dataKey="boiler" stackId="aux" fill="#D07030" name="Boiler" isAnimationActive={false}/>
-                    <Bar yAxisId="right" dataKey="igs"    stackId="aux" fill="#B8607A" name="IGS" isAnimationActive={false}/>
-                    <Bar yAxisId="right" dataKey="incin"  stackId="aux" fill="#C07848" name="Incinerator" isAnimationActive={false}/>
-                    <Bar yAxisId="right" dataKey="load"   stackId="aux" fill="#7272C0" name="Load/Disch" isAnimationActive={false}/>
-                    <Bar yAxisId="right" dataKey="cargo"  stackId="aux" fill="#5F9F6A" name="Cargo cooling" isAnimationActive={false}/>
-                    <Bar yAxisId="right" dataKey="others" stackId="aux" fill="#A05828" name="Others" radius={[4,4,0,0]} isAnimationActive={false}/>
+                    <Bar yAxisId="right" dataKey="boiler" stackId="aux" fill="#F97316" name="Boiler" isAnimationActive={false}/>
+                    <Bar yAxisId="right" dataKey="igs"    stackId="aux" fill="#FDBA74" name="IGS" isAnimationActive={false}/>
+                    <Bar yAxisId="right" dataKey="incin"  stackId="aux" fill="#FCD34D" name="Incinerator" isAnimationActive={false}/>
+                    <Bar yAxisId="right" dataKey="load"   stackId="aux" fill="#FB923C" name="Load/Disch" isAnimationActive={false}/>
+                    <Bar yAxisId="right" dataKey="cargo"  stackId="aux" fill="#A78BFA" name="Cargo cooling" isAnimationActive={false}/>
+                    <Bar yAxisId="right" dataKey="others" stackId="aux" fill="#CBD5E1" name="Others" radius={[4,4,0,0]} isAnimationActive={false}/>
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
