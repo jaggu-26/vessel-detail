@@ -1986,7 +1986,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var [steamLow,setSteamLow]=useState(0);
       var [steamHigh,setSteamHigh]=useState(26);
       var [ecaSel,setEcaSel]=useState(["eca"]);
-      var [chartFilter,setChartFilter]=useState("both");
+      var [chartFilter,setChartFilter]=useState(["eca"]);
 
       var BF_OPTS=["1","2","3","4","5","6","7","8","9","10","11","12"];
       var DSS_OPTS=["1","2","3","4","5","6","7","8","9","10","11","12","13","14"];
@@ -2008,7 +2008,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       var lf=loadCond==="laden"?1.0:0.85;
       var wf=parseInt(windBF)<=3?0.95:parseInt(windBF)<=5?1.0:1.08;
-      var ef=chartFilter==="eca"?0.9:chartFilter==="noneca"?1.1:1.0;
+      var ef=chartFilter.includes("eca")&&chartFilter.includes("noneca")?1.0:chartFilter.includes("eca")?0.9:chartFilter.includes("noneca")?1.1:1.0;
 
       var chartData=rawRows.map(function(row,i){
         var monthsAgo=count-1-i;
@@ -2113,9 +2113,13 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       }
 
       function ChartPill({label,val}){
-        var act=chartFilter===val;
+        var act=chartFilter.includes(val);
         return(
-          <button onClick={function(){setChartFilter(val);}} style={{
+          <button onClick={function(){
+            setChartFilter(function(prev){
+              return act&&prev.length>1?prev.filter(function(x){return x!==val;}):act?prev:prev.concat([val]);
+            });
+          }} style={{
             padding:"5px 14px",borderRadius:20,fontSize:12,fontWeight:600,cursor:"pointer",
             border:"1.5px solid",borderColor:act?B:"#e2e4e8",
             background:"#fff",color:act?B:THEME.textSub,transition:"all 0.15s",
@@ -2195,7 +2199,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <div>
                 <div style={LBL}>ECA Zone</div>
                 <div style={{display:"flex",flexDirection:"row",gap:14}}>
-                  {[["eca","ECA"],["noneca","Non ECA"],["both","Both"]].map(function(f){
+                  {[["eca","ECA"],["noneca","Non ECA"]].map(function(f){
                     var checked=ecaSel.includes(f[0]);
                     return(
                       <label key={f[0]} onClick={function(){
@@ -2240,7 +2244,6 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
               {/* Filter pills */}
               <div style={{display:"flex",gap:8,marginBottom:12,flexShrink:0}}>
-                <ChartPill label="Both" val="both"/>
                 <ChartPill label="ECA only" val="eca"/>
                 <ChartPill label="Non-ECA only" val="noneca"/>
               </div>
@@ -3919,7 +3922,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     //    is stable across SectionCharts re-renders (hover state, etc.)
     function AvgFuelConsChart(props){
       var months = props.months || 6;
-      var [filter, setFilter] = React.useState("eca");
+      var [filter, setFilter] = React.useState(["eca"]);
       var _MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       var _todayM=new Date().getMonth();
       var _todayY=new Date().getFullYear();
@@ -3945,10 +3948,29 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var nonEcaData=allData.map(function(d){
         return Object.assign({},d,{propulsion:+(d.propulsion*1.12).toFixed(1),manoeuvring:+(d.manoeuvring*1.1).toFixed(1),auxiliaries:+(d.auxiliaries*0.85).toFixed(1)});
       });
-      var chartData=filter==="eca"?ecaData:filter==="noneca"?nonEcaData:allData;
+      var hasEca=filter.includes("eca"), hasNonEca=filter.includes("noneca");
+      var chartData=allData.map(function(d,i){
+        var base={m:d.m};
+        if(hasEca&&hasNonEca){
+          base.propulsion=+((ecaData[i].propulsion+nonEcaData[i].propulsion)/2).toFixed(1);
+          base.manoeuvring=+((ecaData[i].manoeuvring+nonEcaData[i].manoeuvring)/2).toFixed(1);
+          base.auxiliaries=+((ecaData[i].auxiliaries+nonEcaData[i].auxiliaries)/2).toFixed(1);
+        } else if(hasEca){
+          base.propulsion=ecaData[i].propulsion; base.manoeuvring=ecaData[i].manoeuvring; base.auxiliaries=ecaData[i].auxiliaries;
+        } else if(hasNonEca){
+          base.propulsion=nonEcaData[i].propulsion; base.manoeuvring=nonEcaData[i].manoeuvring; base.auxiliaries=nonEcaData[i].auxiliaries;
+        } else {
+          base.propulsion=d.propulsion; base.manoeuvring=d.manoeuvring; base.auxiliaries=d.auxiliaries;
+        }
+        return base;
+      });
       function tab(label,key){
-        var active=filter===key;
-        return <button key={key} onClick={function(){setFilter(key);}} style={{
+        var active=filter.includes(key);
+        return <button key={key} onClick={function(){
+          setFilter(function(prev){
+            return active&&prev.length>1?prev.filter(function(x){return x!==key;}):active?prev:prev.concat([key]);
+          });
+        }} style={{
           padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",
           border:"none",
           background:active?"#2563EB":"transparent",
@@ -3961,11 +3983,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         <div style={{display:"flex",flexDirection:"column",alignSelf:"stretch",width:"100%",height:"100%"}}>
           {/* Show tabs + legend in one row */}
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
-            {/* Left: Show tabs */}
+            {/* Left: filter tabs */}
             <div style={{display:"flex",alignItems:"center",gap:2}}>
-              <span style={{fontSize:10,color:"#94A3B8",fontWeight:500,marginRight:4}}>Show:</span>
               <div style={{display:"flex",gap:1,background:"#F1F5F9",borderRadius:20,padding:"2px"}}>
-                {tab("ECA only","eca")}{tab("Non-ECA only","noneca")}{tab("Both","both")}
+                {tab("ECA only","eca")}{tab("Non-ECA only","noneca")}
               </div>
             </div>
             {/* Right: Two-group legend */}
