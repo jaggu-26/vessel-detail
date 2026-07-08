@@ -5228,7 +5228,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               ],
               rows:rows
             };
-          })()}),
+          })(), hideDeepDive:true}),
         cc("Top Port Calls","Month-to-date",
           <ResponsiveContainer width="100%" height="100%">
             <BarChart layout="vertical" data={portCallData} barSize={22} margin={{bottom:20,left:8,right:10,top:10}}>
