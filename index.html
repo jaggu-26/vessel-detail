@@ -1642,6 +1642,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     function SimulatorModal({title, onClose}) {
       var [simTab,setSimTab]=useState("speed");
+      var [loadCond,setLoadCond]=useState("laden");
 
       var BD=["12 Dec","13 Dec","14 Dec","15 Dec","16 Dec","17 Dec","18 Dec",
               "19 Dec","20 Dec","21 Dec","22 Dec","23 Dec","24 Dec","25 Dec",
@@ -1654,13 +1655,20 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var S1_M=[null,24.1,22.1,25.2,null,19.5,null,21.0,16.5,null,22.0,18.8,15.2,null,18.5,12.8,null,28.2,null,null,19.0,null];
       var S2_M=[8,23.5,21.0,20.8,20.2,null,null,15.0,null,null,null,18.5,null,null,19.1,14.8,18.5,null,23.8,21.2,null,null];
 
-      var isSpd=simTab==="speed";
-      var ord=isSpd?ORD_S:ORD_M;
-      var s1d=isSpd?S1_S:S1_M;
-      var s2d=isSpd?S2_S:S2_M;
-      var bw=isSpd?2.5:4.0;
-      var yMx=isSpd?26:34;
-      var yLbl=isSpd?"SOG / Ordered Speed (KN / KT)":"ME Consumption (MT/Day)";
+      var lf=loadCond==="laden"?1.0:0.88;
+      var ORD_A=ORD_M.map(function(v){return+(v*0.38*lf).toFixed(1);});
+      var ORD_O=ORD_M.map(function(v){return+(v*0.22*lf).toFixed(1);});
+      var S1_A=S1_M.map(function(v){return v===null?null:+(v*0.38*lf).toFixed(1);});
+      var S2_A=S2_M.map(function(v){return v===null?null:+(v*0.38*lf).toFixed(1);});
+      var S1_O=S1_M.map(function(v){return v===null?null:+(v*0.22*lf).toFixed(1);});
+      var S2_O=S2_M.map(function(v){return v===null?null:+(v*0.22*lf).toFixed(1);});
+
+      var ord=simTab==="speed"?ORD_S.map(function(v){return+(v*lf).toFixed(1);}):simTab==="me"?ORD_M.map(function(v){return+(v*lf).toFixed(1);}):simTab==="aux"?ORD_A:ORD_O;
+      var s1d=simTab==="speed"?S1_S.map(function(v){return v===null?null:+(v*lf).toFixed(1);}):simTab==="me"?S1_M.map(function(v){return v===null?null:+(v*lf).toFixed(1);}):simTab==="aux"?S1_A:S1_O;
+      var s2d=simTab==="speed"?S2_S.map(function(v){return v===null?null:+(v*lf).toFixed(1);}):simTab==="me"?S2_M.map(function(v){return v===null?null:+(v*lf).toFixed(1);}):simTab==="aux"?S2_A:S2_O;
+      var bw=simTab==="speed"?2.5:simTab==="me"?4.0:simTab==="aux"?1.5:0.8;
+      var yMx=simTab==="speed"?26:simTab==="me"?34:simTab==="aux"?14:8;
+      var yLbl=simTab==="speed"?"SOG / Ordered Speed (Knots)":simTab==="me"?"ME Consumption (MT/Day)":simTab==="aux"?"Aux Consumption (MT/Day)":"Other Consumption (MT/Day)";
 
       var chartData=BD.map(function(day,i){
         return{day:day,status:DS[i],ordered:ord[i],upper:ord[i]+bw,lower:Math.max(0,ord[i]-bw),s1:s1d[i],s2:s2d[i]};
@@ -1696,14 +1704,35 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <ReportDatePicker/>
               </div>
 
-              {/* View radio */}
+              {/* View (Warranties) radio */}
               <div>
-                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>View</div>
-                <div style={{display:"flex",flexDirection:"row",gap:16}}>
-                  {[["speed","Speed"],["me","ME Consumption"]].map(function(t){
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>View (Warranties)</div>
+                <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                  {[["speed","Speed"],["me","ME"],["aux","Aux"],["other","Other"]].map(function(t){
                     var act=simTab===t[0];
                     return(
                       <label key={t[0]} onClick={function(){setSimTab(t[0]);}}
+                        style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}>
+                        <div style={{width:16,height:16,borderRadius:"50%",border:"2px solid",
+                          borderColor:act?B:"#cbd5e1",background:"#fff",flexShrink:0,
+                          display:"flex",alignItems:"center",justifyContent:"center",transition:"border-color 0.15s"}}>
+                          {act&&<div style={{width:8,height:8,borderRadius:"50%",background:B}}/>}
+                        </div>
+                        <span style={{fontSize:13,color:act?THEME.text:THEME.textSub,fontWeight:act?600:400}}>{t[1]}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Load Condition radio */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>Load Condition</div>
+                <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                  {[["laden","Laden"],["ballast","Ballast"]].map(function(t){
+                    var act=loadCond===t[0];
+                    return(
+                      <label key={t[0]} onClick={function(){setLoadCond(t[0]);}}
                         style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}>
                         <div style={{width:16,height:16,borderRadius:"50%",border:"2px solid",
                           borderColor:act?B:"#cbd5e1",background:"#fff",flexShrink:0,
