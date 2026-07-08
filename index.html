@@ -1796,9 +1796,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     <Area type="stepAfter" dataKey="lower" fill="#fff" stroke="none"
                       fillOpacity={1} dot={false} activeDot={false} legendType="none" isAnimationActive={false}/>
 
-                    {/* Unwarranted passage zone */}
+                    {/* Out of warranty zone */}
                     <ReferenceArea x1="19 Dec" x2="22 Dec" fill="#EEF6FF" fillOpacity={0.7} strokeOpacity={0}
-                      label={{value:"Unwarranted passage",position:"center",angle:-90,fill:"#2563eb",fontSize:9,fontWeight:600}}/>
+                      label={{value:"Out of warranty",position:"center",angle:-90,fill:"#2563eb",fontSize:9,fontWeight:600}}/>
                     <ReferenceLine x="19 Dec" stroke="#2563eb" strokeDasharray="5 4" strokeWidth={1.5}/>
                     <ReferenceLine x="22 Dec" stroke="#2563eb" strokeDasharray="5 4" strokeWidth={1.5}/>
 
@@ -1806,32 +1806,49 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     <Line type="stepAfter" dataKey="ordered" stroke="#4a8a9a" strokeWidth={2}
                       dot={false} name="Ordered" legendType="none" connectNulls={false} isAnimationActive={false}/>
 
-                    {/* Series 1: dark red filled dots */}
-                    <Line dataKey="s1" stroke="none" strokeWidth={0} name="Breach"
+                    {/* Series 1: dark red filled dots — Breached */}
+                    <Line dataKey="s1" stroke="none" strokeWidth={0} name="Breached"
                       dot={function(p){
                         if(p.value==null||p.cx==null||p.cy==null)return null;
                         return <circle key={p.index} cx={p.cx} cy={p.cy} r={6} fill="#7B2830" stroke="none"/>;
                       }}
                       activeDot={{r:7,fill:"#7B2830"}} connectNulls={false} legendType="none" isAnimationActive={false}/>
 
-                    {/* Series 2: green hollow dots */}
-                    <Line dataKey="s2" stroke="none" strokeWidth={0} name="SOG"
+                    {/* Series 2: green hollow dots — Within Warranty */}
+                    <Line dataKey="s2" stroke="none" strokeWidth={0} name="Within Warranty"
                       dot={function(p){
                         if(p.value==null||p.cx==null||p.cy==null)return null;
                         return <circle key={p.index} cx={p.cx} cy={p.cy} r={6} fill="none" stroke="#2E7D52" strokeWidth={2}/>;
                       }}
                       activeDot={{r:7,fill:"none",stroke:"#2E7D52",strokeWidth:2}} connectNulls={false} legendType="none" isAnimationActive={false}/>
 
-                    {/* Legend */}
-                    <Legend iconType="circle" iconSize={8}
-                      verticalAlign="top" align="center"
-                      wrapperStyle={{fontSize:10,paddingBottom:8}}
-                      payload={[
-                        {value:"Ordered",type:"line",color:"#4a8a9a"},
-                        {value:"Breach",type:"circle",color:"#7B2830"},
-                        {value:"SOG",type:"circle",color:"#2E7D52"}
-                      ]}
-                      formatter={function(v){return <span style={{color:THEME.textSub,marginLeft:2}}>{v}</span>;}}/>
+                    {/* Custom legend */}
+                    <Legend verticalAlign="top" align="center" wrapperStyle={{paddingBottom:8}}
+                      content={function(){
+                        return(
+                          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:20,fontSize:11,color:THEME.textSub}}>
+                            <span style={{display:"flex",alignItems:"center",gap:5}}>
+                              <svg width="28" height="10" viewBox="0 0 28 10">
+                                <line x1="2" y1="5" x2="26" y2="5" stroke="#4a8a9a" strokeWidth="2"/>
+                                <polygon points="23,2 28,5 23,8" fill="#4a8a9a"/>
+                              </svg>
+                              Ordered
+                            </span>
+                            <span style={{display:"flex",alignItems:"center",gap:5}}>
+                              <svg width="12" height="12" viewBox="0 0 12 12">
+                                <circle cx="6" cy="6" r="5" fill="#7B2830"/>
+                              </svg>
+                              Breached
+                            </span>
+                            <span style={{display:"flex",alignItems:"center",gap:5}}>
+                              <svg width="12" height="12" viewBox="0 0 12 12">
+                                <circle cx="6" cy="6" r="4.5" fill="none" stroke="#2E7D52" strokeWidth="2"/>
+                              </svg>
+                              Within Warranty
+                            </span>
+                          </div>
+                        );
+                      }}/>
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
