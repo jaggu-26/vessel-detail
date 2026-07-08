@@ -2091,8 +2091,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       }
 
       var ME_LEGEND=[
-        {color:"#2D7CC7",label:"Propulsion (ECA)"},
-        {color:"#1E9B8A",label:"Manoeuvring (ECA)"},
+        {color:"#2563EB",label:"Propulsion (ECA)"},
+        {color:"#93C5FD",label:"Manoeuvring (ECA)"},
       ];
       var AUX_LEGEND=[
         {color:"#D07030",label:"Boiler (ECA)"},
@@ -2283,8 +2283,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                         style={{fontSize:10,fill:"#D07030",textAnchor:"middle"}}/>
                     </YAxis>
                     <Tooltip contentStyle={{fontSize:12,borderRadius:8,border:"1px solid #e2e4e8",boxShadow:"0 4px 12px rgba(0,0,0,0.08)"}}/>
-                    <Bar yAxisId="left" dataKey="prop"   stackId="me"  fill="#2D7CC7" name="Propulsion" isAnimationActive={false}/>
-                    <Bar yAxisId="left" dataKey="mano"   stackId="me"  fill="#1E9B8A" name="Manoeuvring" radius={[4,4,0,0]} isAnimationActive={false}/>
+                    <Bar yAxisId="left" dataKey="prop"   stackId="me"  fill="#2563EB" name="Propulsion" isAnimationActive={false}/>
+                    <Bar yAxisId="left" dataKey="mano"   stackId="me"  fill="#93C5FD" name="Manoeuvring" radius={[4,4,0,0]} isAnimationActive={false}/>
                     <Bar yAxisId="right" dataKey="boiler" stackId="aux" fill="#D07030" name="Boiler" isAnimationActive={false}/>
                     <Bar yAxisId="right" dataKey="igs"    stackId="aux" fill="#B8607A" name="IGS" isAnimationActive={false}/>
                     <Bar yAxisId="right" dataKey="incin"  stackId="aux" fill="#C07848" name="Incinerator" isAnimationActive={false}/>
