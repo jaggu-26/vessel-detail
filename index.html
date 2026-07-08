@@ -1978,90 +1978,159 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     // ── end SOGSlipModal ────────────────────────────────────────────────────────
 
     function AvgFuelModal({onClose}){
-      var [weather,setWeather]=useState("bf4dss3");
+      var [windBF,setWindBF]=useState("3");
+      var [waveDSS,setWaveDSS]=useState("4");
       var [loadCond,setLoadCond]=useState("laden");
-      var [speedLow,setSpeedLow]=useState(6);
-      var [speedHigh,setSpeedHigh]=useState(18);
+      var [sogLow,setSogLow]=useState(0);
+      var [sogHigh,setSogHigh]=useState(20);
+      var [steamLow,setSteamLow]=useState(0);
+      var [steamHigh,setSteamHigh]=useState(26);
       var [ecaSel,setEcaSel]=useState(["eca"]);
-      var [activeTab,setActiveTab]=useState("me");
+      var [chartFilter,setChartFilter]=useState("both");
 
-      var TABS=[["me","Main Engine"],["gen","Generator"],["boiler","Boiler"],["cargo","Cargo Heating"]];
-      var WEATHER_OPTS=[
-        ["bf4dss3","Weather BF4 DSS3"],["bf3dss4","Weather BF3 DSS4"],
-        ["all","All Conditions"],["calm","Calm (Bft 0-3)"],
-        ["moderate","Moderate (Bft 4-5)"],["rough","Rough (Bft 6+)"]
-      ];
+      var BF_OPTS=["1","2","3","4","5","6","7"];
+      var DSS_OPTS=["1","2","3","4","5","6"];
 
       var _MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       var _today=new Date();
       var _todayM=_today.getMonth();
       var _todayY=_today.getFullYear();
       var count=6;
+
       var rawRows=[
-        {me1:120,me2:18,gen:28,boiler:20,cargo:10},
-        {me1:135,me2:22,gen:25,boiler:18,cargo:8},
-        {me1:115,me2:16,gen:32,boiler:22,cargo:12},
-        {me1:148,me2:24,gen:26,boiler:19,cargo:9},
-        {me1:108,me2:15,gen:35,boiler:21,cargo:14},
-        {me1:162,me2:26,gen:24,boiler:17,cargo:8},
+        {prop:18, mano:8,  boiler:18,igs:12,incin:8, load:10,cargo:22,others:8},
+        {prop:20, mano:9,  boiler:22,igs:14,incin:7, load:8, cargo:20,others:7},
+        {prop:120,mano:14, boiler:15,igs:10,incin:5, load:8, cargo:18,others:6},
+        {prop:32, mano:10, boiler:20,igs:11,incin:6, load:7, cargo:16,others:5},
+        {prop:25, mano:8,  boiler:18,igs:10,incin:5, load:6, cargo:14,others:5},
+        {prop:45, mano:12, boiler:22,igs:13,incin:7, load:9, cargo:20,others:7},
       ];
 
       var lf=loadCond==="laden"?1.0:0.85;
-      var ef=ecaSel.includes("both")||(ecaSel.includes("eca")&&ecaSel.includes("noneca"))||ecaSel.length===0?1.0:ecaSel.includes("eca")?0.9:ecaSel.includes("noneca")?1.1:1.0;
+      var wf=parseInt(windBF)<=3?0.95:parseInt(windBF)<=5?1.0:1.08;
+      var ef=chartFilter==="eca"?0.9:chartFilter==="noneca"?1.1:1.0;
 
       var chartData=rawRows.map(function(row,i){
         var monthsAgo=count-1-i;
         var mIdx=((_todayM-monthsAgo)%12+12)%12;
-        var yr=_todayY-Math.floor((monthsAgo-_todayM+12>12?1:0));
-        var shortYr=String(yr).slice(-2);
-        var rightVal=activeTab==="gen"?+(row.gen*lf*ef).toFixed(1)
-          :activeTab==="boiler"?+(row.boiler*lf*ef).toFixed(1)
-          :activeTab==="cargo"?+(row.cargo*lf*ef).toFixed(1)
-          :+(( row.gen+row.boiler+row.cargo)*lf*ef).toFixed(1);
+        var shortYr=String(_todayY-(monthsAgo>_todayM?1:0)).slice(-2);
+        var f=lf*wf*ef;
         return {
           m:_MN[mIdx]+" "+shortYr,
-          me1:+(row.me1*lf*ef).toFixed(1),
-          me2:+(row.me2*lf*ef).toFixed(1),
-          right:rightVal
+          prop:+(row.prop*f).toFixed(1),
+          mano:+(row.mano*f).toFixed(1),
+          boiler:+(row.boiler*f).toFixed(1),
+          igs:+(row.igs*f).toFixed(1),
+          incin:+(row.incin*f).toFixed(1),
+          load:+(row.load*f).toFixed(1),
+          cargo:+(row.cargo*f).toFixed(1),
+          others:+(row.others*f).toFixed(1),
         };
       });
 
-      var rightName=activeTab==="gen"?"Generator":activeTab==="boiler"?"Boiler":activeTab==="cargo"?"Cargo Heating":"Aux Total";
-
-      var inputStyle={width:"100%",padding:"8px 10px",fontSize:12,borderRadius:8,
+      var inputStyle={width:"100%",padding:"7px 10px",fontSize:12,borderRadius:8,
         border:"1px solid #e2e4e8",background:"#fff",color:THEME.text,outline:"none",
-        boxSizing:"border-box"};
+        boxSizing:"border-box",cursor:"pointer"};
+
+      var LBL={fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:7,textTransform:"uppercase",letterSpacing:0.5};
+
+      // compact range slider row
+      function RangeRow({low,high,min,max,onLow,onHigh}){
+        return(
+          <div>
+            <SpeedRangeSlider min={min} max={max} low={low} high={high}
+              onLow={onLow} onHigh={onHigh}/>
+            <div style={{display:"flex",gap:8,marginTop:6}}>
+              {[["MIN",low,onLow],["MAX",high,onHigh]].map(function(r){
+                return(
+                  <div key={r[0]} style={{flex:1}}>
+                    <div style={{fontSize:9,color:"#94A3B8",fontWeight:600,marginBottom:3}}>{r[0]}</div>
+                    <input type="number" value={r[1]}
+                      onChange={function(e){r[2](Number(e.target.value));}}
+                      style={{...inputStyle,padding:"5px 8px",fontSize:12,width:"100%"}}/>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      }
+
+      // ME legend: blue + green
+      var ME_LEGEND=[
+        {color:"#2563EB",label:"Propulsion (ECA)"},
+        {color:"#22C55E",label:"Manoeuvring (ECA)"},
+      ];
+      // AUX legend
+      var AUX_LEGEND=[
+        {color:"#F97316",label:"Boiler (ECA)"},
+        {color:"#EC4899",label:"IGS (ECA)"},
+        {color:"#F87171",label:"Incinerator (ECA)"},
+        {color:"#A78BFA",label:"Load/Disch"},
+        {color:"#84CC16",label:"Cargo cooling (ECA)"},
+        {color:"#94A3B8",label:"Others (ECA)"},
+      ];
+
+      function LegendDot({color,label}){
+        return(
+          <div style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
+            <span style={{width:12,height:12,borderRadius:3,background:color,display:"inline-block",flexShrink:0}}/>
+            <span style={{fontSize:11,color:THEME.textSub}}>{label}</span>
+          </div>
+        );
+      }
+
+      function ChartPill({label,val}){
+        var act=chartFilter===val;
+        return(
+          <button onClick={function(){setChartFilter(val);}} style={{
+            padding:"5px 14px",borderRadius:20,fontSize:12,fontWeight:600,cursor:"pointer",
+            border:"1.5px solid",borderColor:act?B:"#e2e4e8",
+            background:"#fff",color:act?B:THEME.textSub,transition:"all 0.15s",
+          }}>{label}</button>
+        );
+      }
 
       return ReactDOM.createPortal(
         <div onClick={function(e){if(e.target===e.currentTarget)onClose();}}
           style={{position:"fixed",inset:0,background:"rgba(12,30,53,0.45)",zIndex:9998,
             display:"flex",alignItems:"center",justifyContent:"center"}}>
-          <div style={{background:"#fff",borderRadius:14,width:"min(1080px,95vw)",maxHeight:"90vh",
+          <div style={{background:"#fff",borderRadius:14,width:"min(1160px,96vw)",height:"min(700px,94vh)",
             display:"flex",overflow:"hidden"}}>
 
             {/* ── Controls ── */}
-            <div style={{width:268,flexShrink:0,background:"#f5f7fa",borderRight:"1px solid #e8eaed",
-              padding:"28px 22px",display:"flex",flexDirection:"column",gap:24,overflowY:"auto"}}>
+            <div style={{width:264,flexShrink:0,background:"#f5f7fa",borderRight:"1px solid #e8eaed",
+              padding:"24px 20px",display:"flex",flexDirection:"column",gap:18,overflowY:"hidden"}}>
               <div style={{fontSize:16,fontWeight:700,color:THEME.text,letterSpacing:-0.2}}>Controls</div>
 
               {/* Report Date */}
               <div>
-                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Report Date</div>
+                <div style={LBL}>Report Date</div>
                 <ReportDatePicker/>
               </div>
 
-              {/* Weather */}
+              {/* Weather — Wind BF + Wave DSS */}
               <div>
-                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Weather</div>
-                <select value={weather} onChange={function(e){setWeather(e.target.value);}}
-                  style={{...inputStyle,cursor:"pointer"}}>
-                  {WEATHER_OPTS.map(function(o){return <option key={o[0]} value={o[0]}>{o[1]}</option>;})}
-                </select>
+                <div style={LBL}>Weather</div>
+                <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                  <div>
+                    <div style={{fontSize:11,color:THEME.textSub,marginBottom:4}}>Wind BF (&lt;=)</div>
+                    <select value={windBF} onChange={function(e){setWindBF(e.target.value);}} style={inputStyle}>
+                      {BF_OPTS.map(function(v){return <option key={v} value={v}>{v}</option>;})}
+                    </select>
+                  </div>
+                  <div>
+                    <div style={{fontSize:11,color:THEME.textSub,marginBottom:4}}>Wave DSS (&lt;=)</div>
+                    <select value={waveDSS} onChange={function(e){setWaveDSS(e.target.value);}} style={inputStyle}>
+                      {DSS_OPTS.map(function(v){return <option key={v} value={v}>{v}</option>;})}
+                    </select>
+                  </div>
+                </div>
               </div>
 
               {/* Load Condition */}
               <div>
-                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Load Condition</div>
+                <div style={LBL}>Load Condition</div>
                 <div style={{display:"flex",gap:16}}>
                   {[["laden","Laden"],["ballast","Ballast"]].map(function(r){
                     var act=loadCond===r[0];
@@ -2080,17 +2149,24 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 </div>
               </div>
 
-              {/* Speed Range */}
+              {/* SOG (kn) */}
               <div>
-                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>Speed Range</div>
-                <SpeedRangeSlider min={0} max={25} low={speedLow} high={speedHigh}
-                  onLow={function(v){setSpeedLow(v);}} onHigh={function(v){setSpeedHigh(v);}}/>
+                <div style={LBL}>SOG (kn)</div>
+                <RangeRow low={sogLow} high={sogHigh} min={0} max={25}
+                  onLow={setSogLow} onHigh={setSogHigh}/>
               </div>
 
-              {/* ECA Zone — multi-select */}
+              {/* Steaming Hours */}
               <div>
-                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>ECA Zone</div>
-                <div style={{display:"flex",flexDirection:"row",gap:16}}>
+                <div style={LBL}>Steaming Hours (hrs/day)</div>
+                <RangeRow low={steamLow} high={steamHigh} min={0} max={26}
+                  onLow={setSteamLow} onHigh={setSteamHigh}/>
+              </div>
+
+              {/* ECA Zone */}
+              <div>
+                <div style={LBL}>ECA Zone</div>
+                <div style={{display:"flex",flexDirection:"row",gap:14}}>
                   {[["eca","ECA"],["noneca","Non ECA"],["both","Both"]].map(function(f){
                     var checked=ecaSel.includes(f[0]);
                     return(
@@ -2098,7 +2174,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                         setEcaSel(function(prev){
                           return checked?prev.filter(function(x){return x!==f[0];}):prev.concat([f[0]]);
                         });
-                      }} style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer"}}>
+                      }} style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer"}}>
                         <div style={{width:16,height:16,borderRadius:4,border:"1.5px solid",
                           borderColor:checked?B:"#cbd5e1",background:checked?B:"#fff",flexShrink:0,
                           display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.15s"}}>
@@ -2106,7 +2182,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                             <path d="M1 4L3.5 6.5L9 1" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>}
                         </div>
-                        <span style={{fontSize:13,color:checked?THEME.text:THEME.textSub,fontWeight:checked?600:400}}>{f[1]}</span>
+                        <span style={{fontSize:12,color:checked?THEME.text:THEME.textSub,fontWeight:checked?600:400}}>{f[1]}</span>
                       </label>
                     );
                   })}
@@ -2115,11 +2191,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             </div>
 
             {/* ── Chart panel ── */}
-            <div style={{flex:1,display:"flex",flexDirection:"column",padding:"24px 28px",
-              minWidth:0,overflow:"hidden",minHeight:510}}>
+            <div style={{flex:1,display:"flex",flexDirection:"column",padding:"24px 28px",minWidth:0,overflow:"hidden"}}>
 
               {/* Header */}
-              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16,flexShrink:0}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,flexShrink:0}}>
                 <div>
                   <div style={{fontSize:18,fontWeight:700,color:THEME.text,letterSpacing:-0.3}}>Deep Dive</div>
                   <div style={{fontSize:12,color:THEME.textSub,marginTop:2}}>Avg Fuel Consumption / Day</div>
@@ -2135,52 +2210,60 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 </button>
               </div>
 
-              {/* 4 Tabs */}
-              <div style={{display:"flex",gap:8,marginBottom:16,flexShrink:0}}>
-                {TABS.map(function(t){
-                  var act=activeTab===t[0];
-                  return(
-                    <button key={t[0]} onClick={function(){setActiveTab(t[0]);}}
-                      style={{padding:"6px 14px",fontSize:12,fontWeight:600,border:"1.5px solid",
-                        borderRadius:20,cursor:"pointer",
-                        borderColor:act?B:"#e2e4e8",background:act?"#EEF4FF":"#fff",
-                        color:act?B:THEME.textSub,transition:"all 0.15s"}}>
-                      {t[1]}
-                    </button>
-                  );
-                })}
+              {/* Filter pills */}
+              <div style={{display:"flex",gap:8,marginBottom:12,flexShrink:0}}>
+                <ChartPill label="Both" val="both"/>
+                <ChartPill label="ECA only" val="eca"/>
+                <ChartPill label="Non-ECA only" val="noneca"/>
+              </div>
+
+              {/* Legend — two groups */}
+              <div style={{display:"flex",gap:24,marginBottom:10,flexShrink:0,flexWrap:"wrap"}}>
+                <div>
+                  <div style={{fontSize:11,fontWeight:700,color:THEME.text,marginBottom:5}}>Main engine</div>
+                  <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+                    {ME_LEGEND.map(function(l){return <LegendDot key={l.label} color={l.color} label={l.label}/>;})}
+                  </div>
+                </div>
+                <div>
+                  <div style={{fontSize:11,fontWeight:700,color:THEME.text,marginBottom:5}}>Auxiliary</div>
+                  <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+                    {AUX_LEGEND.slice(0,4).map(function(l){return <LegendDot key={l.label} color={l.color} label={l.label}/>;})}
+                  </div>
+                  <div style={{display:"flex",gap:10,marginTop:4,flexWrap:"wrap"}}>
+                    {AUX_LEGEND.slice(4).map(function(l){return <LegendDot key={l.label} color={l.color} label={l.label}/>;})}
+                  </div>
+                </div>
               </div>
 
               {/* Chart */}
-              <div style={{marginTop:"auto",marginBottom:0,position:"relative"}}>
-                <ResponsiveContainer width="100%" height={360}>
-                  <BarChart data={chartData} margin={{top:10,right:54,bottom:44,left:44}} barCategoryGap="30%" barGap={3}>
+              <div style={{flex:1,minHeight:0}}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={chartData} margin={{top:4,right:64,bottom:36,left:48}} barCategoryGap="28%" barGap={3}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e8eaed" vertical={false}/>
                     <XAxis dataKey="m" tick={{fontSize:10,fill:"#94A3B8"}} tickLine={false}
                       axisLine={{stroke:"#e2e4e8"}}
                       label={{value:"Month",position:"insideBottom",offset:2,style:{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}}/>
-                    <YAxis yAxisId="left" tick={{fontSize:10,fill:"#94A3B8"}} tickLine={false}
-                      axisLine={false} width={40} domain={[0,220]}>
-                      <Label value="ME Consumption" angle={-90} position="insideLeft" offset={-2}
-                        style={{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}/>
+                    <YAxis yAxisId="left" tick={{fontSize:10,fill:"#2563EB"}} tickLine={false}
+                      axisLine={false} width={44}>
+                      <Label value="ME consumption (MT)" angle={-90} position="insideLeft" offset={-4}
+                        style={{fontSize:10,fill:"#2563EB",textAnchor:"middle"}}/>
                     </YAxis>
-                    <YAxis yAxisId="right" orientation="right" tick={{fontSize:10,fill:"#94A3B8"}}
-                      tickLine={false} axisLine={false} width={48} domain={[0,60]}>
-                      <Label value="Aux Consumption" angle={90} position="insideRight" offset={8}
-                        style={{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}/>
+                    <YAxis yAxisId="right" orientation="right" tick={{fontSize:10,fill:"#F97316"}}
+                      tickLine={false} axisLine={false} width={54}>
+                      <Label value="Aux consumption (MT)" angle={90} position="insideRight" offset={8}
+                        style={{fontSize:10,fill:"#F97316",textAnchor:"middle"}}/>
                     </YAxis>
                     <Tooltip contentStyle={{fontSize:12,borderRadius:8,border:"1px solid #e2e4e8",boxShadow:"0 4px 12px rgba(0,0,0,0.08)"}}/>
-                    <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:10,paddingBottom:8}}
-                      payload={[
-                        {value:"ME Prop.",type:"rect",color:"#2563EB"},
-                        {value:"Manoeuv.",type:"rect",color:"#93C5FD"},
-                        {value:rightName,type:"rect",color:"#F97316"}
-                      ]}
-                      formatter={function(v){return <span style={{color:THEME.textSub,marginLeft:2}}>{v}</span>;}}/>
-                    <Bar yAxisId="left" dataKey="me1" stackId="me" fill="#2563EB" name="ME Prop." isAnimationActive={false}/>
-                    <Bar yAxisId="left" dataKey="me2" stackId="me" fill="#93C5FD" name="Manoeuv." radius={[4,4,0,0]} isAnimationActive={false}/>
-                    <Bar yAxisId="right" dataKey="right" stackId="aux" fill="#F97316" name={rightName} radius={[4,4,0,0]} isAnimationActive={false}/>
-                  </BarChart>
+                    <Bar yAxisId="left" dataKey="prop"   stackId="me"  fill="#2563EB" name="Propulsion" isAnimationActive={false}/>
+                    <Bar yAxisId="left" dataKey="mano"   stackId="me"  fill="#22C55E" name="Manoeuvring" radius={[4,4,0,0]} isAnimationActive={false}/>
+                    <Bar yAxisId="right" dataKey="boiler" stackId="aux" fill="#F97316" name="Boiler" isAnimationActive={false}/>
+                    <Bar yAxisId="right" dataKey="igs"    stackId="aux" fill="#EC4899" name="IGS" isAnimationActive={false}/>
+                    <Bar yAxisId="right" dataKey="incin"  stackId="aux" fill="#F87171" name="Incinerator" isAnimationActive={false}/>
+                    <Bar yAxisId="right" dataKey="load"   stackId="aux" fill="#A78BFA" name="Load/Disch" isAnimationActive={false}/>
+                    <Bar yAxisId="right" dataKey="cargo"  stackId="aux" fill="#84CC16" name="Cargo cooling" isAnimationActive={false}/>
+                    <Bar yAxisId="right" dataKey="others" stackId="aux" fill="#94A3B8" name="Others" radius={[4,4,0,0]} isAnimationActive={false}/>
+                  </ComposedChart>
                 </ResponsiveContainer>
               </div>
             </div>
