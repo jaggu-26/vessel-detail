@@ -2037,20 +2037,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       // compact range slider row
       function RangeRow({low,high,min,max,onLow,onHigh}){
         return(
-          <div>
-            <SpeedRangeSlider min={min} max={max} low={low} high={high}
-              onLow={onLow} onHigh={onHigh}/>
-            <div style={{display:"flex",gap:8,marginTop:4}}>
-              {[["MIN",low],["MAX",high]].map(function(r){
-                return(
-                  <div key={r[0]} style={{flex:1}}>
-                    <div style={{fontSize:9,color:"#94A3B8",fontWeight:600}}>{r[0]}</div>
-                    <div style={{fontSize:11,color:THEME.text,fontWeight:500}}>{r[1]}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <SpeedRangeSlider min={min} max={max} low={low} high={high}
+            onLow={onLow} onHigh={onHigh}/>
         );
       }
 
