@@ -1873,22 +1873,22 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var TABS=[["me","Main Engine"],["gen","Generator"],["boiler","Boiler"],["cargo","Cargo Heating"]];
       var WEATHER_OPTS=[["all","All Conditions"],["calm","Calm (Bft 0-3)"],["moderate","Moderate (Bft 4-5)"],["rough","Rough (Bft 6+)"]];
 
-      // Generate daily data Jan 1 – Jul 8 2026
+      // Generate data Jan 1 – Jul 8 2026, every 3 days so dots are visible
       var _MNS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       var _startMs=new Date(2026,0,1).getTime();
       var _totalDays=188;
       var chartData=[];
-      for(var i=0;i<=_totalDays;i++){
+      for(var i=0;i<=_totalDays;i+=3){
         var _d=new Date(_startMs+i*86400000);
         var t=i/_totalDays;
         var _lf=loadCond==="laden"?1.0:0.78;
         var slipTrend=2.1+3.1*t;
-        var slipNoise=Math.sin(t*40+0.8)*0.55+Math.sin(t*80+2.1)*0.25+Math.sin(t*20)*0.35;
+        var slipNoise=Math.sin(t*58+0.8)*0.70+Math.sin(t*95+2.1)*0.40+Math.sin(t*28)*0.30;
         var slip=+(Math.max(1.2,slipTrend+slipNoise)*_lf).toFixed(2);
-        var slip7d=+((slipTrend+slipNoise*0.22)*_lf).toFixed(2);
-        var sogBase=13.5-Math.sin(Math.PI*t)*1.0-0.25*t+(loadCond==="ballast"?0.6:0);
-        var sogNoise=Math.sin(t*30+1.5)*0.08+Math.sin(t*60+0.5)*0.05;
-        var sog=+(sogBase+sogNoise).toFixed(2);
+        var slip7d=+((slipTrend+slipNoise*0.18)*_lf).toFixed(2);
+        var sogBase=13.5-Math.sin(Math.PI*t)*0.8-0.15*t+(loadCond==="ballast"?0.5:0);
+        var sogNoise=Math.sin(t*28+1.5)*0.42+Math.sin(t*55+0.7)*0.22+Math.sin(t*14+2.3)*0.12;
+        var sog=+(Math.min(14,Math.max(12,sogBase+sogNoise))).toFixed(2);
         var _day=String(_d.getDate()).padStart(2,"0");
         chartData.push({date:_day+" "+_MNS[_d.getMonth()]+" "+_d.getFullYear(),slip:slip,slip7d:slip7d,sog:sog});
       }
