@@ -2028,11 +2028,58 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         };
       });
 
-      var inputStyle={width:"100%",padding:"7px 10px",fontSize:12,borderRadius:8,
-        border:"1px solid #e2e4e8",background:"#fff",color:THEME.text,outline:"none",
-        boxSizing:"border-box",cursor:"pointer"};
-
       var LBL={fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:7,textTransform:"uppercase",letterSpacing:0.5};
+
+      function SelectDropdown({value,onChange,options}){
+        var [open,setOpen]=useState(false);
+        var ref=useRef(null);
+        useEffect(function(){
+          if(!open)return;
+          function h(e){if(ref.current&&!ref.current.contains(e.target))setOpen(false);}
+          document.addEventListener("mousedown",h);
+          return function(){document.removeEventListener("mousedown",h);};
+        },[open]);
+        return(
+          <div ref={ref} style={{position:"relative"}}>
+            <button onClick={function(){setOpen(function(v){return !v;});}}
+              style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,
+                width:"100%",height:34,padding:"0 12px",borderRadius:6,border:"none",
+                background:"#e2e8ef",cursor:"pointer",fontSize:13,fontWeight:600,
+                color:THEME.text,userSelect:"none",transition:"background 0.15s",boxSizing:"border-box"}}
+              onMouseEnter={function(e){e.currentTarget.style.background="#d0d8e4";}}
+              onMouseLeave={function(e){e.currentTarget.style.background="#e2e8ef";}}>
+              <span>{value}</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={THEME.textSub} strokeWidth="2.5"
+                style={{transform:open?"rotate(180deg)":"rotate(0deg)",transition:"transform 0.2s",flexShrink:0}}>
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+            {open&&(
+              <div style={{position:"absolute",top:"calc(100% + 6px)",left:0,right:0,zIndex:9999,
+                background:"#fff",borderRadius:8,boxShadow:"0 8px 40px rgba(0,0,0,0.18)",
+                border:"0.5px solid #e2e4e8",overflow:"hidden auto",maxHeight:220}}>
+                {options.map(function(v){
+                  var act=value===v;
+                  return(
+                    <div key={v} onClick={function(){onChange(v);setOpen(false);}}
+                      style={{padding:"9px 16px",cursor:"pointer",display:"flex",alignItems:"center",
+                        justifyContent:"space-between",background:act?"#EEF2FF":"transparent",transition:"background 0.1s"}}
+                      onMouseEnter={function(e){if(!act)e.currentTarget.style.background="#f5f6f8";}}
+                      onMouseLeave={function(e){if(!act)e.currentTarget.style.background="transparent";}}>
+                      <span style={{fontSize:13,fontWeight:act?600:400,color:THEME.text}}>{v}</span>
+                      {act&&(
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={B} strokeWidth="2.5">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      }
 
       // compact range slider row
       function RangeRow({low,high,min,max,onLow,onHigh}){
@@ -2099,15 +2146,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <div style={{display:"flex",flexDirection:"column",gap:8}}>
                   <div>
                     <div style={{fontSize:11,color:THEME.textSub,marginBottom:4}}>Wind BF (&lt;=)</div>
-                    <select value={windBF} onChange={function(e){setWindBF(e.target.value);}} style={inputStyle}>
-                      {BF_OPTS.map(function(v){return <option key={v} value={v}>{v}</option>;})}
-                    </select>
+                    <SelectDropdown value={windBF} onChange={setWindBF} options={BF_OPTS}/>
                   </div>
                   <div>
                     <div style={{fontSize:11,color:THEME.textSub,marginBottom:4}}>Wave DSS (&lt;=)</div>
-                    <select value={waveDSS} onChange={function(e){setWaveDSS(e.target.value);}} style={inputStyle}>
-                      {DSS_OPTS.map(function(v){return <option key={v} value={v}>{v}</option>;})}
-                    </select>
+                    <SelectDropdown value={waveDSS} onChange={setWaveDSS} options={DSS_OPTS}/>
                   </div>
                 </div>
               </div>
