@@ -1873,21 +1873,27 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var TABS=[["me","Main Engine"],["gen","Generator"],["boiler","Boiler"],["cargo","Cargo Heating"]];
       var WEATHER_OPTS=[["all","All Conditions"],["calm","Calm (Bft 0-3)"],["moderate","Moderate (Bft 4-5)"],["rough","Rough (Bft 6+)"]];
 
-      // Generate chart data — ~26 daily points
+      // Generate daily data Jan 1 – Jul 8 2026
+      var _MNS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      var _startMs=new Date(2026,0,1).getTime();
+      var _totalDays=188;
       var chartData=[];
-      var n=26;
-      for(var i=0;i<n;i++){
-        var t=i/(n-1);
-        var slipTrend=1.8+3.7*t;
-        var slipNoise=Math.sin(t*15.7+0.8)*0.7+Math.sin(t*31.4+2.1)*0.35+Math.sin(t*6.2)*0.45;
-        var slip=Math.max(1.2,+(slipTrend+slipNoise).toFixed(2));
-        var slip7d=+(slipTrend+slipNoise*0.25).toFixed(2);
-        var sogTrend=13.6-1.2*t;
-        var sogNoise=Math.sin(t*10.5+1.5)*0.12+Math.sin(t*22.0+0.5)*0.08;
-        var sog=+(sogTrend+sogNoise).toFixed(2);
-        var dayNum=i+1;
-        chartData.push({day:"D"+dayNum,slip:slip,slip7d:slip7d,sog:sog});
+      for(var i=0;i<=_totalDays;i++){
+        var _d=new Date(_startMs+i*86400000);
+        var t=i/_totalDays;
+        var _lf=loadCond==="laden"?1.0:0.78;
+        var slipTrend=2.1+3.1*t;
+        var slipNoise=Math.sin(t*40+0.8)*0.55+Math.sin(t*80+2.1)*0.25+Math.sin(t*20)*0.35;
+        var slip=+(Math.max(1.2,slipTrend+slipNoise)*_lf).toFixed(2);
+        var slip7d=+((slipTrend+slipNoise*0.22)*_lf).toFixed(2);
+        var sogBase=13.5-Math.sin(Math.PI*t)*1.0-0.25*t+(loadCond==="ballast"?0.6:0);
+        var sogNoise=Math.sin(t*30+1.5)*0.08+Math.sin(t*60+0.5)*0.05;
+        var sog=+(sogBase+sogNoise).toFixed(2);
+        var _day=String(_d.getDate()).padStart(2,"0");
+        chartData.push({date:_day+" "+_MNS[_d.getMonth()]+" "+_d.getFullYear(),slip:slip,slip7d:slip7d,sog:sog});
       }
+      var _monthTicks=["01 Jan 2026","01 Feb 2026","01 Mar 2026","01 Apr 2026","01 May 2026","01 Jun 2026","01 Jul 2026"];
+      var _lbl=loadCond==="laden"?"Laden":"Ballast";
 
       var inputStyle={width:"100%",padding:"8px 10px",fontSize:12,borderRadius:8,
         border:"1px solid #e2e4e8",background:"#fff",color:THEME.text,outline:"none",
@@ -1959,15 +1965,28 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <div style={{fontSize:18,fontWeight:700,color:THEME.text,letterSpacing:-0.3}}>Deep Dive</div>
                   <div style={{fontSize:12,color:THEME.textSub,marginTop:2}}>SOG &amp; Slip Trend</div>
                 </div>
-                <button onClick={onClose}
-                  style={{background:"transparent",border:"none",cursor:"pointer",width:32,height:32,borderRadius:8,
-                    display:"flex",alignItems:"center",justifyContent:"center",color:THEME.textSub}}
-                  onMouseEnter={function(e){e.currentTarget.style.background="#f0f2f5";}}
-                  onMouseLeave={function(e){e.currentTarget.style.background="transparent";}}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                  </svg>
-                </button>
+                <div style={{display:"flex",alignItems:"center",gap:12}}>
+                  {/* Laden/Ballast pill toggle */}
+                  <div style={{display:"flex",gap:2,background:"#F1F5F9",borderRadius:20,padding:"2px"}}>
+                    {[["laden","Laden"],["ballast","Ballast"]].map(function(t){
+                      var act=loadCond===t[0];
+                      return <button key={t[0]} onClick={function(){setLoadCond(t[0]);}} style={{
+                        padding:"5px 16px",borderRadius:20,fontSize:12,fontWeight:600,cursor:"pointer",
+                        border:"none",background:act?B:"transparent",color:act?"#fff":"#94A3B8",
+                        transition:"all 0.15s"
+                      }}>{t[1]}</button>;
+                    })}
+                  </div>
+                  <button onClick={onClose}
+                    style={{background:"transparent",border:"none",cursor:"pointer",width:32,height:32,borderRadius:8,
+                      display:"flex",alignItems:"center",justifyContent:"center",color:THEME.textSub}}
+                    onMouseEnter={function(e){e.currentTarget.style.background="#f0f2f5";}}
+                    onMouseLeave={function(e){e.currentTarget.style.background="transparent";}}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  </button>
+                </div>
               </div>
 
               {/* 4 Tabs */}
@@ -1989,29 +2008,43 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               {/* Chart */}
               <div style={{marginTop:"auto",marginBottom:0,position:"relative"}}>
                 <ResponsiveContainer width="100%" height={360}>
-                  <ComposedChart data={chartData} margin={{top:10,right:50,bottom:44,left:44}}>
+                  <ComposedChart data={chartData} margin={{top:10,right:60,bottom:44,left:50}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e8eaed" vertical={false}/>
-                    <XAxis dataKey="day" tick={{fontSize:10,fill:"#94A3B8"}} tickLine={false}
-                      axisLine={{stroke:"#e2e4e8"}} interval={3}
-                      label={{value:"Days",position:"insideBottom",offset:2,style:{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}}/>
+                    <XAxis dataKey="date" ticks={_monthTicks} tick={{fontSize:10,fill:"#94A3B8"}}
+                      tickLine={false} axisLine={{stroke:"#e2e4e8"}} interval={0}
+                      label={{value:"Month",position:"insideBottom",offset:2,style:{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}}/>
                     <YAxis yAxisId="left" tick={{fontSize:10,fill:"#94A3B8"}} tickLine={false}
-                      axisLine={false} width={40} domain={[1,7]}>
-                      <Label value="Slip (%)" angle={-90} position="insideLeft" offset={-2}
+                      axisLine={false} width={46} domain={[1,7]}
+                      tickFormatter={function(v){return v.toFixed(2);}}>
+                      <Label value="Slip (%)" angle={-90} position="insideLeft" offset={-6}
                         style={{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}/>
                     </YAxis>
-                    <YAxis yAxisId="right" orientation="right" tick={{fontSize:10,fill:"#94A3B8"}}
-                      tickLine={false} axisLine={false} width={44} domain={[12.3,13.7]}>
-                      <Label value="SOG (kn)" angle={90} position="insideRight" offset={6}
-                        style={{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}/>
+                    <YAxis yAxisId="right" orientation="right" tick={{fontSize:10,fill:"#3B82F6"}}
+                      tickLine={false} axisLine={false} width={50} domain={[12,14]}
+                      tickFormatter={function(v){return v.toFixed(2);}}>
+                      <Label value="SOG (kn)" angle={90} position="insideRight" offset={10}
+                        style={{fontSize:10,fill:"#3B82F6",textAnchor:"middle"}}/>
                     </YAxis>
-                    <Tooltip contentStyle={{fontSize:12,borderRadius:8,border:"1px solid #e2e4e8",boxShadow:"0 4px 12px rgba(0,0,0,0.08)"}}/>
-                    <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:10,paddingBottom:8}}/>
-                    <Line yAxisId="left" type="monotone" dataKey="slip" name="Laden Slip %"
-                      stroke="#3B82F6" dot={false} strokeWidth={1.5} isAnimationActive={false}/>
-                    <Line yAxisId="left" type="monotone" dataKey="slip7d" name="Laden Slip % (7D Avg)"
-                      stroke="#F97316" dot={false} strokeWidth={2} isAnimationActive={false}/>
-                    <Line yAxisId="right" type="monotone" dataKey="sog" name="Laden SOG"
-                      stroke="#3B82F6" strokeDasharray="5 3" dot={false} strokeWidth={1.5} isAnimationActive={false}/>
+                    <Tooltip
+                      contentStyle={{background:"#0F172A",border:"none",borderRadius:8,padding:"10px 14px",boxShadow:"0 8px 24px rgba(0,0,0,0.3)"}}
+                      labelStyle={{color:"#94A3B8",fontSize:11,marginBottom:6}}
+                      itemStyle={{color:"#fff",fontSize:12}}
+                      formatter={function(val,name){return [val,name];}}/>
+                    <ReferenceLine yAxisId="left" x="01 Apr 2026" stroke="#CBD5E1" strokeWidth={1}/>
+                    <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:10}}
+                      formatter={function(v){return <span style={{color:THEME.textSub}}>{v}</span>;}}/>
+                    <Line yAxisId="left" type="monotone" dataKey="slip" name={_lbl+" Slip %"}
+                      stroke="#3B82F6" strokeDasharray="5 3"
+                      dot={{r:2.5,fill:"#3B82F6",stroke:"#3B82F6"}} activeDot={{r:4}}
+                      strokeWidth={1.5} isAnimationActive={false}/>
+                    <Line yAxisId="left" type="monotone" dataKey="slip7d" name={_lbl+" Slip % (7D Avg)"}
+                      stroke="#F97316"
+                      dot={{r:2.5,fill:"#F97316",stroke:"#F97316"}} activeDot={{r:4}}
+                      strokeWidth={2} isAnimationActive={false}/>
+                    <Line yAxisId="right" type="monotone" dataKey="sog" name={_lbl+" SOG"}
+                      stroke="#3B82F6" strokeDasharray="5 3"
+                      dot={{r:2.5,fill:"#3B82F6",stroke:"#3B82F6"}} activeDot={{r:4}}
+                      strokeWidth={1.5} isAnimationActive={false}/>
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
