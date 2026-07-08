@@ -4778,12 +4778,45 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         {m:"Sep",speedBreach:5,consBreach:3},{m:"Oct",speedBreach:4,consBreach:6},
         {m:"Nov",speedBreach:6,consBreach:4},{m:"Dec",speedBreach:3,consBreach:2},
       ];
+      var wscVoyageData=[
+        {v:"V-201",speedBreach:1,consBreach:2},{v:"V-202",speedBreach:2,consBreach:1},
+        {v:"V-203",speedBreach:3,consBreach:2},{v:"V-204",speedBreach:1,consBreach:3},
+        {v:"V-205",speedBreach:2,consBreach:2},{v:"V-206",speedBreach:4,consBreach:1},
+        {v:"V-207",speedBreach:2,consBreach:3},{v:"V-208",speedBreach:3,consBreach:2},
+        {v:"V-209",speedBreach:1,consBreach:1},{v:"V-210",speedBreach:2,consBreach:2},
+        {v:"V-211",speedBreach:3,consBreach:4},{v:"V-212",speedBreach:1,consBreach:2},
+      ];
+      var [wscView,setWscView]=React.useState("Month");
+      var WSCTabs=(
+        <div style={{display:"flex",gap:0,alignItems:"center"}}>
+          {["Month","Voyage"].map(function(v,idx){
+            var isActive=wscView===v;
+            return (
+              <React.Fragment key={v}>
+                <button onClick={function(){setWscView(v);}}
+                  onMouseEnter={function(e){if(!isActive)e.target.style.color="#374151";}}
+                  onMouseLeave={function(e){if(!isActive)e.target.style.color="#94A3B8";}}
+                  style={{padding:0,fontSize:12,fontWeight:isActive?500:400,cursor:"pointer",
+                    background:"none",border:"none",color:isActive?"#0E1A33":"#94A3B8",
+                    transition:"color 0.2s",fontFamily:"inherit",paddingRight:16}}>
+                  {v}
+                </button>
+                {idx<1&&<span style={{color:"#CBD5E1",marginRight:16,pointerEvents:"none"}}>|</span>}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      );
       var operationalItems=[
         cc("Warranted Speed & Consumption Breach","Monthly breach count",
-          function(n){
+          function(n, detailViewMode){
+            var vm=detailViewMode?(detailViewMode.charAt(0).toUpperCase()+detailViewMode.slice(1)):wscView;
+            var isVoyage=vm==="Voyage";
+            var data=isVoyage?wscVoyageData:fd(wscData,n);
+            var key=isVoyage?"v":"m";
             return (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={fd(wscData,n)} barSize={38} margin={{bottom:20,left:4,right:10,top:10}}>
+                <BarChart data={data} barSize={38} margin={{bottom:20,left:4,right:10,top:10}}>
                   <defs>
                     <linearGradient id="bgSpeedBreach" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#3B82F6" stopOpacity={1}/>
@@ -4795,14 +4828,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     </linearGradient>
                   </defs>
                   <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
-                  {xAx("m","Month")} {yAx("Breaches")}
+                  {xAx(key,isVoyage?"Voyage":"Month")} {yAx("Breaches")}
                   <Tooltip content={<ModernTooltip/>}/><Legend {...lgStyle}/>
                   <Bar dataKey="speedBreach" fill="url(#bgSpeedBreach)" radius={[6,6,0,0]} name="Speed Breach" maxBarSize={38}/>
                   <Bar dataKey="consBreach"  fill="url(#bgConsBreach)"  radius={[6,6,0,0]} name="Consumption Breach" maxBarSize={38}/>
                 </BarChart>
               </ResponsiveContainer>
             );
-          }, 2, {tableData:{
+          }, 2, {headerTabs:WSCTabs, tableData:{
             columns:[
               {key:"m",label:"Month"},
               {key:"speedBreach",label:"Speed Breach"},
