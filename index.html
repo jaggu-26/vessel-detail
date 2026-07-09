@@ -676,7 +676,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <Legend {...lgStyle}/>
             <Line type="monotone" dataKey={k1} stroke={c1} strokeWidth={2.5} dot={false}
               activeDot={{r:5,strokeWidth:2,stroke:"#fff",fill:c1}} name={n1||k1}/>
-            <Line type="monotone" dataKey={k2} stroke={c2} strokeWidth={2} dot={false}
+            <Line type="monotone" dataKey={k2} stroke={c2} strokeWidth={2.5} dot={false}
               strokeDasharray="5 3" activeDot={{r:4,strokeWidth:2,stroke:"#fff",fill:c2}} name={n2||k2}/>
           </LineChart>
         </ResponsiveContainer>
@@ -1804,7 +1804,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     <ReferenceLine x="22 Dec" stroke="#2563eb" strokeDasharray="5 4" strokeWidth={1.5}/>
 
                     {/* Ordered step line */}
-                    <Line type="stepAfter" dataKey="ordered" stroke="#4a8a9a" strokeWidth={2}
+                    <Line type="stepAfter" dataKey="ordered" stroke="#4a8a9a" strokeWidth={2.5}
                       dot={false} name="Ordered" legendType="none" connectNulls={false} isAnimationActive={false}/>
 
                     {/* Series 1: dark red filled dots — Breached */}
@@ -2069,15 +2069,15 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     <Line yAxisId="left" type="linear" dataKey="slip" name={_lbl+" Slip %"}
                       stroke="#3B82F6" strokeDasharray="5 3"
                       dot={false} activeDot={{r:4}}
-                      strokeWidth={1.5} isAnimationActive={false}/>
+                      strokeWidth={2.5} isAnimationActive={false}/>
                     <Line yAxisId="left" type="linear" dataKey="slip7d" name={_lbl+" Slip % (7D Avg)"}
                       stroke="#F97316"
                       dot={false} activeDot={{r:4}}
-                      strokeWidth={2} isAnimationActive={false}/>
+                      strokeWidth={2.5} isAnimationActive={false}/>
                     <Line yAxisId="right" type="linear" dataKey="sog" name={_lbl+" SOG"}
                       stroke="#3B82F6" strokeDasharray="5 3"
                       dot={false} activeDot={{r:4}}
-                      strokeWidth={1.5} isAnimationActive={false}/>
+                      strokeWidth={2.5} isAnimationActive={false}/>
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
@@ -2517,9 +2517,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   {value:"Predicted curve", color:"#16A34A", type:"line"},
                   {value:"Reported curve",  color:"#A0522D", type:"line"},
                 ].concat(seaTrialCurve?[{value:"Sea trial curve", color:"#8B5CF6", type:"line"}]:[])}/>
-              <Line type="monotone" dataKey="predicted" stroke="#16A34A" strokeWidth={2} dot={false} legendType="none" isAnimationActive={false}/>
-              <Line type="monotone" dataKey="reported" stroke="#A0522D" strokeWidth={2} dot={false} legendType="none" isAnimationActive={false}/>
-              {seaTrialCurve&&<Line type="monotone" dataKey="weather" stroke="#8B5CF6" strokeWidth={1.5} strokeDasharray="6 4" dot={false} legendType="none" isAnimationActive={false}/>}
+              <Line type="monotone" dataKey="predicted" stroke="#16A34A" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
+              <Line type="monotone" dataKey="reported" stroke="#A0522D" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
+              {seaTrialCurve&&<Line type="monotone" dataKey="weather" stroke="#8B5CF6" strokeWidth={2.5} strokeDasharray="6 4" dot={false} legendType="none" isAnimationActive={false}/>}
               <Customized component={OverlayLayer}/>
             </ComposedChart>
           </ResponsiveContainer>
@@ -2580,7 +2580,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <YAxis domain={[0,18]} ticks={[0,10]} tick={axTick} axisLine={false} tickLine={false}
               label={{value:"Fuel Loss %",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
             <Tooltip content={<CustomTip/>} cursor={{stroke:"#94A3B8",strokeWidth:1}}/>
-            <Area type="monotone" dataKey="loss" stroke="#1E293B" strokeWidth={2}
+            <Area type="monotone" dataKey="loss" stroke="#1E293B" strokeWidth={2.5}
               fill="url(#engHealthGrad)" activeDot={{r:5,fill:"#1E3A8A",stroke:"#fff",strokeWidth:2}} isAnimationActive={false}/>
           </ComposedChart>
         </ResponsiveContainer>
@@ -4022,9 +4022,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:6,style:{...axLabel,fill:"#3B82F6",textAnchor:"middle"}}}/>
               <Tooltip content={<ModernTooltip/>}/>
               <Legend verticalAlign="top" align="center" wrapperStyle={{paddingBottom:6,fontSize:10}}/>
-              <Line yAxisId="left" type="linear" dataKey="slip" name="Laden Slip %" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={1.5} isAnimationActive={false}/>
-              <Line yAxisId="left" type="linear" dataKey="slip7d" name="Laden Slip % (7D Avg)" stroke="#F97316" dot={false} activeDot={{r:4}} strokeWidth={2} isAnimationActive={false}/>
-              <Line yAxisId="right" type="linear" dataKey="sog" name="Laden SOG" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={1.5} isAnimationActive={false}/>
+              <Line yAxisId="left" type="linear" dataKey="slip" name="Laden Slip %" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+              <Line yAxisId="left" type="linear" dataKey="slip7d" name="Laden Slip % (7D Avg)" stroke="#F97316" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+              <Line yAxisId="right" type="linear" dataKey="sog" name="Laden SOG" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
             </ComposedChart>
           </ResponsiveContainer>
         );
@@ -4045,9 +4045,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <Tooltip content={<ModernTooltip/>}/>
             <Legend verticalAlign="top" align="center" wrapperStyle={{paddingBottom:6,fontSize:10}}/>
             <ReferenceLine yAxisId="left" x="01 Apr 2026" stroke="#CBD5E1" strokeWidth={1}/>
-            <Line yAxisId="left" type="linear" dataKey="slip" name="Laden Slip %" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={1.5} isAnimationActive={false}/>
-            <Line yAxisId="left" type="linear" dataKey="slip7d" name="Laden Slip % (7D Avg)" stroke="#F97316" dot={false} activeDot={{r:4}} strokeWidth={2} isAnimationActive={false}/>
-            <Line yAxisId="right" type="linear" dataKey="sog" name="Laden SOG" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={1.5} isAnimationActive={false}/>
+            <Line yAxisId="left" type="linear" dataKey="slip" name="Laden Slip %" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+            <Line yAxisId="left" type="linear" dataKey="slip7d" name="Laden Slip % (7D Avg)" stroke="#F97316" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+            <Line yAxisId="right" type="linear" dataKey="sog" name="Laden SOG" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
           </ComposedChart>
         </ResponsiveContainer>
       );
@@ -4273,7 +4273,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     label={{value:"AER Rating",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
                   <Tooltip content={<ModernTooltip/>}/>
                   <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:6}}/>
-                  <Area type="monotone" dataKey="required" stroke="#F59E0B" strokeWidth={2} strokeDasharray="6 3"
+                  <Area type="monotone" dataKey="required" stroke="#F59E0B" strokeWidth={2.5} strokeDasharray="6 3"
                     fill="url(#aerRequiredGrad)" dot={<AerRequiredDot/>}
                     activeDot={{r:6,fill:"#F59E0B",stroke:"#fff",strokeWidth:2}} name="Required AER"/>
                   <Area type="monotone" dataKey="attained" stroke="#16A34A" strokeWidth={2.5}
@@ -4773,7 +4773,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <Area type="monotone" dataKey="ladenBand" stackId="lband" stroke="none" fill="rgba(30,58,138,0.22)" legendType="none" isAnimationActive={false}/>
                 {/* Sea trial curves */}
                 <Line type="monotone" dataKey="laden" stroke="#1E3A8A" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="ballast" stroke="#93C5FD" strokeWidth={2} dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="ballast" stroke="#93C5FD" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
                 {/* Reported data scatter */}
                 <Scatter data={repLaden} name="repLaden" fill="#1E3A8A" legendType="none"/>
                 <Scatter data={repBallast} name="repBallast" fill="#93C5FD" legendType="none"/>
@@ -4923,11 +4923,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   {value:"Weather limit",          color:"#94A3B8", type:"line"},
                 ]}/>
               {/* Green laden curve */}
-              <Line type="monotone" dataKey="laden" stroke="#16A34A" strokeWidth={2} dot={false} legendType="none" isAnimationActive={false}/>
+              <Line type="monotone" dataKey="laden" stroke="#16A34A" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
               {/* Brown ballast curve */}
-              <Line type="monotone" dataKey="ballast" stroke="#A0522D" strokeWidth={2} dot={false} legendType="none" isAnimationActive={false}/>
+              <Line type="monotone" dataKey="ballast" stroke="#A0522D" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
               {/* Grey dashed weather curve */}
-              <Line type="monotone" dataKey="weather" stroke="#94A3B8" strokeWidth={1.5}
+              <Line type="monotone" dataKey="weather" stroke="#94A3B8" strokeWidth={2.5}
                 strokeDasharray="6 4" dot={false} legendType="none" isAnimationActive={false}/>
               {/* All scatter + crosshair via Customized */}
               <Customized component={OverlayLayer}/>
@@ -4984,7 +4984,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               ]}/>
             {showSeaTrial&&<Area type="monotone" dataKey="sfocP" stroke="none" fill="url(#sfocBandGrad)" legendType="none"/>}
             {showSeaTrial&&<Line type="monotone" dataKey="sfoc" stroke="#3B82F6" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>}
-            <Line type="monotone" dataKey="mean" stroke="#3B82F6" strokeWidth={1.5} strokeDasharray="5 3" dot={false} legendType="none" isAnimationActive={false}/>
+            <Line type="monotone" dataKey="mean" stroke="#3B82F6" strokeWidth={2.5} strokeDasharray="5 3" dot={false} legendType="none" isAnimationActive={false}/>
             <Scatter data={noonMeasured} dataKey="s" fill="#EF4444" opacity={0.85} legendType="none"/>
             <Scatter data={noonCorrected} dataKey="s" fill="#22C55E" opacity={0.85} legendType="none"/>
           </ComposedChart>
@@ -5703,9 +5703,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <CartesianGrid strokeDasharray="3 3" stroke="#d8dce3"/>
               {xAx("m","Month")} {yAx("Tonnes")}
               <Tooltip/><Legend {...lgStyle}/>
-              <Line type="monotone" dataKey="co2" stroke="#A32D2D" strokeWidth={2} dot={false} name="CO2"/>
-              <Line type="monotone" dataKey="sox" stroke="#BA7517" strokeWidth={2} dot={false} name="SOx"/>
-              <Line type="monotone" dataKey="nox" stroke="#534AB7" strokeWidth={2} dot={false} name="NOx"/>
+              <Line type="monotone" dataKey="co2" stroke="#A32D2D" strokeWidth={2.5} dot={false} name="CO2"/>
+              <Line type="monotone" dataKey="sox" stroke="#BA7517" strokeWidth={2.5} dot={false} name="SOx"/>
+              <Line type="monotone" dataKey="nox" stroke="#534AB7" strokeWidth={2.5} dot={false} name="NOx"/>
             </LineChart>
           </ResponsiveContainer>),
         cc("CII Ratings","By vessel",
@@ -5803,7 +5803,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <XAxis dataKey="bf" tick={axTick}><Label value="Beaufort Scale" offset={-4} position="insideBottom" style={axLabel}/></XAxis>
               {yAx("Speed Loss (kn)")}
               <Tooltip/><Legend {...lgStyle}/>
-              <Line type="monotone" dataKey="loss" stroke="#A32D2D" strokeWidth={2} dot={false} name="Speed Loss"/>
+              <Line type="monotone" dataKey="loss" stroke="#A32D2D" strokeWidth={2.5} dot={false} name="Speed Loss"/>
             </LineChart>
           </ResponsiveContainer>),
         cc("Speed by Vessel Type","Avg knots",
@@ -7148,9 +7148,9 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                           <Tooltip contentStyle={{background:"#0F172A",border:"none",borderRadius:8,padding:"10px 14px"}} labelStyle={{color:"#94A3B8",fontSize:11,marginBottom:6}} itemStyle={{color:"#fff",fontSize:12}}/>
                           <ReferenceLine yAxisId="left" x="01 Apr 2026" stroke="#CBD5E1" strokeWidth={1}/>
                           <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:10}} formatter={function(v){return <span style={{color:THEME.textSub}}>{v}</span>;}}/>
-                          <Line yAxisId="left" type="linear" dataKey="slip" name={_sogLbl+" Slip %"} stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:5}} strokeWidth={1.5} isAnimationActive={false}/>
-                          <Line yAxisId="left" type="linear" dataKey="slip7d" name={_sogLbl+" Slip % (7D Avg)"} stroke="#F97316" dot={false} activeDot={{r:5}} strokeWidth={2} isAnimationActive={false}/>
-                          <Line yAxisId="right" type="linear" dataKey="sog" name={_sogLbl+" SOG"} stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:5}} strokeWidth={1.5} isAnimationActive={false}/>
+                          <Line yAxisId="left" type="linear" dataKey="slip" name={_sogLbl+" Slip %"} stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:5}} strokeWidth={2.5} isAnimationActive={false}/>
+                          <Line yAxisId="left" type="linear" dataKey="slip7d" name={_sogLbl+" Slip % (7D Avg)"} stroke="#F97316" dot={false} activeDot={{r:5}} strokeWidth={2.5} isAnimationActive={false}/>
+                          <Line yAxisId="right" type="linear" dataKey="sog" name={_sogLbl+" SOG"} stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:5}} strokeWidth={2.5} isAnimationActive={false}/>
                         </ComposedChart>
                       </ResponsiveContainer>
                     ) : (chart.makeChart ? chart.makeChart(localMonths, viewMode) : chart.chartEl)}
