@@ -3235,9 +3235,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               var valFs = valLen > 16
                 ? (approxCardW < 180 ? 11 : approxCardW < 210 ? 12 : approxCardW < 240 ? 13 : approxCardW < 270 ? 15 : 18)
                 : 18;
-              // SubRow values sit in two columns — each ≈ (cardInner - gap - arrow) / 2
-              var subColW = (approxCardW - 32 - 10 - 20) / 2;
-              var subValFs = subColW < 55 ? 10 : subColW < 65 ? 11 : subColW < 75 ? 12 : subColW < 95 ? 14 : subColW < 115 ? 16 : 18;
+              // SubRow font size — default 18px, reduce only when card is genuinely narrow
+              var subValFs = approxCardW < 150 ? 11 : approxCardW < 170 ? 13 : approxCardW < 195 ? 15 : 18;
               return (
                 <div key={k.label} style={{
                   minWidth:0,
