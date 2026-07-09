@@ -10213,65 +10213,40 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
 
     function AssetsPanel(){
       var [open,setOpen]=React.useState(false);
-      var [dlMsg,setDlMsg]=React.useState('');
+      var [copiedName,setCopiedName]=React.useState('');
+      var [hoveredName,setHoveredName]=React.useState('');
+      var panelRef=React.useRef(null);
       var cats=[...new Set(_ASSET_ICONS.map(function(i){return i.cat;}))];
 
-      function makeZip(files){
-        var enc=new TextEncoder();
-        var out=[];var cds=[];
-        function pu16(n){out.push(n&0xFF,(n>>8)&0xFF);}
-        function pu32(n){out.push(n&0xFF,(n>>8)&0xFF,(n>>16)&0xFF,(n>>24)&0xFF);}
-        function crc32(b){
-          var t=[];for(var i=0;i<256;i++){var c=i;for(var j=0;j<8;j++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[i]=c;}
-          var c=0xFFFFFFFF;for(var i=0;i<b.length;i++)c=(t[(c^b[i])&0xFF]^(c>>>8))>>>0;return(c^0xFFFFFFFF)>>>0;
+      React.useEffect(function(){
+        if(!open) return;
+        function handleOutside(e){
+          if(panelRef.current&&!panelRef.current.contains(e.target)){setOpen(false);}
         }
-        for(var fi=0;fi<files.length;fi++){
-          var f=files[fi];var nm=enc.encode(f.name);var dt=enc.encode(f.content);
-          var crc=crc32(dt);var fileOff=out.length;
-          out.push(0x50,0x4B,0x03,0x04);pu16(20);pu16(0);pu16(0);pu16(0);pu16(0);
-          pu32(crc);pu32(dt.length);pu32(dt.length);pu16(nm.length);pu16(0);
-          for(var i=0;i<nm.length;i++)out.push(nm[i]);
-          for(var i=0;i<dt.length;i++)out.push(dt[i]);
-          cds.push({nm:nm,dt:dt,crc:crc,off:fileOff});
-        }
-        var cdStart=out.length;
-        for(var fi=0;fi<cds.length;fi++){
-          var cd=cds[fi];
-          out.push(0x50,0x4B,0x01,0x02);pu16(20);pu16(20);pu16(0);pu16(0);pu16(0);pu16(0);
-          pu32(cd.crc);pu32(cd.dt.length);pu32(cd.dt.length);
-          pu16(cd.nm.length);pu16(0);pu16(0);pu16(0);pu16(0);pu32(0);pu32(cd.off);
-          for(var i=0;i<cd.nm.length;i++)out.push(cd.nm[i]);
-        }
-        var cdSz=out.length-cdStart;
-        out.push(0x50,0x4B,0x05,0x06);pu16(0);pu16(0);pu16(cds.length);pu16(cds.length);
-        pu32(cdSz);pu32(cdStart);pu16(0);
-        return new Uint8Array(out);
-      }
+        document.addEventListener('click',handleOutside);
+        return function(){document.removeEventListener('click',handleOutside);};
+      },[open]);
 
-      function downloadZip(){
-        var files=_ASSET_ICONS.map(function(ic){
-          return{name:"geoserve-icons/"+ic.cat.toLowerCase().replace(/ /g,"-")+"/"+ic.name+".svg",content:ic.svg};
+      function copyIcon(ic){
+        navigator.clipboard.writeText(ic.svg).then(function(){
+          setCopiedName(ic.name);
+          setTimeout(function(){setCopiedName('');},1500);
         });
-        var zip=makeZip(files);
-        var blob=new Blob([zip],{type:"application/zip"});
-        var url=URL.createObjectURL(blob);
-        var a=document.createElement("a");a.href=url;a.download="geoserve-icons.zip";
-        document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-        setDlMsg("Downloaded!");setTimeout(function(){setDlMsg("");},2000);
       }
 
       return ReactDOM.createPortal(
-        <div style={{position:"fixed",bottom:32,right:24,zIndex:99999,display:"flex",flexDirection:"column",alignItems:"flex-end"}}
-          onMouseEnter={function(){setOpen(true);}} onMouseLeave={function(){setOpen(false);}}>
+        <div ref={panelRef} style={{position:"fixed",bottom:32,right:24,zIndex:99999,display:"flex",flexDirection:"column",alignItems:"flex-end"}}
+          onClick={function(e){e.stopPropagation();setOpen(function(v){return !v;});}}>
 
           {/* Expandable panel */}
           {open&&(
             <div style={{marginBottom:10,width:468,background:"#fff",borderRadius:14,
               boxShadow:"0 24px 64px rgba(0,0,0,0.18),0 4px 16px rgba(0,0,0,0.10)",
-              border:"1px solid #E2E8F0",overflow:"hidden",maxHeight:"72vh",display:"flex",flexDirection:"column"}}>
+              border:"1px solid #E2E8F0",overflow:"hidden",maxHeight:"72vh",display:"flex",flexDirection:"column"}}
+              onClick={function(e){e.stopPropagation();}}>
 
               {/* Header */}
-              <div style={{background:"#001E4C",padding:"11px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
+              <div style={{background:"#001E4C",padding:"11px 16px",display:"flex",alignItems:"center",flexShrink:0}}>
                 <div style={{display:"flex",alignItems:"center",gap:8}}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="14" cy="6.5" r="3.5"/>
@@ -10282,18 +10257,6 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                   <span style={{color:"#fff",fontWeight:700,fontSize:12,letterSpacing:0}}>Assets for Development</span>
                   <span style={{color:"rgba(255,255,255,0.45)",fontSize:11}}>{_ASSET_ICONS.length} icons</span>
                 </div>
-                <button onClick={downloadZip}
-                  style={{display:"flex",alignItems:"center",gap:5,background:"#1852FE",border:"none",borderRadius:7,
-                    padding:"5px 11px",cursor:"pointer",color:"#fff",fontSize:11,fontWeight:600,letterSpacing:"-0.1px"}}
-                  onMouseEnter={function(e){e.currentTarget.style.background="#0F3ED4";}}
-                  onMouseLeave={function(e){e.currentTarget.style.background="#1852FE";}}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                  </svg>
-                  {dlMsg||"Download ZIP"}
-                </button>
               </div>
 
               {/* Icon grid */}
@@ -10305,17 +10268,33 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                       <div style={{fontSize:9,fontWeight:700,color:"#94A3B8",letterSpacing:"0.9px",textTransform:"uppercase",marginBottom:7,paddingLeft:1}}>{cat}</div>
                       <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:5}}>
                         {icons.map(function(ic){
+                          var isHov=hoveredName===ic.name;
+                          var isCopied=copiedName===ic.name;
                           return (
                             <div key={ic.name} title={ic.name+".svg"}
-                              style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"8px 2px 6px",
-                                borderRadius:8,cursor:"default",background:"#F8FAFC",border:"0.5px solid #E2E8F0",transition:"all 0.12s"}}
-                              onMouseEnter={function(e){e.currentTarget.style.background="#EEF2FF";e.currentTarget.style.borderColor="#C7D2FE";}}
-                              onMouseLeave={function(e){e.currentTarget.style.background="#F8FAFC";e.currentTarget.style.borderColor="#E2E8F0";}}>
+                              style={{position:"relative",display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"8px 2px 6px",
+                                borderRadius:8,cursor:"default",background:isHov?"#EEF2FF":"#F8FAFC",
+                                border:"0.5px solid "+(isHov?"#C7D2FE":"#E2E8F0"),transition:"all 0.12s"}}
+                              onMouseEnter={function(){setHoveredName(ic.name);}}
+                              onMouseLeave={function(){setHoveredName('');}}
+                              onClick={function(e){e.stopPropagation();}}>
                               <div style={{width:24,height:24,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}
                                 dangerouslySetInnerHTML={{__html:ic.svg}}/>
                               <span style={{fontSize:8.5,color:"#475569",textAlign:"center",lineHeight:1.25,fontWeight:500,
                                 overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",
                                 width:"100%",paddingLeft:2,paddingRight:2}}>{ic.label}</span>
+                              {isHov&&(
+                                <div style={{position:"absolute",inset:0,borderRadius:8,background:"rgba(238,242,255,0.96)",
+                                  display:"flex",alignItems:"center",justifyContent:"center"}}
+                                  onClick={function(e){e.stopPropagation();copyIcon(ic);}}>
+                                  <span style={{fontSize:8,fontWeight:700,
+                                    color:isCopied?"#16A34A":"#1852FE",
+                                    background:isCopied?"#D3F3DF":"#DBEAFE",
+                                    borderRadius:4,padding:"3px 6px",cursor:"pointer",letterSpacing:"0.2px"}}>
+                                    {isCopied?"Copied!":"Copy SVG"}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           );
                         })}
@@ -10330,10 +10309,9 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           {/* Floating trigger button */}
           <div style={{width:40,height:40,borderRadius:"50%",background:"#001E4C",
             display:"flex",alignItems:"center",justifyContent:"center",
-            boxShadow:"0 4px 16px rgba(0,30,76,0.45)",cursor:"pointer",
+            boxShadow:open?"0 6px 24px rgba(0,30,76,0.55)":"0 4px 16px rgba(0,30,76,0.45)",cursor:"pointer",
             transition:"transform 0.15s,box-shadow 0.15s",
-            transform:open?"scale(1.1)":"scale(1)",
-            boxShadow:open?"0 6px 24px rgba(0,30,76,0.55)":"0 4px 16px rgba(0,30,76,0.45)"}}>
+            transform:open?"scale(1.1)":"scale(1)"}}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="14" cy="6.5" r="3.5"/>
               <rect x="3" y="3" width="6" height="6" rx="1"/>
