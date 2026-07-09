@@ -1878,12 +1878,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var BF_OPTS=["1","2","3","4","5","6","7","8","9","10","11","12"];
       var DSS_OPTS=["0","1","2","3","4","5","6","7","8","9"];
 
-      // Generate data Jan 1 – Jul 8 2026, every 3 days so dots are visible
+      // Generate data Jan 1 – Jul 8 2026, weekly intervals for sharp angular edges
       var _MNS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       var _startMs=new Date(2026,0,1).getTime();
       var _totalDays=188;
       var chartData=[];
-      for(var i=0;i<=_totalDays;i+=3){
+      for(var i=0;i<=_totalDays;i+=7){
         var _d=new Date(_startMs+i*86400000);
         var t=i/_totalDays;
         var _lf=loadCond==="laden"?1.0:0.78;
@@ -3975,7 +3975,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       // Month-based data (date axis)
       var monthData=(function(){
         var arr=[];
-        for(var i=0;i<=188;i+=3){
+        for(var i=0;i<=188;i+=7){
           var _sd=new Date(_startMs+i*86400000);
           var t=i/188;
           var slipTrend=2.1+3.1*t;
@@ -7024,7 +7024,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var _sStartMs=new Date(2026,0,1).getTime();
       var sogChartData=(function(){
         var arr=[];
-        for(var i=0;i<=188;i+=3){
+        for(var i=0;i<=188;i+=7){
           var _sd=new Date(_sStartMs+i*86400000);
           var t=i/188;
           var _lf=sogLoadCond==="laden"?1.0:0.78;
