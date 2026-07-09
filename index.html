@@ -3245,14 +3245,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   boxSizing:"border-box",
                   height:91,display:"flex",
                   flexDirection:(k.portStayCount!==undefined||k.split)?"row":"column",
-                  padding:(k.portStayCount!==undefined||k.split)?0:"14px 16px",
+                  padding:(k.portStayCount!==undefined||k.split)?0:"14px 16px 16px",
                   overflow:"hidden",
                   transition:"background 0.15s"}}
                   onMouseEnter={function(e){e.currentTarget.style.background=cardBgHover;}}
                   onMouseLeave={function(e){e.currentTarget.style.background=cardBg;}}>
                   {k.split ? (
                     <React.Fragment>
-                      <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",padding:"14px 16px"}}>
+                      <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",padding:"14px 16px 16px"}}>
                         <div style={{fontSize:12,color:labelColor,fontWeight:500,letterSpacing:0.3,lineHeight:1.8,marginBottom:4}}>{k.label}</div>
                         <div style={{marginTop:"auto",display:"flex",alignItems:"flex-end",justifyContent:"space-between"}}>
                           <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:valueColor,lineHeight:1}}>{k.value}</span>
@@ -3260,7 +3260,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                         </div>
                       </div>
                       <div style={{width:1,background:"rgba(255,255,255,0.12)",flexShrink:0,margin:"12px 0"}}/>
-                      <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",padding:"14px 16px"}}>
+                      <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",padding:"14px 16px 16px"}}>
                         <div style={{fontSize:12,color:labelColor,fontWeight:500,letterSpacing:0.3,lineHeight:1.8,marginBottom:4}}>{k.split.label}</div>
                         <div style={{marginTop:"auto",display:"flex",alignItems:"flex-end",justifyContent:"space-between"}}>
                           <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:valueColor,lineHeight:1}}>{k.split.value}</span>
@@ -3270,14 +3270,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     </React.Fragment>
                   ) : k.portStayCount!==undefined ? (
                     <React.Fragment>
-                      <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",padding:"14px 16px"}}>
+                      <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",padding:"14px 16px 16px"}}>
                         <div style={{fontSize:12,color:labelColor,fontWeight:500,letterSpacing:0.3,lineHeight:1.8,marginBottom:4}}>Port Days</div>
                         <div style={{marginTop:"auto"}}>
                           <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:valueColor,lineHeight:1,display:"block"}}>{k.value}</span>
                         </div>
                       </div>
                       <div style={{width:1,background:"rgba(255,255,255,0.12)",flexShrink:0,margin:"12px 0"}}/>
-                      <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",padding:"14px 16px"}}>
+                      <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",padding:"14px 16px 16px"}}>
                         <div style={{fontSize:12,color:labelColor,fontWeight:500,letterSpacing:0.3,lineHeight:1.5,marginBottom:4}}>Prolonged Port Stays</div>
                         <div style={{marginTop:"auto",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                           <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:valueColor,lineHeight:1}}>{k.portStayCount}</span>
