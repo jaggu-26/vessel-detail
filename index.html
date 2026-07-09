@@ -2066,17 +2066,17 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     <ReferenceLine yAxisId="left" x="01 Apr 2026" stroke="#CBD5E1" strokeWidth={1}/>
                     <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:10}}
                       formatter={function(v){return <span style={{color:THEME.textSub}}>{v}</span>;}}/>
-                    <Line yAxisId="left" type="monotone" dataKey="slip" name={_lbl+" Slip %"}
+                    <Line yAxisId="left" type="linear" dataKey="slip" name={_lbl+" Slip %"}
                       stroke="#3B82F6" strokeDasharray="5 3"
-                      dot={{r:2.5,fill:"#3B82F6",stroke:"#3B82F6"}} activeDot={{r:4}}
+                      dot={false} activeDot={{r:4}}
                       strokeWidth={1.5} isAnimationActive={false}/>
-                    <Line yAxisId="left" type="monotone" dataKey="slip7d" name={_lbl+" Slip % (7D Avg)"}
+                    <Line yAxisId="left" type="linear" dataKey="slip7d" name={_lbl+" Slip % (7D Avg)"}
                       stroke="#F97316"
-                      dot={{r:2.5,fill:"#F97316",stroke:"#F97316"}} activeDot={{r:4}}
+                      dot={false} activeDot={{r:4}}
                       strokeWidth={2} isAnimationActive={false}/>
-                    <Line yAxisId="right" type="monotone" dataKey="sog" name={_lbl+" SOG"}
+                    <Line yAxisId="right" type="linear" dataKey="sog" name={_lbl+" SOG"}
                       stroke="#3B82F6" strokeDasharray="5 3"
-                      dot={{r:2.5,fill:"#3B82F6",stroke:"#3B82F6"}} activeDot={{r:4}}
+                      dot={false} activeDot={{r:4}}
                       strokeWidth={1.5} isAnimationActive={false}/>
                   </ComposedChart>
                 </ResponsiveContainer>
@@ -4018,9 +4018,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:6,style:{...axLabel,fill:"#3B82F6",textAnchor:"middle"}}}/>
               <Tooltip content={<ModernTooltip/>}/>
               <Legend verticalAlign="top" align="center" wrapperStyle={{paddingBottom:6,fontSize:10}}/>
-              <Line yAxisId="left" type="monotone" dataKey="slip" name="Laden Slip %" stroke="#3B82F6" strokeDasharray="5 3" dot={{r:2,fill:"#3B82F6",stroke:"#3B82F6"}} activeDot={{r:4}} strokeWidth={1.5} isAnimationActive={false}/>
-              <Line yAxisId="left" type="monotone" dataKey="slip7d" name="Laden Slip % (7D Avg)" stroke="#F97316" dot={{r:2,fill:"#F97316",stroke:"#F97316"}} activeDot={{r:4}} strokeWidth={2} isAnimationActive={false}/>
-              <Line yAxisId="right" type="monotone" dataKey="sog" name="Laden SOG" stroke="#3B82F6" strokeDasharray="5 3" dot={{r:2,fill:"#3B82F6",stroke:"#3B82F6"}} activeDot={{r:4}} strokeWidth={1.5} isAnimationActive={false}/>
+              <Line yAxisId="left" type="linear" dataKey="slip" name="Laden Slip %" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={1.5} isAnimationActive={false}/>
+              <Line yAxisId="left" type="linear" dataKey="slip7d" name="Laden Slip % (7D Avg)" stroke="#F97316" dot={false} activeDot={{r:4}} strokeWidth={2} isAnimationActive={false}/>
+              <Line yAxisId="right" type="linear" dataKey="sog" name="Laden SOG" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={1.5} isAnimationActive={false}/>
             </ComposedChart>
           </ResponsiveContainer>
         );
@@ -4041,9 +4041,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <Tooltip content={<ModernTooltip/>}/>
             <Legend verticalAlign="top" align="center" wrapperStyle={{paddingBottom:6,fontSize:10}}/>
             <ReferenceLine yAxisId="left" x="01 Apr 2026" stroke="#CBD5E1" strokeWidth={1}/>
-            <Line yAxisId="left" type="monotone" dataKey="slip" name="Laden Slip %" stroke="#3B82F6" strokeDasharray="5 3" dot={{r:2,fill:"#3B82F6",stroke:"#3B82F6"}} activeDot={{r:4}} strokeWidth={1.5} isAnimationActive={false}/>
-            <Line yAxisId="left" type="monotone" dataKey="slip7d" name="Laden Slip % (7D Avg)" stroke="#F97316" dot={{r:2,fill:"#F97316",stroke:"#F97316"}} activeDot={{r:4}} strokeWidth={2} isAnimationActive={false}/>
-            <Line yAxisId="right" type="monotone" dataKey="sog" name="Laden SOG" stroke="#3B82F6" strokeDasharray="5 3" dot={{r:2,fill:"#3B82F6",stroke:"#3B82F6"}} activeDot={{r:4}} strokeWidth={1.5} isAnimationActive={false}/>
+            <Line yAxisId="left" type="linear" dataKey="slip" name="Laden Slip %" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={1.5} isAnimationActive={false}/>
+            <Line yAxisId="left" type="linear" dataKey="slip7d" name="Laden Slip % (7D Avg)" stroke="#F97316" dot={false} activeDot={{r:4}} strokeWidth={2} isAnimationActive={false}/>
+            <Line yAxisId="right" type="linear" dataKey="sog" name="Laden SOG" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={1.5} isAnimationActive={false}/>
           </ComposedChart>
         </ResponsiveContainer>
       );
@@ -7144,9 +7144,9 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                           <Tooltip contentStyle={{background:"#0F172A",border:"none",borderRadius:8,padding:"10px 14px"}} labelStyle={{color:"#94A3B8",fontSize:11,marginBottom:6}} itemStyle={{color:"#fff",fontSize:12}}/>
                           <ReferenceLine yAxisId="left" x="01 Apr 2026" stroke="#CBD5E1" strokeWidth={1}/>
                           <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:10}} formatter={function(v){return <span style={{color:THEME.textSub}}>{v}</span>;}}/>
-                          <Line yAxisId="left" type="monotone" dataKey="slip" name={_sogLbl+" Slip %"} stroke="#3B82F6" strokeDasharray="5 3" dot={{r:3,fill:"#3B82F6",stroke:"#3B82F6"}} activeDot={{r:5}} strokeWidth={1.5} isAnimationActive={false}/>
-                          <Line yAxisId="left" type="monotone" dataKey="slip7d" name={_sogLbl+" Slip % (7D Avg)"} stroke="#F97316" dot={{r:3,fill:"#F97316",stroke:"#F97316"}} activeDot={{r:5}} strokeWidth={2} isAnimationActive={false}/>
-                          <Line yAxisId="right" type="monotone" dataKey="sog" name={_sogLbl+" SOG"} stroke="#3B82F6" strokeDasharray="5 3" dot={{r:3,fill:"#3B82F6",stroke:"#3B82F6"}} activeDot={{r:5}} strokeWidth={1.5} isAnimationActive={false}/>
+                          <Line yAxisId="left" type="linear" dataKey="slip" name={_sogLbl+" Slip %"} stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:5}} strokeWidth={1.5} isAnimationActive={false}/>
+                          <Line yAxisId="left" type="linear" dataKey="slip7d" name={_sogLbl+" Slip % (7D Avg)"} stroke="#F97316" dot={false} activeDot={{r:5}} strokeWidth={2} isAnimationActive={false}/>
+                          <Line yAxisId="right" type="linear" dataKey="sog" name={_sogLbl+" SOG"} stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:5}} strokeWidth={1.5} isAnimationActive={false}/>
                         </ComposedChart>
                       </ResponsiveContainer>
                     ) : (chart.makeChart ? chart.makeChart(localMonths, viewMode) : chart.chartEl)}
