@@ -3417,11 +3417,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     function getEnvironmentalKpis(m) {
       var s = m / 6;
       return [
-        {label:"CII Rating",      subRows:[{label:"Current",value:"A (68)"},{label:"Projected",value:"B (72)"}], up:true},
+        {label:"CII Rating",      subRows:[{label:"Current",value:"A"},{label:"Projected",value:"B"}], up:true},
         {label:"AER",             subRows:[{label:"Attained",value:"7.2 g/t·nm"},{label:"Required",value:"8.9 g/t·nm"}], up:true},
         {label:"Distance",        value:_kfmt(Math.round(18420*s))+" nm",  up:false},
         {label:"Transport Work",  value:(12.4*s).toFixed(1)+" M t·nm",    up:false},
-        {label:"EUA",             value:"$ "+_kfmt(Math.round(42800*s)),   up:false},
+        {label:"ETS",             subRows:[{label:"EUA",value:"560.00"},{label:"UKA",value:"12.23"}], up:false},
         {label:"Fuel EU YTD",     value:"Compliant",                        up:false},
       ];
     }
@@ -6508,7 +6508,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       }
 
       return ReactDOM.createPortal(
-        <div style={{position:"fixed",inset:0,zIndex:99998}}>
+        <div style={{position:"fixed",inset:0,zIndex:100001}}>
           <div onClick={doClose} style={{position:"absolute",inset:0,background:"rgba(15,27,62,0.35)",transition:"opacity 0.27s",opacity:vis?1:0}}/>
           <div style={{position:"absolute",top:16,right:16,bottom:16,width:560,background:"#fff",display:"flex",flexDirection:"column",
             borderRadius:16,border:"1px solid #e2e4e8",overflow:"hidden",
