@@ -3964,66 +3964,45 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Laden Slip % & SOG chart — module level for stable identity
     function SlipSOGChart(props){
-      var months=props.months||6;
-      var viewMode=props.viewMode||"month";
-      var isVoyage=viewMode==="voyage";
-      var MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      var today=new Date();
-      var chartData=[];
-
-      if(isVoyage){
-        // Voyage mode — one point per voyage (~2 voyages per month)
-        var numVoyages=Math.max(4,Math.round(months*2));
-        for(var i=0;i<numVoyages;i++){
-          var t=i/(numVoyages-1);
-          var slipTrend=1.8+3.7*t;
-          var slipNoise=Math.sin(t*9.4+0.8)*0.8+Math.sin(t*18.8+2.1)*0.4;
-          var slip=Math.max(1.2,+(slipTrend+slipNoise).toFixed(2));
-          var slip7d=+(slipTrend+slipNoise*0.3).toFixed(2);
-          var sogTrend=13.6-1.2*t;
-          var sogNoise=Math.sin(t*7.5+1.5)*0.14+Math.sin(t*15.0+0.5)*0.09;
-          var sog=+(sogTrend+sogNoise).toFixed(2);
-          chartData.push({m:"V"+(i+1),slip:slip,slip7d:slip7d,sog:sog});
+      var _CMNS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      var _startMs=new Date(2026,0,1).getTime();
+      var chartData=(function(){
+        var arr=[];
+        for(var i=0;i<=188;i+=3){
+          var _sd=new Date(_startMs+i*86400000);
+          var t=i/188;
+          var slipTrend=2.1+3.1*t;
+          var slipNoise=Math.sin(t*58+0.8)*0.70+Math.sin(t*95+2.1)*0.40+Math.sin(t*28)*0.30;
+          var slip=+(Math.max(1.2,slipTrend+slipNoise)).toFixed(2);
+          var slip7d=+((slipTrend+slipNoise*0.18)).toFixed(2);
+          var sogBase=13.5-Math.sin(Math.PI*t)*0.8-0.15*t;
+          var sogNoise=Math.sin(t*28+1.5)*0.42+Math.sin(t*55+0.7)*0.22+Math.sin(t*14+2.3)*0.12;
+          var sog=+(Math.min(14,Math.max(12,sogBase+sogNoise))).toFixed(2);
+          var _dd=String(_sd.getDate()).padStart(2,"0");
+          arr.push({date:_dd+" "+_CMNS[_sd.getMonth()]+" "+_sd.getFullYear(),slip:slip,slip7d:slip7d,sog:sog});
         }
-      } else {
-        // Month mode — one point per week
-        var numWeeks=months*4+2;
-        for(var i=0;i<numWeeks;i++){
-          var t=i/(numWeeks-1);
-          var daysAgo=(numWeeks-1-i)*7;
-          var wDate=new Date(today.getTime()-daysAgo*86400000);
-          var mIdx=wDate.getMonth();
-          var prevDate=i>0?new Date(today.getTime()-(numWeeks-i)*7*86400000):null;
-          var isNew=!prevDate||prevDate.getMonth()!==mIdx;
-          var m=isNew?MN[mIdx]:"";
-          var slipTrend=1.8+3.7*t;
-          var slipNoise=Math.sin(t*15.7+0.8)*0.7+Math.sin(t*31.4+2.1)*0.35+Math.sin(t*6.2)*0.45;
-          var slip=Math.max(1.2,+(slipTrend+slipNoise).toFixed(2));
-          var slip7d=+(slipTrend+slipNoise*0.25).toFixed(2);
-          var sogTrend=13.6-1.2*t;
-          var sogNoise=Math.sin(t*10.5+1.5)*0.12+Math.sin(t*22.0+0.5)*0.08;
-          var sog=+(sogTrend+sogNoise).toFixed(2);
-          chartData.push({m:m,slip:slip,slip7d:slip7d,sog:sog});
-        }
-      }
-
+        return arr;
+      })();
+      var _ticks=["01 Jan 2026","01 Feb 2026","01 Mar 2026","01 Apr 2026","01 May 2026","01 Jun 2026","01 Jul 2026"];
       return (
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={chartData} margin={{bottom:20,left:4,right:40,top:8}}>
+          <ComposedChart data={chartData} margin={{bottom:28,left:4,right:44,top:8}}>
             <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
-            <XAxis dataKey="m" tick={axTick} axisLine={false} tickLine={false} dy={6}
-              label={{value:isVoyage?"Voyage":"Month",offset:-8,position:"insideBottom",style:axLabel}}/>
+            <XAxis dataKey="date" ticks={_ticks} tick={axTick} axisLine={false} tickLine={false} dy={6}
+              tickFormatter={function(v){return v.split(" ")[1];}}
+              label={{value:"Month",offset:-10,position:"insideBottom",style:axLabel}}/>
             <YAxis yAxisId="left" tick={axTick} width={40} axisLine={false} tickLine={false}
               domain={[1,7]} tickCount={4}
               label={{value:"Slip (%)",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
-            <YAxis yAxisId="right" orientation="right" tick={axTick} width={38} axisLine={false} tickLine={false}
+            <YAxis yAxisId="right" orientation="right" tick={{...axTick,fill:"#3B82F6"}} width={38} axisLine={false} tickLine={false}
               domain={[12,14]} tickCount={5}
-              label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
+              label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:6,style:{...axLabel,fill:"#3B82F6",textAnchor:"middle"}}}/>
             <Tooltip content={<ModernTooltip/>}/>
-            <Legend verticalAlign="top" align="center" wrapperStyle={{paddingBottom:8,fontSize:11}}/>
-            <Line yAxisId="left" type="monotone" dataKey="slip" name="Laden Slip %" stroke="#3B82F6" dot={false} strokeWidth={1.5}/>
-            <Line yAxisId="left" type="monotone" dataKey="slip7d" name="Laden Slip % (7D Avg)" stroke="#F97316" dot={false} strokeWidth={2}/>
-            <Line yAxisId="right" type="monotone" dataKey="sog" name="Laden SOG" stroke="#3B82F6" strokeDasharray="5 3" dot={false} strokeWidth={1.5}/>
+            <Legend verticalAlign="top" align="center" wrapperStyle={{paddingBottom:6,fontSize:10}}/>
+            <ReferenceLine yAxisId="left" x="01 Apr 2026" stroke="#CBD5E1" strokeWidth={1}/>
+            <Line yAxisId="left" type="monotone" dataKey="slip" name="Laden Slip %" stroke="#3B82F6" strokeDasharray="5 3" dot={{r:2,fill:"#3B82F6",stroke:"#3B82F6"}} activeDot={{r:4}} strokeWidth={1.5} isAnimationActive={false}/>
+            <Line yAxisId="left" type="monotone" dataKey="slip7d" name="Laden Slip % (7D Avg)" stroke="#F97316" dot={{r:2,fill:"#F97316",stroke:"#F97316"}} activeDot={{r:4}} strokeWidth={2} isAnimationActive={false}/>
+            <Line yAxisId="right" type="monotone" dataKey="sog" name="Laden SOG" stroke="#3B82F6" strokeDasharray="5 3" dot={{r:2,fill:"#3B82F6",stroke:"#3B82F6"}} activeDot={{r:4}} strokeWidth={1.5} isAnimationActive={false}/>
           </ComposedChart>
         </ResponsiveContainer>
       );
@@ -4701,51 +4680,75 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Speed Power Curve Chart
     function SpeedPowerChart(){
+      // Laden: P ≈ 82 * V^1.9 kW  |  Ballast: P ≈ 16.88 * V^2.323 kW
       var sp=[7.2,8.2,9.1,10.1,11.1,12.1,13.0,14.0,15.0,15.9,16.9];
       var curveData=sp.map(function(s){
-        var k=s-7;
-        var laden=Math.round(1200+280*k*k);
-        var ballast=Math.round(900+210*k*k);
-        return {s:s,laden:laden,ballast:ballast,ladenP:Math.round(laden*1.05),ballastP:Math.round(ballast*1.05)};
+        var laden=Math.round(82*Math.pow(s,1.9));
+        var ballast=Math.round(16.88*Math.pow(s,2.323));
+        return {s:s,laden:laden,ladenBand:Math.round(laden*0.05),ballast:ballast,ballastBand:Math.round(ballast*0.05)};
       });
+      // Reported data points — use {s, y}: s matches XAxis dataKey, y matches YAxis dataKey
       var repLaden=[
-        {s:11.8,p:7200},{s:12.0,p:7800},{s:12.2,p:8100},{s:12.4,p:8600},
-        {s:12.6,p:9000},{s:13.0,p:9600},{s:13.2,p:10100}
+        {s:11.9,y:4900},{s:12.0,y:5000},{s:12.1,y:4850},{s:12.3,y:5300},
+        {s:12.5,y:5600},{s:12.7,y:6300},{s:13.0,y:6500},{s:13.2,y:6800},
+        {s:13.6,y:6700},{s:14.0,y:7000}
       ];
       var repBallast=[
-        {s:11.2,p:5400},{s:11.5,p:5800},{s:11.8,p:6100},{s:12.0,p:6500},{s:12.3,p:6900}
+        {s:11.1,y:5200},{s:11.5,y:5500},{s:11.8,y:5700},{s:12.0,y:5600},{s:12.3,y:5500}
+      ];
+      var yTicks=[0,2251,4503,6754,9006,11257,13508,15760,18011];
+      var xTicks=[7.2,8.2,9.1,10.1,11.1,12.1,13.0,14.0,15.0,15.9,16.9];
+      function fmtPow(v){return v===0?"0":v.toLocaleString();}
+      var legendItems=[
+        {color:"#1E3A8A",type:"line",label:"Sea Trial Laden"},
+        {color:"#93C5FD",type:"line",label:"Sea Trial Ballast"},
+        {color:"#1E3A8A",type:"dot",label:"Power Reported Laden"},
+        {color:"#93C5FD",type:"dot",label:"Power Reported Ballast"},
+        {color:"rgba(30,58,138,0.22)",type:"rect",label:"Sea Trial Laden +5%"},
+        {color:"rgba(147,197,253,0.45)",type:"rect",label:"Sea Trial Ballast +5%"},
       ];
       return (
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={curveData} margin={{top:16,right:20,bottom:28,left:8}}>
-            <defs>
-              <linearGradient id="spLadenGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#1E3A8A" stopOpacity={0.18}/>
-                <stop offset="100%" stopColor="#1E3A8A" stopOpacity={0.03}/>
-              </linearGradient>
-              <linearGradient id="spBallastGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#7DD3FC" stopOpacity={0.22}/>
-                <stop offset="100%" stopColor="#7DD3FC" stopOpacity={0.03}/>
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
-            <XAxis type="number" dataKey="s" domain={[7,17.2]} ticks={[7.2,8.2,9.1,10.1,11.1,12.1,13.0,14.0,15.0,15.9]}
-              tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
-              label={{value:"Speed (knots)",position:"insideBottom",offset:-6,style:axLabel}}/>
-            <YAxis domain={[0,18000]} ticks={[0,2251,4503,6754,9006,11257,13508,15760,18011]}
-              tickFormatter={function(v){return v>=1000?(v/1000).toFixed(1)+"k":v;}}
-              tick={axTick} axisLine={false} tickLine={false}
-              label={{value:"Power (kW)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
-            <Tooltip content={<ModernTooltip/>}/>
-            <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:6}}/>
-            <Area type="monotone" dataKey="ladenP" stroke="none" fill="url(#spLadenGrad)" legendType="none"/>
-            <Area type="monotone" dataKey="ballastP" stroke="none" fill="url(#spBallastGrad)" legendType="none"/>
-            <Line type="monotone" dataKey="laden" stroke="#1E3A8A" strokeWidth={2.5} dot={false} name="Sea Trial Laden"/>
-            <Line type="monotone" dataKey="ballast" stroke="#7DD3FC" strokeWidth={2} dot={false} name="Sea Trial Ballast"/>
-            <Scatter data={repLaden} name="Power Reported Laden" fill="#1E3A8A"/>
-            <Scatter data={repBallast} name="Power Reported Ballast" fill="#93C5FD"/>
-          </ComposedChart>
-        </ResponsiveContainer>
+        <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
+          <div style={{flex:1,minHeight:0}}>
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={curveData} margin={{top:16,right:28,bottom:36,left:70}}>
+                <CartesianGrid stroke="#dde3ee" strokeDasharray="0" vertical={true} horizontal={true}/>
+                <XAxis type="number" dataKey="s" domain={[7.0,17.2]} ticks={xTicks}
+                  tick={{fontSize:11,fill:"#555"}} axisLine={{stroke:"#CBD5E1"}} tickLine={false}
+                  label={{value:"Speed (knots)",position:"insideBottom",offset:-20,style:{fontSize:12,fill:"#374151",fontWeight:500}}}/>
+                <YAxis dataKey="y" domain={[0,18011]} ticks={yTicks} tickFormatter={fmtPow} width={70}
+                  tick={{fontSize:11,fill:"#555"}} axisLine={false} tickLine={false}
+                  label={{value:"Power (Kw)",angle:-90,position:"insideLeft",offset:-4,style:{fontSize:12,fill:"#374151",fontWeight:500,textAnchor:"middle"}}}/>
+                <Tooltip content={<ModernTooltip/>}/>
+                {/* Ballast +5% band: stacked base (transparent) + 5% fill */}
+                <Area type="monotone" dataKey="ballast" stackId="bband" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
+                <Area type="monotone" dataKey="ballastBand" stackId="bband" stroke="none" fill="rgba(147,197,253,0.45)" legendType="none" isAnimationActive={false}/>
+                {/* Laden +5% band: stacked base (transparent) + 5% fill */}
+                <Area type="monotone" dataKey="laden" stackId="lband" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
+                <Area type="monotone" dataKey="ladenBand" stackId="lband" stroke="none" fill="rgba(30,58,138,0.22)" legendType="none" isAnimationActive={false}/>
+                {/* Sea trial curves */}
+                <Line type="monotone" dataKey="laden" stroke="#1E3A8A" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="ballast" stroke="#93C5FD" strokeWidth={2} dot={false} legendType="none" isAnimationActive={false}/>
+                {/* Reported data scatter */}
+                <Scatter data={repLaden} name="repLaden" fill="#1E3A8A" legendType="none"/>
+                <Scatter data={repBallast} name="repBallast" fill="#93C5FD" legendType="none"/>
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          {/* Custom legend matching reference image layout */}
+          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"6px 18px",fontSize:11,color:"#374151",padding:"8px 12px 4px",lineHeight:"18px"}}>
+            {legendItems.map(function(it,i){
+              return (
+                <div key={i} style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
+                  {it.type==="line"&&<div style={{width:22,height:2.5,background:it.color,borderRadius:1,flexShrink:0}}/>}
+                  {it.type==="dot"&&<div style={{width:9,height:9,borderRadius:"50%",background:it.color,flexShrink:0}}/>}
+                  {it.type==="rect"&&<div style={{width:13,height:13,background:it.color,borderRadius:2,flexShrink:0}}/>}
+                  <span style={{color:"#374151"}}>{it.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       );
     }
 
@@ -5485,30 +5488,35 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           })()}),{rowHeight:420}),
         Object.assign(cc("Speed Power Curve","Sea trial vs reported power",
           function(){return <SpeedPowerChart/>;},3,{tableData:(function(){
+            // Same formulas as SpeedPowerChart: Laden = 82*V^1.9, Ballast = 16.88*V^2.323
             var _sp=[7.2,8.2,9.1,10.1,11.1,12.1,13.0,14.0,15.0,15.9,16.9];
             var _curveRows=_sp.map(function(s){
-              var k=s-7;
-              return {speed:s,trialLaden:Math.round(1200+280*k*k),trialBallast:Math.round(900+210*k*k),repLaden:null,repBallast:null};
+              var laden=Math.round(82*Math.pow(s,1.9));
+              var ballast=Math.round(16.88*Math.pow(s,2.323));
+              return {speed:s,trialLaden:laden,trialLadenP5:Math.round(laden*1.05),trialBallast:ballast,trialBallastP5:Math.round(ballast*1.05),repLaden:null,repBallast:null};
             });
-            var _repLaden=[{s:11.8,p:7200},{s:12.0,p:7800},{s:12.2,p:8100},{s:12.4,p:8600},{s:12.6,p:9000},{s:13.0,p:9600},{s:13.2,p:10100}];
-            var _repBallast=[{s:11.2,p:5400},{s:11.5,p:5800},{s:11.8,p:6100},{s:12.0,p:6500},{s:12.3,p:6900}];
+            // Same reported data as chart
+            var _repLaden=[{s:11.9,y:4900},{s:12.0,y:5000},{s:12.1,y:4850},{s:12.3,y:5300},{s:12.5,y:5600},{s:12.7,y:6300},{s:13.0,y:6500},{s:13.2,y:6800},{s:13.6,y:6700},{s:14.0,y:7000}];
+            var _repBallast=[{s:11.1,y:5200},{s:11.5,y:5500},{s:11.8,y:5700},{s:12.0,y:5600},{s:12.3,y:5500}];
             _repLaden.forEach(function(rp){
               var cl=_curveRows.reduce(function(a,b){return Math.abs(b.speed-rp.s)<Math.abs(a.speed-rp.s)?b:a;});
-              if(cl.repLaden===null) cl.repLaden=rp.p;
+              if(cl.repLaden===null) cl.repLaden=rp.y; else cl.repLaden=Math.round((cl.repLaden+rp.y)/2);
             });
             _repBallast.forEach(function(rp){
               var cl=_curveRows.reduce(function(a,b){return Math.abs(b.speed-rp.s)<Math.abs(a.speed-rp.s)?b:a;});
-              if(cl.repBallast===null) cl.repBallast=rp.p;
+              if(cl.repBallast===null) cl.repBallast=rp.y; else cl.repBallast=Math.round((cl.repBallast+rp.y)/2);
             });
             return {
               columns:[
-                {key:"speed",       label:"Speed (kn)"},
-                {key:"trialLaden",  label:"Sea Trial Laden (kW)"},
-                {key:"trialBallast",label:"Sea Trial Ballast (kW)"},
-                {key:"repLaden",    label:"Reported Laden (kW)"},
-                {key:"repBallast",  label:"Reported Ballast (kW)"}
+                {key:"speed",          label:"Speed (kn)"},
+                {key:"trialLaden",     label:"Sea Trial Laden (kW)"},
+                {key:"trialLadenP5",   label:"Laden +5% (kW)"},
+                {key:"trialBallast",   label:"Sea Trial Ballast (kW)"},
+                {key:"trialBallastP5", label:"Ballast +5% (kW)"},
+                {key:"repLaden",       label:"Reported Laden (kW)"},
+                {key:"repBallast",     label:"Reported Ballast (kW)"}
               ],
-              rows:_curveRows.map(function(r){return {speed:r.speed,trialLaden:r.trialLaden,trialBallast:r.trialBallast,repLaden:r.repLaden||"—",repBallast:r.repBallast||"—"};})
+              rows:_curveRows.map(function(r){return {speed:r.speed,trialLaden:r.trialLaden,trialLadenP5:r.trialLadenP5,trialBallast:r.trialBallast,trialBallastP5:r.trialBallastP5,repLaden:r.repLaden||"—",repBallast:r.repBallast||"—"};})
             };
           })()}),{rowHeight:420}),
         Object.assign(cc("Predicted vs Reported Consumption","By speed — laden / ballast",
@@ -6782,71 +6790,137 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
             {/* Body */}
             <div style={{flex:1,overflowY:"auto",padding:"22px 24px"}}>
-
-              {/* Report Date */}
-              <div style={{marginBottom:24}}>
-                <div style={{fontSize:13,fontWeight:600,color:"#0F172A",marginBottom:10}}>Report Date</div>
-                <div style={{display:"flex",alignItems:"center",border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",cursor:"pointer",gap:8}}
-                  onMouseEnter={function(e){e.currentTarget.style.borderColor="#94A3B8";}}
-                  onMouseLeave={function(e){e.currentTarget.style.borderColor="#E2E8F0";}}>
-                  <span style={{flex:1,fontSize:14,color:"#94A3B8"}}>Select a Period</span>
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                  </svg>
-                </div>
-              </div>
-
-              {/* Load Condition */}
-              <div style={{marginBottom:24}}>
-                <div style={{fontSize:13,fontWeight:600,color:"#0F172A",marginBottom:12}}>Load Condition</div>
-                <div style={{display:"flex",gap:28}}>
-                  {["Laden","Ballast"].map(function(lc){
-                    var sel=draftF.loadCondition===lc;
-                    return (
-                      <label key={lc} style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:14,color:"#374151",userSelect:"none"}}
-                        onClick={function(){setDraftF(function(p){return Object.assign({},p,{loadCondition:lc});});}}>
-                        <div style={{width:18,height:18,borderRadius:"50%",border:"2px solid "+(sel?"#1852FE":"#CBD5E1"),background:sel?"#1852FE":"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
-                          {sel&&<div style={{width:6,height:6,borderRadius:"50%",background:"#fff"}}/>}
-                        </div>
-                        {lc}
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Report Type */}
-              <div style={{marginBottom:24}}>
-                <div style={{fontSize:13,fontWeight:600,color:"#0F172A",marginBottom:12}}>Report Type</div>
-                <div style={{display:"flex",gap:24,flexWrap:"wrap"}}>
-                  {["Noon","Departure","Arrival"].map(function(rt){
-                    var checked=draftF.reportTypes[rt];
-                    return (
-                      <label key={rt} style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:14,color:"#374151",userSelect:"none"}}
-                        onClick={function(){setDraftF(function(p){var nr=Object.assign({},p.reportTypes,{[rt]:!p.reportTypes[rt]});return Object.assign({},p,{reportTypes:nr});});}}>
-                        <div style={{width:18,height:18,borderRadius:4,border:"2px solid "+(checked?"#1852FE":"#CBD5E1"),background:checked?"#1852FE":"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
-                          {checked&&<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                        </div>
-                        {rt}
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Speed Range */}
-              <div style={{marginBottom:8}}>
-                <div style={{fontSize:13,fontWeight:600,color:"#0F172A",marginBottom:16}}>Speed Range</div>
-                <div style={{padding:"0 4px"}}>
-                  <DualRangeSlider min={0} max={60} low={draftF.speedRange[0]} high={draftF.speedRange[1]}
-                    onChange={function(l,h){setDraftF(function(p){return Object.assign({},p,{speedRange:[l,h]});});}}/>
-                </div>
-                <div style={{display:"flex",alignItems:"center",gap:12,marginTop:14}}>
-                  <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{draftF.speedRange[0]}</div>
-                  <span style={{color:"#94A3B8",fontSize:16,fontWeight:300}}>–</span>
-                  <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{draftF.speedRange[1]}</div>
-                </div>
-              </div>
+              {chart.title==="SOG & Slip Trend" ? (
+                <React.Fragment>
+                  {/* Report Date */}
+                  <div style={{marginBottom:24,paddingBottom:24,borderBottom:"1px solid #F1F5F9"}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#0F172A",marginBottom:12}}>Report Date</div>
+                    <div style={{position:"relative"}}>
+                      <div style={{padding:"11px 40px 11px 14px",fontSize:14,color:"#0F172A",border:"1.5px solid #E2E8F0",borderRadius:10,background:"#fff",cursor:"pointer",userSelect:"none"}}>
+                        12/03/2025 to 03/01/2026
+                      </div>
+                      <svg style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}} width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                      </svg>
+                    </div>
+                  </div>
+                  {/* Weather Conditions */}
+                  <div style={{marginBottom:24,paddingBottom:24,borderBottom:"1px solid #F1F5F9"}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#0F172A",marginBottom:16}}>Weather Conditions</div>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+                      <span style={{fontSize:14,color:"#374151"}}>Wind (BF) ≤</span>
+                      <div style={{position:"relative",width:180}}>
+                        <select value={sogWindBF} onChange={function(e){setSogWindBF(e.target.value);}} style={{width:"100%",appearance:"none",WebkitAppearance:"none",padding:"10px 32px 10px 14px",fontSize:14,color:sogWindBF?"#0F172A":"#94A3B8",border:"1.5px solid #E2E8F0",borderRadius:8,background:"#fff",cursor:"pointer",outline:"none"}}>
+                          <option value="">Select value</option>
+                          {["1","2","3","4","5","6","7","8","9","10","11","12"].map(function(v){return <option key={v} value={v}>{v}</option>;})}
+                        </select>
+                        <svg style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      </div>
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                      <span style={{fontSize:14,color:"#374151"}}>Wave (DSS) ≤</span>
+                      <div style={{position:"relative",width:180}}>
+                        <select value={sogWaveDSS} onChange={function(e){setSogWaveDSS(e.target.value);}} style={{width:"100%",appearance:"none",WebkitAppearance:"none",padding:"10px 32px 10px 14px",fontSize:14,color:sogWaveDSS?"#0F172A":"#94A3B8",border:"1.5px solid #E2E8F0",borderRadius:8,background:"#fff",cursor:"pointer",outline:"none"}}>
+                          <option value="">Select value</option>
+                          {["0","1","2","3","4","5","6","7","8","9"].map(function(v){return <option key={v} value={v}>{v}</option>;})}
+                        </select>
+                        <svg style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Steaming Time */}
+                  <div style={{marginBottom:24,paddingBottom:24,borderBottom:"1px solid #F1F5F9"}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#0F172A",marginBottom:16}}>Steaming Time (hrs/day)</div>
+                    <div style={{padding:"0 4px"}}>
+                      <DualRangeSlider min={0} max={26} low={sogSteamLow} high={sogSteamHigh}
+                        onChange={function(l,h){setSogSteamLow(l);setSogSteamHigh(h);}}/>
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",gap:12,marginTop:14}}>
+                      <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{sogSteamLow}</div>
+                      <span style={{color:"#94A3B8",fontSize:16,fontWeight:300}}>–</span>
+                      <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{sogSteamHigh}</div>
+                    </div>
+                  </div>
+                  {/* Speed Range */}
+                  <div style={{marginBottom:8}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#0F172A",marginBottom:16}}>Speed Range (knots)</div>
+                    <div style={{padding:"0 4px"}}>
+                      <DualRangeSlider min={0} max={40} low={sogSpeedLow} high={sogSpeedHigh}
+                        onChange={function(l,h){setSogSpeedLow(l);setSogSpeedHigh(h);}}/>
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",gap:12,marginTop:14}}>
+                      <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{sogSpeedLow}</div>
+                      <span style={{color:"#94A3B8",fontSize:16,fontWeight:300}}>–</span>
+                      <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{sogSpeedHigh}</div>
+                    </div>
+                  </div>
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  {/* Report Date */}
+                  <div style={{marginBottom:24}}>
+                    <div style={{fontSize:13,fontWeight:600,color:"#0F172A",marginBottom:10}}>Report Date</div>
+                    <div style={{display:"flex",alignItems:"center",border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",cursor:"pointer",gap:8}}
+                      onMouseEnter={function(e){e.currentTarget.style.borderColor="#94A3B8";}}
+                      onMouseLeave={function(e){e.currentTarget.style.borderColor="#E2E8F0";}}>
+                      <span style={{flex:1,fontSize:14,color:"#94A3B8"}}>Select a Period</span>
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                      </svg>
+                    </div>
+                  </div>
+                  {/* Load Condition */}
+                  <div style={{marginBottom:24}}>
+                    <div style={{fontSize:13,fontWeight:600,color:"#0F172A",marginBottom:12}}>Load Condition</div>
+                    <div style={{display:"flex",gap:28}}>
+                      {["Laden","Ballast"].map(function(lc){
+                        var sel=draftF.loadCondition===lc;
+                        return (
+                          <label key={lc} style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:14,color:"#374151",userSelect:"none"}}
+                            onClick={function(){setDraftF(function(p){return Object.assign({},p,{loadCondition:lc});});}}>
+                            <div style={{width:18,height:18,borderRadius:"50%",border:"2px solid "+(sel?"#1852FE":"#CBD5E1"),background:sel?"#1852FE":"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
+                              {sel&&<div style={{width:6,height:6,borderRadius:"50%",background:"#fff"}}/>}
+                            </div>
+                            {lc}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  {/* Report Type */}
+                  <div style={{marginBottom:24}}>
+                    <div style={{fontSize:13,fontWeight:600,color:"#0F172A",marginBottom:12}}>Report Type</div>
+                    <div style={{display:"flex",gap:24,flexWrap:"wrap"}}>
+                      {["Noon","Departure","Arrival"].map(function(rt){
+                        var checked=draftF.reportTypes[rt];
+                        return (
+                          <label key={rt} style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:14,color:"#374151",userSelect:"none"}}
+                            onClick={function(){setDraftF(function(p){var nr=Object.assign({},p.reportTypes,{[rt]:!p.reportTypes[rt]});return Object.assign({},p,{reportTypes:nr});});}}>
+                            <div style={{width:18,height:18,borderRadius:4,border:"2px solid "+(checked?"#1852FE":"#CBD5E1"),background:checked?"#1852FE":"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
+                              {checked&&<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                            </div>
+                            {rt}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  {/* Speed Range */}
+                  <div style={{marginBottom:8}}>
+                    <div style={{fontSize:13,fontWeight:600,color:"#0F172A",marginBottom:16}}>Speed Range</div>
+                    <div style={{padding:"0 4px"}}>
+                      <DualRangeSlider min={0} max={60} low={draftF.speedRange[0]} high={draftF.speedRange[1]}
+                        onChange={function(l,h){setDraftF(function(p){return Object.assign({},p,{speedRange:[l,h]});});}}/>
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",gap:12,marginTop:14}}>
+                      <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{draftF.speedRange[0]}</div>
+                      <span style={{color:"#94A3B8",fontSize:16,fontWeight:300}}>–</span>
+                      <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{draftF.speedRange[1]}</div>
+                    </div>
+                  </div>
+                </React.Fragment>
+              )}
             </div>
 
             {/* Footer */}
@@ -7103,14 +7177,24 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                             if(sortCol===col.key){ setSortDir(function(d){return d==="asc"?"desc":"asc";}); }
                             else { setSortCol(col.key); setSortDir("asc"); }
                           }}
+                          onMouseEnter={function(e){if(!isActive)e.currentTarget.style.background="#F8FAFC";}}
+                          onMouseLeave={function(e){if(!isActive)e.currentTarget.style.background="transparent";}}
                           style={{padding:"12px 16px",fontSize:13,fontWeight:600,color:isActive?"#1852FE":"#64748B",
                             whiteSpace:"nowrap",letterSpacing:0.1,cursor:"pointer",userSelect:"none",
-                            display:"flex",alignItems:"center",gap:4,
-                            background:isActive?"#EEF2FF":"transparent",transition:"background 0.12s"}}>
+                            display:"flex",alignItems:"center",gap:6,
+                            background:isActive?"#EEF2FF":"transparent",transition:"background 0.12s",
+                            borderBottom:isActive?"2px solid #1852FE":"2px solid transparent"}}>
                           {col.label}
-                          <span style={{opacity:isActive?1:0.3,fontSize:10,color:isActive?"#1852FE":"#94A3B8"}}>
-                            {isActive&&sortDir==="asc"?"↑":isActive&&sortDir==="desc"?"↓":"↕"}
-                          </span>
+                          <svg width="7" height="15" viewBox="0 0 10 18" fill="none" style={{flexShrink:0}}>
+                            <polyline points="1,7 5,2 9,7"
+                              stroke={isActive&&sortDir==="asc"?"#1852FE":"#94A3B8"}
+                              strokeWidth={isActive&&sortDir==="asc"?"2.2":"1.8"}
+                              fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                            <polyline points="1,11 5,16 9,11"
+                              stroke={isActive&&sortDir==="desc"?"#1852FE":"#94A3B8"}
+                              strokeWidth={isActive&&sortDir==="desc"?"2.2":"1.8"}
+                              fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
                         </div>
                       );
                     })}
