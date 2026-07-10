@@ -10151,13 +10151,13 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                       onMouseEnter={function(e){e.currentTarget.style.background=(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.2)":"#d0d8e4";}}
                       onMouseLeave={function(e){e.currentTarget.style.background=(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#e2e8ef";}}>
                       <span style={{fontSize:11,fontWeight:500,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.55)":"#64748B",marginRight:2}}>Principal</span>
-                      <span style={{fontWeight:600,fontSize:13}}>{principal}</span>
+                      <span style={{fontWeight:600,fontSize:13,maxWidth:113,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{principal}</span>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.6)":THEME.textSub} strokeWidth="2.5" style={{flexShrink:0,marginLeft:2,transform:principalOpen?"rotate(180deg)":"rotate(0deg)",transition:"transform 0.2s"}}><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
                     {principalOpen&&(
                       <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,background:"#fff",borderRadius:8,boxShadow:"0 8px 24px rgba(0,0,0,0.12)",border:"1px solid #E2E8F0",zIndex:9999,width:principalDropW||"auto",overflow:"hidden"}}
                         onMouseLeave={function(){setPrincipalOpen(false);}}>
-                        {["Scorpio LR","Nordic Tankers","Ardmore Shipping","Team Tankers","Stena Bulk"].map(function(name){
+                        {["Scorpio LR","Nordic Tankers","Ardmore Shipping","B INTERNATIONAL SHIPPING AND LOGISTICS DMCC","Team Tankers","Stena Bulk"].map(function(name){
                           return <div key={name} onClick={function(){setPrincipal(name);setPrincipalOpen(false);}}
                             style={{padding:"9px 14px",fontSize:13,color:name===principal?"#1852FE":"#1E293B",fontWeight:name===principal?600:400,
                               background:name===principal?"#EEF2FF":"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between"}}
