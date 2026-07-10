@@ -4,7 +4,6 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Performance Analytics</title>
-  <meta name="keywords" content="operationall"/>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzAwMUU0QyIvPjx0ZXh0IHg9IjE2IiB5PSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyMiIgZm9udC13ZWlnaHQ9IjgwMCIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiIGZpbGw9IiMxODUyRkUiPmc8L3RleHQ+PC9zdmc+Cg=="/>
   <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.development.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.development.js"></script>
@@ -4532,6 +4531,28 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var xTicks=[1,3,5,7,9,11,13].filter(function(t){return t>=Math.ceil(xMin-0.5)&&t<=xDomainEnd;});
       if(!xTicks.length) xTicks=[Math.round((xMin+X_END)/2)];
 
+      var [showLegend,setShowLegend]=useState(false);
+      var [legendAnchor,setLegendAnchor]=useState({x:0,y:0});
+      var containerRef=useRef(null);
+
+      var IconLayer=function(props){
+        var xMap=props.xAxisMap; var yMap=props.yAxisMap;
+        if(!xMap||!yMap) return null;
+        var xs=xMap[0]&&xMap[0].scale; var ys=yMap[0]&&yMap[0].scale;
+        if(!xs||!ys) return null;
+        if(xs(13)==null||isNaN(xs(13))) return null;
+        var ix=xs(13)+28;
+        var iy=ys(0)+10;
+        return (
+          <g transform={"translate("+ix+","+iy+")"} style={{cursor:"pointer"}}
+            onMouseEnter={function(e){setShowLegend(true);setLegendAnchor({x:e.clientX,y:e.clientY});}}
+            onMouseLeave={function(){setShowLegend(false);}}>
+            <rect x={0} y={0} width={12} height={12} rx={3} fill="#EEF2FF" stroke="#93C5FD" strokeWidth={1}/>
+            <text x={6} y={9.5} textAnchor="middle" fontSize={8} fontWeight={700} fill="#3B82F6" style={{pointerEvents:"none"}}>i</text>
+          </g>
+        );
+      };
+
       var clipId=useRef("hullband"+Math.floor(Math.random()*1e9)).current;
 
       // Continuous full-width band: green 0-10, yellow 10-20, red >20, all clipped under curve
@@ -4638,15 +4659,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         );
       };
 
-      // SVG legend box drawn inside the chart at bottom-left (in the green 0-10 zone)
-      var LegendLayer=function(props){
-        var xMap=props.xAxisMap; var yMap=props.yAxisMap;
-        if(!xMap||!yMap) return null;
-        var xs=xMap[0]&&xMap[0].scale; var ys=yMap[0]&&yMap[0].scale;
-        if(!xs||!ys) return null;
-        var bx=xs(xMin)+6, bW=320, bH=103;
-        var by=ys(0)-bH-7;
-        var rH=14, c2x=bx+155;
+      var LegendTooltip=function(){
+        if(!showLegend) return null;
         var risks=[
           {c:"rgba(134,239,172,0.78)",b:"#86efac",t:"−0 ≤ Speed loss% ≤ 10"},
           {c:"rgba(253,224,71,0.75)", b:"#fde047",t:"10 < Speed loss% ≤ 20"},
@@ -4659,37 +4673,40 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           {diamond:false,t:"FB – Flat Bottom Cleaning"},
           {diamond:false,t:"Drydock – Drydock"},
         ];
-        return (
-          <g style={{pointerEvents:"none"}}>
-            <rect x={bx} y={by} width={bW} height={bH} rx={5} fill="rgba(255,255,255,0.93)" stroke="#CBD5E1" strokeWidth={1}/>
-            {/* divider */}
-            <line x1={bx+150} y1={by+6} x2={bx+150} y2={by+bH-6} stroke="#E2E8F0" strokeWidth={1}/>
-            {/* left header */}
-            <text x={bx+8} y={by+13} fontSize={9.5} fontWeight={700} fill="#334155" fontFamily="inherit">Risk Bands (% Speed Loss)</text>
-            {risks.map(function(r,i){
-              var ry=by+24+i*rH;
-              return <g key={"rb"+i}>
-                <rect x={bx+8} y={ry-8} width={10} height={10} fill={r.c} stroke={r.b} strokeWidth={0.8}/>
-                <text x={bx+21} y={ry} fontSize={9} fill="#475569" fontFamily="inherit">{r.t}</text>
-              </g>;
-            })}
-            <text x={bx+8} y={by+24+3*rH+2} fontSize={8.5} fill="#94A3B8" fontFamily="inherit">T = tropical  |  NT = non tropical</text>
-            <text x={bx+8} y={by+24+3*rH+13} fontSize={8.5} fill="#94A3B8" fontFamily="inherit">Roll over the chart to view details</text>
-            {/* right header */}
-            <text x={c2x} y={by+13} fontSize={9.5} fontWeight={700} fill="#334155" fontFamily="inherit">Service Legend</text>
-            {svcs.map(function(s,i){
-              var ry=by+24+i*rH;
-              return <g key={"sl"+i}>
-                {s.diamond&&<polygon points={(c2x+5)+","+(ry-9)+" "+(c2x+10)+","+(ry-4)+" "+(c2x+5)+","+(ry+1)+" "+c2x+","+(ry-4)} fill="#16A34A"/>}
-                <text x={s.diamond?c2x+14:c2x+4} y={ry} fontSize={9} fill="#475569" fontFamily="inherit">{s.t}</text>
-              </g>;
-            })}
-          </g>
+        return ReactDOM.createPortal(
+          <div style={{position:"fixed",left:legendAnchor.left,top:legendAnchor.top+4,width:legendAnchor.width,boxSizing:"border-box",zIndex:9999,background:"#fff",borderRadius:6,border:"1px solid #CBD5E1",boxShadow:"0 4px 16px rgba(0,0,0,0.13)",padding:"10px 14px",fontFamily:"inherit",pointerEvents:"none"}}>
+            <div style={{display:"flex",gap:16}}>
+              <div style={{flex:1}}>
+                <div style={{fontSize:10,fontWeight:700,color:"#334155",marginBottom:6}}>Risk Bands (% Speed Loss)</div>
+                {risks.map(function(r,i){
+                  return <div key={i} style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+                    <div style={{width:10,height:10,background:r.c,border:"0.8px solid "+r.b,flexShrink:0}}/>
+                    <span style={{fontSize:10,color:"#475569"}}>{r.t}</span>
+                  </div>;
+                })}
+                <div style={{fontSize:9,color:"#94A3B8",marginTop:4}}>T = tropical  |  NT = non tropical</div>
+                <div style={{fontSize:9,color:"#94A3B8"}}>Roll over the chart to view details</div>
+              </div>
+              <div style={{width:1,background:"#E2E8F0",flexShrink:0}}/>
+              <div style={{flex:1}}>
+                <div style={{fontSize:10,fontWeight:700,color:"#334155",marginBottom:6}}>Service Legend</div>
+                {svcs.map(function(s,i){
+                  return <div key={i} style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+                    {s.diamond
+                      ?<svg width="12" height="12"><polygon points="6,0 12,6 6,12 0,6" fill="#16A34A"/></svg>
+                      :<span style={{display:"inline-block",width:12,height:12}}/>}
+                    <span style={{fontSize:10,color:"#475569"}}>{s.t}</span>
+                  </div>;
+                })}
+              </div>
+            </div>
+          </div>,
+          document.getElementById("tooltip-root")
         );
       };
 
       return (
-        <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
+        <div ref={containerRef} style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",position:"relative"}}>
           {/* Top legend row */}
           <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:20,padding:"0 0 4px",flexShrink:0,flexWrap:"wrap"}}>
             <div style={{display:"flex",alignItems:"center",gap:5}}>
@@ -4708,8 +4725,27 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <svg width="24" height="12"><line x1="1" y1="6" x2="23" y2="6" stroke="#DC2626" strokeWidth="1.5" strokeDasharray="5,3"/></svg>
               <span style={{fontSize:12,color:"#475569"}}>Port Stay (T/NT)</span>
             </div>
+            <div style={{width:16,flexShrink:0}}/>
+            <div
+              style={{width:16,height:16,cursor:"pointer",flexShrink:0}}
+              onMouseEnter={function(e){
+                var ir=e.currentTarget.getBoundingClientRect();
+                var cr=containerRef.current.getBoundingClientRect();
+                setShowLegend(true);
+                setLegendAnchor({left:cr.left,top:ir.bottom,width:ir.right-cr.left});
+              }}
+              onMouseLeave={function(){setShowLegend(false);}}>
+              <svg width="16" height="16" viewBox="0 0 16 16" style={{display:"block"}}>
+                <path d="M8,8 L8,0 A8,8 0 0,1 16,8 Z"   fill="#22C55E"/>
+                <path d="M8,8 L16,8 A8,8 0 0,1 8,16 Z"  fill="#FACC15"/>
+                <path d="M8,8 L8,16 A8,8 0 0,1 0,8 Z"   fill="#EF4444"/>
+                <path d="M8,8 L0,8 A8,8 0 0,1 8,0 Z"    fill="#3B82F6"/>
+                <circle cx="8" cy="8" r="8" fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/>
+              </svg>
+            </div>
           </div>
-          {/* Chart — fills remaining space; LegendLayer draws the info box inside the SVG */}
+          <LegendTooltip/>
+          {/* Chart */}
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={lineData} margin={{top:12,right:20,bottom:28,left:14}}>
@@ -4725,7 +4761,6 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <Line type="monotone" dataKey="y" stroke="#1E40AF" strokeWidth={2.5} dot={false}
                   legendType="none" isAnimationActive={false}/>
                 <Customized component={OverlayLayer}/>
-                <Customized component={LegendLayer}/>
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -9868,6 +9903,10 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       var [showCustomise,setShowCustomise]=useState(false);
       var [compareOpen,setCompareOpen]=useState(false);
       var [compareVessels,setCompareVessels]=useState(null);
+      var [principalOpen,setPrincipalOpen]=useState(false);
+      var [principal,setPrincipal]=useState("Scorpio LR");
+      var [principalDropW,setPrincipalDropW]=useState(0);
+      var principalWrapRef=useRef(null);
       var [customCharts,setCustomCharts]=useState([]);
       var [dashTab,setDashTab]=useState("operational");
       var [detailChart,setDetailChart]=useState(null);
@@ -10102,7 +10141,37 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
               )}
               <div ref={rightGroupRef} style={{display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
                 {showLastUpdated&&<span style={{fontSize:12,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.5)":THEME.textMuted,whiteSpace:"nowrap"}}>Last updated: 19 Jun 06:00 UTC</span>}
-                {activeNav==="emissions"&&selectedVessel&&(
+                {activeNav==="emissions"&&selectedVessel&&dashTab==="environmental"&&(
+                  <div ref={principalWrapRef} style={{position:"relative",display:"inline-flex",alignItems:"center"}}>
+                    <button onClick={function(){setPrincipalOpen(function(o){var next=!o;if(next&&principalWrapRef.current)setPrincipalDropW(principalWrapRef.current.offsetWidth);return next;});}}
+                      style={{display:"flex",alignItems:"center",gap:6,height:36,padding:"0 10px 0 12px",borderRadius:6,border:"none",
+                        background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#e2e8ef",
+                        cursor:"pointer",flexShrink:0,userSelect:"none",fontSize:13,fontFamily:"inherit",
+                        color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.88)":THEME.text}}
+                      onMouseEnter={function(e){e.currentTarget.style.background=(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.2)":"#d0d8e4";}}
+                      onMouseLeave={function(e){e.currentTarget.style.background=(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#e2e8ef";}}>
+                      <span style={{fontSize:11,fontWeight:500,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.55)":"#64748B",marginRight:2}}>Principal</span>
+                      <span style={{fontWeight:600,fontSize:13}}>{principal}</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.6)":THEME.textSub} strokeWidth="2.5" style={{flexShrink:0,marginLeft:2,transform:principalOpen?"rotate(180deg)":"rotate(0deg)",transition:"transform 0.2s"}}><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    {principalOpen&&(
+                      <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,background:"#fff",borderRadius:8,boxShadow:"0 8px 24px rgba(0,0,0,0.12)",border:"1px solid #E2E8F0",zIndex:9999,width:principalDropW||"auto",overflow:"hidden"}}
+                        onMouseLeave={function(){setPrincipalOpen(false);}}>
+                        {["Scorpio LR","Nordic Tankers","Ardmore Shipping","Team Tankers","Stena Bulk"].map(function(name){
+                          return <div key={name} onClick={function(){setPrincipal(name);setPrincipalOpen(false);}}
+                            style={{padding:"9px 14px",fontSize:13,color:name===principal?"#1852FE":"#1E293B",fontWeight:name===principal?600:400,
+                              background:name===principal?"#EEF2FF":"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between"}}
+                            onMouseEnter={function(e){if(name!==principal)e.currentTarget.style.background="#F8FAFC";}}
+                            onMouseLeave={function(e){if(name!==principal)e.currentTarget.style.background="transparent";}}>
+                            {name}
+                            {name===principal&&<svg width="14" height="14" viewBox="0 0 14 14"><path d="M2 7l3.5 3.5L12 3" stroke="#1852FE" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                          </div>;
+                        })}
+                      </div>
+                    )}
+                  </div>
+              )}
+              {activeNav==="emissions"&&selectedVessel&&(
                   <React.Fragment>
                     <div style={{position:"relative",display:"inline-flex"}} className="cmp-btn-wrap">
                     <button onClick={function(){setCompareOpen(true);}}
