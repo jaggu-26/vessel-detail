@@ -1029,7 +1029,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
     }
 
-    function ChartIcons({title, subtitle, chartContent, onShowInsights, onSimulate, onDelete, tableData, makeChart}) {
+    function ChartIcons({title, subtitle, chartContent, onShowInsights, onSimulate, onDelete, tableData, makeChart, onMoreDetails}) {
       var aiRef = useRef(null);
       var [confirmDelete, setConfirmDelete] = useState(false);
       function handleAIClick() {
@@ -1067,7 +1067,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             </IconTooltipBtn>
           )}
           {/* More Details */}
-          <IconTooltipBtn tip="More Details" onClick={function(){if(_setDetailChart)_setDetailChart({title:title,subtitle:subtitle||"",tab:_currentDashTab||"operational",chartEl:chartContent,tableData:tableData||null,makeChart:makeChart||null});}}>
+          <IconTooltipBtn tip="More Details" onClick={function(){if(onMoreDetails){onMoreDetails();}else if(_setDetailChart)_setDetailChart({title:title,subtitle:subtitle||"",tab:_currentDashTab||"operational",chartEl:chartContent,tableData:tableData||null,makeChart:makeChart||null});}}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4a5568" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
               <circle cx="12" cy="12" r="3"/>
@@ -2677,57 +2677,169 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Hull Health deep-dive modal ────────────────────────────────────────────────
     function HullHealthModal({onClose}){
-      var btnStyle={display:"flex",alignItems:"center",gap:5,padding:"7px 12px",fontSize:12,fontWeight:600,
-        background:"#fff",border:"1px solid #E2E8F0",borderRadius:6,cursor:"pointer",color:"#475569"};
+      var MAINT_EVENTS=[
+        {id:"vb+uwi",  label:"VB+UWI",             date:"23 Mar 2025", consDrop:8.35, speedGain:3.42,
+          pre:"23 Dec 2024",preEnd:"23 Mar 2025",post:"24 Mar 2025",postEnd:"23 Jun 2025"},
+        {id:"pp+uwi",  label:"PP+UWI",             date:"4 Mar 2025",  consDrop:6.21, speedGain:2.85,
+          pre:"4 Dec 2024",preEnd:"4 Mar 2025",post:"5 Mar 2025",postEnd:"4 Jun 2025"},
+        {id:"drydock", label:"Drydock",            date:"2 Nov 2024",  consDrop:12.4, speedGain:5.18,
+          pre:"2 Aug 2024",preEnd:"2 Nov 2024",post:"3 Nov 2024",postEnd:"2 Feb 2025"},
+        {id:"fb",      label:"FB Cleaning",        date:"15 Sep 2024", consDrop:4.72, speedGain:1.93,
+          pre:"15 Jun 2024",preEnd:"15 Sep 2024",post:"16 Sep 2024",postEnd:"15 Dec 2024"},
+        {id:"pp",      label:"Propeller Polishing",date:"10 Aug 2024", consDrop:5.88, speedGain:2.56,
+          pre:"10 May 2024",preEnd:"10 Aug 2024",post:"11 Aug 2024",postEnd:"10 Nov 2024"},
+      ];
+      var [selEvent,setSelEvent]=useState(null);
+      var [ddOpen,setDdOpen]=useState(false);
+
+      var sel=MAINT_EVENTS.find(function(e){return e.id===selEvent;})||null;
+
       return ReactDOM.createPortal(
-        <div onClick={function(e){if(e.target===e.currentTarget)onClose();}}
+        <div onClick={function(e){if(e.target===e.currentTarget){onClose();setDdOpen(false);}}}
           style={{position:"fixed",inset:0,background:"rgba(12,30,53,0.45)",zIndex:9998,
             display:"flex",alignItems:"center",justifyContent:"center"}}>
-          <div style={{background:"#fff",borderRadius:14,width:"min(1100px,96vw)",maxHeight:"92vh",
-            display:"flex",flexDirection:"column",overflow:"hidden"}}>
+          <div style={{background:"#fff",borderRadius:14,width:"min(1080px,95vw)",maxHeight:"90vh",
+            display:"flex",overflow:"hidden"}}>
 
-            {/* ── Header ── */}
-            <div style={{padding:"20px 28px 16px",borderBottom:"1px solid #E8EAED",flexShrink:0}}>
-              <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:12}}>
-                <div>
-                  <div style={{fontSize:11,color:"#94A3B8",fontWeight:500,marginBottom:3,letterSpacing:0.3}}>Analytics – Operational</div>
-                  <div style={{fontSize:22,fontWeight:700,color:"#0F172A",letterSpacing:-0.4,marginBottom:7}}>Hull Health</div>
-                  <div style={{display:"flex",gap:5}}>
-                    <span style={{fontSize:10,fontWeight:600,padding:"2px 8px",borderRadius:4,background:"#D1FAE5",color:"#065F46"}}>Low Risk</span>
-                    <span style={{fontSize:10,fontWeight:600,padding:"2px 8px",borderRadius:4,background:"#FEF9C3",color:"#854D0E"}}>Med Risk</span>
-                    <span style={{fontSize:10,fontWeight:600,padding:"2px 8px",borderRadius:4,background:"#FEE2E2",color:"#991B1B"}}>High Risk</span>
-                  </div>
-                </div>
-                <div style={{display:"flex",gap:8,alignItems:"flex-start",flexShrink:0}}>
-                  <button style={btnStyle}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-                    Filters
-                  </button>
-                  <button style={btnStyle}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    Download Report
-                  </button>
-                  <button style={btnStyle}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    Last 180 Days
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-                  </button>
-                  <button onClick={onClose}
-                    style={{background:"transparent",border:"none",cursor:"pointer",width:32,height:32,borderRadius:8,
-                      display:"flex",alignItems:"center",justifyContent:"center",color:"#94A3B8"}}
-                    onMouseEnter={function(e){e.currentTarget.style.background="#f0f2f5";}}
-                    onMouseLeave={function(e){e.currentTarget.style.background="transparent";}}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            {/* ── Controls ── */}
+            <div style={{width:272,flexShrink:0,background:"#f5f7fa",borderRight:"1px solid #e8eaed",
+              padding:"28px 20px",display:"flex",flexDirection:"column",gap:20,overflowY:"auto"}}>
+              <div style={{fontSize:16,fontWeight:700,color:THEME.text,letterSpacing:-0.2}}>Controls</div>
+
+              {/* Current Speed Loss card */}
+              <div style={{background:"#fff",borderRadius:10,border:"1px solid #E2E8F0",padding:"14px 16px"}}>
+                <div style={{fontSize:12,color:"#64748B",marginBottom:4}}>Current Speed Loss</div>
+                <div style={{fontSize:26,fontWeight:700,color:"#0E1A33",lineHeight:1.1,marginBottom:6}}>8.36%</div>
+                <div style={{fontSize:11,color:"#94A3B8"}}>Date Range: 23 Dec 2024 to 23 May 2025</div>
+              </div>
+
+              {/* Compare Post Maintenance Effect */}
+              <div>
+                <div style={{fontSize:14,fontWeight:700,color:THEME.text,marginBottom:12}}>Compare Post Maintenance Effect</div>
+
+                {/* Custom dropdown */}
+                <div style={{position:"relative"}}>
+                  <div onClick={function(){setDdOpen(!ddOpen);}}
+                    style={{display:"flex",alignItems:"center",justifyContent:"space-between",
+                      padding:"10px 14px",borderRadius:8,cursor:"pointer",userSelect:"none",
+                      border:"1.5px solid "+(ddOpen?B:"#CBD5E1"),background:"#fff",
+                      color:sel?"#0E1A33":"#94A3B8",fontSize:13}}>
+                    {sel
+                      ? <span style={{display:"flex",alignItems:"center",gap:8}}>
+                          <span style={{width:14,height:14,borderRadius:"50%",border:"2px solid "+B,
+                            background:"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                            <span style={{width:7,height:7,borderRadius:"50%",background:B,display:"block"}}/>
+                          </span>
+                          <span style={{fontWeight:600}}>{sel.label}</span>
+                          <span style={{marginLeft:"auto",color:"#64748B",fontSize:12,paddingLeft:8}}>{sel.date}</span>
+                        </span>
+                      : <span>Select maintenance event</span>
+                    }
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={ddOpen?B:"#94A3B8"} strokeWidth="2.5"
+                      style={{flexShrink:0,marginLeft:8,transform:ddOpen?"rotate(180deg)":"none",transition:"transform 0.15s"}}>
+                      <polyline points="6 9 12 15 18 9"/>
                     </svg>
-                  </button>
+                  </div>
+
+                  {/* Dropdown list */}
+                  {ddOpen&&(
+                    <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,right:0,background:"#fff",
+                      borderRadius:8,border:"1.5px solid "+B,boxShadow:"0 8px 24px rgba(0,0,0,0.10)",zIndex:100,overflow:"hidden"}}>
+                      {MAINT_EVENTS.map(function(ev){
+                        return (
+                          <div key={ev.id}
+                            onClick={function(){setSelEvent(ev.id);setDdOpen(false);}}
+                            style={{display:"flex",alignItems:"center",justifyContent:"space-between",
+                              padding:"11px 14px",cursor:"pointer",fontSize:13,
+                              background:selEvent===ev.id?"#EEF2FF":"#fff",
+                              borderBottom:"1px solid #F1F5F9"}}
+                            onMouseEnter={function(e){if(selEvent!==ev.id)e.currentTarget.style.background="#F8FAFC";}}
+                            onMouseLeave={function(e){e.currentTarget.style.background=selEvent===ev.id?"#EEF2FF":"#fff";}}>
+                            <span style={{fontWeight:600,color:"#1E293B"}}>{ev.label}</span>
+                            <span style={{color:"#64748B",fontSize:12}}>{ev.date}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Post-selection details */}
+                {sel&&(
+                  <div style={{marginTop:16,display:"flex",flexDirection:"column",gap:12}}>
+                    {/* Comparing Date Range */}
+                    <div>
+                      <div style={{fontSize:13,fontWeight:700,color:"#1E293B",marginBottom:6}}>Comparing Date Range</div>
+                      <div style={{fontSize:12,color:"#475569",lineHeight:1.8}}>
+                        <span style={{fontWeight:600,color:"#1E293B"}}>Pre: </span>{sel.pre} – {sel.preEnd}<br/>
+                        <span style={{fontWeight:600,color:"#1E293B"}}>Post: </span>{sel.post} – {sel.postEnd}
+                      </div>
+                    </div>
+
+                    {/* Consumption Drop */}
+                    <div style={{background:"#fff",borderRadius:10,border:"1px solid #E2E8F0",padding:"14px 16px"}}>
+                      <div style={{fontSize:12,color:"#64748B",marginBottom:4}}>Consumption Drop</div>
+                      <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5">
+                          <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
+                        </svg>
+                        <span style={{fontSize:22,fontWeight:700,color:"#16A34A"}}>{sel.consDrop.toFixed(2)}%</span>
+                      </div>
+                      <div style={{fontSize:11,color:"#64748B"}}>Reduction in fuel consumption<br/>in post period</div>
+                    </div>
+
+                    {/* Speed Gain */}
+                    <div style={{background:"#fff",borderRadius:10,border:"1px solid #E2E8F0",padding:"14px 16px"}}>
+                      <div style={{fontSize:12,color:"#64748B",marginBottom:4}}>Speed Gain</div>
+                      <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5">
+                          <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+                        </svg>
+                        <span style={{fontSize:22,fontWeight:700,color:"#16A34A"}}>{sel.speedGain.toFixed(2)}%</span>
+                      </div>
+                      <div style={{fontSize:11,color:"#64748B"}}>Improvement in average speed<br/>in post period</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Info box */}
+                <div style={{marginTop:16,background:"#EFF6FF",border:"1px solid #BFDBFE",borderRadius:10,
+                  padding:"12px 14px",display:"flex",gap:10,alignItems:"flex-start"}}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={B} strokeWidth="2"
+                    style={{flexShrink:0,marginTop:1}}>
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  <span style={{fontSize:12,color:"#1E40AF",lineHeight:1.6}}>
+                    {sel
+                      ?"Select another event to check its impact"
+                      :"Select a maintenance event to evaluate its effectiveness by comparing the vessel's performance over the 3 months before and the 3 months after the maintenance."}
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* ── Chart ── */}
-            <div style={{flex:1,minHeight:0,padding:"4px 12px 12px",overflow:"hidden"}}>
-              <HullHealthChart n={14}/>
+            {/* ── Chart panel ── */}
+            <div style={{flex:1,display:"flex",flexDirection:"column",padding:"24px 28px",
+              minWidth:0,overflow:"hidden",minHeight:510}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16,flexShrink:0}}>
+                <div>
+                  <div style={{fontSize:18,fontWeight:700,color:THEME.text,letterSpacing:-0.3}}>Deep Dive</div>
+                  <div style={{fontSize:12,color:THEME.textSub,marginTop:2}}>Hull Health – Speed loss vs month</div>
+                </div>
+                <button onClick={onClose}
+                  style={{background:"transparent",border:"none",cursor:"pointer",width:32,height:32,borderRadius:8,
+                    display:"flex",alignItems:"center",justifyContent:"center",color:THEME.textSub}}
+                  onMouseEnter={function(e){e.currentTarget.style.background="#f0f2f5";}}
+                  onMouseLeave={function(e){e.currentTarget.style.background="transparent";}}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+              <div style={{flex:1,minHeight:0}}>
+                <HullHealthChart n={14}/>
+              </div>
             </div>
           </div>
         </div>,
@@ -4518,7 +4630,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     }
 
     // ── Hull Health Chart — Power BI style (Nov 2024 → Dec 2025)
-    function HullHealthChart({n}){
+    function HullHealthChart({n, viewMode}){
       // x=1 → Nov 2024, x=3 → Jan 2025, x=5 → Mar 2025, x=7 → May 2025,
       // x=9 → Jul 2025, x=11 → Sep 2025, x=13 → Nov 2025, x=15 → Jan 2026
       var SMN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -4600,6 +4712,41 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var [showLegend,setShowLegend]=useState(false);
       var [legendAnchor,setLegendAnchor]=useState({x:0,y:0});
       var containerRef=useRef(null);
+
+      var MultiColorLineLayer=function(props){
+        var xMap=props.xAxisMap; var yMap=props.yAxisMap;
+        if(!xMap||!yMap) return null;
+        var xs=xMap[0]&&xMap[0].scale; var ys=yMap[0]&&yMap[0].scale;
+        if(!xs||!ys) return null;
+        function clr(y){return y<=10?"#16A34A":y<=20?"#F97316":"#EF4444";}
+        function crossPt(a,b,th){var t=(th-a.y)/(b.y-a.y);return {x:a.x+t*(b.x-a.x),y:th};}
+        var segs=[];
+        for(var i=0;i<lineData.length-1;i++){
+          var a=lineData[i],b=lineData[i+1];
+          if(b.x<xMin) continue;
+          var chain=[a];
+          [10,20].forEach(function(th){
+            if((a.y<th&&b.y>=th)||(a.y>=th&&b.y<th)) chain.push(crossPt(a,b,th));
+          });
+          chain.sort(function(p,q){return p.x-q.x;});
+          chain.push(b);
+          for(var j=0;j<chain.length-1;j++){
+            var p1=chain[j],p2=chain[j+1];
+            if(p2.x<xMin) continue;
+            var midY=(p1.y+p2.y)/2;
+            var sx=xs(Math.max(p1.x,xMin)), sy=ys(p1.x<xMin?interpLine(xMin):p1.y), ex=xs(p2.x), ey=ys(p2.y);
+            if(!isNaN(sx)&&!isNaN(sy)&&!isNaN(ex)&&!isNaN(ey))
+              segs.push({x1:sx,y1:sy,x2:ex,y2:ey,c:clr(midY)});
+          }
+        }
+        return (
+          <g>
+            {segs.map(function(s,i){
+              return <line key={i} x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2} stroke={s.c} strokeWidth={2.5} strokeLinecap="round"/>;
+            })}
+          </g>
+        );
+      };
 
       var IconLayer=function(props){
         var xMap=props.xAxisMap; var yMap=props.yAxisMap;
@@ -4779,7 +4926,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <span style={{fontSize:12,color:"#475569"}}>Speed Loss</span>
             </div>
             <div style={{display:"flex",alignItems:"center",gap:5}}>
-              <svg width="24" height="12"><line x1="1" y1="6" x2="23" y2="6" stroke="#1E40AF" strokeWidth="2.5"/></svg>
+              <svg width="36" height="12">
+                <line x1="1"  y1="6" x2="12" y2="6" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round"/>
+                <line x1="12" y1="6" x2="25" y2="6" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round"/>
+                <line x1="25" y1="6" x2="35" y2="6" stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round"/>
+              </svg>
               <span style={{fontSize:12,color:"#475569"}}>7 Days Rolling Average</span>
             </div>
             <div style={{display:"flex",alignItems:"center",gap:5}}>
@@ -4790,36 +4941,23 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <svg width="24" height="12"><line x1="1" y1="6" x2="23" y2="6" stroke="#DC2626" strokeWidth="1.5" strokeDasharray="5,3"/></svg>
               <span style={{fontSize:12,color:"#475569"}}>Port Stay (T/NT)</span>
             </div>
-            <div style={{width:16,flexShrink:0}}/>
-            <div
-              style={{width:16,height:16,cursor:"pointer",flexShrink:0}}
-              onMouseEnter={function(){setShowLegend(true);}}
-              onMouseLeave={function(){setShowLegend(false);}}>
-              <svg width="16" height="16" viewBox="0 0 16 16" style={{display:"block"}}>
-                <path d="M8,8 L8,0 A8,8 0 0,1 16,8 Z"   fill="#22C55E"/>
-                <path d="M8,8 L16,8 A8,8 0 0,1 8,16 Z"  fill="#FACC15"/>
-                <path d="M8,8 L8,16 A8,8 0 0,1 0,8 Z"   fill="#EF4444"/>
-                <path d="M8,8 L0,8 A8,8 0 0,1 8,0 Z"    fill="#3B82F6"/>
-                <circle cx="8" cy="8" r="8" fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/>
-              </svg>
-            </div>
           </div>
-          <LegendTooltip/>
           {/* Chart */}
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={lineData} margin={{top:12,right:20,bottom:28,left:14}}>
-                <Customized component={BandLayer}/>
                 <CartesianGrid stroke="rgba(148,163,184,0.22)" strokeDasharray="3 3" vertical={false}/>
                 <XAxis type="number" dataKey="x" domain={[xMin,xDomainEnd]} ticks={xTicks}
-                  tickFormatter={function(v){var d=new Date(2024,9+Math.floor(v),1);return SMN[d.getMonth()]+" "+d.getFullYear();}}
-                  tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false} allowDataOverflow={true}/>
+                  tickFormatter={viewMode==="voyage"
+                    ?function(v){return "V"+Math.round(v);}
+                    :function(v){var d=new Date(2024,9+Math.floor(v),1);return SMN[d.getMonth()]+" "+d.getFullYear();}}
+                  tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false} allowDataOverflow={true}
+                  label={{value:viewMode==="voyage"?"Voyage":"Month",position:"insideBottom",offset:2,style:{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}}/>
                 <YAxis domain={[0,40]} ticks={[0,10,20,30,40]}
                   tick={axTick} axisLine={false} tickLine={false}
                   label={{value:"% Speed Loss",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={<HullTip/>} cursor={{stroke:"#334155",strokeWidth:1}}/>
-                <Line type="monotone" dataKey="y" stroke="#1E40AF" strokeWidth={2.5} dot={false}
-                  legendType="none" isAnimationActive={false}/>
+                <Customized component={MultiColorLineLayer}/>
                 <Customized component={OverlayLayer}/>
               </ComposedChart>
             </ResponsiveContainer>
@@ -5199,6 +5337,27 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       ];
       var [wscView,setWscView]=React.useState("Month");
       var [sogSlipView,setSogSlipView]=React.useState("Month");
+      var [hhView,setHhView]=React.useState("Month");
+      var HullHealthTabs=(
+        <div style={{display:"flex",gap:0,alignItems:"center"}}>
+          {["Month","Voyage"].map(function(v,idx){
+            var isActive=hhView===v;
+            return (
+              <React.Fragment key={v}>
+                <button onClick={function(){setHhView(v);}}
+                  onMouseEnter={function(e){if(!isActive)e.target.style.color="#374151";}}
+                  onMouseLeave={function(e){if(!isActive)e.target.style.color="#94A3B8";}}
+                  style={{padding:0,fontSize:12,fontWeight:isActive?500:400,cursor:"pointer",
+                    background:"none",border:"none",color:isActive?"#0E1A33":"#94A3B8",
+                    transition:"color 0.2s",fontFamily:"inherit",paddingRight:16}}>
+                  {v}
+                </button>
+                {idx<1&&<span style={{color:"#CBD5E1",marginRight:16,pointerEvents:"none"}}>|</span>}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      );
       var SOGSlipTabs=(
         <div style={{display:"flex",gap:0,alignItems:"center"}}>
           {["Month","Voyage"].map(function(v,idx){
@@ -5612,7 +5771,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       // Technical tab — 4 charts in 2×2 layout
       var technicalItems=[
         Object.assign(cc("Hull Health","Speed loss vs month",
-          function(n){return <HullHealthChart n={n}/>;},3,{tableData:(function(){
+          function(n,detailViewMode){var vm=(detailViewMode||hhView).toLowerCase();return <HullHealthChart n={n} viewMode={vm}/>;},3,{headerTabs:HullHealthTabs,tableData:(function(){
             var _MN2=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
             var _d2=new Date(); var _m2=_d2.getMonth(); var _y2=_d2.getFullYear();
             var _months=[];
@@ -7260,7 +7419,53 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                       </ResponsiveContainer>
                     ) : (chart.makeChart ? chart.makeChart(localMonths, viewMode) : chart.chartEl)}
                   </div>
-                </div>
+                {/* ── Hull Health legend inside chart card ── */}
+                {chart.title==="Hull Health"&&(
+                  <div style={{borderTop:"1px solid #F1F5F9",padding:"16px 24px 20px",display:"flex",gap:0}}>
+                    <div style={{flex:1,paddingRight:24}}>
+                      <div style={{fontSize:12,fontWeight:700,color:"#1E293B",marginBottom:10}}>Risk Bands (% Speed Loss)</div>
+                      {[
+                        {c:"rgba(134,239,172,0.78)",b:"#86efac",t:"−0 ≤ Speed loss % ≤ 10"},
+                        {c:"rgba(253,224,71,0.75)", b:"#fde047",t:"10 < Speed loss % ≤ 20"},
+                        {c:"rgba(239,68,68,0.58)",  b:"#ef4444",t:"20 < Speed loss %"},
+                      ].map(function(r,i){
+                        return <div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:7}}>
+                          <div style={{width:12,height:12,background:r.c,border:"0.8px solid "+r.b,flexShrink:0,borderRadius:2}}/>
+                          <span style={{fontSize:12,color:"#475569"}}>{r.t}</span>
+                        </div>;
+                      })}
+                      <div style={{fontSize:11,color:"#94A3B8",marginTop:8}}>T is tropical and NT is non tropical</div>
+                      <div style={{fontSize:11,color:"#94A3B8",marginTop:3}}>(*) Hover over the chart for details</div>
+                    </div>
+                    <div style={{width:1,background:"#E2E8F0",flexShrink:0}}/>
+                    <div style={{flex:2,paddingLeft:24}}>
+                      <div style={{fontSize:12,fontWeight:700,color:"#1E293B",marginBottom:10}}>Service Legend (Maintenance / Drydock)</div>
+                      <div style={{display:"flex",gap:40}}>
+                        <div>
+                          {[{l:"UWI",d:"Under Water Inspection"},{l:"PP",d:"Propeller Polishing"},{l:"VS",d:"Vessel Survey"}].map(function(s){
+                            return <div key={s.l} style={{display:"flex",alignItems:"center",gap:8,marginBottom:7}}>
+                              <svg width="12" height="12" style={{flexShrink:0}}><polygon points="6,0 12,6 6,12 0,6" fill="#16A34A"/></svg>
+                              <span style={{fontSize:12,fontWeight:600,color:"#1E293B",minWidth:32}}>{s.l}</span>
+                              <span style={{fontSize:12,color:"#64748B"}}>–</span>
+                              <span style={{fontSize:12,color:"#475569"}}>{s.d}</span>
+                            </div>;
+                          })}
+                        </div>
+                        <div>
+                          {[{l:"FB",d:"Flat Bottom Cleaning"},{l:"Drydock",d:"Drydock"}].map(function(s){
+                            return <div key={s.l} style={{display:"flex",alignItems:"center",gap:8,marginBottom:7}}>
+                              <span style={{width:12,height:12,display:"inline-block",flexShrink:0}}/>
+                              <span style={{fontSize:12,fontWeight:600,color:"#1E293B",minWidth:48}}>{s.l}</span>
+                              <span style={{fontSize:12,color:"#64748B"}}>–</span>
+                              <span style={{fontSize:12,color:"#475569"}}>{s.d}</span>
+                            </div>;
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
               </React.Fragment>
             ) : null}
 
