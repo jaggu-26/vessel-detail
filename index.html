@@ -3235,7 +3235,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         );
       }
       return (
-        <div ref={kpiStripRef} style={{margin:isGrey?"-20px -24px 0":"-20px -24px 20px",background:stripBg,padding:isGrey?"0 28px 20px":"4px 28px 20px",
+        <div ref={kpiStripRef} style={{margin:isGrey?"-20px -24px 0":"-20px -24px 20px",background:stripBg,padding:isGrey?"0 28px 28px":"4px 28px 28px",
           boxShadow:stripShadow}}>
           <div className="kpi-grid" style={{"--kpi-cols":kpiCols}}>
             {flatKpis.map(function(k, idx){
