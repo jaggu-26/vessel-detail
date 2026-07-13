@@ -3269,7 +3269,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                         <div style={{fontSize:12,color:labelColor,fontWeight:500,letterSpacing:0.3,lineHeight:1.8,marginBottom:4}}>{k.label}</div>
                         <div style={{marginTop:"auto",display:"flex",alignItems:"flex-end",justifyContent:"space-between"}}>
                           <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:valueColor,lineHeight:1}}>{k.value}</span>
-                          {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={null} change={k.change||""} dark={true} isLast={false}/>}
+                          {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={vessel&&KPI_BENCHMARKS[k.label]?KPI_BENCHMARKS[k.label](vessel):null} change={k.change||""} dark={true} isLast={false}/>}
                         </div>
                       </div>
                       <div style={{width:1,background:"rgba(255,255,255,0.12)",flexShrink:0,margin:"12px 0"}}/>
@@ -3277,7 +3277,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                         <div style={{fontSize:12,color:labelColor,fontWeight:500,letterSpacing:0.3,lineHeight:1.8,marginBottom:4}}>{k.split.label}</div>
                         <div style={{marginTop:"auto",display:"flex",alignItems:"flex-end",justifyContent:"space-between"}}>
                           <span className="kpi-val" style={{fontSize:18,fontWeight:700,color:valueColor,lineHeight:1}}>{k.split.value}</span>
-                          {k.split.up!==undefined && <ArrowTooltip up={k.split.up} tooltip={null} change={k.split.change||""} dark={true} isLast={true}/>}
+                          {k.split.up!==undefined && <ArrowTooltip up={k.split.up} tooltip={vessel&&KPI_BENCHMARKS[k.split.label]?KPI_BENCHMARKS[k.split.label](vessel):null} change={k.split.change||""} dark={true} isLast={true}/>}
                         </div>
                       </div>
                     </React.Fragment>
