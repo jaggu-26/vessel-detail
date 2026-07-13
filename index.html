@@ -3308,11 +3308,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                           {k.subRows.map(function(row,ri){
                             return (
                               <React.Fragment key={row.label}>
-                                {ri>0&&<div style={{width:1,background:"rgba(255,255,255,0.22)",flexShrink:0,margin:"4px 0"}}/>}
-                                <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",gap:3,padding:ri===0?"0 10px 0 0":"0 0 0 10px"}}>
-                                  <span style={{fontSize:11,lineHeight:1,color:subColor,fontWeight:500,whiteSpace:"nowrap"}}>{row.label}</span>
-                                  <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between"}}>
-                                    <span style={{fontSize:subValFs,fontWeight:700,color:valueColor,letterSpacing:"-0.3px",lineHeight:1.2,whiteSpace:"nowrap"}}>{row.value}</span>
+                                {ri>0&&<div style={{width:1,background:"rgba(255,255,255,0.22)",flexShrink:0,margin:"2px 0"}}/>}
+                                <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",justifyContent:"flex-end",padding:ri===0?"0 8px 0 0":"0 0 0 8px"}}>
+                                  <span style={{fontSize:11,lineHeight:1,color:subColor,fontWeight:500,whiteSpace:"nowrap",marginBottom:3}}>{row.label}</span>
+                                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                                    <span style={{fontSize:subValFs,fontWeight:700,color:valueColor,letterSpacing:"-0.3px",lineHeight:1,whiteSpace:"nowrap"}}>{row.value}</span>
                                     {row.up!==undefined&&<ArrowTooltip up={row.up} tooltip={vessel&&KPI_BENCHMARKS[row.label]?KPI_BENCHMARKS[row.label](vessel):null} change={row.change||""} dark={true} isLast={ri===k.subRows.length-1}/>}
                                   </div>
                                 </div>
