@@ -3304,24 +3304,21 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                         {k.label}
                       </div>
                       {k.subRows ? (
-                        <div style={{display:"flex",alignItems:"flex-end",gap:k.subRowGap||10,marginTop:"auto"}}>
+                        <div style={{display:"flex",alignItems:"stretch",marginTop:"auto",width:"100%"}}>
                           {k.subRows.map(function(row,ri){
                             return (
                               <React.Fragment key={row.label}>
-                                {ri>0&&<div style={{width:1,height:36,background:"rgba(255,255,255,0.22)",flexShrink:0,alignSelf:"center"}}/>}
-                                <div style={{display:"flex",flexDirection:"column",gap:3}}>
+                                {ri>0&&<div style={{width:1,background:"rgba(255,255,255,0.22)",flexShrink:0,margin:"4px 0"}}/>}
+                                <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",gap:3,padding:ri===0?"0 10px 0 0":"0 0 0 10px"}}>
                                   <span style={{fontSize:11,lineHeight:1,color:subColor,fontWeight:500,whiteSpace:"nowrap"}}>{row.label}</span>
-                                  <div style={{display:"flex",alignItems:"center",gap:4}}>
+                                  <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between"}}>
                                     <span style={{fontSize:subValFs,fontWeight:700,color:valueColor,letterSpacing:"-0.3px",lineHeight:1.2,whiteSpace:"nowrap"}}>{row.value}</span>
-                                    {row.up!==undefined&&<ArrowTooltip up={row.up} tooltip={vessel&&KPI_BENCHMARKS[row.label]?KPI_BENCHMARKS[row.label](vessel):null} change={row.change||""} dark={true} isLast={false}/>}
+                                    {row.up!==undefined&&<ArrowTooltip up={row.up} tooltip={vessel&&KPI_BENCHMARKS[row.label]?KPI_BENCHMARKS[row.label](vessel):null} change={row.change||""} dark={true} isLast={ri===k.subRows.length-1}/>}
                                   </div>
                                 </div>
                               </React.Fragment>
                             );
                           })}
-                          <div style={{marginLeft:"auto",flexShrink:0,marginBottom:2}}>
-                            {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/>}
-                          </div>
                         </div>
                       ) : (
                         <div style={{marginTop:"auto",display:"flex",alignItems:"flex-end",justifyContent:"space-between"}}>
