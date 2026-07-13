@@ -2988,7 +2988,13 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       "Distance":               function(v){return "Fleet avg annual distance for "+v.range+" "+v.type+" is 19,500 nm. Current 18,420 nm is 5.5% below benchmark — partly due to 3 extended port stays in Q1 2025.";},
       "Transport Work":         function(v){return "Fleet avg transport work for "+v.range+" "+v.type+" is 14.1 M t·nm. Below benchmark due to reduced cargo volume in Apr–May caused by dry-dock scheduling.";},
       "EUA":                    function(v){return "Fleet avg EUA cost for "+v.type+" vessels YTD is $51,200. Vessel at $42,800 is 16% below fleet avg due to lower CO₂ intensity. Projected full-year saving vs fleet: $18K.";},
+      "UKA":                    function(v){return "UK Allowances (UKA): 12,300 units. UK ETS compliance on track — UKA price ~£48/tCO₂. Estimated full-year liability: £590K. No surrender deficit projected.";},
       "Fuel EU YTD":            function(v){return "GHG intensity: 82.1 gCO₂eq/MJ vs FuelEU 2025 limit of 91.16 gCO₂eq/MJ. Compliance balance surplus: 4.2 t CO₂eq. Penalty: €0. Surplus can be banked or transferred to next compliance period.";},
+      "Fuel EU":                function(v){return "GHG intensity: 82.1 gCO₂eq/MJ vs FuelEU 2025 limit of 91.16 gCO₂eq/MJ. Compliance balance: −143.05 tCO₂eq. Deficit requires EUA purchase or voyage profile adjustment before year-end.";},
+      "Current":                function(v){return "Current CII rating A is excellent — vessel is in the top 10% of "+v.type+" fleet. SFOC and speed profile are optimised. Maintain current operational pattern to retain A rating.";},
+      "Projected":              function(v){return "Projected year-end CII of B based on current consumption trajectory. Slight increase on EU legs in Q3 is the main driver. Reducing laden speed by 0.5 kn can recover the A rating.";},
+      "Attained":               function(v){return "Attained AER of 7.2 g/t·nm is 18% below the fleet benchmark of 8.8 g/t·nm and on track for the IMO 2030 target of 6.0 g/t·nm.";},
+      "Required":               function(v){return "Required AER for this vessel class is 8.9 g/t·nm under IMO EEXI/CII regulations. Vessel is comfortably within the required limit with a 19% margin.";},
     };
 
     function ArrowTooltip({up, tooltip, change, dark, isLast}) {
@@ -3041,6 +3047,41 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   width:8,height:8,background:tipBg,clipPath:"polygon(0 0,100% 0,50% 100%)"}}/>
               </div>
             ),
+            document.getElementById('tooltip-root')
+          )}
+        </React.Fragment>
+      );
+    }
+
+    function ParIndicator({dark, tooltip}) {
+      var [show, setShow] = useState(false);
+      var [pos, setPos] = useState({x:0,y:0});
+      var color = dark ? "rgba(255,255,255,0.45)" : "#94A3B8";
+      var tipBg = dark ? "#ffffff" : "#1E293B";
+      var tipClr = dark ? "#1E293B" : "#ffffff";
+      function handleEnter(e) {
+        var rect = e.currentTarget.getBoundingClientRect();
+        setPos({x: rect.left + rect.width/2, y: rect.top - 6});
+        setShow(true);
+      }
+      return (
+        <React.Fragment>
+          <span onMouseEnter={handleEnter} onMouseLeave={function(){setShow(false);}}
+            style={{color:color,display:"flex",alignItems:"center",gap:4,flexShrink:0,cursor:"default"}}>
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <line x1="2" y1="7.5" x2="13" y2="7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <span style={{fontSize:11,fontWeight:600,lineHeight:1}}>at par</span>
+          </span>
+          {show && tooltip && ReactDOM.createPortal(
+            <div style={{position:"fixed",left:pos.x,top:pos.y,transform:"translate(-50%,-100%)",
+              background:tipBg,color:tipClr,fontSize:11,fontWeight:500,
+              padding:"7px 11px",borderRadius:7,maxWidth:210,whiteSpace:"normal",lineHeight:1.5,
+              boxShadow:"0 4px 16px rgba(0,0,0,0.18)",pointerEvents:"none",zIndex:99999,marginBottom:6}}>
+              {tooltip}
+              <div style={{position:"absolute",bottom:-4,left:"50%",transform:"translateX(-50%)",
+                width:8,height:8,background:tipBg,clipPath:"polygon(0 0,100% 0,50% 100%)"}}/>
+            </div>,
             document.getElementById('tooltip-root')
           )}
         </React.Fragment>
@@ -3131,28 +3172,40 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               {showDivider && (
                 <div style={{width:1,background:"rgba(255,255,255,0.12)",flexShrink:0,margin:"14px 0"}}/>
               )}
-              <div style={{flex:"0 0 auto",display:"flex",flexDirection:"column",justifyContent:"center",
-                alignItems:"center",padding:"0 24px"}}>
+              <div style={{flex:"0 0 auto",display:"flex",flexDirection:"column",justifyContent:"space-between",
+                alignItems:"center",padding:"13px 24px 13px"}}>
                 <div style={{fontSize:11,fontWeight:700,color:"#5FA5F9",letterSpacing:0.9,
-                  textTransform:"uppercase",lineHeight:1,whiteSpace:"nowrap",marginBottom:8,textAlign:"center"}}>
+                  textTransform:"uppercase",lineHeight:1,whiteSpace:"nowrap",textAlign:"center"}}>
                   {k.label}
                 </div>
                 {k.subRows ? (
-                  <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>
-                    {k.subRows.map(function(row){
+                  <div style={{display:"flex",alignItems:"flex-end",justifyContent:"center",gap:k.subRowGap||10}}>
+                    {k.subRows.map(function(row,ri){
                       return (
-                        <div key={row.label} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
-                          <span style={{fontSize:10,color:"rgba(255,255,255,0.45)",fontWeight:500,whiteSpace:"nowrap"}}>{row.label}</span>
-                          <span style={{fontSize:22,fontWeight:700,color:"#fff",letterSpacing:"-0.3px",lineHeight:1,whiteSpace:"nowrap"}}>{row.value}</span>
-                        </div>
+                        <React.Fragment key={row.label}>
+                          {ri>0&&<div style={{width:1,height:36,background:"rgba(255,255,255,0.22)",flexShrink:0,alignSelf:"center"}}/>}
+                          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
+                            <span style={{fontSize:10,color:"rgba(255,255,255,0.45)",fontWeight:500,whiteSpace:"nowrap"}}>{row.label}</span>
+                            <div style={{display:"flex",alignItems:"center",gap:4}}>
+                              <span style={{fontSize:22,fontWeight:700,color:"#fff",letterSpacing:"-0.3px",lineHeight:1,whiteSpace:"nowrap"}}>{row.value}</span>
+                              {row.up!==undefined&&<ArrowTooltip up={row.up} tooltip={vessel&&KPI_BENCHMARKS[row.label]?KPI_BENCHMARKS[row.label](vessel):null} change={row.change||""} dark={true} isLast={false}/>}
+                            </div>
+                          </div>
+                        </React.Fragment>
                       );
                     })}
                     {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={false}/>}
                   </div>
                 ) : (
                   <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>
-                    <span style={{fontSize:22,fontWeight:700,color:"#fff",lineHeight:1,letterSpacing:"-0.3px",whiteSpace:"nowrap"}}>{k.value}</span>
-                    {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={false}/>}
+                    <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
+                      {k.sublabel&&<span style={{fontSize:10,color:"rgba(255,255,255,0.45)",fontWeight:500,whiteSpace:"nowrap"}}>{k.sublabel}</span>}
+                      <div style={{display:"flex",alignItems:"baseline",gap:4}}>
+                        <span style={{fontSize:22,fontWeight:700,color:"#fff",lineHeight:1,letterSpacing:"-0.3px",whiteSpace:"nowrap"}}>{k.value}</span>
+                        {k.unit&&<span style={{fontSize:10,color:"rgba(255,255,255,0.45)",fontWeight:400,whiteSpace:"nowrap"}}>{k.unit}</span>}
+                      </div>
+                    </div>
+                    {k.atPar ? <ParIndicator dark={true} tooltip={tip}/> : k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={false}/>}
                   </div>
                 )}
               </div>
@@ -3251,13 +3304,19 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                         {k.label}
                       </div>
                       {k.subRows ? (
-                        <div style={{display:"flex",alignItems:"flex-end",gap:10,marginTop:"auto"}}>
-                          {k.subRows.map(function(row){
+                        <div style={{display:"flex",alignItems:"flex-end",gap:k.subRowGap||10,marginTop:"auto"}}>
+                          {k.subRows.map(function(row,ri){
                             return (
-                              <div key={row.label} style={{display:"flex",flexDirection:"column",gap:3}}>
-                                <span style={{fontSize:11,lineHeight:1,color:subColor,fontWeight:500,whiteSpace:"nowrap"}}>{row.label}</span>
-                                <span style={{fontSize:subValFs,fontWeight:700,color:valueColor,letterSpacing:"-0.3px",lineHeight:1.2,whiteSpace:"nowrap"}}>{row.value}</span>
-                              </div>
+                              <React.Fragment key={row.label}>
+                                {ri>0&&<div style={{width:1,height:36,background:"rgba(255,255,255,0.22)",flexShrink:0,alignSelf:"center"}}/>}
+                                <div style={{display:"flex",flexDirection:"column",gap:3}}>
+                                  <span style={{fontSize:11,lineHeight:1,color:subColor,fontWeight:500,whiteSpace:"nowrap"}}>{row.label}</span>
+                                  <div style={{display:"flex",alignItems:"center",gap:4}}>
+                                    <span style={{fontSize:subValFs,fontWeight:700,color:valueColor,letterSpacing:"-0.3px",lineHeight:1.2,whiteSpace:"nowrap"}}>{row.value}</span>
+                                    {row.up!==undefined&&<ArrowTooltip up={row.up} tooltip={vessel&&KPI_BENCHMARKS[row.label]?KPI_BENCHMARKS[row.label](vessel):null} change={row.change||""} dark={true} isLast={false}/>}
+                                  </div>
+                                </div>
+                              </React.Fragment>
                             );
                           })}
                           <div style={{marginLeft:"auto",flexShrink:0,marginBottom:2}}>
@@ -3267,10 +3326,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       ) : (
                         <div style={{marginTop:"auto",display:"flex",alignItems:"flex-end",justifyContent:"space-between"}}>
                           <div style={{minWidth:0}}>
-                            <span className="kpi-val" style={{fontSize:valFs,fontWeight:700,color:valueColor,lineHeight:1,whiteSpace:"nowrap",overflowWrap:"normal",display:"block"}}>{k.value}</span>
+                            {k.sublabel&&<div style={{fontSize:11,color:subColor,fontWeight:500,marginBottom:2,lineHeight:1,whiteSpace:"nowrap"}}>{k.sublabel}</div>}
+                            <div style={{display:"flex",alignItems:"baseline",gap:4}}>
+                              <span className="kpi-val" style={{fontSize:valFs,fontWeight:700,color:valueColor,lineHeight:1,whiteSpace:"nowrap",overflowWrap:"normal"}}>{k.value}</span>
+                              {k.unit&&<span style={{fontSize:11,color:subColor,fontWeight:400,whiteSpace:"nowrap"}}>{k.unit}</span>}
+                            </div>
                             {k.detail && <div style={{fontSize:12,color:subColor,fontWeight:500,marginTop:3,lineHeight:1.3}}>{k.detail}</div>}
                           </div>
-                          {k.up!==undefined && <div style={{flexShrink:0,marginBottom:1}}><ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/></div>}
+                          {k.atPar ? <div style={{flexShrink:0,marginBottom:1}}><ParIndicator dark={true} tooltip={tip}/></div> : k.up!==undefined && <div style={{flexShrink:0,marginBottom:1}}><ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/></div>}
                         </div>
                       )}
                     </React.Fragment>
@@ -3319,12 +3382,18 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     </div>
                     {k.subRows ? (
                       <div style={{display:"flex",flexDirection:"column",gap:4}}>
-                        {k.subRows.map(function(row){
+                        {k.subRows.map(function(row,ri){
                           return (
-                            <div key={row.label} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
-                              <span style={{fontSize:11,color:"#64748B",fontWeight:500,flexShrink:0}}>{row.label}</span>
-                              <span style={{fontSize:15,fontWeight:700,color:"#1E293B",letterSpacing:"-0.3px"}}>{row.value}</span>
-                            </div>
+                            <React.Fragment key={row.label}>
+                              {ri>0&&<div style={{height:1,background:"#E2E8F0",margin:"0 0 0 0",flexShrink:0}}/>}
+                              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
+                                <span style={{fontSize:11,color:"#64748B",fontWeight:500,flexShrink:0}}>{row.label}</span>
+                                <div style={{display:"flex",alignItems:"center",gap:4}}>
+                                  <span style={{fontSize:15,fontWeight:700,color:"#1E293B",letterSpacing:"-0.3px"}}>{row.value}</span>
+                                  {row.up!==undefined&&<ArrowTooltip up={row.up} tooltip={vessel&&KPI_BENCHMARKS[row.label]?KPI_BENCHMARKS[row.label](vessel):null} change={row.change||""} dark={false} isLast={false}/>}
+                                </div>
+                              </div>
+                            </React.Fragment>
                           );
                         })}
                         <div style={{display:"flex",justifyContent:"flex-end",marginTop:2}}>
@@ -3332,15 +3401,21 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                         </div>
                       </div>
                     ) : (
-                      <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"nowrap"}}>
-                        <span className="kpi-val" style={{fontSize:20,fontWeight:600,color:"#1E293B",lineHeight:1.4,overflowWrap:"break-word",minWidth:0,flex:"1 1 auto"}}>{k.value}</span>
-                        {k.portStayCount!==undefined && (
-                          <div style={{display:"flex",alignItems:"center",gap:5,marginTop:4}}>
-                            <span style={{fontSize:11,fontWeight:500,color:"#64748B",whiteSpace:"nowrap"}}>Prolonged: {k.portStayCount}</span>
-                            <PortStayViewLink count={k.portStayCount}/>
+                      <div>
+                        {k.sublabel&&<div style={{fontSize:11,color:"#64748B",fontWeight:500,marginBottom:4,lineHeight:1,whiteSpace:"nowrap"}}>{k.sublabel}</div>}
+                        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"nowrap"}}>
+                          <div style={{minWidth:0,flex:"1 1 auto"}}>
+                            <span className="kpi-val" style={{fontSize:20,fontWeight:600,color:"#1E293B",lineHeight:1.4,overflowWrap:"break-word",display:"block"}}>{k.value}</span>
+                            {k.unit&&<div style={{fontSize:11,color:"#64748B",fontWeight:400,marginTop:2,lineHeight:1.3}}>{k.unit}</div>}
                           </div>
-                        )}
-                        {k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={false} isLast={isLast}/>}
+                          {k.portStayCount!==undefined && (
+                            <div style={{display:"flex",alignItems:"center",gap:5,marginTop:4}}>
+                              <span style={{fontSize:11,fontWeight:500,color:"#64748B",whiteSpace:"nowrap"}}>Prolonged: {k.portStayCount}</span>
+                              <PortStayViewLink count={k.portStayCount}/>
+                            </div>
+                          )}
+                          {k.atPar ? <ParIndicator dark={false} tooltip={tip}/> : k.up!==undefined && <ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={false} isLast={isLast}/>}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -3377,12 +3452,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     function getEnvironmentalKpis(m) {
       var s = m / 6;
       return [
-        {label:"CII Rating",      subRows:[{label:"Current",value:"A"},{label:"Projected",value:"B"}], up:true},
-        {label:"AER",             subRows:[{label:"Attained",value:"7.2 g/t·nm"},{label:"Required",value:"8.9 g/t·nm"}], up:true},
+        {label:"CII Rating",      subRows:[{label:"Current",value:"A",up:true,change:""},{label:"Projected",value:"B",up:false,change:""}], subRowGap:32},
+        {label:"AER",             subRows:[{label:"Attained",value:"7.2 g/t·nm",up:true,change:""},{label:"Required",value:"8.9 g/t·nm",up:false,change:""}]},
         {label:"Distance",        value:_kfmt(Math.round(18420*s))+" nm",  up:false},
-        {label:"Transport Work",  value:(12.4*s).toFixed(1)+" M t·nm",    up:false},
-        {label:"ETS",             subRows:[{label:"EUA",value:"560.00"},{label:"UKA",value:"12.23"}], up:false},
-        {label:"Fuel EU YTD",     value:"Compliant",                        up:false},
+        {label:"Transport Work",  value:(12.4*s).toFixed(1)+" M t·nm",    atPar:true},
+        {label:"ETS",             subRows:[{label:"EUA",value:"85,600",up:false,change:""},{label:"UKA",value:"12,300",up:true,change:""}], subRowGap:28},
+        {label:"Fuel EU",         sublabel:"Compliance Bal", value:"-143.05", unit:"(MTCO₂eq)", up:false, change:""},
       ];
     }
 
@@ -4287,7 +4362,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={ghgData} margin={{top:4,right:16,bottom:20,left:8}}>
+              <ComposedChart data={ghgData} margin={{top:4,right:16,bottom:4,left:8}}>
                 <defs>
                   <linearGradient id="ghgG1" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.45}/>
@@ -4306,12 +4381,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   </linearGradient>
                 </defs>
                 <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
-                <XAxis dataKey="m" tick={axTick} axisLine={false} tickLine={false}
-                  label={{value:"Month",offset:-4,position:"insideBottom",style:axLabel}}/>
+                <XAxis dataKey="m" tick={axTick} axisLine={false} tickLine={false}/>
                 <YAxis domain={[0,1200]} ticks={[0,200,400,600,800,1000,1200]} tick={axTick} axisLine={false} tickLine={false}
                   label={{value:"tCO₂eq",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={<ModernTooltip/>}/>
-                <Legend verticalAlign="bottom" wrapperStyle={{fontSize:11,paddingTop:4}} iconType="circle" iconSize={8}/>
                 <Area type="monotone" dataKey="co2" stroke="#3B82F6" strokeWidth={2.5} fill="url(#ghgG1)"
                   dot={{r:3.5,fill:"#3B82F6",stroke:"#fff",strokeWidth:2}} activeDot={{r:6,fill:"#3B82F6",stroke:"#fff",strokeWidth:2}} name="CO₂"/>
                 <Area type="monotone" dataKey="n2o" stroke="#EAB308" strokeWidth={2.5} fill="url(#ghgG2)"
@@ -4321,20 +4394,16 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               </ComposedChart>
             </ResponsiveContainer>
           </div>
-          <div style={{display:"flex",gap:6,justifyContent:"center",paddingBottom:4,flexWrap:"wrap"}}>
+          <div style={{display:"flex",gap:12,justifyContent:"center",paddingBottom:4,flexWrap:"wrap"}}>
             {[
-              {label:"Total CO₂",value:last.co2.toLocaleString(),color:"#3B82F6",bg:"rgba(59,130,246,0.07)"},
-              {label:"Total N₂O",value:last.n2o.toLocaleString(),color:"#EAB308",bg:"rgba(234,179,8,0.07)"},
-              {label:"Total CH₄",value:last.ch4.toLocaleString(),color:"#22C55E",bg:"rgba(34,197,94,0.07)"},
+              {label:"Total CO₂",color:"#3B82F6"},
+              {label:"Total N₂O",color:"#EAB308"},
+              {label:"Total CH₄",color:"#22C55E"},
             ].map(function(it){
               return (
-                <div key={it.label} style={{background:it.bg,border:"1px solid "+it.color+"33",borderRadius:8,
-                  padding:"4px 11px",fontSize:10,fontWeight:600,color:"#374151",
-                  boxShadow:"0 2px 8px "+it.color+"18",display:"flex",alignItems:"center",gap:5}}>
-                  <div style={{width:8,height:8,borderRadius:"50%",background:it.color,
-                    boxShadow:"0 0 6px "+it.color+"88",flexShrink:0}}/>
-                  {it.label}: <span style={{color:it.color,fontWeight:700,marginLeft:2}}>{it.value}</span>
-                  <span style={{color:"#94A3B8",fontWeight:400}}> tCO₂eq</span>
+                <div key={it.label} style={{display:"flex",alignItems:"center",gap:5}}>
+                  <div style={{width:8,height:8,borderRadius:"50%",background:it.color,flexShrink:0}}/>
+                  <span style={{fontSize:11,fontWeight:500,color:"#64748B"}}>{it.label}</span>
                 </div>
               );
             })}
@@ -4673,35 +4742,34 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           {diamond:false,t:"FB – Flat Bottom Cleaning"},
           {diamond:false,t:"Drydock – Drydock"},
         ];
-        return ReactDOM.createPortal(
-          <div style={{position:"fixed",left:legendAnchor.left,top:legendAnchor.top+4,width:legendAnchor.width,boxSizing:"border-box",zIndex:9999,background:"#fff",borderRadius:6,border:"1px solid #CBD5E1",boxShadow:"0 4px 16px rgba(0,0,0,0.13)",padding:"10px 14px",fontFamily:"inherit",pointerEvents:"none"}}>
-            <div style={{display:"flex",gap:16}}>
-              <div style={{flex:1}}>
-                <div style={{fontSize:10,fontWeight:700,color:"#334155",marginBottom:6}}>Risk Bands (% Speed Loss)</div>
+        return (
+          <div style={{position:"absolute",right:0,top:28,width:420,zIndex:20,background:"#fff",borderRadius:8,border:"1px solid #CBD5E1",boxShadow:"0 6px 20px rgba(0,0,0,0.12)",padding:"14px 16px",fontFamily:"inherit",pointerEvents:"none"}}>
+            <div style={{display:"flex",gap:0}}>
+              <div style={{flex:1,paddingRight:16}}>
+                <div style={{fontSize:12,fontWeight:700,color:"#1E293B",marginBottom:8}}>Risk Bands (% Speed Loss)</div>
                 {risks.map(function(r,i){
-                  return <div key={i} style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
-                    <div style={{width:10,height:10,background:r.c,border:"0.8px solid "+r.b,flexShrink:0}}/>
-                    <span style={{fontSize:10,color:"#475569"}}>{r.t}</span>
+                  return <div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                    <div style={{width:12,height:12,background:r.c,border:"0.8px solid "+r.b,flexShrink:0,borderRadius:2}}/>
+                    <span style={{fontSize:11,color:"#475569"}}>{r.t}</span>
                   </div>;
                 })}
-                <div style={{fontSize:9,color:"#94A3B8",marginTop:4}}>T = tropical  |  NT = non tropical</div>
-                <div style={{fontSize:9,color:"#94A3B8"}}>Roll over the chart to view details</div>
+                <div style={{fontSize:10,color:"#94A3B8",marginTop:6}}>T = tropical  |  NT = non tropical</div>
+                <div style={{fontSize:10,color:"#94A3B8",marginTop:2}}>Roll over the chart to view details</div>
               </div>
               <div style={{width:1,background:"#E2E8F0",flexShrink:0}}/>
-              <div style={{flex:1}}>
-                <div style={{fontSize:10,fontWeight:700,color:"#334155",marginBottom:6}}>Service Legend</div>
+              <div style={{flex:1,paddingLeft:16}}>
+                <div style={{fontSize:12,fontWeight:700,color:"#1E293B",marginBottom:8}}>Service Legend</div>
                 {svcs.map(function(s,i){
-                  return <div key={i} style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+                  return <div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
                     {s.diamond
                       ?<svg width="12" height="12"><polygon points="6,0 12,6 6,12 0,6" fill="#16A34A"/></svg>
-                      :<span style={{display:"inline-block",width:12,height:12}}/>}
-                    <span style={{fontSize:10,color:"#475569"}}>{s.t}</span>
+                      :<span style={{display:"inline-block",width:12,height:12,flexShrink:0}}/>}
+                    <span style={{fontSize:11,color:"#475569"}}>{s.t}</span>
                   </div>;
                 })}
               </div>
             </div>
-          </div>,
-          document.getElementById("tooltip-root")
+          </div>
         );
       };
 
@@ -4728,12 +4796,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <div style={{width:16,flexShrink:0}}/>
             <div
               style={{width:16,height:16,cursor:"pointer",flexShrink:0}}
-              onMouseEnter={function(e){
-                var ir=e.currentTarget.getBoundingClientRect();
-                var cr=containerRef.current.getBoundingClientRect();
-                setShowLegend(true);
-                setLegendAnchor({left:cr.left,top:ir.bottom,width:ir.right-cr.left});
-              }}
+              onMouseEnter={function(){setShowLegend(true);}}
               onMouseLeave={function(){setShowLegend(false);}}>
               <svg width="16" height="16" viewBox="0 0 16 16" style={{display:"block"}}>
                 <path d="M8,8 L8,0 A8,8 0 0,1 16,8 Z"   fill="#22C55E"/>
@@ -9013,9 +9076,9 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
     function MiniPieIcon() {
       return (
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10.75 2.03799V8.32599L15.436 4.14699C14.18 2.97899 12.553 2.20599 10.75 2.03799Z" fill="#334154"/>
-          <path d="M10.9919 10.12L15.1249 16.135C16.8799 14.666 17.9999 12.462 17.9999 9.99999C17.9999 8.22799 17.4139 6.59399 16.4339 5.26599L10.9919 10.12Z" fill="#334154"/>
-          <path d="M9.358 10.389C9.292 10.277 9.25 10.139 9.25 9.99999V2.03799C5.19 2.41799 2 5.84199 2 9.99999C2 14.411 5.589 18 10 18C11.411 18 12.737 17.629 13.889 16.985L9.382 10.425C9.369 10.405 9.358 10.389 9.358 10.389Z" fill="#334154"/>
+          <path d="M10.75 2.03799V8.32599L15.436 4.14699C14.18 2.97899 12.553 2.20599 10.75 2.03799Z" fill="#1852FE"/>
+          <path d="M10.9919 10.12L15.1249 16.135C16.8799 14.666 17.9999 12.462 17.9999 9.99999C17.9999 8.22799 17.4139 6.59399 16.4339 5.26599L10.9919 10.12Z" fill="#1852FE"/>
+          <path d="M9.358 10.389C9.292 10.277 9.25 10.139 9.25 9.99999V2.03799C5.19 2.41799 2 5.84199 2 9.99999C2 14.411 5.589 18 10 18C11.411 18 12.737 17.629 13.889 16.985L9.382 10.425C9.369 10.405 9.358 10.389 9.358 10.389Z" fill="#1852FE"/>
         </svg>
       );
     }
@@ -9092,10 +9155,10 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
               <div style={{fontSize:12,color:"#94A3B8",marginTop:4}}>{vessel.imo.replace("IMO ","")} <span style={{margin:"0 3px"}}>|</span> {vessel.type}</div>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:2}}>
                 <span style={{fontSize:12,color:"#334155",fontWeight:600}}>Laden <span style={{color:"#CBD5E1",margin:"0 6px"}}>|</span> Speed Optimised</span>
-                <button onClick={onAnalytics} style={{display:"flex",alignItems:"center",gap:5,border:"none",background:"none",
-                  cursor:"pointer",color:"#0F172A",fontSize:12,fontWeight:700,fontFamily:"inherit",flexShrink:0,
-                  padding:"4px 8px",borderRadius:6,transition:"background 0.15s"}}
-                  onMouseEnter={function(e){e.currentTarget.style.background="#F1F5F9";}}
+                <button onClick={onAnalytics} style={{display:"flex",alignItems:"center",gap:5,border:"1.5px solid #1852FE",background:"none",
+                  cursor:"pointer",color:"#1852FE",fontSize:12,fontWeight:600,fontFamily:"inherit",flexShrink:0,
+                  padding:"4px 12px",borderRadius:6,transition:"background 0.15s"}}
+                  onMouseEnter={function(e){e.currentTarget.style.background="rgba(24,82,254,0.06)";}}
                   onMouseLeave={function(e){e.currentTarget.style.background="none";}}>
                   <MiniPieIcon/> Analytics
                 </button>
@@ -10143,17 +10206,29 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                 {showLastUpdated&&<span style={{fontSize:12,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.5)":THEME.textMuted,whiteSpace:"nowrap"}}>Last updated: 19 Jun 06:00 UTC</span>}
                 {activeNav==="emissions"&&selectedVessel&&dashTab==="environmental"&&(
                   <div ref={principalWrapRef} style={{position:"relative",display:"inline-flex",alignItems:"center"}}>
-                    <button onClick={function(){setPrincipalOpen(function(o){var next=!o;if(next&&principalWrapRef.current)setPrincipalDropW(principalWrapRef.current.offsetWidth);return next;});}}
-                      style={{display:"flex",alignItems:"center",gap:6,height:36,padding:"0 10px 0 12px",borderRadius:6,border:"none",
-                        background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#e2e8ef",
-                        cursor:"pointer",flexShrink:0,userSelect:"none",fontSize:13,fontFamily:"inherit",
-                        color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.88)":THEME.text}}
-                      onMouseEnter={function(e){e.currentTarget.style.background=(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.2)":"#d0d8e4";}}
-                      onMouseLeave={function(e){e.currentTarget.style.background=(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#e2e8ef";}}>
-                      <span style={{fontSize:11,fontWeight:500,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.55)":"#64748B",marginRight:2}}>Principal</span>
-                      <span style={{fontWeight:600,fontSize:13,maxWidth:113,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{principal}</span>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.6)":THEME.textSub} strokeWidth="2.5" style={{flexShrink:0,marginLeft:2,transform:principalOpen?"rotate(180deg)":"rotate(0deg)",transition:"transform 0.2s"}}><polyline points="6 9 12 15 18 9"/></svg>
-                    </button>
+                    {principal!=="Scorpio LR" ? (
+                      <button onClick={function(){setPrincipalOpen(function(o){var next=!o;if(next&&principalWrapRef.current)setPrincipalDropW(principalWrapRef.current.offsetWidth);return next;});}}
+                        style={{display:"flex",alignItems:"center",gap:6,height:36,padding:"0 10px 0 12px",borderRadius:6,border:"none",
+                          background:"#1852FE",cursor:"pointer",flexShrink:0,userSelect:"none",fontSize:13,fontFamily:"inherit",color:"#fff"}}
+                        onMouseEnter={function(e){e.currentTarget.style.background="#1448e0";}}
+                        onMouseLeave={function(e){e.currentTarget.style.background="#1852FE";}}>
+                        <span style={{fontSize:11,fontWeight:500,color:"rgba(255,255,255,0.7)",marginRight:2}}>Principal:</span>
+                        <span style={{fontWeight:600,fontSize:13,maxWidth:113,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",color:"#fff"}}>{principal}</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" style={{flexShrink:0,marginLeft:2,transform:principalOpen?"rotate(180deg)":"rotate(0deg)",transition:"transform 0.2s"}}><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                    ) : (
+                      <button onClick={function(){setPrincipalOpen(function(o){var next=!o;if(next&&principalWrapRef.current)setPrincipalDropW(principalWrapRef.current.offsetWidth);return next;});}}
+                        style={{display:"flex",alignItems:"center",gap:6,height:36,padding:"0 10px 0 12px",borderRadius:6,border:"none",
+                          background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#e2e8ef",
+                          cursor:"pointer",flexShrink:0,userSelect:"none",fontSize:13,fontFamily:"inherit",
+                          color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.88)":THEME.text}}
+                        onMouseEnter={function(e){e.currentTarget.style.background=(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.2)":"#d0d8e4";}}
+                        onMouseLeave={function(e){e.currentTarget.style.background=(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#e2e8ef";}}>
+                        <span style={{fontSize:11,fontWeight:500,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.55)":"#64748B",marginRight:2}}>Principal</span>
+                        <span style={{fontWeight:600,fontSize:13,maxWidth:113,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{principal}</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.6)":THEME.textSub} strokeWidth="2.5" style={{flexShrink:0,marginLeft:2,transform:principalOpen?"rotate(180deg)":"rotate(0deg)",transition:"transform 0.2s"}}><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                    )}
                     {principalOpen&&(
                       <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,background:"#fff",borderRadius:8,boxShadow:"0 8px 24px rgba(0,0,0,0.12)",border:"1px solid #E2E8F0",zIndex:9999,width:principalDropW||"auto",overflow:"hidden"}}
                         onMouseLeave={function(){setPrincipalOpen(false);}}>
