@@ -5063,71 +5063,158 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Speed Power Curve Chart
     function SpeedPowerChart(){
-      // Laden: P ≈ 82 * V^1.9 kW  |  Ballast: P ≈ 16.88 * V^2.323 kW
-      var sp=[7.2,8.2,9.1,10.1,11.1,12.1,13.0,14.0,15.0,15.9,16.9];
-      var curveData=sp.map(function(s){
-        var laden=Math.round(82*Math.pow(s,1.9));
-        var ballast=Math.round(16.88*Math.pow(s,2.323));
-        return {s:s,laden:laden,ladenBand:Math.round(laden*0.05),ballast:ballast,ballastBand:Math.round(ballast*0.05)};
+      var [activeV,setActiveV]=React.useState(null);
+
+      // Calibrated to match reference: at 14kn → predicted=7860, reported=5650, seaTrial=4550, stP5=4780
+      function predPow(v){return Math.round(257*Math.pow(v,1.296));}
+      function repPow(v){return Math.round(104.5*Math.pow(v,1.43));}
+      function stPow(v){return Math.round(47.3*Math.pow(v,1.7));}
+
+      var speeds=[];
+      for(var _sv=7.0;_sv<=17.05;_sv=Math.round((_sv+0.2)*10)/10) speeds.push(Math.round(_sv*10)/10);
+
+      var curveData=speeds.map(function(v){
+        var st=stPow(v); var stp5=Math.round(st*1.05);
+        return {v:v,predicted:predPow(v),reported:repPow(v),stBase:st,stBand:stp5-st,stP5:stp5};
       });
-      // Reported data points — use {s, y}: s matches XAxis dataKey, y matches YAxis dataKey
-      var repLaden=[
-        {s:11.9,y:4900},{s:12.0,y:5000},{s:12.1,y:4850},{s:12.3,y:5300},
-        {s:12.5,y:5600},{s:12.7,y:6300},{s:13.0,y:6500},{s:13.2,y:6800},
-        {s:13.6,y:6700},{s:14.0,y:7000}
+
+      var reportedPts=[
+        {v:10.2,y:3800},{v:10.5,y:3700},{v:11.0,y:4350},{v:11.2,y:4300},
+        {v:11.5,y:4400},{v:11.8,y:4500},{v:12.0,y:4600},{v:12.2,y:4650},
+        {v:12.3,y:4700},{v:12.5,y:5000},{v:12.8,y:5200},{v:13.5,y:6000},
+        {v:13.8,y:5900},{v:14.5,y:7000},{v:14.7,y:7200},{v:14.9,y:7100}
       ];
-      var repBallast=[
-        {s:11.1,y:5200},{s:11.5,y:5500},{s:11.8,y:5700},{s:12.0,y:5600},{s:12.3,y:5500}
+      var predictedPts=[
+        {v:10.5,y:5900},{v:11.0,y:6100},{v:11.5,y:6450},{v:11.8,y:6530},
+        {v:12.0,y:6600},{v:12.3,y:6700},{v:12.8,y:7600},{v:13.5,y:8300},
+        {v:14.0,y:7600},{v:14.5,y:8500},{v:14.7,y:8600},{v:14.9,y:9000}
       ];
-      var yTicks=[0,2251,4503,6754,9006,11257,13508,15760,18011];
-      var xTicks=[7.2,8.2,9.1,10.1,11.1,12.1,13.0,14.0,15.0,15.9,16.9];
-      function fmtPow(v){return v===0?"0":v.toLocaleString();}
+
+      function curveAt(v,key){
+        return curveData.reduce(function(a,b){return Math.abs(b.v-v)<Math.abs(a.v-v)?b:a;})[key];
+      }
+
+      var OverlayLayer=function(props){
+        var xm=props.xAxisMap; var ym=props.yAxisMap;
+        if(!xm||!ym) return null;
+        var xs=(xm[0]||xm["0"])&&(xm[0]||xm["0"]).scale;
+        var ys=(ym[0]||ym["0"])&&(ym[0]||ym["0"]).scale;
+        if(!xs||!ys) return null;
+
+        var crosshair=null;
+        if(activeV!=null){
+          var cv=Math.round(activeV*10)/10;
+          var cx=xs(cv);
+          var predY=ys(curveAt(cv,"predicted"));
+          var repY=ys(curveAt(cv,"reported"));
+          var stP5Y=ys(curveAt(cv,"stP5"));
+          var yBot=ys(0); var yTop=ys(13000);
+
+          var tipW=206; var tipH=122;
+          var tipX=cx+18; var tipY=yTop+8;
+          if(tipX+tipW>xs(16.5)) tipX=cx-tipW-18;
+
+          var predV=curveAt(cv,"predicted");
+          var repV=curveAt(cv,"reported");
+          var stV=curveAt(cv,"stBase");
+          var stP5V=curveAt(cv,"stP5");
+
+          crosshair=(
+            <g>
+              <line x1={cx} y1={yTop} x2={cx} y2={yBot} stroke="#CBD5E1" strokeDasharray="5 3" strokeWidth={1.5}/>
+              <circle cx={cx} cy={predY} r={9} fill="none" stroke="#16A34A" strokeWidth={2.5}/>
+              <circle cx={cx} cy={repY} r={9} fill="none" stroke="#EA580C" strokeWidth={2.5}/>
+              <circle cx={cx} cy={stP5Y} r={9} fill="none" stroke="#6366F1" strokeWidth={2.5}/>
+              <g transform={"translate("+tipX+","+tipY+")"}>
+                <rect x={0} y={0} width={tipW} height={tipH} rx={8} fill="white" stroke="#E2E8F0" strokeWidth={1.5}
+                  style={{filter:"drop-shadow(0 4px 12px rgba(0,0,0,0.10))"}}/>
+                <text x={12} y={22} fontSize={12} fontWeight="700" fill="#0E1A33">{"Speed: "+cv.toFixed(1)+" knots"}</text>
+                <line x1={8} y1={30} x2={tipW-8} y2={30} stroke="#F1F5F9" strokeWidth={1}/>
+                <circle cx={22} cy={47} r={5} fill="#16A34A"/>
+                <text x={32} y={51} fontSize={11} fill="#4B5563">{"Predicted Power:"}</text>
+                <text x={tipW-10} y={51} fontSize={11} fontWeight="600" fill="#111827" textAnchor="end">{predV.toLocaleString()+" kW"}</text>
+                <circle cx={22} cy={67} r={5} fill="#EA580C"/>
+                <text x={32} y={71} fontSize={11} fill="#4B5563">{"Reported Power:"}</text>
+                <text x={tipW-10} y={71} fontSize={11} fontWeight="600" fill="#111827" textAnchor="end">{repV.toLocaleString()+" kW"}</text>
+                <line x1={15} y1={86} x2={29} y2={86} stroke="#6366F1" strokeWidth={2} strokeDasharray="4 2"/>
+                <text x={32} y={90} fontSize={11} fill="#4B5563">{"Sea Trial Power:"}</text>
+                <text x={tipW-10} y={90} fontSize={11} fontWeight="600" fill="#111827" textAnchor="end">{stV.toLocaleString()+" kW"}</text>
+                <rect x={15} y={100} width={14} height={10} rx={2} fill="rgba(99,102,241,0.25)" stroke="rgba(99,102,241,0.5)" strokeWidth={1}/>
+                <text x={32} y={110} fontSize={11} fill="#4B5563">{"Sea Trial Power +5%:"}</text>
+                <text x={tipW-10} y={110} fontSize={11} fontWeight="600" fill="#111827" textAnchor="end">{stP5V.toLocaleString()+" kW"}</text>
+              </g>
+            </g>
+          );
+        }
+
+        return (
+          <g>
+            {reportedPts.map(function(p,i){
+              var px=xs(p.v),py=ys(p.y);
+              if(isNaN(px)||isNaN(py)) return null;
+              return <circle key={"rp"+i} cx={px} cy={py} r={6} fill="#EA580C" fillOpacity={0.88} stroke="white" strokeWidth={1.5}/>;
+            })}
+            {predictedPts.map(function(p,i){
+              var px=xs(p.v),py=ys(p.y);
+              if(isNaN(px)||isNaN(py)) return null;
+              return <circle key={"pp"+i} cx={px} cy={py} r={6} fill="#16A34A" fillOpacity={0.88} stroke="white" strokeWidth={1.5}/>;
+            })}
+            {crosshair}
+          </g>
+        );
+      };
+
       var legendItems=[
-        {color:"#1E3A8A",type:"line",label:"Sea Trial Laden"},
-        {color:"#93C5FD",type:"line",label:"Sea Trial Ballast"},
-        {color:"#1E3A8A",type:"dot",label:"Power Reported Laden"},
-        {color:"#93C5FD",type:"dot",label:"Power Reported Ballast"},
-        {color:"rgba(30,58,138,0.22)",type:"rect",label:"Sea Trial Laden +5%"},
-        {color:"rgba(147,197,253,0.45)",type:"rect",label:"Sea Trial Ballast +5%"},
+        {color:"#16A34A",type:"line-dot",label:"Predicted Power (Laden)"},
+        {color:"#EA580C",type:"line-dot",label:"Reported Power (Laden)"},
+        {color:"#6366F1",type:"dash",label:"Sea Trial Power (Laden) +5%"},
+        {color:"rgba(99,102,241,0.28)",type:"rect",label:"+5% Band"},
       ];
+
       return (
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
-          {/* Custom legend matching reference image layout */}
-          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"6px 18px",fontSize:11,color:"#374151",padding:"4px 12px 8px",lineHeight:"18px"}}>
+          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"6px 20px",fontSize:11,color:"#374151",padding:"4px 12px 8px",lineHeight:"18px"}}>
             {legendItems.map(function(it,i){
               return (
                 <div key={i} style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
-                  {it.type==="line"&&<div style={{width:22,height:2.5,background:it.color,borderRadius:1,flexShrink:0}}/>}
-                  {it.type==="dot"&&<div style={{width:9,height:9,borderRadius:"50%",background:it.color,flexShrink:0}}/>}
-                  {it.type==="rect"&&<div style={{width:13,height:13,background:it.color,borderRadius:2,flexShrink:0}}/>}
-                  <span style={{color:"#374151"}}>{it.label}</span>
+                  {it.type==="line-dot"&&(
+                    <div style={{display:"flex",alignItems:"center"}}>
+                      <div style={{width:12,height:2.5,background:it.color,borderRadius:1}}/>
+                      <div style={{width:9,height:9,borderRadius:"50%",background:it.color,margin:"0 1px"}}/>
+                      <div style={{width:12,height:2.5,background:it.color,borderRadius:1}}/>
+                    </div>
+                  )}
+                  {it.type==="dash"&&<div style={{width:26,height:0,borderTop:"2.5px dashed "+it.color,flexShrink:0}}/>}
+                  {it.type==="rect"&&<div style={{width:16,height:11,background:it.color,borderRadius:2,border:"1px solid rgba(99,102,241,0.45)",flexShrink:0}}/>}
+                  <span>{it.label}</span>
                 </div>
               );
             })}
           </div>
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={curveData} margin={{top:16,right:28,bottom:36,left:70}}>
-                <CartesianGrid stroke="#dde3ee" strokeDasharray="0" vertical={true} horizontal={true}/>
-                <XAxis type="number" dataKey="s" domain={[7.0,17.2]} ticks={xTicks}
-                  tick={{fontSize:11,fill:"#555"}} axisLine={{stroke:"#CBD5E1"}} tickLine={false}
+              <ComposedChart data={curveData} margin={{top:10,right:20,bottom:36,left:70}}
+                onMouseMove={function(e){
+                  if(e&&e.activePayload&&e.activePayload.length) setActiveV(e.activePayload[0].payload.v);
+                }}
+                onMouseLeave={function(){setActiveV(null);}}>
+                <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.12)" strokeDasharray="0"/>
+                <XAxis type="number" dataKey="v" domain={[7.0,17.0]}
+                  ticks={[7,8,9,10,11,12,13,14,15,16,17]}
+                  tickFormatter={function(v){return v.toFixed(1);}}
+                  tick={{fontSize:11,fill:"#555"}} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
                   label={{value:"Speed (knots)",position:"insideBottom",offset:-20,style:{fontSize:12,fill:"#374151",fontWeight:500}}}/>
-                <YAxis dataKey="y" domain={[0,18011]} ticks={yTicks} tickFormatter={fmtPow} width={70}
-                  tick={{fontSize:11,fill:"#555"}} axisLine={false} tickLine={false}
-                  label={{value:"Power (Kw)",angle:-90,position:"insideLeft",offset:-4,style:{fontSize:12,fill:"#374151",fontWeight:500,textAnchor:"middle"}}}/>
-                <Tooltip content={<ModernTooltip/>}/>
-                {/* Ballast +5% band: stacked base (transparent) + 5% fill */}
-                <Area type="monotone" dataKey="ballast" stackId="bband" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
-                <Area type="monotone" dataKey="ballastBand" stackId="bband" stroke="none" fill="rgba(147,197,253,0.45)" legendType="none" isAnimationActive={false}/>
-                {/* Laden +5% band: stacked base (transparent) + 5% fill */}
-                <Area type="monotone" dataKey="laden" stackId="lband" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
-                <Area type="monotone" dataKey="ladenBand" stackId="lband" stroke="none" fill="rgba(30,58,138,0.22)" legendType="none" isAnimationActive={false}/>
-                {/* Sea trial curves */}
-                <Line type="monotone" dataKey="laden" stroke="#1E3A8A" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="ballast" stroke="#93C5FD" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
-                {/* Reported data scatter */}
-                <Scatter data={repLaden} name="repLaden" fill="#1E3A8A" legendType="none"/>
-                <Scatter data={repBallast} name="repBallast" fill="#93C5FD" legendType="none"/>
+                <YAxis domain={[0,13000]} ticks={[0,2000,4000,6000,8000,10000,12000]}
+                  tickFormatter={function(v){return v===0?"0":v.toLocaleString();}}
+                  tick={{fontSize:11,fill:"#555"}} axisLine={false} tickLine={false} width={70}
+                  label={{value:"Power (kW)",angle:-90,position:"insideLeft",offset:-4,style:{fontSize:12,fill:"#374151",fontWeight:500,textAnchor:"middle"}}}/>
+                <Tooltip content={function(){return null;}}/>
+                <Area type="monotone" dataKey="stBase" stackId="st" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
+                <Area type="monotone" dataKey="stBand" stackId="st" stroke="none" fill="rgba(99,102,241,0.18)" legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="stP5" stroke="#6366F1" strokeWidth={2} strokeDasharray="7 4" dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="reported" stroke="#EA580C" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="predicted" stroke="#16A34A" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
+                <Customized component={OverlayLayer}/>
               </ComposedChart>
             </ResponsiveContainer>
           </div>
