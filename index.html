@@ -2504,7 +2504,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <CartesianGrid stroke="rgba(148,163,184,0.10)" strokeDasharray="3 3"/>
               <XAxis dataKey="s" type="number" domain={[7,17.2]} ticks={[8,9,10,11,12,13,14,15,16,17]} tick={axTick}
                 axisLine={{stroke:"#E2E8F0"}} tickLine={false}
-                label={{value:"Speed (knots)",position:"insideBottom",offset:-6,style:axLabel}}/>
+                label={{value:"Speed (knots)",position:"insideBottom",offset:-12,style:axLabel}}/>
               <YAxis domain={[0,18000]} ticks={[0,3600,7200,10800,14400,18000]}
                 tickFormatter={function(v){return v>=1000?(v/1000)+"k":v;}}
                 tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
@@ -4237,7 +4237,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <ComposedChart data={voyageData} margin={{bottom:24,left:4,right:44,top:4}}>
               <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
               <XAxis dataKey="v" tick={axTick} axisLine={false} tickLine={false} dy={6}
-                label={{value:"Voyage",offset:-10,position:"insideBottom",style:axLabel}}/>
+                label={{value:"Voyage",offset:-12,position:"insideBottom",style:axLabel}}/>
               <YAxis yAxisId="left" tick={axTick} width={40} axisLine={false} tickLine={false}
                 domain={[1,7]} tickCount={4}
                 label={{value:"Slip (%)",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
@@ -4259,7 +4259,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
             <XAxis dataKey="date" ticks={_ticks} tick={axTick} axisLine={false} tickLine={false} dy={6}
               tickFormatter={function(v){return v.split(" ")[1];}}
-              label={{value:"Month",offset:-10,position:"insideBottom",style:axLabel}}/>
+              label={{value:"Month",offset:-12,position:"insideBottom",style:axLabel}}/>
             <YAxis yAxisId="left" tick={axTick} width={40} axisLine={false} tickLine={false}
               domain={[1,7]} tickCount={4}
               label={{value:"Slip (%)",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
@@ -4492,7 +4492,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <ReferenceLine y={3.7} stroke="#16A34A" strokeDasharray="3 2" strokeWidth={1} strokeOpacity={0.4}/>
                   <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
                   <XAxis dataKey={aerView==="Month"?"m":"v"} tick={<AerXTick/>} axisLine={{stroke:"#E2E8F0"}} tickLine={false} height={52}
-                    label={{value:aerView==="Month"?"Month":"Voyage Number",position:"insideBottom",offset:-6,style:axLabel}}/>
+                    label={{value:aerView==="Month"?"Month":"Voyage Number",position:"insideBottom",offset:-12,style:axLabel}}/>
                   <YAxis domain={[0,20]} ticks={[0,2,4,6,8,10,12,14,16,18,20]} tick={axTick} axisLine={false} tickLine={false}
                     label={{value:"AER Rating",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
                   <Tooltip content={<ModernTooltip/>}/>
@@ -4691,7 +4691,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
             <ReferenceLine yAxisId="left" y={0} stroke="#CBD5E1" strokeWidth={1.5}/>
             <XAxis dataKey="voy" tick={{...axTick,fontSize:10}} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
-              label={{value:"Voyage",position:"insideBottom",offset:-4,style:axLabel}}/>
+              label={{value:"Voyage",position:"insideBottom",offset:-12,style:axLabel}}/>
             <YAxis yAxisId="left" domain={[-250,250]} ticks={[-200,-100,0,100,200]} tick={axTick} axisLine={false} tickLine={false}
               label={{value:"Compliance balance (EUAs)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
             <YAxis yAxisId="right" orientation="right" domain={[0,5000]} ticks={[0,1000,2000,3000,4000]} tick={axTick} axisLine={false} tickLine={false}
@@ -5047,7 +5047,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     ?function(v){return "V"+Math.round(v);}
                     :function(v){var d=new Date(2024,9+Math.floor(v),1);return SMN[d.getMonth()]+" "+d.getFullYear();}}
                   tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false} allowDataOverflow={true}
-                  label={{value:viewMode==="voyage"?"Voyage":"Month",position:"insideBottom",offset:2,style:{fontSize:10,fill:"#94A3B8",textAnchor:"middle"}}}/>
+                  label={{value:viewMode==="voyage"?"Voyage":"Month",position:"insideBottom",offset:-12,style:axLabel}}/>
                 <YAxis domain={[0,40]} ticks={[0,10,20,30,40]}
                   tick={axTick} axisLine={false} tickLine={false}
                   label={{value:"% Speed Loss",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
@@ -5204,11 +5204,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   ticks={[7,8,9,10,11,12,13,14,15,16,17]}
                   tickFormatter={function(v){return v.toFixed(1);}}
                   tick={{fontSize:11,fill:"#555"}} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
-                  label={{value:"Speed (knots)",position:"insideBottom",offset:-20,style:{fontSize:12,fill:"#374151",fontWeight:500}}}/>
+                  label={{value:"Speed (knots)",position:"insideBottom",offset:-12,style:axLabel}}/>
                 <YAxis domain={[0,13000]} ticks={[0,2000,4000,6000,8000,10000,12000]}
                   tickFormatter={function(v){return v===0?"0":v.toLocaleString();}}
                   tick={{fontSize:11,fill:"#555"}} axisLine={false} tickLine={false} width={70}
-                  label={{value:"Power (kW)",angle:-90,position:"insideLeft",offset:-4,style:{fontSize:12,fill:"#374151",fontWeight:500,textAnchor:"middle"}}}/>
+                  label={{value:"Power (kW)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={function(){return null;}}/>
                 <Area type="monotone" dataKey="stBase" stackId="st" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
                 <Area type="monotone" dataKey="stBand" stackId="st" stroke="none" fill="rgba(99,102,241,0.22)" legendType="none" isAnimationActive={false}/>
@@ -5335,7 +5335,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <XAxis dataKey="v" type="number" domain={[7.2,15.8]}
                 ticks={[8,9,10,11,12,13,14,15]} tick={axTick}
                 axisLine={{stroke:"#E2E8F0"}} tickLine={false}
-                label={{value:"Speed (knots)",position:"insideBottom",offset:-6,style:axLabel}}/>
+                label={{value:"Speed (knots)",position:"insideBottom",offset:-12,style:axLabel}}/>
               <YAxis domain={[0,65]} ticks={[0,10,20,30,40,50,60]} tick={axTick}
                 axisLine={{stroke:"#E2E8F0"}} tickLine={false}
                 label={{value:"Consumption",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
@@ -5396,7 +5396,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
             <XAxis type="number" dataKey="l" domain={[20,102]} ticks={[30,40,50,60,70,80,90,100]}
               tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
-              label={{value:"Load (%)",position:"insideBottom",offset:-6,style:axLabel}}/>
+              label={{value:"Load (%)",position:"insideBottom",offset:-12,style:axLabel}}/>
             <YAxis domain={[100,260]} ticks={[100,120,140,160,180,200,220,240,260]} tick={axTick} axisLine={false} tickLine={false}
               label={{value:"SFOC (g/kWh)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
             <Tooltip content={<ModernTooltip/>}/>
@@ -5469,11 +5469,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <CartesianGrid stroke="#dde3ee" strokeDasharray="0" vertical={false}/>
                 <XAxis type="number" dataKey="rpm" domain={[44,89]} ticks={xTicks}
                   tick={{fontSize:11,fill:"#555"}} axisLine={{stroke:"#CBD5E1"}} tickLine={false}
-                  label={{value:"ME Shaft Speed (RPM)",position:"insideBottom",offset:-20,style:{fontSize:12,fill:"#374151",fontWeight:500}}}/>
+                  label={{value:"ME Shaft Speed (RPM)",position:"insideBottom",offset:-12,style:axLabel}}/>
                 <YAxis domain={[0,15523]} ticks={yTicks}
                   tickFormatter={function(v){return v===0?"0":v.toLocaleString();}} width={72}
                   tick={{fontSize:11,fill:"#555"}} axisLine={false} tickLine={false}
-                  label={{value:"Shaft Power (kW)",angle:-90,position:"insideLeft",offset:-4,style:{fontSize:12,fill:"#374151",fontWeight:500,textAnchor:"middle"}}}/>
+                  label={{value:"Shaft Power (kW)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={<ModernTooltip/>}/>
                 <Area type="monotone" dataKey="bandLow" stackId="tb" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
                 <Area type="monotone" dataKey="bandFill" stackId="tb" stroke="none" fill="rgba(147,197,253,0.55)" legendType="none" isAnimationActive={false}/>
