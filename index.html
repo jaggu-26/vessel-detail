@@ -5075,7 +5075,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       var curveData=speeds.map(function(v){
         var st=stPow(v); var stp5=Math.round(st*1.05);
-        return {v:v,predicted:predPow(v),reported:repPow(v),stBase:st,stBand:stp5-st,stP5:stp5};
+        var stBandBase=Math.round(st*0.80); // band starts at 80% of sea trial, ends at +5% line
+        return {v:v,predicted:predPow(v),reported:repPow(v),stBase:stBandBase,stBand:stp5-stBandBase,stP5:stp5,seaTrial:st};
       });
 
       var reportedPts=[
@@ -5210,7 +5211,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   label={{value:"Power (kW)",angle:-90,position:"insideLeft",offset:-4,style:{fontSize:12,fill:"#374151",fontWeight:500,textAnchor:"middle"}}}/>
                 <Tooltip content={function(){return null;}}/>
                 <Area type="monotone" dataKey="stBase" stackId="st" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
-                <Area type="monotone" dataKey="stBand" stackId="st" stroke="none" fill="rgba(99,102,241,0.18)" legendType="none" isAnimationActive={false}/>
+                <Area type="monotone" dataKey="stBand" stackId="st" stroke="none" fill="rgba(99,102,241,0.22)" legendType="none" isAnimationActive={false}/>
                 <Line type="monotone" dataKey="stP5" stroke="#6366F1" strokeWidth={2} strokeDasharray="7 4" dot={false} legendType="none" isAnimationActive={false}/>
                 <Line type="monotone" dataKey="reported" stroke="#EA580C" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
                 <Line type="monotone" dataKey="predicted" stroke="#16A34A" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
@@ -6068,7 +6069,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             };
           })()}),{rowHeight:500}),
         Object.assign(cc("Speed Power Curve","Sea trial vs reported power",
-          function(){return <SpeedPowerChart/>;},3,{tableData:(function(){
+          function(){return <SpeedPowerChart/>;},3,{hideDeepDive:true,tableData:(function(){
             // Same formulas as SpeedPowerChart: Laden = 82*V^1.9, Ballast = 16.88*V^2.323
             var _sp=[7.2,8.2,9.1,10.1,11.1,12.1,13.0,14.0,15.0,15.9,16.9];
             var _curveRows=_sp.map(function(s){
