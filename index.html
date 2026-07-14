@@ -4550,9 +4550,23 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var last=ghgData[ghgData.length-1];
       return (
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
+          <div style={{display:"flex",gap:12,justifyContent:"center",paddingBottom:6,flexWrap:"wrap"}}>
+            {[
+              {label:"Total CO₂",color:"#3B82F6"},
+              {label:"Total N₂O",color:"#EAB308"},
+              {label:"Total CH₄",color:"#22C55E"},
+            ].map(function(it){
+              return (
+                <div key={it.label} style={{display:"flex",alignItems:"center",gap:5}}>
+                  <div style={{width:8,height:8,borderRadius:"50%",background:it.color,flexShrink:0}}/>
+                  <span style={{fontSize:11,fontWeight:500,color:"#64748B"}}>{it.label}</span>
+                </div>
+              );
+            })}
+          </div>
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={ghgData} margin={{top:4,right:16,bottom:4,left:8}}>
+              <ComposedChart data={ghgData} margin={{top:4,right:16,bottom:24,left:8}}>
                 <defs>
                   <linearGradient id="ghgG1" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.45}/>
@@ -4584,20 +4598,6 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               </ComposedChart>
             </ResponsiveContainer>
           </div>
-          <div style={{display:"flex",gap:12,justifyContent:"center",paddingBottom:4,flexWrap:"wrap"}}>
-            {[
-              {label:"Total CO₂",color:"#3B82F6"},
-              {label:"Total N₂O",color:"#EAB308"},
-              {label:"Total CH₄",color:"#22C55E"},
-            ].map(function(it){
-              return (
-                <div key={it.label} style={{display:"flex",alignItems:"center",gap:5}}>
-                  <div style={{width:8,height:8,borderRadius:"50%",background:it.color,flexShrink:0}}/>
-                  <span style={{fontSize:11,fontWeight:500,color:"#64748B"}}>{it.label}</span>
-                </div>
-              );
-            })}
-          </div>
         </div>
       );
     }
@@ -4614,7 +4614,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={euData} margin={{top:16,right:48,bottom:36,left:8}} barGap={3} barCategoryGap="28%">
+              <ComposedChart data={euData} margin={{top:16,right:48,bottom:24,left:8}} barGap={3} barCategoryGap="28%">
                 <defs>
                   <linearGradient id="euEmissionsGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#4C6EF5" stopOpacity={1}/>
@@ -5040,7 +5040,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           {/* Chart */}
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={lineData} margin={{top:12,right:20,bottom:28,left:14}}>
+              <ComposedChart data={lineData} margin={{top:12,right:20,bottom:36,left:14}}>
                 <CartesianGrid stroke="rgba(148,163,184,0.22)" strokeDasharray="3 3" vertical={false}/>
                 <XAxis type="number" dataKey="x" domain={[xMin,xDomainEnd]} ticks={xTicks}
                   tickFormatter={viewMode==="voyage"
@@ -5092,6 +5092,19 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       ];
       return (
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
+          {/* Custom legend matching reference image layout */}
+          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"6px 18px",fontSize:11,color:"#374151",padding:"4px 12px 8px",lineHeight:"18px"}}>
+            {legendItems.map(function(it,i){
+              return (
+                <div key={i} style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
+                  {it.type==="line"&&<div style={{width:22,height:2.5,background:it.color,borderRadius:1,flexShrink:0}}/>}
+                  {it.type==="dot"&&<div style={{width:9,height:9,borderRadius:"50%",background:it.color,flexShrink:0}}/>}
+                  {it.type==="rect"&&<div style={{width:13,height:13,background:it.color,borderRadius:2,flexShrink:0}}/>}
+                  <span style={{color:"#374151"}}>{it.label}</span>
+                </div>
+              );
+            })}
+          </div>
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={curveData} margin={{top:16,right:28,bottom:36,left:70}}>
@@ -5117,19 +5130,6 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <Scatter data={repBallast} name="repBallast" fill="#93C5FD" legendType="none"/>
               </ComposedChart>
             </ResponsiveContainer>
-          </div>
-          {/* Custom legend matching reference image layout */}
-          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"6px 18px",fontSize:11,color:"#374151",padding:"8px 12px 4px",lineHeight:"18px"}}>
-            {legendItems.map(function(it,i){
-              return (
-                <div key={i} style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
-                  {it.type==="line"&&<div style={{width:22,height:2.5,background:it.color,borderRadius:1,flexShrink:0}}/>}
-                  {it.type==="dot"&&<div style={{width:9,height:9,borderRadius:"50%",background:it.color,flexShrink:0}}/>}
-                  {it.type==="rect"&&<div style={{width:13,height:13,background:it.color,borderRadius:2,flexShrink:0}}/>}
-                  <span style={{color:"#374151"}}>{it.label}</span>
-                </div>
-              );
-            })}
           </div>
         </div>
       );
@@ -5236,7 +5236,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       return (
         <div style={{width:"100%",height:"100%",position:"relative"}}>
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={lineData} margin={{top:16,right:20,bottom:28,left:8}}
+            <ComposedChart data={lineData} margin={{top:16,right:20,bottom:36,left:8}}
               onMouseMove={function(e){
                 if(e&&e.activePayload&&e.activePayload.length>0){
                   setActiveV(e.activePayload[0].payload.v);
@@ -5298,7 +5298,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       ].map(function(p){return {l:p.l,s:Math.round(p.s*lf)};});
       return (
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={shopTrial} margin={{top:16,right:20,bottom:28,left:8}}>
+          <ComposedChart data={shopTrial} margin={{top:16,right:20,bottom:36,left:8}}>
             <defs>
               <linearGradient id="sfocBandGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#93C5FD" stopOpacity={0.35}/>
@@ -5312,7 +5312,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <YAxis domain={[100,260]} ticks={[100,120,140,160,180,200,220,240,260]} tick={axTick} axisLine={false} tickLine={false}
               label={{value:"SFOC (g/kWh)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
             <Tooltip content={<ModernTooltip/>}/>
-            <Legend verticalAlign="bottom" align="left" wrapperStyle={{fontSize:11,paddingTop:8}}
+            <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:8}}
               payload={[
                 {value:"SFOC Noon Measured", type:"circle", color:"#EF4444"},
                 {value:"Shop Trial SFOC",     type:"line",   color:"#3B82F6"},
@@ -5362,6 +5362,19 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       ];
       return (
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
+          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"6px 18px",fontSize:11,color:"#374151",padding:"4px 12px 8px",lineHeight:"18px"}}>
+            {legendItems.map(function(it,i){
+              return (
+                <div key={i} style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
+                  {it.type==="line"&&<div style={{width:22,height:2.5,background:it.color,borderRadius:1,flexShrink:0}}/>}
+                  {it.type==="dash"&&<div style={{width:22,height:0,borderTop:"2.5px dashed "+it.color,flexShrink:0}}/>}
+                  {it.type==="dot"&&<div style={{width:9,height:9,borderRadius:"50%",background:it.color,flexShrink:0}}/>}
+                  {it.type==="rect"&&<div style={{width:13,height:13,background:it.color,borderRadius:2,flexShrink:0}}/>}
+                  <span>{it.label}</span>
+                </div>
+              );
+            })}
+          </div>
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={curveData} margin={{top:16,right:28,bottom:36,left:72}}>
@@ -5381,19 +5394,6 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <Scatter data={reportedPts} name="reported" fill="#38BDF8" legendType="none"/>
               </ComposedChart>
             </ResponsiveContainer>
-          </div>
-          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"6px 18px",fontSize:11,color:"#374151",padding:"8px 12px 4px",lineHeight:"18px"}}>
-            {legendItems.map(function(it,i){
-              return (
-                <div key={i} style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
-                  {it.type==="line"&&<div style={{width:22,height:2.5,background:it.color,borderRadius:1,flexShrink:0}}/>}
-                  {it.type==="dash"&&<div style={{width:22,height:0,borderTop:"2.5px dashed "+it.color,flexShrink:0}}/>}
-                  {it.type==="dot"&&<div style={{width:9,height:9,borderRadius:"50%",background:it.color,flexShrink:0}}/>}
-                  {it.type==="rect"&&<div style={{width:13,height:13,background:it.color,borderRadius:2,flexShrink:0}}/>}
-                  <span>{it.label}</span>
-                </div>
-              );
-            })}
           </div>
         </div>
       );
