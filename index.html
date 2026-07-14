@@ -4234,7 +4234,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       if(isVoyage){
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={voyageData} margin={{bottom:28,left:4,right:44,top:8}}>
+            <ComposedChart data={voyageData} margin={{bottom:24,left:4,right:44,top:4}}>
               <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
               <XAxis dataKey="v" tick={axTick} axisLine={false} tickLine={false} dy={6}
                 label={{value:"Voyage",offset:-10,position:"insideBottom",style:axLabel}}/>
@@ -4255,7 +4255,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       }
       return (
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={monthData} margin={{bottom:28,left:4,right:44,top:8}}>
+          <ComposedChart data={monthData} margin={{bottom:24,left:4,right:44,top:4}}>
             <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
             <XAxis dataKey="date" ticks={_ticks} tick={axTick} axisLine={false} tickLine={false} dy={6}
               tickFormatter={function(v){return v.split(" ")[1];}}
@@ -4378,7 +4378,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           </div>
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={chartData} margin={{bottom:20,left:4,right:20,top:4}} barSize={22} barGap={4} barCategoryGap="30%">
+              <ComposedChart data={chartData} margin={{bottom:24,left:4,right:20,top:4}} barSize={22} barGap={4} barCategoryGap="30%">
                 <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
                 {xAx("m","Month")}
                 <YAxis yAxisId="left" tick={axTick} width={54} axisLine={false} tickLine={false}
@@ -4711,7 +4711,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     }
 
     // ── Hull Health Chart — Power BI style (Nov 2024 → Dec 2025)
-    function HullHealthChart({n, viewMode}){
+    function HullHealthChart({n, viewMode, showColorWheel}){
       // x=1 → Nov 2024, x=3 → Jan 2025, x=5 → Mar 2025, x=7 → May 2025,
       // x=9 → Jul 2025, x=11 → Sep 2025, x=13 → Nov 2025, x=15 → Jan 2026
       var SMN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -5022,6 +5022,20 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <svg width="24" height="12"><line x1="1" y1="6" x2="23" y2="6" stroke="#DC2626" strokeWidth="1.5" strokeDasharray="5,3"/></svg>
               <span style={{fontSize:12,color:"#475569"}}>Port Stay (T/NT)</span>
             </div>
+            {showColorWheel&&(
+              <div style={{width:16,height:16,cursor:"pointer",flexShrink:0,position:"relative"}}
+                onMouseEnter={function(){setShowLegend(true);}}
+                onMouseLeave={function(){setShowLegend(false);}}>
+                <svg width="16" height="16" viewBox="0 0 16 16" style={{display:"block"}}>
+                  <path d="M8,8 L8,0 A8,8 0 0,1 16,8 Z" fill="#22C55E"/>
+                  <path d="M8,8 L16,8 A8,8 0 0,1 8,16 Z" fill="#FACC15"/>
+                  <path d="M8,8 L8,16 A8,8 0 0,1 0,8 Z" fill="#EF4444"/>
+                  <path d="M8,8 L0,8 A8,8 0 0,1 8,0 Z" fill="#3B82F6"/>
+                  <circle cx="8" cy="8" r="8" fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/>
+                </svg>
+              </div>
+            )}
+            <LegendTooltip/>
           </div>
           {/* Chart */}
           <div style={{flex:1,minHeight:0}}>
@@ -5557,7 +5571,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             var key=isVoyage?"v":"m";
             return (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data} barSize={38} margin={{bottom:20,left:4,right:10,top:10}}>
+                <BarChart data={data} barSize={38} margin={{bottom:24,left:4,right:10,top:4}}>
                   <defs>
                     <linearGradient id="bgSpeedBreach" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#3B82F6" stopOpacity={1}/>
@@ -5570,7 +5584,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   </defs>
                   <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
                   {xAx(key,isVoyage?"Voyage":"Month")} {yAx("Breaches")}
-                  <Tooltip content={<ModernTooltip/>}/><Legend {...lgStyle}/>
+                  <Tooltip content={<ModernTooltip/>}/><Legend verticalAlign="top" align="center" wrapperStyle={{paddingBottom:6,fontSize:11}}/>
                   <Bar dataKey="speedBreach" fill="url(#bgSpeedBreach)" radius={[6,6,0,0]} name="Speed Breach" maxBarSize={38}/>
                   <Bar dataKey="consBreach"  fill="url(#bgConsBreach)"  radius={[6,6,0,0]} name="Consumption Breach" maxBarSize={38}/>
                 </BarChart>
@@ -5613,7 +5627,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               for(var i=0;i<=56;i++){var s=i*0.25;bRegData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(bReg(s).toFixed(3))});lRegData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(lReg(s).toFixed(3))});}
               return (
               <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{bottom:20,left:4,right:10,top:10}}>
+                <ScatterChart margin={{bottom:24,left:4,right:10,top:4}}>
                   <CartesianGrid stroke="#F1F5F9" strokeDasharray="0" vertical={false}/>
                   <XAxis type="number" dataKey="x" domain={[0,14]}
                     tick={axTick} axisLine={{stroke:"#E2E8F0",strokeWidth:1}} tickLine={false} tickCount={8}>
@@ -5921,7 +5935,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       // Technical tab — 4 charts in 2×2 layout
       var technicalItems=[
         Object.assign(cc("Hull Health","Speed loss vs month",
-          function(n,detailViewMode){var vm=(detailViewMode||hhView).toLowerCase();return <HullHealthChart n={n} viewMode={vm}/>;},3,{headerTabs:HullHealthTabs,tableData:(function(){
+          function(n,detailViewMode){var vm=(detailViewMode||hhView).toLowerCase();return <HullHealthChart n={n} viewMode={vm} showColorWheel={!detailViewMode}/>;},3,{headerTabs:HullHealthTabs,tableData:(function(){
             var _MN2=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
             var _d2=new Date(); var _m2=_d2.getMonth(); var _y2=_d2.getFullYear();
             var _months=[];
@@ -6049,7 +6063,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             };
           })()}),{rowHeight:420}),
         Object.assign(cc("ME RPM – Power Performance","Shop test benchmark vs reported — good weather",
-          function(){return <MERPMPowerChart/>;},3,{tableData:(function(){
+          function(){return <MERPMPowerChart/>;},3,{hideDeepDive:true,tableData:(function(){
             var rpmPts=[47,50,53,56,59,61,64,67,70,73,76,79,83,87];
             function _bench(rpm){return Math.round(0.1061*Math.pow(rpm,2.67));}
             function _rfit(rpm){var v=Math.round(197*rpm-6259);return v>0?v:null;}
