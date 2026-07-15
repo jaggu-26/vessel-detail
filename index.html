@@ -5555,7 +5555,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         });
       },[loadCond]);
 
-      var mg={top:8,right:28,bottom:46,left:66};
+      var mg={top:8,right:28,bottom:38,left:66};
       var plotW=Math.max(0,dims.w-mg.left-mg.right);
       var plotH=Math.max(0,dims.h-mg.top-mg.bottom);
 
@@ -5576,20 +5576,20 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       return (
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",fontFamily:"inherit",userSelect:"none"}}>
           {/* Month legend */}
-          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"4px 14px",padding:"5px 8px 2px",flexShrink:0,flexWrap:"wrap",fontSize:11,color:"#374151"}}>
-            <span style={{fontWeight:600,color:"#374151",marginRight:2}}>Month</span>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"4px 14px",padding:"5px 8px 2px",flexShrink:0,flexWrap:"wrap",fontSize:11,color:"#64748B"}}>
+            <span style={{fontWeight:600,color:"#64748B",marginRight:2}}>Month</span>
             {MONTHS.map(function(m){
               return (
                 <div key={m.label} style={{display:"flex",alignItems:"center",gap:4}}>
                   <svg width="10" height="10" style={{flexShrink:0}}><circle cx="5" cy="5" r="4.5" fill={m.color}/></svg>
-                  <span style={{color:"#374151"}}>{m.label}</span>
+                  <span style={{color:"#64748B"}}>{m.label}</span>
                 </div>
               );
             })}
             {showCurve&&(
               <div style={{display:"flex",alignItems:"center",gap:5}}>
                 <div style={{width:22,height:2.5,background:"#1E3A8A",borderRadius:2,flexShrink:0}}/>
-                <span style={{color:"#374151"}}>Shop Trial Curve</span>
+                <span style={{color:"#64748B"}}>Shop Trial Curve</span>
               </div>
             )}
           </div>
@@ -5604,19 +5604,19 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 })}
                 {/* X axis baseline */}
                 <line x1={mg.left} y1={mg.top+plotH} x2={mg.left+plotW} y2={mg.top+plotH}
-                  stroke="#D1D5DB" strokeWidth={1}/>
+                  stroke="#E2E8F0" strokeWidth={1}/>
                 {/* X tick labels */}
                 {xTicks.map(function(xv){
-                  return <text key={xv} x={xs(xv)} y={mg.top+plotH+15} textAnchor="middle" fontSize={11} fill="#6B7280">{xv+"%"}</text>;
+                  return <text key={xv} x={xs(xv)} y={mg.top+plotH+16} textAnchor="middle" fontSize={13} fill="#94A3B8" fontFamily="inherit">{xv+"%"}</text>;
                 })}
                 {/* X axis label */}
-                <text x={mg.left+plotW/2} y={dims.h-4} textAnchor="middle" fontSize={12} fontWeight={600} fill="#374151">LOAD (%)</text>
+                <text x={mg.left+plotW/2} y={mg.top+plotH+34} textAnchor="middle" fontSize={12} fill="#94A3B8" fontFamily="inherit">LOAD (%)</text>
                 {/* Y tick labels */}
                 {yTicks.map(function(yv){
-                  return <text key={yv} x={mg.left-7} y={ys(yv)+4} textAnchor="end" fontSize={11} fill="#6B7280">{yv}</text>;
+                  return <text key={yv} x={mg.left-7} y={ys(yv)+4} textAnchor="end" fontSize={13} fill="#94A3B8" fontFamily="inherit">{yv}</text>;
                 })}
                 {/* Y axis label */}
-                <text transform={"rotate(-90)"} x={-(mg.top+plotH/2)} y={14} textAnchor="middle" fontSize={12} fontWeight={600} fill="#374151">SFOC Corrected (g/kWh)</text>
+                <text transform={"rotate(-90)"} x={-(mg.top+plotH/2)} y={14} textAnchor="middle" fontSize={12} fill="#94A3B8" fontFamily="inherit">SFOC Corrected (g/kWh)</text>
                 {/* Shop Trial Curve */}
                 {showCurve&&<path d={curvePath} stroke="#1E3A8A" strokeWidth={2.5} fill="none" strokeLinejoin="round"/>}
                 {/* Scatter dots — hollow circles per month */}
