@@ -1344,7 +1344,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     var SIM_SCATTER_SEEDS=[0.05,-0.18,0.12,-0.08,0.22,-0.14,0.09,-0.25,0.16,-0.06,0.28,-0.11,0.04,0.19,-0.20];
 
-    function SpeedRangeSlider({min,max,low,high,onLow,onHigh}){
+    function SpeedRangeSlider({min,max,low,high,onLow,onHigh,unit,stepSize}){
+      var _unit=unit!==undefined?unit:"kn";
+      var _step=stepSize||0.5;
       var trackRef=useRef(null);
       var dragRef=useRef(null);
       var stateRef=useRef({low:low,high:high,onLow:onLow,onHigh:onHigh});
@@ -1355,7 +1357,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           if(!dragRef.current||!trackRef.current)return;
           var r=trackRef.current.getBoundingClientRect();
           var p=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
-          var v=Math.round((min+p*(max-min))*10)/10;
+          var v=Math.round((min+p*(max-min))/_step)*_step;
           var st=stateRef.current;
           if(dragRef.current==='low')st.onLow(Math.min(v,st.high-0.5));
           else st.onHigh(Math.max(v,st.low+0.5));
@@ -1382,8 +1384,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               {label:"MAX",val:high,set:onHigh,ok:function(v){return v>low+0.4&&v<=max;}}].map(function(f){
               return(
                 <div key={f.label} style={{flex:1}}>
-                  <div style={{fontSize:10,fontWeight:600,color:THEME.textSub,marginBottom:3}}>{f.label} (kn)</div>
-                  <input type="number" value={f.val} step="0.5"
+                  <div style={{fontSize:10,fontWeight:600,color:THEME.textSub,marginBottom:3}}>{f.label}{_unit?" ("+_unit+")":""}</div>
+                  <input type="number" value={f.val} step={_step}
                     onChange={function(e){var v=parseFloat(e.target.value);if(!isNaN(v)&&f.ok(v))f.set(v);}}
                     style={{width:"100%",padding:"7px 8px",border:"1px solid #e2e4e8",borderRadius:6,fontSize:13,
                       color:THEME.text,background:"#fff",outline:"none",boxSizing:"border-box"}}
@@ -3031,6 +3033,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     function LoadSFOCModal({onClose}){
       var [loadCond,setLoadCond]=useState("laden");
       var [seaTrialCurve,setSeaTrialCurve]=useState(true);
+      var [tropical,setTropical]=useState("non-tropical");
+      var [loadMin,setLoadMin]=useState(20);
+      var [loadMax,setLoadMax]=useState(100);
 
       return ReactDOM.createPortal(
         <div onClick={function(e){if(e.target===e.currentTarget)onClose();}}
@@ -3045,33 +3050,63 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <div style={{fontSize:16,fontWeight:700,color:THEME.text,letterSpacing:-0.2}}>Controls</div>
 
               <div>
-                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Date Range</div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Report Date</div>
                 <ReportDatePicker/>
               </div>
 
               <div>
                 <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Load Condition</div>
-                <div style={{display:"flex",gap:16}}>
+                <div style={{display:"flex",gap:8}}>
                   {[["laden","Laden"],["ballast","Ballast"]].map(function(r){
                     var act=loadCond===r[0];
                     return(
-                      <label key={r[0]} onClick={function(){setLoadCond(r[0]);}}
-                        style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer"}}>
-                        <div style={{width:16,height:16,borderRadius:"50%",border:"2px solid",
-                          borderColor:act?B:"#cbd5e1",background:"#fff",flexShrink:0,
-                          display:"flex",alignItems:"center",justifyContent:"center"}}>
-                          {act&&<div style={{width:8,height:8,borderRadius:"50%",background:B}}/>}
-                        </div>
-                        <span style={{fontSize:13,color:act?THEME.text:THEME.textSub,fontWeight:act?600:400}}>{r[1]}</span>
-                      </label>
+                      <button key={r[0]} onClick={function(){setLoadCond(r[0]);}}
+                        style={{flex:1,padding:"8px 0",fontSize:13,fontWeight:600,cursor:"pointer",
+                          border:"1.5px solid",borderColor:act?B:"#e2e8f0",borderRadius:8,
+                          background:act?"#EEF4FF":"#fff",color:act?B:"#0E1A33",transition:"all 0.15s"}}>
+                        {r[1]}
+                      </button>
                     );
                   })}
                 </div>
               </div>
 
               <div>
-                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>Sea Trial Curve</div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:10,textTransform:"uppercase",letterSpacing:0.5}}>Shop Trial Curve</div>
                 <ToggleSwitch checked={seaTrialCurve} onChange={setSeaTrialCurve}/>
+              </div>
+
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Tropical / Non-Tropical</div>
+                <div style={{display:"flex",gap:8}}>
+                  {[["tropical","Tropical"],["non-tropical","Non-Tropical"]].map(function(r){
+                    var act=tropical===r[0];
+                    return(
+                      <button key={r[0]} onClick={function(){setTropical(r[0]);}}
+                        style={{flex:1,padding:"8px 6px",fontSize:13,fontWeight:600,cursor:"pointer",
+                          border:"1.5px solid",borderColor:act?B:"#e2e8f0",borderRadius:8,
+                          background:act?"#EEF4FF":"#fff",color:act?B:"#0E1A33",transition:"all 0.15s"}}>
+                        {r[1]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Load Range (%)</div>
+                <SpeedRangeSlider min={0} max={100} low={loadMin} high={loadMax}
+                  onLow={setLoadMin} onHigh={setLoadMax} unit="" stepSize={1}/>
+              </div>
+
+              <div style={{marginTop:"auto",display:"flex",alignItems:"center",justifyContent:"space-between",paddingTop:4}}>
+                <button onClick={function(){setLoadCond("laden");setSeaTrialCurve(true);setTropical("non-tropical");setLoadMin(20);setLoadMax(100);}}
+                  style={{background:"none",border:"none",cursor:"pointer",color:B,fontSize:13,fontWeight:600,padding:"4px 0"}}>
+                  Clear All
+                </button>
+                <button style={{background:B,border:"none",borderRadius:8,padding:"9px 22px",fontSize:13,fontWeight:600,color:"#fff",cursor:"pointer"}}>
+                  Apply Filter
+                </button>
               </div>
             </div>
 
