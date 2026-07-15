@@ -3056,16 +3056,19 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
               <div>
                 <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Load Condition</div>
-                <div style={{display:"flex",gap:8}}>
+                <div style={{display:"flex",gap:16}}>
                   {[["laden","Laden"],["ballast","Ballast"]].map(function(r){
                     var act=loadCond===r[0];
                     return(
-                      <button key={r[0]} onClick={function(){setLoadCond(r[0]);}}
-                        style={{flex:1,padding:"8px 0",fontSize:13,fontWeight:600,cursor:"pointer",
-                          border:"1.5px solid",borderColor:act?B:"#e2e8f0",borderRadius:8,
-                          background:act?"#EEF4FF":"#fff",color:act?B:"#0E1A33",transition:"all 0.15s"}}>
-                        {r[1]}
-                      </button>
+                      <label key={r[0]} onClick={function(){setLoadCond(r[0]);}}
+                        style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer"}}>
+                        <div style={{width:16,height:16,borderRadius:"50%",border:"2px solid",
+                          borderColor:act?B:"#cbd5e1",background:"#fff",flexShrink:0,
+                          display:"flex",alignItems:"center",justifyContent:"center"}}>
+                          {act&&<div style={{width:8,height:8,borderRadius:"50%",background:B}}/>}
+                        </div>
+                        <span style={{fontSize:13,color:act?THEME.text:THEME.textSub,fontWeight:act?600:400}}>{r[1]}</span>
+                      </label>
                     );
                   })}
                 </div>
@@ -3078,16 +3081,19 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
               <div>
                 <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Tropical / Non-Tropical</div>
-                <div style={{display:"flex",gap:8}}>
+                <div style={{display:"flex",gap:16}}>
                   {[["tropical","Tropical"],["non-tropical","Non-Tropical"]].map(function(r){
                     var act=tropical===r[0];
                     return(
-                      <button key={r[0]} onClick={function(){setTropical(r[0]);}}
-                        style={{flex:1,padding:"8px 6px",fontSize:13,fontWeight:600,cursor:"pointer",
-                          border:"1.5px solid",borderColor:act?B:"#e2e8f0",borderRadius:8,
-                          background:act?"#EEF4FF":"#fff",color:act?B:"#0E1A33",transition:"all 0.15s"}}>
-                        {r[1]}
-                      </button>
+                      <label key={r[0]} onClick={function(){setTropical(r[0]);}}
+                        style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer"}}>
+                        <div style={{width:16,height:16,borderRadius:"50%",border:"2px solid",
+                          borderColor:act?B:"#cbd5e1",background:"#fff",flexShrink:0,
+                          display:"flex",alignItems:"center",justifyContent:"center"}}>
+                          {act&&<div style={{width:8,height:8,borderRadius:"50%",background:B}}/>}
+                        </div>
+                        <span style={{fontSize:13,color:act?THEME.text:THEME.textSub,fontWeight:act?600:400}}>{r[1]}</span>
+                      </label>
                     );
                   })}
                 </div>
