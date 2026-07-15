@@ -5502,56 +5502,165 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Load SFOC Curve Chart
     function LoadSFOCChart({loadCond,seaTrialCurve}){
-      var lf=loadCond==="ballast"?1.08:1.0;
-      var showSeaTrial=seaTrialCurve!==false;
-      var loads=[30,35,40,45,50,55,60,65,70,75,80,85,90,95,100];
-      var shopTrial=loads.map(function(l){
-        var base=(190-0.35*l+0.003*l*l)*lf;
-        return {l:l,sfoc:Math.round(base),sfocP:Math.round(base*1.05),mean:Math.round(base*0.92-10)};
-      });
-      var noonMeasured=[
-        {l:33,s:246},{l:34,s:238},{l:35,s:218},{l:36,s:230},{l:37,s:242},{l:38,s:224},
-        {l:39,s:233},{l:40,s:220},{l:41,s:225},{l:42,s:214},{l:45,s:208},{l:47,s:215},
-        {l:50,s:210},{l:52,s:205},{l:55,s:212},{l:57,s:218},{l:58,s:206},{l:59,s:214},
-        {l:60,s:200},{l:61,s:208},{l:62,s:195},{l:65,s:202},{l:68,s:198},{l:70,s:195}
-      ].map(function(p){return {l:p.l,s:Math.round(p.s*lf)};});
-      var noonCorrected=[
-        {l:33,s:233},{l:34,s:220},{l:36,s:228},{l:37,s:196},{l:38,s:218},{l:39,s:205},
-        {l:40,s:192},{l:41,s:212},{l:43,s:188},{l:46,s:184},{l:49,s:188},
-        {l:52,s:182},{l:55,s:185},{l:57,s:205},{l:58,s:180},{l:59,s:198},{l:60,s:202},
-        {l:61,s:177},{l:62,s:195},{l:64,s:181},{l:67,s:175},{l:70,s:178},{l:72,s:172}
-      ].map(function(p){return {l:p.l,s:Math.round(p.s*lf)};});
+      var containerRef=React.useRef(null);
+      var [dims,setDims]=React.useState({w:700,h:400});
+      var [tooltip,setTooltip]=React.useState(null);
+
+      React.useEffect(function(){
+        if(!containerRef.current)return;
+        var el=containerRef.current;
+        var ro=new ResizeObserver(function(entries){
+          var e=entries[0];
+          if(e)setDims({w:Math.floor(e.contentRect.width),h:Math.floor(e.contentRect.height)});
+        });
+        ro.observe(el);
+        var r=el.getBoundingClientRect();
+        if(r.width>0)setDims({w:Math.floor(r.width),h:Math.floor(r.height)});
+        return function(){ro.disconnect();};
+      },[]);
+
+      var lf=loadCond==="ballast"?1.06:1.0;
+      var showCurve=seaTrialCurve!==false;
+
+      // U-shaped shop trial curve — min ~162 at 47% load
+      function stY(l){
+        var base=l<=47?162+Math.pow((47-l)/27,1.5)*16:162+((l-47)/53)*12;
+        return Math.round(base*lf*10)/10;
+      }
+
+      var MONTHS=[
+        {label:"2025-Apr",color:"#38BDF8",seed:101,n:72},
+        {label:"2025-Feb",color:"#1E40AF",seed:202,n:66},
+        {label:"2025-Jan",color:"#F97316",seed:303,n:78},
+        {label:"2025-Jul",color:"#7C3AED",seed:404,n:62},
+        {label:"2025-Jun",color:"#EC4899",seed:505,n:70},
+        {label:"2025-Mar",color:"#9333EA",seed:606,n:74},
+        {label:"2025-May",color:"#CA8A04",seed:707,n:66},
+      ];
+
+      // Seeded deterministic scatter data per month
+      var allData=React.useMemo(function(){
+        return MONTHS.map(function(m){
+          var k=m.seed;
+          function r(){k=(k*1103515245+12345)&0x7fffffff;return k/0x7fffffff;}
+          var pts=[];
+          for(var i=0;i<m.n;i++){
+            var load=27+r()*56;
+            var base=stY(load);
+            var sfoc=base+9+(r()-0.28)*48;
+            sfoc=Math.max(156,Math.min(228,sfoc));
+            pts.push({l:Math.round(load*10)/10,sfoc:Math.round(sfoc*10)/10,month:m.label,color:m.color});
+          }
+          return {month:m,pts:pts};
+        });
+      },[loadCond]);
+
+      var mg={top:8,right:28,bottom:46,left:66};
+      var plotW=Math.max(0,dims.w-mg.left-mg.right);
+      var plotH=Math.max(0,dims.h-mg.top-mg.bottom);
+
+      var xMin=20,xMax=108,yMin=140,yMax=242;
+      function xs(l){return mg.left+(l-xMin)/(xMax-xMin)*plotW;}
+      function ys(s){return mg.top+(yMax-s)/(yMax-yMin)*plotH;}
+
+      // Build smooth shop trial curve path
+      var curvePath=(function(){
+        var pts=[];
+        for(var l=20;l<=100;l+=0.5)pts.push([xs(l),ys(stY(l))]);
+        return pts.map(function(p,i){return (i===0?"M":"L")+p[0].toFixed(1)+","+p[1].toFixed(1);}).join(" ");
+      })();
+
+      var xTicks=[20,30,40,50,60,70,80,90,100];
+      var yTicks=[140,160,180,200,220,240];
+
       return (
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={shopTrial} margin={{top:16,right:20,bottom:36,left:8}}>
-            <defs>
-              <linearGradient id="sfocBandGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#93C5FD" stopOpacity={0.35}/>
-                <stop offset="100%" stopColor="#93C5FD" stopOpacity={0.08}/>
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
-            <XAxis type="number" dataKey="l" domain={[20,102]} ticks={[30,40,50,60,70,80,90,100]}
-              tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
-              label={{value:"Load (%)",position:"insideBottom",offset:-12,style:axLabel}}/>
-            <YAxis domain={[100,260]} ticks={[100,120,140,160,180,200,220,240,260]} tick={axTick} axisLine={false} tickLine={false}
-              label={{value:"SFOC (g/kWh)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
-            <Tooltip content={<ModernTooltip/>}/>
-            <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:8}}
-              payload={[
-                {value:"SFOC Noon Measured", type:"circle", color:"#EF4444"},
-                {value:"Shop Trial SFOC",     type:"line",   color:"#3B82F6"},
-                {value:"Shop trial SFOC Corrected + 5%", type:"rect", color:"#93C5FD"},
-                {value:"Mean SFOC corrected", type:"line",   color:"#3B82F6"},
-                {value:"SFOC Noon Corrected", type:"circle", color:"#22C55E"},
-              ]}/>
-            {showSeaTrial&&<Area type="monotone" dataKey="sfocP" stroke="none" fill="url(#sfocBandGrad)" legendType="none"/>}
-            {showSeaTrial&&<Line type="monotone" dataKey="sfoc" stroke="#3B82F6" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>}
-            <Line type="monotone" dataKey="mean" stroke="#3B82F6" strokeWidth={2.5} strokeDasharray="5 3" dot={false} legendType="none" isAnimationActive={false}/>
-            <Scatter data={noonMeasured} dataKey="s" fill="#EF4444" opacity={0.85} legendType="none"/>
-            <Scatter data={noonCorrected} dataKey="s" fill="#22C55E" opacity={0.85} legendType="none"/>
-          </ComposedChart>
-        </ResponsiveContainer>
+        <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",fontFamily:"inherit",userSelect:"none"}}>
+          {/* Title */}
+          <div style={{textAlign:"center",fontSize:15,fontWeight:700,color:"#0F172A",paddingTop:2,flexShrink:0,letterSpacing:-0.2}}>
+            Deep Dive Load- SFOC
+          </div>
+          {/* Month legend */}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"4px 14px",padding:"5px 8px 2px",flexShrink:0,flexWrap:"wrap",fontSize:11,color:"#374151"}}>
+            <span style={{fontWeight:600,color:"#374151",marginRight:2}}>Month</span>
+            {MONTHS.map(function(m){
+              return (
+                <div key={m.label} style={{display:"flex",alignItems:"center",gap:4}}>
+                  <svg width="10" height="10" style={{flexShrink:0}}><circle cx="5" cy="5" r="4.5" fill={m.color}/></svg>
+                  <span style={{color:"#374151"}}>{m.label}</span>
+                </div>
+              );
+            })}
+          </div>
+          {/* SVG chart area */}
+          <div style={{flex:1,minHeight:0,position:"relative"}} ref={containerRef}>
+            {dims.w>50&&dims.h>50&&(
+              <svg width={dims.w} height={dims.h} style={{display:"block"}}>
+                {/* Horizontal grid lines */}
+                {yTicks.map(function(yv){
+                  return <line key={yv} x1={mg.left} y1={ys(yv)} x2={mg.left+plotW} y2={ys(yv)}
+                    stroke="#E5E7EB" strokeWidth={1}/>;
+                })}
+                {/* X axis baseline */}
+                <line x1={mg.left} y1={mg.top+plotH} x2={mg.left+plotW} y2={mg.top+plotH}
+                  stroke="#D1D5DB" strokeWidth={1}/>
+                {/* X tick labels */}
+                {xTicks.map(function(xv){
+                  return <text key={xv} x={xs(xv)} y={mg.top+plotH+15} textAnchor="middle" fontSize={11} fill="#6B7280">{xv+"%"}</text>;
+                })}
+                {/* X axis label */}
+                <text x={mg.left+plotW/2} y={dims.h-4} textAnchor="middle" fontSize={12} fontWeight={600} fill="#374151">LOAD (%)</text>
+                {/* Y tick labels */}
+                {yTicks.map(function(yv){
+                  return <text key={yv} x={mg.left-7} y={ys(yv)+4} textAnchor="end" fontSize={11} fill="#6B7280">{yv}</text>;
+                })}
+                {/* Y axis label */}
+                <text transform={"rotate(-90)"} x={-(mg.top+plotH/2)} y={14} textAnchor="middle" fontSize={12} fontWeight={600} fill="#374151">SFOC Corrected (g/kWh)</text>
+                {/* Shop Trial Curve */}
+                {showCurve&&<path d={curvePath} stroke="#1E3A8A" strokeWidth={2.5} fill="none" strokeLinejoin="round"/>}
+                {/* Scatter dots — hollow circles per month */}
+                {allData.map(function(md){
+                  var color=md.month.color;
+                  return md.pts.map(function(pt,i){
+                    var cx=xs(pt.l);
+                    var cy=ys(pt.sfoc);
+                    if(cx<mg.left-1||cx>mg.left+plotW+1||cy<mg.top-1||cy>mg.top+plotH+1)return null;
+                    return (
+                      <circle key={md.month.label+i} cx={cx} cy={cy} r={4.5}
+                        fill="none" stroke={color} strokeWidth={1.5} opacity={0.75}
+                        style={{cursor:"default"}}
+                        onMouseEnter={function(){setTooltip({cx:cx,cy:cy,month:pt.month,load:pt.l,sfoc:pt.sfoc,color:color});}}
+                        onMouseLeave={function(){setTooltip(null);}}
+                      />
+                    );
+                  });
+                })}
+                {/* Tooltip */}
+                {tooltip&&(function(){
+                  var tw=196,th=74,tx=tooltip.cx+14,ty=tooltip.cy-10;
+                  if(tx+tw>dims.w-6)tx=tooltip.cx-tw-14;
+                  if(ty+th>dims.h-4)ty=dims.h-th-4;
+                  if(ty<2)ty=2;
+                  return (
+                    <g style={{pointerEvents:"none"}}>
+                      <rect x={tx} y={ty} width={tw} height={th} rx={6} fill="#0D1B3E" opacity={0.95}/>
+                      <circle cx={tx+14} cy={ty+17} r={5} fill={tooltip.color}/>
+                      <text x={tx+24} y={ty+21} fontSize={11.5} fontWeight={600} fill="white">Month: {tooltip.month}</text>
+                      <text x={tx+12} y={ty+39} fontSize={11} fill="#94A3B8">Load: {tooltip.load} %</text>
+                      <text x={tx+12} y={ty+57} fontSize={11} fill="#94A3B8">SFOC Corrected: {tooltip.sfoc} g/kWh</text>
+                    </g>
+                  );
+                })()}
+              </svg>
+            )}
+          </div>
+          {/* Bottom legend */}
+          {showCurve&&(
+            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,padding:"4px 0 2px",flexShrink:0,fontSize:11,color:"#374151"}}>
+              <div style={{width:26,height:2.5,background:"#1E3A8A",borderRadius:2,flexShrink:0}}/>
+              <span>Shop Trial Curve</span>
+            </div>
+          )}
+        </div>
       );
     }
 
