@@ -5037,10 +5037,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               var ty=ys(37);
               return (
                 <g key={"ps"+i}>
-                  <line x1={cx} y1={ytop} x2={cx} y2={y0} stroke="#DC2626" strokeWidth={1.5} strokeDasharray="6,4"/>
-                  <text x={cx} y={ty}    textAnchor="middle" fontSize={9.5} fontWeight={700} fill="#DC2626" fontFamily="inherit">Port stay</text>
-                  <text x={cx} y={ty+13} textAnchor="middle" fontSize={9.5} fontWeight={700} fill="#DC2626" fontFamily="inherit">{p.days+" days"}</text>
-                  <text x={cx} y={ty+26} textAnchor="middle" fontSize={9.5} fontWeight={500} fill="#DC2626" fontFamily="inherit">{"("+p.type+")"}</text>
+                  <line x1={cx} y1={ytop} x2={cx} y2={y0} stroke="#EF4444" strokeWidth={1.5} strokeDasharray="6,4"/>
+                  <text x={cx} y={ty}    textAnchor="middle" fontSize={9.5} fontWeight={700} fill="#EF4444" fontFamily="inherit">Port stay</text>
+                  <text x={cx} y={ty+13} textAnchor="middle" fontSize={9.5} fontWeight={700} fill="#EF4444" fontFamily="inherit">{p.days+" days"}</text>
+                  <text x={cx} y={ty+26} textAnchor="middle" fontSize={9.5} fontWeight={500} fill="#EF4444" fontFamily="inherit">{"("+p.type+")"}</text>
                 </g>
               );
             })}
@@ -5157,7 +5157,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <span style={{fontSize:12,color:"#475569"}}>Maintenance Event</span>
             </div>
             <div style={{display:"flex",alignItems:"center",gap:5}}>
-              <svg width="24" height="12"><line x1="1" y1="6" x2="23" y2="6" stroke="#DC2626" strokeWidth="1.5" strokeDasharray="5,3"/></svg>
+              <svg width="24" height="12"><line x1="1" y1="6" x2="23" y2="6" stroke="#EF4444" strokeWidth="1.5" strokeDasharray="5,3"/></svg>
               <span style={{fontSize:12,color:"#475569"}}>Port Stay (T/NT)</span>
             </div>
             <div style={{width:16,height:16,cursor:"pointer",flexShrink:0,position:"relative"}}
@@ -5261,7 +5261,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <g>
               <line x1={cx} y1={yTop} x2={cx} y2={yBot} stroke="#CBD5E1" strokeDasharray="5 3" strokeWidth={1.5}/>
               <circle cx={cx} cy={predY} r={9} fill="none" stroke="#16A34A" strokeWidth={2.5}/>
-              <circle cx={cx} cy={repY} r={9} fill="none" stroke="#EF4444" strokeWidth={2.5}/>
+              <circle cx={cx} cy={repY} r={9} fill="none" stroke="#EA580C" strokeWidth={2.5}/>
               <circle cx={cx} cy={stP5Y} r={9} fill="none" stroke="#6366F1" strokeWidth={2.5}/>
               <g transform={"translate("+tipX+","+tipY+")"}>
                 <rect x={0} y={0} width={tipW} height={tipH} rx={8} fill="white" stroke="#E2E8F0" strokeWidth={1.5}
@@ -5271,7 +5271,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <circle cx={22} cy={47} r={5} fill="#16A34A"/>
                 <text x={32} y={51} fontSize={11} fill="#4B5563">{"Predicted Power:"}</text>
                 <text x={tipW-10} y={51} fontSize={11} fontWeight="600" fill="#111827" textAnchor="end">{predV.toLocaleString()+" kW"}</text>
-                <circle cx={22} cy={67} r={5} fill="#EF4444"/>
+                <circle cx={22} cy={67} r={5} fill="#EA580C"/>
                 <text x={32} y={71} fontSize={11} fill="#4B5563">{"Reported Power:"}</text>
                 <text x={tipW-10} y={71} fontSize={11} fontWeight="600" fill="#111827" textAnchor="end">{repV.toLocaleString()+" kW"}</text>
                 <line x1={15} y1={86} x2={29} y2={86} stroke="#6366F1" strokeWidth={2} strokeDasharray="4 2"/>
@@ -5290,7 +5290,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             {reportedPts.map(function(p,i){
               var px=xs(p.v),py=ys(p.y);
               if(isNaN(px)||isNaN(py)) return null;
-              return <circle key={"rp"+i} cx={px} cy={py} r={6} fill="#EF4444" fillOpacity={0.88} stroke="white" strokeWidth={1.5}/>;
+              return <circle key={"rp"+i} cx={px} cy={py} r={6} fill="#EA580C" fillOpacity={0.88} stroke="white" strokeWidth={1.5}/>;
             })}
             {predictedPts.map(function(p,i){
               var px=xs(p.v),py=ys(p.y);
@@ -5304,7 +5304,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       var legendItems=[
         {color:"#16A34A",type:"line-dot",label:"Predicted Power (Laden)"},
-        {color:"#EF4444",type:"line-dot",label:"Reported Power (Laden)"},
+        {color:"#EA580C",type:"line-dot",label:"Reported Power (Laden)"},
         {color:"#6366F1",type:"dash",label:"Sea Trial Power (Laden) +5%"},
         {color:"rgba(99,102,241,0.28)",type:"rect",label:"+5% Band"},
       ];
@@ -5350,7 +5350,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <Area type="monotone" dataKey="stBase" stackId="st" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
                 <Area type="monotone" dataKey="stBand" stackId="st" stroke="none" fill="rgba(99,102,241,0.22)" legendType="none" isAnimationActive={false}/>
                 <Line type="monotone" dataKey="stP5" stroke="#6366F1" strokeWidth={2} strokeDasharray="7 4" dot={false} legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="reported" stroke="#EF4444" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="reported" stroke="#EA580C" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
                 <Line type="monotone" dataKey="predicted" stroke="#16A34A" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
                 <Customized component={OverlayLayer}/>
               </ComposedChart>
@@ -5583,7 +5583,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         {color:"#1E3A8A",type:"line",label:"Benchmark (Shop Test)"},
         {color:"rgba(147,197,253,0.55)",type:"rect",label:"–5% Tolerance Band"},
         {color:"#38BDF8",type:"dot",label:"Reported"},
-        {color:"#EF4444",type:"dash",label:"Reported Fit"},
+        {color:"#F97316",type:"dash",label:"Reported Fit"},
       ];
       return (
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
@@ -5615,7 +5615,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <Area type="monotone" dataKey="bandLow" stackId="tb" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
                 <Area type="monotone" dataKey="bandFill" stackId="tb" stroke="none" fill="rgba(147,197,253,0.55)" legendType="none" isAnimationActive={false}/>
                 <Line type="monotone" dataKey="bench" stroke="#1E3A8A" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="rfit" stroke="#EF4444" strokeWidth={1.8} strokeDasharray="6 3" dot={false} legendType="none" connectNulls={false} isAnimationActive={false}/>
+                <Line type="monotone" dataKey="rfit" stroke="#F97316" strokeWidth={1.8} strokeDasharray="6 3" dot={false} legendType="none" connectNulls={false} isAnimationActive={false}/>
                 <Scatter data={reportedPts} name="reported" fill="#38BDF8" legendType="none"/>
               </ComposedChart>
             </ResponsiveContainer>
@@ -5905,14 +5905,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     line={{stroke:"#0EA5E9",strokeWidth:2}} lineType="joint"
                     dot={false} fill="#0EA5E9" legendType="line"/>
                   <Scatter name="Laden Regression" data={lRegData}
-                    line={{stroke:"#EF4444",strokeWidth:2,strokeDasharray:"7 4"}} lineType="joint"
-                    dot={false} fill="#EF4444" legendType="plainline"/>
+                    line={{stroke:"#F97316",strokeWidth:2,strokeDasharray:"7 4"}} lineType="joint"
+                    dot={false} fill="#F97316" legendType="plainline"/>
                   <Scatter name="Ballast" data={ballastPts} legendType="circle"
                     fill="#0EA5E9"
                     shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill="#0EA5E9"/>;}}/>
                   <Scatter name="Laden" data={ladenPts} legendType="circle"
-                    fill="#EF4444"
-                    shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill="#EF4444"/>;}}/>
+                    fill="#F97316"
+                    shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill="#F97316"/>;}}/>
                 </ScatterChart>
               </ResponsiveContainer>
               );
@@ -7989,7 +7989,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                           <span style={{fontSize:12,color:"#475569"}}>Maintenance Event</span>
                         </div>
                         <div style={{display:"flex",alignItems:"center",gap:8}}>
-                          <svg width="24" height="12" style={{flexShrink:0}}><line x1="1" y1="6" x2="23" y2="6" stroke="#DC2626" strokeWidth="1.5" strokeDasharray="5,3"/></svg>
+                          <svg width="24" height="12" style={{flexShrink:0}}><line x1="1" y1="6" x2="23" y2="6" stroke="#EF4444" strokeWidth="1.5" strokeDasharray="5,3"/></svg>
                           <span style={{fontSize:12,color:"#475569"}}>Port Stay (T/NT)</span>
                         </div>
                       </div>
