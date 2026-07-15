@@ -5586,6 +5586,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 </div>
               );
             })}
+            {showCurve&&(
+              <div style={{display:"flex",alignItems:"center",gap:5}}>
+                <div style={{width:22,height:2.5,background:"#1E3A8A",borderRadius:2,flexShrink:0}}/>
+                <span style={{color:"#374151"}}>Shop Trial Curve</span>
+              </div>
+            )}
           </div>
           {/* SVG chart area */}
           <div style={{flex:1,minHeight:0,position:"relative"}} ref={containerRef}>
@@ -5649,13 +5655,6 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               </svg>
             )}
           </div>
-          {/* Bottom legend */}
-          {showCurve&&(
-            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,padding:"4px 0 2px",flexShrink:0,fontSize:11,color:"#374151"}}>
-              <div style={{width:26,height:2.5,background:"#1E3A8A",borderRadius:2,flexShrink:0}}/>
-              <span>Shop Trial Curve</span>
-            </div>
-          )}
         </div>
       );
     }
