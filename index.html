@@ -7844,7 +7844,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
-              Download Data
+              Export Data
             </button>
             <DateRangeDropdown defaultLabel="Last 180 Days" onRangeChange={function(m){setLocalMonths(m);setSortCol(null);}}/>
           </div>
@@ -7890,7 +7890,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                     })}
                   </div>
                 )}
-                <div style={{background:"#fff",borderRadius:12,border:"0.5px solid #E2E8F0",padding:"24px 24px 20px",marginBottom:24}}>
+                <div key={viewMode} style={{background:"#fff",borderRadius:12,border:"0.5px solid #E2E8F0",padding:"24px 24px 20px",marginBottom:24}}>
                   {chart.title==="SOG & Slip Trend" ? (
                     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
                       <div style={{display:"flex",gap:2,background:"#F1F5F9",borderRadius:20,padding:"2px"}}>
@@ -8043,7 +8043,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                 });
               }
               return (
-                <div style={{background:"#fff",borderRadius:14,border:"1px solid #E8ECF1",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,0.05)",fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif"}}>
+                <div key={"table-"+viewMode} style={{background:"#fff",borderRadius:14,border:"1px solid #E8ECF1",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,0.05)",fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif"}}>
                   <div style={{padding:"20px 24px 16px",display:"flex",alignItems:"center",gap:12}}>
                     <span style={{fontSize:16,fontWeight:700,color:"#0D1B2A"}}>{chart.title} — Data</span>
                     <span style={{fontSize:14,color:"#94A3B8",fontWeight:400}}>({sortedRows.length} rows)</span>
@@ -9695,7 +9695,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                 <button style={{display:"flex",alignItems:"center",gap:6,background:"none",border:"none",cursor:"pointer",fontSize:13,color:"#64748B",fontWeight:500,fontFamily:"inherit",padding:"4px 0"}}
                   onMouseEnter={function(e){e.currentTarget.style.color="#0F172A";}}
                   onMouseLeave={function(e){e.currentTarget.style.color="#64748B";}}>
-                  Download Data
+                  Export Data
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                   </svg>
