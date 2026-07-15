@@ -5137,7 +5137,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       return (
         <div ref={containerRef} style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",position:"relative"}}>
-          {/* Top legend row */}
+          {/* Top legend row — only in card view */}
+          {showColorWheel&&(
           <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:20,padding:"0 0 4px",flexShrink:0,flexWrap:"wrap"}}>
             <div style={{display:"flex",alignItems:"center",gap:5}}>
               <svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#3B82F6"/></svg>
@@ -5159,21 +5160,20 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <svg width="24" height="12"><line x1="1" y1="6" x2="23" y2="6" stroke="#DC2626" strokeWidth="1.5" strokeDasharray="5,3"/></svg>
               <span style={{fontSize:12,color:"#475569"}}>Port Stay (T/NT)</span>
             </div>
-            {showColorWheel&&(
-              <div style={{width:16,height:16,cursor:"pointer",flexShrink:0,position:"relative"}}
-                onMouseEnter={function(){setShowLegend(true);}}
-                onMouseLeave={function(){setShowLegend(false);}}>
-                <svg width="16" height="16" viewBox="0 0 16 16" style={{display:"block"}}>
-                  <path d="M8,8 L8,0 A8,8 0 0,1 16,8 Z" fill="#22C55E"/>
-                  <path d="M8,8 L16,8 A8,8 0 0,1 8,16 Z" fill="#FACC15"/>
-                  <path d="M8,8 L8,16 A8,8 0 0,1 0,8 Z" fill="#EF4444"/>
-                  <path d="M8,8 L0,8 A8,8 0 0,1 8,0 Z" fill="#3B82F6"/>
-                  <circle cx="8" cy="8" r="8" fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/>
-                </svg>
-              </div>
-            )}
+            <div style={{width:16,height:16,cursor:"pointer",flexShrink:0,position:"relative"}}
+              onMouseEnter={function(){setShowLegend(true);}}
+              onMouseLeave={function(){setShowLegend(false);}}>
+              <svg width="16" height="16" viewBox="0 0 16 16" style={{display:"block"}}>
+                <path d="M8,8 L8,0 A8,8 0 0,1 16,8 Z" fill="#22C55E"/>
+                <path d="M8,8 L16,8 A8,8 0 0,1 8,16 Z" fill="#FACC15"/>
+                <path d="M8,8 L8,16 A8,8 0 0,1 0,8 Z" fill="#EF4444"/>
+                <path d="M8,8 L0,8 A8,8 0 0,1 8,0 Z" fill="#3B82F6"/>
+                <circle cx="8" cy="8" r="8" fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/>
+              </svg>
+            </div>
             <LegendTooltip/>
           </div>
+          )}
           {/* Chart */}
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
@@ -7853,7 +7853,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           <div style={{flex:1,overflowY:"auto",padding:"4px 28px 28px",background:THEME.bg}}>
 
             {/* Title row */}
-            <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20}}>
+            <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:8}}>
               <div>
                 <div style={{fontWeight:700,fontSize:16,color:THEME.text,lineHeight:1.2}}>{chart.title}</div>
                 {chart.subtitle&&<div style={{fontSize:13,color:THEME.textSub,marginTop:3}}>{chart.subtitle}</div>}
@@ -7965,6 +7965,32 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                               <span style={{fontSize:12,color:"#475569"}}>{s.d}</span>
                             </div>;
                           })}
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{width:1,background:"#E2E8F0",flexShrink:0}}/>
+                    <div style={{flex:2,paddingLeft:24}}>
+                      <div style={{fontSize:12,fontWeight:700,color:"#1E293B",marginBottom:10}}>Chart Legend</div>
+                      <div style={{display:"flex",flexDirection:"column",gap:7}}>
+                        <div style={{display:"flex",alignItems:"center",gap:8}}>
+                          <svg width="12" height="12" style={{flexShrink:0}}><circle cx="6" cy="6" r="5" fill="#3B82F6"/></svg>
+                          <span style={{fontSize:12,color:"#475569"}}>Speed Loss</span>
+                        </div>
+                        <div style={{display:"flex",alignItems:"center",gap:8}}>
+                          <svg width="36" height="12" style={{flexShrink:0}}>
+                            <line x1="1" y1="6" x2="12" y2="6" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round"/>
+                            <line x1="12" y1="6" x2="25" y2="6" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round"/>
+                            <line x1="25" y1="6" x2="35" y2="6" stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round"/>
+                          </svg>
+                          <span style={{fontSize:12,color:"#475569"}}>7 Days Rolling Average</span>
+                        </div>
+                        <div style={{display:"flex",alignItems:"center",gap:8}}>
+                          <svg width="12" height="12" style={{flexShrink:0}}><polygon points="6,0 12,6 6,12 0,6" fill="#16A34A"/></svg>
+                          <span style={{fontSize:12,color:"#475569"}}>Maintenance Event</span>
+                        </div>
+                        <div style={{display:"flex",alignItems:"center",gap:8}}>
+                          <svg width="24" height="12" style={{flexShrink:0}}><line x1="1" y1="6" x2="23" y2="6" stroke="#DC2626" strokeWidth="1.5" strokeDasharray="5,3"/></svg>
+                          <span style={{fontSize:12,color:"#475569"}}>Port Stay (T/NT)</span>
                         </div>
                       </div>
                     </div>
