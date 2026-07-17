@@ -2531,59 +2531,85 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Engine Health Deterioration chart — risk-band area + hover tooltip ────────
     function EngineHealthDeteriorationChart(){
-      var start=new Date(2024,10,1);
-      var totalDays=270;
-      var data=[];
       var MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      for(var i=0;i<=totalDays;i+=3){
-        var d=new Date(start.getTime()+i*86400000);
-        var t=i/totalDays;
-        var wave=Math.sin(t*14)*4+Math.sin(t*5+1)*3+Math.sin(t*29)*1.5;
-        var bump=(t>0.55&&t<0.62)?6*Math.sin((t-0.55)/0.07*Math.PI):0;
-        var val=Math.max(1,Math.min(16,+(8+wave+bump).toFixed(2)));
-        var dd=d.getDate(),mm=d.getMonth()+1,yy=d.getFullYear();
-        data.push({
-          d:d.getTime(), loss:val,
-          dateLabel:(dd<10?"0":"")+dd+"/"+(mm<10?"0":"")+mm+"/"+yy
-        });
-      }
-      function CustomTip({active,payload}){
-        if(!active||!payload||!payload.length) return null;
-        var p=payload[0].payload;
-        return(
-          <div style={{background:"#fff",border:"1px solid #e2e4e8",borderRadius:8,padding:"10px 14px",
-            boxShadow:"0 4px 16px rgba(0,0,0,0.10)",minWidth:170}}>
-            <div style={{fontWeight:700,fontSize:13,color:THEME.text,marginBottom:8}}>{p.dateLabel}</div>
-            <div style={{display:"flex",alignItems:"center",gap:8}}>
-              <span style={{width:9,height:9,borderRadius:"50%",background:"#1E3A8A",flexShrink:0}}/>
-              <span style={{fontSize:12,color:THEME.textSub,flex:1}}>Fuel Loss %</span>
-              <span style={{fontSize:12,fontWeight:700,color:THEME.text}}>{p.loss.toFixed(2)}</span>
-            </div>
-          </div>
-        );
-      }
-      var xTicks=(function(){var t=[];for(var m=10;m<=18;m+=2){t.push(new Date(2024,m,1).getTime());}return t;})();
+      function xToDate(xv){var mi=Math.floor(xv);return new Date(2024,9+mi,1);}
+
+      var allLine=[
+        {x:1.0,y:9.0},{x:1.3,y:7.0},{x:1.5,y:5.0},{x:1.8,y:4.2},{x:2.2,y:4.0},
+        {x:2.5,y:4.2},{x:2.8,y:5.0},{x:3.0,y:5.5},{x:3.3,y:6.2},{x:3.8,y:8.0},
+        {x:4.1,y:10.0},{x:4.3,y:12.0},{x:4.5,y:13.0},{x:4.7,y:12.0},{x:4.9,y:10.0},
+        {x:5.2,y:8.0},{x:5.5,y:7.0},{x:5.8,y:6.5},{x:6.0,y:6.0},{x:6.2,y:6.5},
+        {x:6.5,y:7.0},{x:6.8,y:8.0},{x:7.2,y:10.0},{x:7.6,y:13.0},{x:8.0,y:17.0},
+        {x:8.2,y:20.0},{x:8.4,y:22.0},{x:8.5,y:22.5},{x:8.6,y:22.0},{x:8.7,y:20.0},
+        {x:8.9,y:18.0},{x:9.1,y:15.0},{x:9.3,y:11.0},{x:9.5,y:7.0},{x:9.7,y:4.5},
+        {x:10.0,y:3.0},{x:10.3,y:2.5},{x:10.5,y:2.5},{x:10.7,y:3.0},{x:11.0,y:4.5},
+        {x:11.3,y:7.0},{x:11.5,y:9.0},{x:11.7,y:12.0},{x:11.9,y:15.0},{x:12.0,y:18.0},
+        {x:12.1,y:20.0},{x:12.15,y:21.5},{x:12.2,y:20.0},{x:12.4,y:18.0},
+        {x:12.6,y:14.0},{x:12.8,y:10.5},{x:13.0,y:8.0},{x:13.1,y:7.0},
+      ];
+      var allDots=[
+        {x:1.0,y:9},{x:1.05,y:14},{x:1.1,y:6},{x:1.2,y:7},
+        {x:4.2,y:11},{x:4.3,y:16},{x:4.4,y:13},{x:4.5,y:14},{x:4.55,y:9},{x:4.6,y:8},
+        {x:5.0,y:7.5},{x:5.1,y:4.5},
+        {x:8.1,y:17},{x:8.2,y:23},{x:8.25,y:26},{x:8.3,y:25},{x:8.35,y:20},
+        {x:8.4,y:23},{x:8.45,y:22},{x:8.5,y:20},{x:8.55,y:21},
+        {x:8.6,y:20},{x:8.65,y:19},{x:8.7,y:16},{x:8.75,y:20},
+        {x:9.0,y:10},{x:9.1,y:5},{x:9.2,y:10},{x:9.3,y:5},
+        {x:10.0,y:7},{x:10.1,y:5},{x:10.2,y:2.5},{x:10.3,y:3},
+        {x:11.3,y:8},{x:11.4,y:12.5},{x:11.5,y:18},{x:11.6,y:15.5},
+        {x:11.7,y:18},{x:11.8,y:16},{x:11.85,y:20},{x:11.9,y:20},
+        {x:12.0,y:19},{x:12.05,y:21},{x:12.1,y:20},{x:12.15,y:15},{x:12.2,y:11},
+        {x:12.3,y:5},{x:12.4,y:11},
+      ];
+
+      var X_END=13.1;
+      var xTicks=[1,3,5,7,9,11,13];
+
+      var MultiColorLineLayer=function(props){
+        var xMap=props.xAxisMap; var yMap=props.yAxisMap;
+        if(!xMap||!yMap) return null;
+        var xs=xMap[0]&&xMap[0].scale; var ys=yMap[0]&&yMap[0].scale;
+        if(!xs||!ys) return null;
+        function clr(y){return y<=10?"#16A34A":y<=20?"#F59E0B":"#EF4444";}
+        function crossPt(a,b,th){var t=(th-a.y)/(b.y-a.y);return {x:a.x+t*(b.x-a.x),y:th};}
+        var segs=[];
+        for(var i=0;i<allLine.length-1;i++){
+          var a=allLine[i],b=allLine[i+1];
+          var chain=[a];
+          [10,20].forEach(function(th){if((a.y<th&&b.y>=th)||(a.y>=th&&b.y<th))chain.push(crossPt(a,b,th));});
+          chain.sort(function(p,q){return p.x-q.x;});
+          chain.push(b);
+          for(var j=0;j<chain.length-1;j++){
+            var p1=chain[j],p2=chain[j+1];
+            var sx=xs(p1.x),sy=ys(p1.y),ex=xs(p2.x),ey=ys(p2.y);
+            if(!isNaN(sx)&&!isNaN(sy)&&!isNaN(ex)&&!isNaN(ey))
+              segs.push({x1:sx,y1:sy,x2:ex,y2:ey,c:clr((p1.y+p2.y)/2)});
+          }
+        }
+        return <g>{segs.map(function(s,i){return <line key={i} x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2} stroke={s.c} strokeWidth={2.5} strokeLinecap="round"/>;})}</g>;
+      };
+
+      var DotsLayer=function(props){
+        var xMap=props.xAxisMap; var yMap=props.yAxisMap;
+        if(!xMap||!yMap) return null;
+        var xs=xMap[0]&&xMap[0].scale; var ys=yMap[0]&&yMap[0].scale;
+        if(!xs||!ys) return null;
+        return <g>{allDots.map(function(p,i){var cx=xs(p.x),cy=ys(p.y);if(isNaN(cx)||isNaN(cy))return null;return <circle key={i} cx={cx} cy={cy} r={3} fill="#3B82F6" fillOpacity={0.75}/>;})}</g>;
+      };
+
       return(
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={data} margin={{top:16,right:20,bottom:28,left:8}}>
-            <defs>
-              <linearGradient id="engHealthGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#F59E0B" stopOpacity={0.35}/>
-                <stop offset="44%" stopColor="#F59E0B" stopOpacity={0.15}/>
-                <stop offset="44%" stopColor="#22C55E" stopOpacity={0.25}/>
-                <stop offset="100%" stopColor="#22C55E" stopOpacity={0.35}/>
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.10)" strokeDasharray="3 3"/>
-            <XAxis dataKey="d" type="number" domain={["dataMin","dataMax"]} scale="time"
-              tickFormatter={function(v){var dt=new Date(v);return MN[dt.getMonth()]+" "+dt.getFullYear();}}
-              ticks={xTicks} tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
-              label={{value:"Date",position:"insideBottom",offset:-6,style:axLabel}}/>
-            <YAxis domain={[0,18]} ticks={[0,10]} tick={axTick} axisLine={false} tickLine={false}
-              label={{value:"Fuel Loss %",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
-            <Tooltip content={<CustomTip/>} cursor={{stroke:"#94A3B8",strokeWidth:1}}/>
-            <Area type="monotone" dataKey="loss" stroke="#1E293B" strokeWidth={2.5}
-              fill="url(#engHealthGrad)" activeDot={{r:5,fill:"#1E3A8A",stroke:"#fff",strokeWidth:2}} isAnimationActive={false}/>
+          <ComposedChart data={[{x:1.0},{x:X_END}]} margin={{top:8,right:24,bottom:32,left:16}}>
+            <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.15)" strokeDasharray="5 4"/>
+            <XAxis dataKey="x" type="number" domain={[0.8,X_END+0.2]} scale="linear"
+              ticks={xTicks}
+              tickFormatter={function(v){var d=xToDate(v);return MN[d.getMonth()]+" "+d.getFullYear();}}
+              tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}/>
+            <YAxis domain={[0,40]} ticks={[0,10,20,30,40]} tick={axTick} axisLine={false} tickLine={false}
+              label={{value:"Deviation Percentage (%)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
+            <Tooltip content={function(){return null;}}/>
+            <Customized component={MultiColorLineLayer}/>
+            <Customized component={DotsLayer}/>
           </ComposedChart>
         </ResponsiveContainer>
       );
@@ -3182,9 +3208,29 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   </svg>
                 </button>
               </div>
-              <div style={{textAlign:"center",fontSize:13,fontWeight:700,color:THEME.text,marginBottom:8,flexShrink:0}}>Engine Health Deterioration Over Time</div>
               <div style={{flex:1,minHeight:0}}>
                 <EngineHealthDeteriorationChart/>
+              </div>
+              {/* Legend */}
+              <div style={{flexShrink:0,border:"1px solid #e2e8f0",borderRadius:8,padding:"14px 20px",display:"flex",gap:56,marginTop:8}}>
+                <div>
+                  <div style={{fontSize:12,fontWeight:700,color:THEME.text,marginBottom:8}}>Risk Bands (Deviation %)</div>
+                  {[["#16A34A","-0 <= Deviation % <= 10"],["#F59E0B","10 < Deviation % <= 20"],["#EF4444","20 < Deviation %"]].map(function(r){
+                    return(
+                      <div key={r[1]} style={{display:"flex",alignItems:"center",gap:8,marginBottom:5}}>
+                        <div style={{width:26,height:4,borderRadius:2,background:r[0],flexShrink:0}}/>
+                        <span style={{fontSize:12,color:THEME.textSub}}>{r[1]}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div>
+                  <div style={{fontSize:12,fontWeight:700,color:THEME.text,marginBottom:8}}>Line Legend</div>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <div style={{width:26,height:3,background:"#16A34A",flexShrink:0,borderRadius:2}}/>
+                    <span style={{fontSize:12,color:THEME.textSub}}>7 Days Rolling Average</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
