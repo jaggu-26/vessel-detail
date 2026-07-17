@@ -3172,6 +3172,35 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Predicted vs Reported Consumption deep-dive modal (Engine Health view) ────
     function EngineHealthModal({onClose}){
+      var [windBF,setWindBF]=useState("");
+      var [waveDS,setWaveDS]=useState("");
+      var [loadCond,setLoadCond]=useState("laden");
+      var [sogMin,setSogMin]=useState(0);
+      var [sogMax,setSogMax]=useState(20);
+      var [steamMin,setSteamMin]=useState(0);
+      var [steamMax,setSteamMax]=useState(26);
+      var [ecaZone,setEcaZone]=useState(true);
+      var [nonEcaZone,setNonEcaZone]=useState(false);
+
+      var WIND_OPTS=["1","2","3","4","5","6","7","8"];
+      var WAVE_OPTS=["0.5","1.0","1.5","2.0","2.5","3.0","3.5","4.0","5.0","6.0"];
+
+      function handleClear(){
+        setWindBF(""); setWaveDS(""); setLoadCond("laden");
+        setSogMin(0); setSogMax(20); setSteamMin(0); setSteamMax(26);
+        setEcaZone(true); setNonEcaZone(false);
+      }
+
+      var ctrlLabel={fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5};
+      var selWrap={position:"relative"};
+      var selStyle={width:"100%",padding:"8px 32px 8px 10px",fontSize:13,borderRadius:8,
+        border:"1px solid #e2e8f0",background:"#fff",outline:"none",cursor:"pointer",
+        appearance:"none",WebkitAppearance:"none",fontFamily:"inherit",color:THEME.text,boxSizing:"border-box"};
+      var chevron=<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2.5"
+        style={{position:"absolute",right:9,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}}>
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>;
+
       return ReactDOM.createPortal(
         <div onClick={function(e){if(e.target===e.currentTarget)onClose();}}
           style={{position:"fixed",inset:0,background:"rgba(12,30,53,0.45)",zIndex:9998,
@@ -3181,12 +3210,106 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
             {/* ── Controls ── */}
             <div style={{width:268,flexShrink:0,background:"#f5f7fa",borderRight:"1px solid #e8eaed",
-              padding:"28px 22px",display:"flex",flexDirection:"column",gap:24,overflowY:"auto"}}>
+              padding:"28px 22px",display:"flex",flexDirection:"column",gap:20,overflowY:"auto"}}>
               <div style={{fontSize:16,fontWeight:700,color:THEME.text,letterSpacing:-0.2}}>Controls</div>
 
+              {/* Report Date */}
               <div>
-                <div style={{fontSize:11,fontWeight:600,color:THEME.textSub,marginBottom:8,textTransform:"uppercase",letterSpacing:0.5}}>Date Range</div>
+                <div style={ctrlLabel}>Report Date</div>
                 <ReportDatePicker/>
+              </div>
+
+              {/* Weather */}
+              <div>
+                <div style={ctrlLabel}>Weather</div>
+                <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <span style={{fontSize:13,color:THEME.text,whiteSpace:"nowrap",width:110,flexShrink:0}}>Wind BF {"(<="}</span>
+                    <div style={selWrap}>
+                      <select value={windBF} onChange={function(e){setWindBF(e.target.value);}} style={selStyle}>
+                        <option value="">Select</option>
+                        {WIND_OPTS.map(function(o){return <option key={o} value={o}>{o}</option>;})}
+                      </select>
+                      {chevron}
+                    </div>
+                  </div>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <span style={{fontSize:13,color:THEME.text,whiteSpace:"nowrap",width:110,flexShrink:0}}>Wave DSS {"(<="}</span>
+                    <div style={selWrap}>
+                      <select value={waveDS} onChange={function(e){setWaveDS(e.target.value);}} style={selStyle}>
+                        <option value="">Select</option>
+                        {WAVE_OPTS.map(function(o){return <option key={o} value={o}>{o}</option>;})}
+                      </select>
+                      {chevron}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Load Condition */}
+              <div>
+                <div style={ctrlLabel}>Load Condition</div>
+                <div style={{display:"flex",gap:16}}>
+                  {[["laden","Laden"],["ballast","Ballast"]].map(function(r){
+                    var act=loadCond===r[0];
+                    return(
+                      <label key={r[0]} onClick={function(){setLoadCond(r[0]);}}
+                        style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer"}}>
+                        <div style={{width:16,height:16,borderRadius:"50%",border:"2px solid",
+                          borderColor:act?B:"#cbd5e1",background:"#fff",flexShrink:0,
+                          display:"flex",alignItems:"center",justifyContent:"center"}}>
+                          {act&&<div style={{width:8,height:8,borderRadius:"50%",background:B}}/>}
+                        </div>
+                        <span style={{fontSize:13,color:act?THEME.text:THEME.textSub,fontWeight:act?600:400}}>{r[1]}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* SOG */}
+              <div>
+                <div style={ctrlLabel}>SOG (kn)</div>
+                <SpeedRangeSlider min={0} max={20} low={sogMin} high={sogMax}
+                  onLow={setSogMin} onHigh={setSogMax} unit="" stepSize={1}/>
+              </div>
+
+              {/* Steaming Hours */}
+              <div>
+                <div style={ctrlLabel}>Steaming Hours (hrs/day)</div>
+                <SpeedRangeSlider min={0} max={26} low={steamMin} high={steamMax}
+                  onLow={setSteamMin} onHigh={setSteamMax} unit="" stepSize={1}/>
+              </div>
+
+              {/* ECA Zone */}
+              <div>
+                <div style={ctrlLabel}>ECA Zone</div>
+                <div style={{display:"flex",gap:20}}>
+                  {[["eca","ECA",ecaZone,setEcaZone],["noneca","Non ECA",nonEcaZone,setNonEcaZone]].map(function(r){
+                    return(
+                      <label key={r[0]} onClick={function(){r[3](!r[2]);}}
+                        style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer"}}>
+                        <div style={{width:16,height:16,borderRadius:4,border:"2px solid",
+                          borderColor:r[2]?B:"#cbd5e1",background:r[2]?B:"#fff",flexShrink:0,
+                          display:"flex",alignItems:"center",justifyContent:"center"}}>
+                          {r[2]&&<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="2 6 5 9 10 3"/></svg>}
+                        </div>
+                        <span style={{fontSize:13,color:r[2]?THEME.text:THEME.textSub,fontWeight:r[2]?600:400}}>{r[1]}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div style={{marginTop:"auto",display:"flex",alignItems:"center",justifyContent:"space-between",paddingTop:4}}>
+                <button onClick={handleClear}
+                  style={{background:"none",border:"none",cursor:"pointer",color:B,fontSize:13,fontWeight:600,padding:"4px 0"}}>
+                  Clear All
+                </button>
+                <button style={{background:B,border:"none",borderRadius:8,padding:"9px 22px",fontSize:13,fontWeight:600,color:"#fff",cursor:"pointer"}}>
+                  Apply Filter
+                </button>
               </div>
             </div>
 
@@ -3208,29 +3331,23 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   </svg>
                 </button>
               </div>
+              {/* Legend — top */}
+              <div style={{flexShrink:0,display:"flex",alignItems:"center",flexWrap:"wrap",gap:20,marginBottom:10,paddingLeft:4}}>
+                {[["#16A34A","-0 <= Deviation % <= 10"],["#F59E0B","10 < Deviation % <= 20"],["#EF4444","20 < Deviation %"]].map(function(r){
+                  return(
+                    <div key={r[1]} style={{display:"flex",alignItems:"center",gap:6}}>
+                      <div style={{width:22,height:4,borderRadius:2,background:r[0],flexShrink:0}}/>
+                      <span style={{fontSize:11,color:THEME.textSub}}>{r[1]}</span>
+                    </div>
+                  );
+                })}
+                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                  <div style={{width:22,height:3,background:"#16A34A",flexShrink:0,borderRadius:2}}/>
+                  <span style={{fontSize:11,color:THEME.textSub}}>7 Days Rolling Average</span>
+                </div>
+              </div>
               <div style={{flex:1,minHeight:0}}>
                 <EngineHealthDeteriorationChart/>
-              </div>
-              {/* Legend */}
-              <div style={{flexShrink:0,border:"1px solid #e2e8f0",borderRadius:8,padding:"14px 20px",display:"flex",gap:56,marginTop:8}}>
-                <div>
-                  <div style={{fontSize:12,fontWeight:700,color:THEME.text,marginBottom:8}}>Risk Bands (Deviation %)</div>
-                  {[["#16A34A","-0 <= Deviation % <= 10"],["#F59E0B","10 < Deviation % <= 20"],["#EF4444","20 < Deviation %"]].map(function(r){
-                    return(
-                      <div key={r[1]} style={{display:"flex",alignItems:"center",gap:8,marginBottom:5}}>
-                        <div style={{width:26,height:4,borderRadius:2,background:r[0],flexShrink:0}}/>
-                        <span style={{fontSize:12,color:THEME.textSub}}>{r[1]}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div>
-                  <div style={{fontSize:12,fontWeight:700,color:THEME.text,marginBottom:8}}>Line Legend</div>
-                  <div style={{display:"flex",alignItems:"center",gap:8}}>
-                    <div style={{width:26,height:3,background:"#16A34A",flexShrink:0,borderRadius:2}}/>
-                    <span style={{fontSize:12,color:THEME.textSub}}>7 Days Rolling Average</span>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -6431,7 +6548,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             };
           })()}),{rowHeight:420}),
         Object.assign(cc("Predicted vs Reported Consumption","By speed — laden / ballast",
-          function(){return <ConsumptionSpeedChart/>;},3,{tableData:(function(){
+          function(){return <EngineHealthDeteriorationChart/>;},3,{tableData:(function(){
             var _ld=[];
             for(var _sv=7.5;_sv<=15.6;_sv=Math.round((_sv+0.1)*10)/10){
               var _dd=_sv-10.2;
