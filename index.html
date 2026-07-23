@@ -3449,7 +3449,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             ?<LoadSFOCModal onClose={function(){setSimOpen(false);}}/>
             :title==="Predicted vs Reported Consumption"
             ?<EngineHealthModal onClose={function(){setSimOpen(false);}}/>
-            :title==="ME RPM – Power Performance"
+            :title==="Main Engine RPM - Power Performance"
             ?<MERPMPowerModal onClose={function(){setSimOpen(false);}}/>
             :<SimulatorModal title={title} onClose={function(){setSimOpen(false);}}/>
           )}
@@ -6618,7 +6618,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               })
             };
           })()}),{rowHeight:420}),
-        Object.assign(cc("ME RPM – Power Performance","Shop test benchmark vs reported — good weather",
+        Object.assign(cc("Main Engine RPM - Power Performance","Shop test benchmark vs reported — good weather",
           function(){return <MERPMPowerChart/>;},3,{hideDeepDive:true,noExpand:true,tableData:(function(){
             var rpmPts=[47,50,53,56,59,61,64,67,70,73,76,79,83,87];
             function _bench(rpm){return Math.round(0.1061*Math.pow(rpm,2.67));}
