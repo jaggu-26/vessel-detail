@@ -6958,7 +6958,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var [mosaicOrd,setMosaicOrd]=useState(function(){
         var baseLen=dashTabItems.length;
         var saved=loadMosaicOrd(activeDashTab);
-        if(saved) return saved;
+        if(saved){
+          // Append any new base indices not present in the saved order (e.g. a chart was added after the user saved a layout)
+          var merged=saved.slice();
+          for(var _ni=0;_ni<baseLen;_ni++){ if(merged.indexOf(_ni)===-1) merged.push(_ni); }
+          return merged;
+        }
         return dashTabItems.map(function(_,i){return i;});
       });
       var [mdi,setMdi]=useState(null);
@@ -6967,7 +6972,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         // Tab changed: load saved order or reset to default
         var baseLen=dashTabItems.length;
         var saved=loadMosaicOrd(activeDashTab);
-        if(saved){ setMosaicOrd(saved); setMdi(null); setMoi2(null); return; }
+        if(saved){
+          var merged2=saved.slice();
+          for(var _ni2=0;_ni2<baseLen;_ni2++){ if(merged2.indexOf(_ni2)===-1) merged2.push(_ni2); }
+          setMosaicOrd(merged2); setMdi(null); setMoi2(null); return;
+        }
         setMosaicOrd(function(prev){
           var baseArr=[];for(var ii=0;ii<baseLen;ii++)baseArr.push(ii);
           var existingCustom=prev.filter(function(i){return i>=baseLen&&i<baseLen+customCharts.length;});
