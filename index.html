@@ -5865,26 +5865,35 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── ME RPM Power Performance Chart
     function MERPMPowerChart(){
-      var rpmRange=[];
-      for(var _r=44;_r<=89;_r+=3){rpmRange.push(_r);}
+      // Reported scatter points — merged into main dataset for tooltip support
+      var reportedPts=[
+        {rpm:61,rep:6300},{rpm:62.5,rep:6500},
+        {rpm:64,rep:7600},{rpm:65,rep:7900},{rpm:65.5,rep:8800},
+        {rpm:66,rep:7400},{rpm:67,rep:8100},{rpm:67.5,rep:7900},
+        {rpm:68,rep:8500},{rpm:68.5,rep:8200},{rpm:69,rep:8600},
+        {rpm:69.5,rep:8400},{rpm:70,rep:8900},{rpm:70.5,rep:9000},
+        {rpm:71,rep:9100},{rpm:71.5,rep:9200},{rpm:72,rep:9300},
+        {rpm:73,rep:9100},{rpm:74,rep:9200},{rpm:76.5,rep:9200},
+        {rpm:78,rep:9300},{rpm:79,rep:9300}
+      ];
+      // Build a unified dataset: curve points + reported points merged by rpm
       function bench(rpm){return Math.round(0.1061*Math.pow(rpm,2.67));}
-      var curveData=rpmRange.map(function(rpm){
+      // Collect all unique rpm values (curve + dots), sorted
+      var allRpms={};
+      for(var _r=44;_r<=89;_r+=3) allRpms[_r]=true;
+      reportedPts.forEach(function(p){allRpms[p.rpm]=true;});
+      var rpmSorted=Object.keys(allRpms).map(Number).sort(function(a,b){return a-b;});
+      var repMap={};
+      reportedPts.forEach(function(p){repMap[p.rpm]=p.rep;});
+      var curveData=rpmSorted.map(function(rpm){
         var b=bench(rpm);
         var bandLow=Math.round(b*0.95);
         var bandFill=b-bandLow;
         var rfit=Math.round(197*rpm-6259);
-        return {rpm:rpm,bench:b,bandLow:bandLow,bandFill:bandFill,rfit:rfit>0?rfit:null};
+        return {rpm:rpm,bench:b,bandLow:bandLow,bandFill:bandFill,
+          rfit:rfit>0?rfit:null,
+          rep:repMap[rpm]!=null?repMap[rpm]:null};
       });
-      var reportedPts=[
-        {rpm:61,y:6300},{rpm:62.5,y:6500},
-        {rpm:64,y:7600},{rpm:65,y:7900},{rpm:65.5,y:8800},
-        {rpm:66,y:7400},{rpm:67,y:8100},{rpm:67.5,y:7900},
-        {rpm:68,y:8500},{rpm:68.5,y:8200},{rpm:69,y:8600},
-        {rpm:69.5,y:8400},{rpm:70,y:8900},{rpm:70.5,y:9000},
-        {rpm:71,y:9100},{rpm:71.5,y:9200},{rpm:72,y:9300},
-        {rpm:73,y:9100},{rpm:74,y:9200},{rpm:76.5,y:9200},
-        {rpm:78,y:9300},{rpm:79,y:9300}
-      ];
       var yTicks=[0,3105,6209,9314,12419,15523];
       var xTicks=[47,52,61,70,79,87];
       var legendItems=[
@@ -5920,11 +5929,21 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   tick={{fontSize:11,fill:"#555"}} axisLine={false} tickLine={false}
                   label={{value:"Shaft Power (kW)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={<ModernTooltip/>}/>
-                <Area type="monotone" dataKey="bandLow" stackId="tb" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
-                <Area type="monotone" dataKey="bandFill" stackId="tb" stroke="none" fill="rgba(147,197,253,0.55)" legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="bench" stroke="#1E3A8A" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="rfit" stroke="#F97316" strokeWidth={1.8} strokeDasharray="6 3" dot={false} legendType="none" connectNulls={false} isAnimationActive={false}/>
-                <Scatter data={reportedPts} name="reported" fill="#38BDF8" legendType="none"/>
+                <Area type="monotone" dataKey="bandLow" stackId="tb" stroke="none" fill="transparent" legendType="none" isAnimationActive={false} name="–"/>
+                <Area type="monotone" dataKey="bandFill" stackId="tb" stroke="none" fill="rgba(147,197,253,0.45)" legendType="none" isAnimationActive={false} name="–5% Band"/>
+                <Line type="monotone" dataKey="bench" stroke="#1E3A8A" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false} name="Benchmark (kW)"/>
+                <Line type="monotone" dataKey="rfit" stroke="#F97316" strokeWidth={1.8} strokeDasharray="6 3" dot={false} legendType="none" connectNulls={false} isAnimationActive={false} name="Reported Fit (kW)"/>
+                <Line type="monotone" dataKey="rep"
+                  stroke="#38BDF8" strokeWidth={0}
+                  dot={function(props){
+                    if(props.value==null) return <g key={props.index}/>;
+                    return <circle key={props.index} cx={props.cx} cy={props.cy} r={5} fill="#38BDF8" stroke="#fff" strokeWidth={1.2} opacity={0.9}/>;
+                  }}
+                  activeDot={function(props){
+                    if(props.value==null) return <g/>;
+                    return <circle cx={props.cx} cy={props.cy} r={7} fill="#38BDF8" stroke="#fff" strokeWidth={1.5}/>;
+                  }}
+                  connectNulls={false} legendType="none" isAnimationActive={false} name="Reported (kW)"/>
               </ComposedChart>
             </ResponsiveContainer>
           </div>
