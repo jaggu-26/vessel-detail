@@ -7189,9 +7189,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                           setMosaicOrd(function(prev){return prev.filter(function(i){return i!==itemIdx;});});
                           setUserWeights(function(prev){var n={};Object.keys(prev).forEach(function(k){if(parseInt(k,10)!==itemIdx)n[k]=prev[k];});return n;});
                         }});
-                        // With live-swap preview: mdi is now at target pos, moi2 at source pos
-                        var isLandingSpot = mdi!==null && moi2!==null && itemIdx===mdi; // dragged card at new position
-                        var isDragging    = mdi!==null && itemIdx===mdi; // card being dragged
+                        var isDragging    = mdi!==null && itemIdx===mdi;  // the card being dragged (source)
+                        var isLandingSpot = mdi!==null && moi2!==null && itemIdx===moi2; // card being hovered over (drop target)
                         var showHandle=hovMosaic===itemIdx||activeMosaicResize===itemIdx;
                         var isResizing=activeMosaicResize===itemIdx;
                         var isHighlight=highlightIdx===itemIdx;
