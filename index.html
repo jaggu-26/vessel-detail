@@ -4436,48 +4436,19 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   if(onReorder) onReorder();
                 }}>
                 <div
-                  key={isSwapped?"swap-"+oi+"-"+di:"static-"+itemIdx}
-                  className={isSwapped?"card-swap-jump":""}
                   style={{
                     opacity: isDragged ? 0.28 : 1,
                     borderRadius: 10,
                     height: "100%",
                     boxSizing: "border-box",
                     position: "relative",
-                    outline: isDragged
-                      ? "2.5px dashed #94A3B8"
-                      : isSwapped
-                      ? "3px solid "+B
-                      : "none",
+                    outline: isSwapped ? "2.5px dashed "+B : "none",
+                    outlineOffset: isSwapped ? "2px" : "0px",
                     background: isSwapped ? "rgba(24,82,254,0.04)" : "transparent",
-                    boxShadow: isSwapped ? "0 0 0 6px rgba(24,82,254,0.10), 0 8px 32px rgba(24,82,254,0.14)" : "none",
-                    transition: "opacity 0.15s, outline 0.15s, box-shadow 0.15s, background 0.15s"
+                    boxShadow: isSwapped ? "0 0 0 4px rgba(24,82,254,0.10)" : "none",
+                    transition: "opacity 0.15s, outline 0.12s, outline-offset 0.12s, box-shadow 0.15s, background 0.12s"
                   }}>
                   {items[itemIdx]}
-                  {/* Swap indicator overlay on displaced card */}
-                  {isSwapped&&(
-                    <div className="swap-pulse-ring" style={{position:"absolute",inset:0,borderRadius:10,
-                      pointerEvents:"none",zIndex:8,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                      <div style={{background:"#1852FE",color:"#fff",borderRadius:20,
-                        padding:"5px 14px",fontSize:12,fontWeight:700,letterSpacing:0.3,
-                        boxShadow:"0 4px 16px rgba(24,82,254,0.35)",display:"flex",alignItems:"center",gap:6}}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/>
-                        </svg>
-                        Swap
-                      </div>
-                    </div>
-                  )}
-                  {/* Ghost label on the dragged card's source slot */}
-                  {isDragged&&(
-                    <div style={{position:"absolute",inset:0,borderRadius:10,pointerEvents:"none",zIndex:8,
-                      display:"flex",alignItems:"center",justifyContent:"center"}}>
-                      <div style={{background:"rgba(15,23,42,0.55)",color:"#fff",borderRadius:20,
-                        padding:"5px 14px",fontSize:12,fontWeight:600,backdropFilter:"blur(4px)"}}>
-                        Dragging…
-                      </div>
-                    </div>
-                  )}
                 </div>
                 {showHandle&&(
                   <div draggable={false} onMouseDown={function(e){startResize(e,itemIdx);}}
@@ -7137,13 +7108,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         prevCustomLen.current=customCharts.length;
       },[customCharts.length]);
 
-      // Live-swap preview order: while dragging, visually swap dragged card with target card
+      // No live-swap preview during drag — cards stay in place; only the target gets a dotted border
       var displayOrd = mosaicOrd;
-      if(mdi!==null && moi2!==null && mdi!==moi2){
-        var _tmp=[].concat(mosaicOrd);
-        var _fi=_tmp.indexOf(mdi), _ti=_tmp.indexOf(moi2);
-        if(_fi!==-1&&_ti!==-1){ _tmp[_fi]=moi2; _tmp[_ti]=mdi; displayOrd=_tmp; }
-      }
 
       // Responsive: switch span-2 → span-3 when container < 1100px, fix hanging cards
       var isCompact = cw < 1100;
@@ -7225,8 +7191,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                         }});
                         // With live-swap preview: mdi is now at target pos, moi2 at source pos
                         var isLandingSpot = mdi!==null && moi2!==null && itemIdx===mdi; // dragged card at new position
-                        var isDisplaced   = mdi!==null && moi2!==null && itemIdx===moi2; // card pushed to old position
-                        var isDragging    = mdi!==null && moi2===null  && itemIdx===mdi; // mid-air, not over anything
+                        var isDragging    = mdi!==null && itemIdx===mdi; // card being dragged
                         var showHandle=hovMosaic===itemIdx||activeMosaicResize===itemIdx;
                         var isResizing=activeMosaicResize===itemIdx;
                         var isHighlight=highlightIdx===itemIdx;
@@ -7266,52 +7231,24 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                               position:"relative",
                               boxSizing:"border-box",
                               borderRadius:10,
-                              // Landing spot / displaced card visual states
+                              // Drag visual states — no position swap, no scale jumps
                               opacity: isDragging ? 0.28 : 1,
-                              outline: isLandingSpot ? "3px solid "+B
-                                     : isDisplaced   ? "3px solid "+B
+                              outline: isLandingSpot ? "2.5px dashed "+B
                                      : isResizing    ? "2px solid #6366F1"
                                      : isHighlight   ? "2px solid #1852FE"
                                      : "none",
-                              boxShadow: (isLandingSpot||isDisplaced) ? "0 0 0 6px rgba(24,82,254,0.12), 0 12px 40px rgba(24,82,254,0.18)"
-                                       : isHighlight ? "0 0 0 4px rgba(24,82,254,0.08)"
+                              outlineOffset: isLandingSpot ? "2px" : "0px",
+                              boxShadow: isLandingSpot ? "0 0 0 4px rgba(24,82,254,0.10)"
+                                       : isHighlight  ? "0 0 0 4px rgba(24,82,254,0.08)"
                                        : "none",
                               background: isLandingSpot ? "rgba(24,82,254,0.04)"
-                                        : isDisplaced  ? "rgba(24,82,254,0.04)"
                                         : isDragging   ? "#F1F5F9"
                                         : isResizing   ? "rgba(99,102,241,0.03)"
                                         : "transparent",
-                              transform: isLandingSpot ? "scale(1.02)"
-                                       : isDisplaced  ? "scale(0.965)"
-                                       : "scale(1)",
-                              zIndex: isLandingSpot ? 3 : isDisplaced ? 2 : 1,
-                              transition: isResizing ? "none" : "flex-grow 0.22s cubic-bezier(0.4,0,0.2,1), opacity 0.15s ease, outline 0.12s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1), background 0.12s ease, box-shadow 0.15s ease"
+                              zIndex: isLandingSpot ? 3 : 1,
+                              transition: isResizing ? "none" : "flex-grow 0.22s cubic-bezier(0.4,0,0.2,1), opacity 0.15s ease, outline 0.12s ease, outline-offset 0.12s, background 0.12s ease, box-shadow 0.15s ease"
                             }}>
                             {chartContent}
-                            {/* Displaced card — "Swap" badge */}
-                            {isDisplaced&&(
-                              <div className="swap-pulse-ring" style={{position:"absolute",inset:0,borderRadius:10,
-                                pointerEvents:"none",zIndex:8,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                                <div style={{background:"#1852FE",color:"#fff",borderRadius:20,
-                                  padding:"5px 14px",fontSize:12,fontWeight:700,letterSpacing:0.3,
-                                  boxShadow:"0 4px 16px rgba(24,82,254,0.35)",display:"flex",alignItems:"center",gap:6}}>
-                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/>
-                                  </svg>
-                                  Swap
-                                </div>
-                              </div>
-                            )}
-                            {/* Dragging ghost label */}
-                            {isDragging&&(
-                              <div style={{position:"absolute",inset:0,borderRadius:10,pointerEvents:"none",zIndex:8,
-                                display:"flex",alignItems:"center",justifyContent:"center"}}>
-                                <div style={{background:"rgba(15,23,42,0.5)",color:"#fff",borderRadius:20,
-                                  padding:"5px 14px",fontSize:12,fontWeight:600,backdropFilter:"blur(4px)"}}>
-                                  Dragging…
-                                </div>
-                              </div>
-                            )}
                             {/* Full-card drag grip — always in DOM so dragend always fires on an attached node */}
                             <div draggable={!(isDragging||isLandingSpot)}
                               onDragStart={function(e){
