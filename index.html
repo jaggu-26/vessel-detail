@@ -4442,10 +4442,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     height: "100%",
                     boxSizing: "border-box",
                     position: "relative",
-                    outline: isSwapped ? "2.5px dashed "+B : "none",
-                    outlineOffset: isSwapped ? "2px" : "0px",
+                    outline: isSwapped ? "2.5px solid "+B : isDragged ? "2.5px dashed "+B : "none",
+                    outlineOffset: (isSwapped||isDragged) ? "2px" : "0px",
                     background: isSwapped ? "rgba(24,82,254,0.04)" : "transparent",
-                    boxShadow: isSwapped ? "0 0 0 4px rgba(24,82,254,0.10)" : "none",
+                    boxShadow: isSwapped ? "0 0 0 4px rgba(24,82,254,0.12)" : "none",
                     transition: "opacity 0.15s, outline 0.12s, outline-offset 0.12s, box-shadow 0.15s, background 0.12s"
                   }}>
                   {items[itemIdx]}
@@ -7233,12 +7233,13 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                               borderRadius:10,
                               // Drag visual states — no position swap, no scale jumps
                               opacity: isDragging ? 0.28 : 1,
-                              outline: isLandingSpot ? "2.5px dashed "+B
+                              outline: isLandingSpot ? "2.5px solid "+B
+                                     : isDragging    ? "2.5px dashed "+B
                                      : isResizing    ? "2px solid #6366F1"
                                      : isHighlight   ? "2px solid #1852FE"
                                      : "none",
-                              outlineOffset: isLandingSpot ? "2px" : "0px",
-                              boxShadow: isLandingSpot ? "0 0 0 4px rgba(24,82,254,0.10)"
+                              outlineOffset: (isLandingSpot||isDragging) ? "2px" : "0px",
+                              boxShadow: isLandingSpot ? "0 0 0 4px rgba(24,82,254,0.12)"
                                        : isHighlight  ? "0 0 0 4px rgba(24,82,254,0.08)"
                                        : "none",
                               background: isLandingSpot ? "rgba(24,82,254,0.04)"
