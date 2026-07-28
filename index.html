@@ -335,7 +335,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     const axTick = {fontSize:13, fill:"#94A3B8", fontWeight:400};
     const axLabel = {fontSize:12, fill:"#94A3B8"};
-    const lgStyle = {wrapperStyle:{paddingTop:6,fontSize:11}};
+    const lgStyle = {verticalAlign:"top",align:"right",wrapperStyle:{paddingTop:6,fontSize:11}};
 
     // ── Smart chart-type picker ──────────────────────────────────────────────
     // keyword → ordered candidate chart types (best match first)
@@ -411,7 +411,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         </div>
       );
     }
-    var ccLg = {wrapperStyle:{paddingTop:8,fontSize:11,color:"#64748B"}};
+    var ccLg = {verticalAlign:"top",align:"right",wrapperStyle:{paddingTop:8,fontSize:11,color:"#64748B"}};
     var ccTick = {fontSize:13,fill:"#94A3B8",fontWeight:400};
     function ccXAx(key){ return <XAxis dataKey={key} tick={ccTick} axisLine={false} tickLine={false} dy={6}/>; }
     function ccYAx(){ return <YAxis tick={ccTick} axisLine={false} tickLine={false} width={36} tickCount={5}/>; }
@@ -1826,7 +1826,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       activeDot={{r:7,fill:"none",stroke:"#2E7D52",strokeWidth:2}} connectNulls={false} legendType="none" isAnimationActive={false}/>
 
                     {/* Custom legend */}
-                    <Legend verticalAlign="top" align="center" wrapperStyle={{paddingBottom:8}}
+                    <Legend verticalAlign="top" align="right" wrapperStyle={{paddingBottom:8}}
                       content={function(){
                         return(
                           <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:20,fontSize:11,color:THEME.textSub}}>
@@ -2066,7 +2066,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       itemStyle={{color:"#fff",fontSize:12}}
                       formatter={function(val,name){return [val,name];}}/>
                     <ReferenceLine yAxisId="left" x="01 Apr 2026" stroke="#CBD5E1" strokeWidth={1}/>
-                    <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:10}}
+                    <Legend verticalAlign="top" align="right" wrapperStyle={{fontSize:11,paddingBottom:10}}
                       formatter={function(v){return <span style={{color:THEME.textSub}}>{v}</span>;}}/>
                     <Line yAxisId="left" type="linear" dataKey="slip" name={_lbl+" Slip %"}
                       stroke="#3B82F6" strokeDasharray="5 3"
@@ -2512,7 +2512,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
                 label={{value:"Power (kW)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
               <Tooltip content={function(){return null;}}/>
-              <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:6}}
+              <Legend verticalAlign="top" align="right" wrapperStyle={{fontSize:11,paddingBottom:6}}
                 payload={[
                   {value:"Reported Power", color:"#1E3A5F", type:"circle"},
                   {value:"Predicted Power",color:"#F59E0B", type:"circle"},
@@ -2532,38 +2532,36 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     // ── Engine Health Deterioration chart — risk-band area + hover tooltip ────────
     function EngineHealthDeteriorationChart(){
       var MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      function xToDate(xv){var mi=Math.floor(xv);return new Date(2024,9+mi,1);}
+      // Same base as MEHealthChart: x=0 = May 2025, x=13.9 = Jul 2026 (current)
+      function xToDate(xv){var mi=Math.floor(xv);return new Date(2025,4+mi,1);}
 
       var allLine=[
-        {x:1.0,y:9.0},{x:1.3,y:7.0},{x:1.5,y:5.0},{x:1.8,y:4.2},{x:2.2,y:4.0},
-        {x:2.5,y:4.2},{x:2.8,y:5.0},{x:3.0,y:5.5},{x:3.3,y:6.2},{x:3.8,y:8.0},
-        {x:4.1,y:10.0},{x:4.3,y:12.0},{x:4.5,y:13.0},{x:4.7,y:12.0},{x:4.9,y:10.0},
-        {x:5.2,y:8.0},{x:5.5,y:7.0},{x:5.8,y:6.5},{x:6.0,y:6.0},{x:6.2,y:6.5},
-        {x:6.5,y:7.0},{x:6.8,y:8.0},{x:7.2,y:10.0},{x:7.6,y:13.0},{x:8.0,y:17.0},
-        {x:8.2,y:20.0},{x:8.4,y:22.0},{x:8.5,y:22.5},{x:8.6,y:22.0},{x:8.7,y:20.0},
-        {x:8.9,y:18.0},{x:9.1,y:15.0},{x:9.3,y:11.0},{x:9.5,y:7.0},{x:9.7,y:4.5},
-        {x:10.0,y:3.0},{x:10.3,y:2.5},{x:10.5,y:2.5},{x:10.7,y:3.0},{x:11.0,y:4.5},
-        {x:11.3,y:7.0},{x:11.5,y:9.0},{x:11.7,y:12.0},{x:11.9,y:15.0},{x:12.0,y:18.0},
-        {x:12.1,y:20.0},{x:12.15,y:21.5},{x:12.2,y:20.0},{x:12.4,y:18.0},
-        {x:12.6,y:14.0},{x:12.8,y:10.5},{x:13.0,y:8.0},{x:13.1,y:7.0},
+        {x:7.9,y:12.0},{x:8.1,y:14.5},{x:8.3,y:17.0},
+        {x:8.5,y:21.0},{x:8.6,y:22.5},{x:8.7,y:21.0},{x:8.8,y:19.0},
+        {x:9.0,y:15.5},{x:9.2,y:11.0},{x:9.4,y:7.5},{x:9.6,y:4.5},
+        {x:9.8,y:3.0},{x:10.0,y:2.5},{x:10.2,y:2.5},{x:10.4,y:3.0},{x:10.7,y:4.5},
+        {x:11.0,y:7.0},{x:11.2,y:9.0},{x:11.4,y:12.0},{x:11.6,y:15.0},{x:11.8,y:18.0},
+        {x:11.9,y:20.0},{x:11.95,y:21.5},{x:12.0,y:20.0},{x:12.2,y:18.0},
+        {x:12.4,y:14.0},{x:12.6,y:10.5},{x:12.8,y:8.0},{x:12.9,y:7.5},
+        {x:13.0,y:8.5},{x:13.1,y:9.0},{x:13.2,y:10.0},{x:13.4,y:12.5},
+        {x:13.5,y:15.0},{x:13.6,y:17.5},{x:13.7,y:19.0},{x:13.9,y:20.0},
       ];
       var allDots=[
-        {x:1.0,y:9},{x:1.05,y:14},{x:1.1,y:6},{x:1.2,y:7},
-        {x:4.2,y:11},{x:4.3,y:16},{x:4.4,y:13},{x:4.5,y:14},{x:4.55,y:9},{x:4.6,y:8},
-        {x:5.0,y:7.5},{x:5.1,y:4.5},
-        {x:8.1,y:17},{x:8.2,y:23},{x:8.25,y:26},{x:8.3,y:25},{x:8.35,y:20},
-        {x:8.4,y:23},{x:8.45,y:22},{x:8.5,y:20},{x:8.55,y:21},
-        {x:8.6,y:20},{x:8.65,y:19},{x:8.7,y:16},{x:8.75,y:20},
-        {x:9.0,y:10},{x:9.1,y:5},{x:9.2,y:10},{x:9.3,y:5},
-        {x:10.0,y:7},{x:10.1,y:5},{x:10.2,y:2.5},{x:10.3,y:3},
-        {x:11.3,y:8},{x:11.4,y:12.5},{x:11.5,y:18},{x:11.6,y:15.5},
-        {x:11.7,y:18},{x:11.8,y:16},{x:11.85,y:20},{x:11.9,y:20},
-        {x:12.0,y:19},{x:12.05,y:21},{x:12.1,y:20},{x:12.15,y:15},{x:12.2,y:11},
-        {x:12.3,y:5},{x:12.4,y:11},
+        {x:8.1,y:15},{x:8.2,y:21},{x:8.25,y:24},{x:8.3,y:23},{x:8.35,y:19},
+        {x:8.4,y:22},{x:8.45,y:21},{x:8.5,y:19},{x:8.55,y:20},
+        {x:8.6,y:19},{x:8.65,y:18},{x:8.7,y:15},{x:8.75,y:19},
+        {x:9.0,y:9},{x:9.1,y:4.5},{x:9.2,y:9},{x:9.3,y:4.5},
+        {x:10.0,y:6.5},{x:10.1,y:4.5},{x:10.2,y:2.5},{x:10.3,y:3},
+        {x:11.3,y:7.5},{x:11.4,y:12},{x:11.5,y:17.5},{x:11.6,y:15},
+        {x:11.7,y:17.5},{x:11.8,y:15.5},{x:11.85,y:19},{x:11.9,y:19.5},
+        {x:12.0,y:18.5},{x:12.05,y:20.5},{x:12.1,y:19.5},{x:12.15,y:14.5},{x:12.2,y:10.5},
+        {x:12.3,y:5},{x:12.4,y:10.5},
+        {x:13.1,y:8},{x:13.25,y:13},{x:13.4,y:14.5},{x:13.5,y:16},
+        {x:13.6,y:18.5},{x:13.7,y:20},{x:13.8,y:21.5},
       ];
 
-      var X_END=13.1;
-      var xTicks=[1,3,5,7,9,11,13];
+      var X_END=13.9;
+      var xTicks=[8,9,10,11,12,13];
 
       var MultiColorLineLayer=function(props){
         var xMap=props.xAxisMap; var yMap=props.yAxisMap;
@@ -2599,12 +2597,13 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       return(
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={[{x:1.0},{x:X_END}]} margin={{top:8,right:24,bottom:32,left:16}}>
+          <ComposedChart data={allLine} margin={{top:8,right:24,bottom:32,left:16}}>
             <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.15)" strokeDasharray="5 4"/>
-            <XAxis dataKey="x" type="number" domain={[0.8,X_END+0.2]} scale="linear"
+            <XAxis dataKey="x" type="number" domain={[7.9,X_END+0.15]} scale="linear"
               ticks={xTicks}
               tickFormatter={function(v){var d=xToDate(v);return MN[d.getMonth()]+" "+d.getFullYear();}}
-              tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}/>
+              tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
+              label={{value:"Month",position:"insideBottom",offset:-10,style:axLabel}}/>
             <YAxis domain={[0,40]} ticks={[0,10,20,30,40]} tick={axTick} axisLine={false} tickLine={false}
               label={{value:"Deviation Percentage (%)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
             <Tooltip content={function(){return null;}}/>
@@ -5074,7 +5073,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <YAxis domain={[0,20]} ticks={[0,2,4,6,8,10,12,14,16,18,20]} tick={axTick} axisLine={false} tickLine={false}
                     label={{value:"AER Rating",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
                   <Tooltip content={<ModernTooltip/>}/>
-                  <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:6}}/>
+                  <Legend verticalAlign="top" align="right" wrapperStyle={{fontSize:11,paddingBottom:6}}/>
                   <Area type="monotone" dataKey="required" stroke="#F59E0B" strokeWidth={2.5} strokeDasharray="6 3"
                     fill="url(#aerRequiredGrad)" dot={<AerRequiredDot/>}
                     activeDot={{r:6,fill:"#F59E0B",stroke:"#fff",strokeWidth:2}} name="Required AER"/>
@@ -5211,7 +5210,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <YAxis yAxisId="right" orientation="right" domain={[0,100]} ticks={[0,20,40,60,80,100]} tick={axTick} axisLine={false} tickLine={false}
                   label={{value:"Consumption",angle:90,position:"insideRight",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={<ModernTooltip/>}/>
-                <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:8}}/>
+                <Legend verticalAlign="top" align="right" wrapperStyle={{fontSize:11,paddingBottom:8}}/>
                 <Bar yAxisId="left" dataKey="emissions" name="Total emissions" fill="url(#euEmissionsGrad)" radius={[5,5,0,0]} maxBarSize={38}/>
                 <Bar yAxisId="right" dataKey="consumption" name="Consumption" fill="url(#euConsumpGrad)" radius={[5,5,0,0]} maxBarSize={38}/>
               </ComposedChart>
@@ -5276,7 +5275,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <YAxis yAxisId="right" orientation="right" domain={[0,5000]} ticks={[0,1000,2000,3000,4000]} tick={axTick} axisLine={false} tickLine={false}
               label={{value:"EUAs required",angle:90,position:"insideRight",offset:8,style:{...axLabel,textAnchor:"middle"}}}/>
             <Tooltip content={<ModernTooltip/>}/>
-            <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:8}}/>
+            <Legend verticalAlign="top" align="right" wrapperStyle={{fontSize:11,paddingBottom:8}}/>
             <Bar yAxisId="left" dataKey="balance" name="Compliance balance" maxBarSize={30} radius={[4,4,4,4]}>
               {fuelEUData.map(function(entry,i){
                 return <Cell key={i} fill={entry.balance>=0?"url(#fuelGreenGrad)":"url(#fuelRedGrad)"}/>;
@@ -5581,7 +5580,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         <div ref={containerRef} style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",position:"relative"}}>
           {/* Top legend row — only in card view */}
           {showColorWheel&&(
-          <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:20,padding:"0 0 4px",flexShrink:0,flexWrap:"wrap"}}>
+          <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:20,padding:"0 0 4px",flexShrink:0,flexWrap:"wrap"}}>
             <div style={{display:"flex",alignItems:"center",gap:5}}>
               <svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#3B82F6"/></svg>
               <span style={{fontSize:11,color:"#475569"}}>Speed Loss</span>
@@ -5919,7 +5918,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 axisLine={{stroke:"#E2E8F0"}} tickLine={false}
                 label={{value:"Consumption",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
               <Tooltip content={function(){return null;}}/>
-              <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:6}}
+              <Legend verticalAlign="top" align="right" wrapperStyle={{fontSize:11,paddingBottom:6}}
                 payload={[
                   {value:"Reported Consumption", color:"#1E3A5F", type:"circle"},
                   {value:"Predicted Consumption",color:"#F59E0B", type:"circle"},
@@ -6142,7 +6141,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       ];
       return (
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
-          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"6px 18px",fontSize:11,color:"#374151",padding:"4px 12px 8px",lineHeight:"18px"}}>
+          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"flex-end",gap:"6px 18px",fontSize:11,color:"#374151",padding:"4px 12px 8px",lineHeight:"18px"}}>
             {legendItems.map(function(it,i){
               return (
                 <div key={i} style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
@@ -6236,6 +6235,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       }
 
       var [rangeMode,setRangeMode]=useState(180);
+      var [hoverX,setHoverX]=useState(null);
       var X_END=13.9;
       // xMin based on range: 180 days≈6mo back, 60 days≈2mo back, 30 days≈1mo back from x=13.9 (≈Jul 2026)
       var xMin=rangeMode===30?12.9:rangeMode===60?11.9:7.9;
@@ -6328,6 +6328,53 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         );
       };
 
+      var CrosshairLayer2=function(props){
+        var xMap=props.xAxisMap; var yMap=props.yAxisMap;
+        if(!xMap||!yMap||hoverX==null) return null;
+        var xs=xMap[0]&&xMap[0].scale; var ys=yMap[0]&&yMap[0].scale;
+        if(!xs||!ys) return null;
+        var cx=xs(hoverX);
+        if(isNaN(cx)) return null;
+        var yBot=ys(0); var yTop=ys(40);
+        var avgY=interpLine(hoverX);
+        var avgCY=ys(avgY);
+        var near=null,best=0.6;
+        allDots.forEach(function(p){var dd=Math.abs(p.x-hoverX);if(dd<best){best=dd;near=p;}});
+        var nearCX=near?xs(near.x):null; var nearCY=near?ys(near.y):null;
+        var dt=xToDate(hoverX);
+        var dateStr=FMN[dt.getMonth()]+" "+dt.getFullYear();
+        var tipW=224; var tipH=near?100:74;
+        var tipX=cx+14; var tipY=yTop+8;
+        if(tipX+tipW>xs(xDomainEnd)) tipX=cx-tipW-14;
+        var nearRow=near?47:null;
+        var avgRow=near?67:47;
+        return (
+          <g>
+            <line x1={cx} y1={yTop} x2={cx} y2={yBot} stroke="#CBD5E1" strokeDasharray="5 3" strokeWidth={1.5}/>
+            <circle cx={cx} cy={avgCY} r={7} fill="none" stroke="#F97316" strokeWidth={2.5}/>
+            {near&&nearCX!=null&&!isNaN(nearCX)&&(
+              <circle cx={nearCX} cy={nearCY} r={7} fill="none" stroke="#3B82F6" strokeWidth={2.5}/>
+            )}
+            <g transform={"translate("+tipX+","+tipY+")"}>
+              <rect x={0} y={0} width={tipW} height={tipH} rx={8} fill="white" stroke="#E2E8F0" strokeWidth={1.5}
+                style={{filter:"drop-shadow(0 4px 12px rgba(0,0,0,0.10))"}}/>
+              <text x={12} y={22} fontSize={12} fontWeight="700" fill="#0E1A33">{dateStr}</text>
+              <line x1={8} y1={30} x2={tipW-8} y2={30} stroke="#F1F5F9" strokeWidth={1}/>
+              {near&&(
+                <g>
+                  <circle cx={22} cy={nearRow+4} r={5} fill="#3B82F6"/>
+                  <text x={32} y={nearRow+8} fontSize={11} fill="#4B5563">{"Deviation % SFOC correc."}</text>
+                  <text x={tipW-10} y={nearRow+8} fontSize={11} fontWeight="600" fill="#111827" textAnchor="end">{near.y.toFixed(1)+"%"}</text>
+                </g>
+              )}
+              <circle cx={22} cy={avgRow+4} r={5} fill="#F97316"/>
+              <text x={32} y={avgRow+8} fontSize={11} fill="#4B5563">{"7 Days Rolling Average"}</text>
+              <text x={tipW-10} y={avgRow+8} fontSize={11} fontWeight="600" fill="#111827" textAnchor="end">{avgY.toFixed(1)+"%"}</text>
+            </g>
+          </g>
+        );
+      };
+
       var MEHTip=function(t){
         if(!t.active||t.label==null) return null;
         var xv=t.label;
@@ -6403,7 +6450,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",position:"relative"}}>
           {/* Legend row — card view */}
           {showColorWheel&&(
-          <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:20,padding:"0 0 4px",flexShrink:0,flexWrap:"wrap"}}>
+          <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:20,padding:"0 0 4px",flexShrink:0,flexWrap:"wrap"}}>
             <div style={{display:"flex",alignItems:"center",gap:5}}>
               <svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#3B82F6"/></svg>
               <span style={{fontSize:11,color:"#475569"}}>Deviation % SFOC correc.</span>
@@ -6430,29 +6477,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             </div>
           </div>
           )}
-          {/* Time range buttons — card view only */}
-          {!showOpenLegend&&<div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",flexShrink:0,marginBottom:2}}>
-            {[{d:30,l:"30 Days"},{d:60,l:"60 Days"},{d:180,l:"180 Days"}].map(function(r,i){
-              var act=rangeMode===r.d;
-              return (
-                <React.Fragment key={r.d}>
-                  {i>0&&<span style={{color:"#CBD5E1",margin:"0 8px",fontSize:11,pointerEvents:"none"}}>|</span>}
-                  <button onClick={function(){setRangeMode(r.d);}}
-                    onMouseEnter={function(e){if(!act)e.currentTarget.style.color="#374151";}}
-                    onMouseLeave={function(e){if(!act)e.currentTarget.style.color="#94A3B8";}}
-                    style={{padding:0,fontSize:11,fontWeight:act?600:400,cursor:"pointer",
-                      background:"none",border:"none",color:act?"#0E1A33":"#94A3B8",
-                      transition:"color 0.2s",fontFamily:"inherit"}}>
-                    {r.l}
-                  </button>
-                </React.Fragment>
-              );
-            })}
-          </div>}
           {/* Chart */}
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={lineData} margin={{top:12,right:20,bottom:36,left:14}}>
+              <ComposedChart data={lineData} margin={{top:12,right:20,bottom:36,left:14}}
+                onMouseMove={function(e){if(e&&e.activePayload&&e.activePayload.length>0)setHoverX(e.activePayload[0].payload.x);else setHoverX(null);}}
+                onMouseLeave={function(){setHoverX(null);}}>
                 <CartesianGrid stroke="rgba(148,163,184,0.22)" strokeDasharray="3 3" vertical={false}/>
                 <XAxis type="number" dataKey="x" domain={[xMin,xDomainEnd]} ticks={xTicks}
                   tickFormatter={function(v){var d=xToDate(v);return SMN[d.getMonth()]+" "+d.getFullYear();}}
@@ -6461,9 +6491,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <YAxis domain={[0,40]} ticks={[0,10,20,30,40]}
                   tick={axTick} axisLine={false} tickLine={false}
                   label={{value:"Deviation % SFOC corr.",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
-                <Tooltip content={<MEHTip/>} cursor={{stroke:"#334155",strokeWidth:1}}/>
+                <Tooltip content={function(){return null;}} cursor={false}/>
+                <Line type="monotone" dataKey="y" stroke="transparent" strokeWidth={0} dot={false} isAnimationActive={false} legendType="none"/>
                 <Customized component={MultiColorLineLayer2}/>
                 <Customized component={DotsLayer2}/>
+                <Customized component={CrosshairLayer2}/>
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -6692,7 +6724,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   </defs>
                   <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
                   {xAx(key,isVoyage?"Voyage":"Month")} {yAx("Breaches")}
-                  <Tooltip content={<ModernTooltip/>}/><Legend verticalAlign="top" align="center" wrapperStyle={{paddingBottom:6,fontSize:11}}/>
+                  <Tooltip content={<ModernTooltip/>}/><Legend verticalAlign="top" align="right" wrapperStyle={{paddingBottom:6,fontSize:11}}/>
                   <Bar dataKey="speedBreach" fill="url(#bgSpeedBreach)" radius={[6,6,0,0]} name="Speed Breach" maxBarSize={38}/>
                   <Bar dataKey="consBreach"  fill="url(#bgConsBreach)"  radius={[6,6,0,0]} name="Consumption Breach" maxBarSize={38}/>
                 </BarChart>
@@ -6781,7 +6813,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       </div>
                     );
                   }}/>
-                  <Legend verticalAlign="top" align="center"
+                  <Legend verticalAlign="top" align="right"
                     wrapperStyle={{paddingTop:4,paddingBottom:16,fontSize:11}}/>
                   <Scatter name="Ballast Regression" data={bRegData}
                     line={{stroke:"#0EA5E9",strokeWidth:2}} lineType="joint"
@@ -8888,7 +8920,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                           </YAxis>
                           <Tooltip contentStyle={{background:"#0F172A",border:"none",borderRadius:8,padding:"10px 14px"}} labelStyle={{color:"#94A3B8",fontSize:11,marginBottom:6}} itemStyle={{color:"#fff",fontSize:12}}/>
                           <ReferenceLine yAxisId="left" x="01 Apr 2026" stroke="#CBD5E1" strokeWidth={1}/>
-                          <Legend verticalAlign="top" align="center" wrapperStyle={{fontSize:11,paddingBottom:10}} formatter={function(v){return <span style={{color:THEME.textSub}}>{v}</span>;}}/>
+                          <Legend verticalAlign="top" align="right" wrapperStyle={{fontSize:11,paddingBottom:10}} formatter={function(v){return <span style={{color:THEME.textSub}}>{v}</span>;}}/>
                           <Line yAxisId="left" type="linear" dataKey="slip" name={_sogLbl+" Slip %"} stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:5}} strokeWidth={2.5} isAnimationActive={false}/>
                           <Line yAxisId="left" type="linear" dataKey="slip7d" name={_sogLbl+" Slip % (7D Avg)"} stroke="#F97316" dot={false} activeDot={{r:5}} strokeWidth={2.5} isAnimationActive={false}/>
                           <Line yAxisId="right" type="linear" dataKey="sog" name={_sogLbl+" SOG"} stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:5}} strokeWidth={2.5} isAnimationActive={false}/>
