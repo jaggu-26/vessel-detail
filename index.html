@@ -35,6 +35,18 @@ html, body, #root { height: 100%; width: 100%; overflow: hidden; }
   0%   { background-position: -600px 0; }
   100% { background-position:  600px 0; }
 }
+.recharts-legend-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  vertical-align: middle !important;
+}
+.recharts-legend-item svg.recharts-surface {
+  display: block !important;
+  flex-shrink: 0;
+}
+.recharts-legend-item-text {
+  line-height: 1 !important;
+}
 .skel {
   background: linear-gradient(90deg, #E8EDF2 25%, #F4F7FA 50%, #E8EDF2 75%);
   background-size: 600px 100%;
@@ -335,7 +347,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     const axTick = {fontSize:13, fill:"#94A3B8", fontWeight:400};
     const axLabel = {fontSize:12, fill:"#94A3B8"};
-    const lgStyle = {verticalAlign:"top",align:"right",wrapperStyle:{paddingTop:6,fontSize:11}};
+    const lgStyle = {verticalAlign:"top",align:"right",iconSize:8,iconType:"square",wrapperStyle:{paddingTop:6,fontSize:11}};
 
     // ── Smart chart-type picker ──────────────────────────────────────────────
     // keyword → ordered candidate chart types (best match first)
@@ -411,7 +423,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         </div>
       );
     }
-    var ccLg = {verticalAlign:"top",align:"right",wrapperStyle:{paddingTop:8,fontSize:11,color:"#64748B"}};
+    var ccLg = {verticalAlign:"top",align:"right",iconSize:8,iconType:"square",wrapperStyle:{paddingTop:8,fontSize:11,color:"#64748B"}};
     var ccTick = {fontSize:13,fill:"#94A3B8",fontWeight:400};
     function ccXAx(key){ return <XAxis dataKey={key} tick={ccTick} axisLine={false} tickLine={false} dy={6}/>; }
     function ccYAx(){ return <YAxis tick={ccTick} axisLine={false} tickLine={false} width={36} tickCount={5}/>; }
@@ -1826,7 +1838,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       activeDot={{r:7,fill:"none",stroke:"#2E7D52",strokeWidth:2}} connectNulls={false} legendType="none" isAnimationActive={false}/>
 
                     {/* Custom legend */}
-                    <Legend verticalAlign="top" align="right" wrapperStyle={{paddingBottom:8}}
+                    <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{paddingBottom:8}}
                       content={function(){
                         return(
                           <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:20,fontSize:11,color:THEME.textSub}}>
@@ -2066,7 +2078,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       itemStyle={{color:"#fff",fontSize:12}}
                       formatter={function(val,name){return [val,name];}}/>
                     <ReferenceLine yAxisId="left" x="01 Apr 2026" stroke="#CBD5E1" strokeWidth={1}/>
-                    <Legend verticalAlign="top" align="right" wrapperStyle={{fontSize:11,paddingBottom:10}}
+                    <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{fontSize:11,paddingBottom:10}}
                       formatter={function(v){return <span style={{color:THEME.textSub}}>{v}</span>;}}/>
                     <Line yAxisId="left" type="linear" dataKey="slip" name={_lbl+" Slip %"}
                       stroke="#3B82F6" strokeDasharray="5 3"
@@ -2512,7 +2524,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
                 label={{value:"Power (kW)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
               <Tooltip content={function(){return null;}}/>
-              <Legend verticalAlign="top" align="right" wrapperStyle={{fontSize:11,paddingBottom:6}}
+              <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{fontSize:11,paddingBottom:6}}
                 payload={[
                   {value:"Reported Power", color:"#1E3A5F", type:"circle"},
                   {value:"Predicted Power",color:"#F59E0B", type:"circle"},
@@ -5073,7 +5085,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <YAxis domain={[0,20]} ticks={[0,2,4,6,8,10,12,14,16,18,20]} tick={axTick} axisLine={false} tickLine={false}
                     label={{value:"AER Rating",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
                   <Tooltip content={<ModernTooltip/>}/>
-                  <Legend verticalAlign="top" align="right" wrapperStyle={{fontSize:11,paddingBottom:6}}/>
+                  <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{fontSize:11,paddingBottom:6}}/>
                   <Area type="monotone" dataKey="required" stroke="#F59E0B" strokeWidth={2.5} strokeDasharray="6 3"
                     fill="url(#aerRequiredGrad)" dot={<AerRequiredDot/>}
                     activeDot={{r:6,fill:"#F59E0B",stroke:"#fff",strokeWidth:2}} name="Required AER"/>
@@ -5210,7 +5222,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <YAxis yAxisId="right" orientation="right" domain={[0,100]} ticks={[0,20,40,60,80,100]} tick={axTick} axisLine={false} tickLine={false}
                   label={{value:"Consumption",angle:90,position:"insideRight",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={<ModernTooltip/>}/>
-                <Legend verticalAlign="top" align="right" wrapperStyle={{fontSize:11,paddingBottom:8}}/>
+                <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{fontSize:11,paddingBottom:8}}/>
                 <Bar yAxisId="left" dataKey="emissions" name="Total emissions" fill="url(#euEmissionsGrad)" radius={[5,5,0,0]} maxBarSize={38}/>
                 <Bar yAxisId="right" dataKey="consumption" name="Consumption" fill="url(#euConsumpGrad)" radius={[5,5,0,0]} maxBarSize={38}/>
               </ComposedChart>
@@ -5275,7 +5287,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <YAxis yAxisId="right" orientation="right" domain={[0,5000]} ticks={[0,1000,2000,3000,4000]} tick={axTick} axisLine={false} tickLine={false}
               label={{value:"EUAs required",angle:90,position:"insideRight",offset:8,style:{...axLabel,textAnchor:"middle"}}}/>
             <Tooltip content={<ModernTooltip/>}/>
-            <Legend verticalAlign="top" align="right" wrapperStyle={{fontSize:11,paddingBottom:8}}/>
+            <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{fontSize:11,paddingBottom:8}}/>
             <Bar yAxisId="left" dataKey="balance" name="Compliance balance" maxBarSize={30} radius={[4,4,4,4]}>
               {fuelEUData.map(function(entry,i){
                 return <Cell key={i} fill={entry.balance>=0?"url(#fuelGreenGrad)":"url(#fuelRedGrad)"}/>;
@@ -5582,7 +5594,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           {showColorWheel&&(
           <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:20,padding:"0 0 4px",flexShrink:0,flexWrap:"wrap"}}>
             <div style={{display:"flex",alignItems:"center",gap:5}}>
-              <svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#3B82F6"/></svg>
+              <svg width="8" height="8"><circle cx="4" cy="4" r="4" fill="#3B82F6"/></svg>
               <span style={{fontSize:11,color:"#475569"}}>Speed Loss</span>
             </div>
             <div style={{display:"flex",alignItems:"center",gap:5}}>
@@ -5594,7 +5606,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <span style={{fontSize:11,color:"#475569"}}>7 Days Rolling Average</span>
             </div>
             <div style={{display:"flex",alignItems:"center",gap:5}}>
-              <svg width="14" height="14"><polygon points="7,0 14,7 7,14 0,7" fill="#16A34A"/></svg>
+              <svg width="8" height="8"><polygon points="4,0 8,4 4,8 0,4" fill="#16A34A"/></svg>
               <span style={{fontSize:11,color:"#475569"}}>Maintenance Event</span>
             </div>
             <div style={{display:"flex",alignItems:"center",gap:5}}>
@@ -5752,19 +5764,19 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       return (
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
-          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"6px 20px",fontSize:11,color:"#374151",padding:"4px 12px 8px",lineHeight:"18px"}}>
+          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"flex-end",gap:"6px 20px",fontSize:11,color:"#374151",padding:"4px 12px 8px",lineHeight:"18px"}}>
             {legendItems.map(function(it,i){
               return (
                 <div key={i} style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
                   {it.type==="line-dot"&&(
                     <div style={{display:"flex",alignItems:"center"}}>
                       <div style={{width:12,height:2.5,background:it.color,borderRadius:1}}/>
-                      <div style={{width:9,height:9,borderRadius:"50%",background:it.color,margin:"0 1px"}}/>
+                      <div style={{width:8,height:8,borderRadius:"50%",background:it.color,margin:"0 1px"}}/>
                       <div style={{width:12,height:2.5,background:it.color,borderRadius:1}}/>
                     </div>
                   )}
                   {it.type==="dash"&&<div style={{width:26,height:0,borderTop:"2.5px dashed "+it.color,flexShrink:0}}/>}
-                  {it.type==="rect"&&<div style={{width:16,height:11,background:it.color,borderRadius:2,border:"1px solid rgba(99,102,241,0.45)",flexShrink:0}}/>}
+                  {it.type==="rect"&&<div style={{width:8,height:8,background:it.color,borderRadius:2,border:"1px solid rgba(99,102,241,0.45)",flexShrink:0}}/>}
                   <span>{it.label}</span>
                 </div>
               );
@@ -5918,7 +5930,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 axisLine={{stroke:"#E2E8F0"}} tickLine={false}
                 label={{value:"Consumption",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
               <Tooltip content={function(){return null;}}/>
-              <Legend verticalAlign="top" align="right" wrapperStyle={{fontSize:11,paddingBottom:6}}
+              <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{fontSize:11,paddingBottom:6}}
                 payload={[
                   {value:"Reported Consumption", color:"#1E3A5F", type:"circle"},
                   {value:"Predicted Consumption",color:"#F59E0B", type:"circle"},
@@ -6147,8 +6159,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <div key={i} style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
                   {it.type==="line"&&<div style={{width:22,height:2.5,background:it.color,borderRadius:1,flexShrink:0}}/>}
                   {it.type==="dash"&&<div style={{width:22,height:0,borderTop:"2.5px dashed "+it.color,flexShrink:0}}/>}
-                  {it.type==="dot"&&<div style={{width:9,height:9,borderRadius:"50%",background:it.color,flexShrink:0}}/>}
-                  {it.type==="rect"&&<div style={{width:13,height:13,background:it.color,borderRadius:2,flexShrink:0}}/>}
+                  {it.type==="dot"&&<div style={{width:8,height:8,borderRadius:"50%",background:it.color,flexShrink:0}}/>}
+                  {it.type==="rect"&&<div style={{width:8,height:8,background:it.color,borderRadius:2,flexShrink:0}}/>}
                   <span>{it.label}</span>
                 </div>
               );
@@ -6724,7 +6736,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   </defs>
                   <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
                   {xAx(key,isVoyage?"Voyage":"Month")} {yAx("Breaches")}
-                  <Tooltip content={<ModernTooltip/>}/><Legend verticalAlign="top" align="right" wrapperStyle={{paddingBottom:6,fontSize:11}}/>
+                  <Tooltip content={<ModernTooltip/>}/><Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{paddingBottom:6,fontSize:11}}/>
                   <Bar dataKey="speedBreach" fill="url(#bgSpeedBreach)" radius={[6,6,0,0]} name="Speed Breach" maxBarSize={38}/>
                   <Bar dataKey="consBreach"  fill="url(#bgConsBreach)"  radius={[6,6,0,0]} name="Consumption Breach" maxBarSize={38}/>
                 </BarChart>
@@ -6813,7 +6825,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       </div>
                     );
                   }}/>
-                  <Legend verticalAlign="top" align="right"
+                  <Legend verticalAlign="top" align="right" iconSize={8} iconType="square"
                     wrapperStyle={{paddingTop:4,paddingBottom:16,fontSize:11}}/>
                   <Scatter name="Ballast Regression" data={bRegData}
                     line={{stroke:"#0EA5E9",strokeWidth:2}} lineType="joint"
@@ -8920,7 +8932,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                           </YAxis>
                           <Tooltip contentStyle={{background:"#0F172A",border:"none",borderRadius:8,padding:"10px 14px"}} labelStyle={{color:"#94A3B8",fontSize:11,marginBottom:6}} itemStyle={{color:"#fff",fontSize:12}}/>
                           <ReferenceLine yAxisId="left" x="01 Apr 2026" stroke="#CBD5E1" strokeWidth={1}/>
-                          <Legend verticalAlign="top" align="right" wrapperStyle={{fontSize:11,paddingBottom:10}} formatter={function(v){return <span style={{color:THEME.textSub}}>{v}</span>;}}/>
+                          <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{fontSize:11,paddingBottom:10}} formatter={function(v){return <span style={{color:THEME.textSub}}>{v}</span>;}}/>
                           <Line yAxisId="left" type="linear" dataKey="slip" name={_sogLbl+" Slip %"} stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:5}} strokeWidth={2.5} isAnimationActive={false}/>
                           <Line yAxisId="left" type="linear" dataKey="slip7d" name={_sogLbl+" Slip % (7D Avg)"} stroke="#F97316" dot={false} activeDot={{r:5}} strokeWidth={2.5} isAnimationActive={false}/>
                           <Line yAxisId="right" type="linear" dataKey="sog" name={_sogLbl+" SOG"} stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:5}} strokeWidth={2.5} isAnimationActive={false}/>
