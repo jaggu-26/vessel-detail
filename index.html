@@ -6193,7 +6193,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     function MEHealthChart({showColorWheel, showOpenLegend}){
       var SMN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       var FMN=["January","February","March","April","May","June","July","August","September","October","November","December"];
-      function xToDate(xv){var mi=Math.floor(xv);return new Date(2024,9+mi,1);}
+      // Base: May 2025 → x=0=May 2025, x=13≈Jun 2026, x=13.9≈Jul 2026 (current date)
+      function xToDate(xv){var mi=Math.floor(xv);return new Date(2025,4+mi,1);}
 
       var allLine=[
         {x:1.0,y:8.5},{x:1.2,y:7.2},{x:1.5,y:6.0},{x:1.8,y:4.8},
@@ -6234,12 +6235,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         return allLine[allLine.length-1].y;
       }
 
+      var [rangeMode,setRangeMode]=useState(180);
       var X_END=13.9;
-      var xMin=0.8;
+      // xMin based on range: 180 days≈6mo back, 60 days≈2mo back, 30 days≈1mo back from x=13.9 (≈Jul 2026)
+      var xMin=rangeMode===30?12.9:rangeMode===60?11.9:7.9;
       var xDomainEnd=X_END+0.25;
       var lineData=allLine;
       var dotPts=allDots;
-      var xTicks=[1,3,5,7,9,11,13];
+      var xTicks=rangeMode===30?[13]:rangeMode===60?[12,13]:[8,9,10,11,12,13];
 
       var [showLegend,setShowLegend]=useState(false);
       var clipId2=useRef("mehband"+Math.floor(Math.random()*1e9)).current;
@@ -6427,13 +6430,32 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             </div>
           </div>
           )}
+          {/* Time range buttons */}
+          <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",flexShrink:0,marginBottom:2}}>
+            {[{d:30,l:"30 Days"},{d:60,l:"60 Days"},{d:180,l:"180 Days"}].map(function(r,i){
+              var act=rangeMode===r.d;
+              return (
+                <React.Fragment key={r.d}>
+                  {i>0&&<span style={{color:"#CBD5E1",margin:"0 8px",fontSize:11,pointerEvents:"none"}}>|</span>}
+                  <button onClick={function(){setRangeMode(r.d);}}
+                    onMouseEnter={function(e){if(!act)e.currentTarget.style.color="#374151";}}
+                    onMouseLeave={function(e){if(!act)e.currentTarget.style.color="#94A3B8";}}
+                    style={{padding:0,fontSize:11,fontWeight:act?600:400,cursor:"pointer",
+                      background:"none",border:"none",color:act?"#0E1A33":"#94A3B8",
+                      transition:"color 0.2s",fontFamily:"inherit"}}>
+                    {r.l}
+                  </button>
+                </React.Fragment>
+              );
+            })}
+          </div>
           {/* Chart */}
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={lineData} margin={{top:12,right:20,bottom:36,left:14}}>
                 <CartesianGrid stroke="rgba(148,163,184,0.22)" strokeDasharray="3 3" vertical={false}/>
                 <XAxis type="number" dataKey="x" domain={[xMin,xDomainEnd]} ticks={xTicks}
-                  tickFormatter={function(v){var d=new Date(2024,9+Math.floor(v),1);return SMN[d.getMonth()]+" "+d.getFullYear();}}
+                  tickFormatter={function(v){var d=xToDate(v);return SMN[d.getMonth()]+" "+d.getFullYear();}}
                   tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false} allowDataOverflow={true}
                   label={{value:"Month",position:"insideBottom",offset:-12,style:axLabel}}/>
                 <YAxis domain={[0,40]} ticks={[0,10,20,30,40]}
@@ -7171,7 +7193,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             };
           })()}),{rowHeight:420}),
         Object.assign(cc("Main Engine Health","Deviation % SFOCcorr (Reported vs Shop Test)",
-          function(){return <MEHealthChart showColorWheel={true}/>;},3,{hideDeepDive:true}),{rowHeight:420}),
+          function(n,detailViewMode){return <MEHealthChart showColorWheel={!detailViewMode} showOpenLegend={!!detailViewMode}/>;},3,{hideDeepDive:true}),{rowHeight:420}),
         Object.assign(cc("Main Engine RPM - Power Performance","Shop test benchmark vs reported — good weather",
           function(){return <MERPMPowerChart/>;},3,{hideDeepDive:true,noExpand:true,tableData:(function(){
             var rpmPts=[47,50,53,56,59,61,64,67,70,73,76,79,83,87];
@@ -8729,7 +8751,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
             {/* ── Full-width chart ── */}
             {(chart.makeChart||chart.chartEl) ? (
               <React.Fragment>
-                {!chart.title.includes("GHG")&&(
+                {!chart.title.includes("GHG")&&chart.title!=="Main Engine Health"&&(
                   <div style={{display:"flex",justifyContent:"flex-end",marginBottom:8,gap:0,alignItems:"center"}}>
                     {["Month","Voyage"].map(function(v,idx){
                       var isActive=viewMode===v.toLowerCase();
