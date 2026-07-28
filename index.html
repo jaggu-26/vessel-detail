@@ -2544,6 +2544,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     // ── Engine Health Deterioration chart — risk-band area + hover tooltip ────────
     function EngineHealthDeteriorationChart(){
       var MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      var FMN=["January","February","March","April","May","June","July","August","September","October","November","December"];
+      var [hoverX,setHoverX]=React.useState(null);
       // Same base as MEHealthChart: x=0 = May 2025, x=13.9 = Jul 2026 (current)
       function xToDate(xv){var mi=Math.floor(xv);return new Date(2025,4+mi,1);}
 
@@ -2607,9 +2609,51 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         return <g>{allDots.map(function(p,i){var cx=xs(p.x),cy=ys(p.y);if(isNaN(cx)||isNaN(cy))return null;return <circle key={i} cx={cx} cy={cy} r={3} fill="#3B82F6" fillOpacity={0.75}/>;})}</g>;
       };
 
+      var CrosshairLayer3=function(props){
+        var xMap=props.xAxisMap; var yMap=props.yAxisMap;
+        if(!xMap||!yMap||hoverX==null) return null;
+        var xs=xMap[0]&&xMap[0].scale; var ys=yMap[0]&&yMap[0].scale;
+        if(!xs||!ys) return null;
+        var cx=xs(hoverX);
+        var yBot=ys(0); var yTop=ys(40);
+        var linePt=allLine.reduce(function(a,b){return Math.abs(b.x-hoverX)<Math.abs(a.x-hoverX)?b:a;});
+        var near=null;
+        allDots.forEach(function(d){if(Math.abs(d.x-hoverX)<0.35&&(!near||Math.abs(d.x-hoverX)<Math.abs(near.x-hoverX)))near=d;});
+        var dt=xToDate(hoverX);
+        var dateStr=FMN[dt.getMonth()]+" "+dt.getFullYear();
+        var lineClr=linePt.y<=10?"#16A34A":linePt.y<=20?"#F59E0B":"#EF4444";
+        var tipW=230; var tipH=near?100:74;
+        var tipX=cx+18; var tipY=yTop+8;
+        if(tipX+tipW>xs(X_END)) tipX=cx-tipW-14;
+        var nearRow=near?47:null; var avgRow=near?67:47;
+        return (
+          <g>
+            <line x1={cx} y1={yTop} x2={cx} y2={yBot} stroke="#CBD5E1" strokeDasharray="5 3" strokeWidth={1.5}/>
+            <g transform={"translate("+tipX+","+tipY+")"}>
+              <rect x={0} y={0} width={tipW} height={tipH} rx={8} fill="#1E293B" stroke="#334155" strokeWidth={1}
+                style={{filter:"drop-shadow(0 4px 12px rgba(0,0,0,0.35))"}}/>
+              <text x={12} y={22} fontSize={12} fontWeight="700" fill="white">{dateStr}</text>
+              <line x1={8} y1={30} x2={tipW-8} y2={30} stroke="#334155" strokeWidth={1}/>
+              {near&&(
+                <g>
+                  <circle cx={22} cy={nearRow+4} r={5} fill="#3B82F6"/>
+                  <text x={32} y={nearRow+8} fontSize={11} fill="#94A3B8">{"Deviation %"}</text>
+                  <text x={tipW-10} y={nearRow+8} fontSize={11} fontWeight="600" fill="white" textAnchor="end">{near.y.toFixed(1)+"%"}</text>
+                </g>
+              )}
+              <circle cx={22} cy={avgRow+4} r={5} fill={lineClr}/>
+              <text x={32} y={avgRow+8} fontSize={11} fill="#94A3B8">{"7 Days Rolling Average"}</text>
+              <text x={tipW-10} y={avgRow+8} fontSize={11} fontWeight="600" fill="white" textAnchor="end">{linePt.y.toFixed(1)+"%"}</text>
+            </g>
+          </g>
+        );
+      };
+
       return(
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={allLine} margin={{top:8,right:24,bottom:32,left:16}}>
+          <ComposedChart data={allLine} margin={{top:8,right:24,bottom:32,left:16}}
+            onMouseMove={function(e){if(e&&e.activeLabel!=null)setHoverX(+e.activeLabel);}}
+            onMouseLeave={function(){setHoverX(null);}}>
             <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.15)" strokeDasharray="5 4"/>
             <XAxis dataKey="x" type="number" domain={[7.9,X_END+0.15]} scale="linear"
               ticks={xTicks}
@@ -2621,6 +2665,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <Tooltip content={function(){return null;}}/>
             <Customized component={MultiColorLineLayer}/>
             <Customized component={DotsLayer}/>
+            <Customized component={CrosshairLayer3}/>
           </ComposedChart>
         </ResponsiveContainer>
       );
@@ -5717,22 +5762,22 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <circle cx={cx} cy={repY} r={9} fill="none" stroke="#EA580C" strokeWidth={2.5}/>
               <circle cx={cx} cy={stP5Y} r={9} fill="none" stroke="#6366F1" strokeWidth={2.5}/>
               <g transform={"translate("+tipX+","+tipY+")"}>
-                <rect x={0} y={0} width={tipW} height={tipH} rx={8} fill="white" stroke="#E2E8F0" strokeWidth={1.5}
-                  style={{filter:"drop-shadow(0 4px 12px rgba(0,0,0,0.10))"}}/>
-                <text x={12} y={22} fontSize={12} fontWeight="700" fill="#0E1A33">{"Speed: "+cv.toFixed(1)+" knots"}</text>
-                <line x1={8} y1={30} x2={tipW-8} y2={30} stroke="#F1F5F9" strokeWidth={1}/>
+                <rect x={0} y={0} width={tipW} height={tipH} rx={8} fill="#1E293B" stroke="#334155" strokeWidth={1}
+                  style={{filter:"drop-shadow(0 4px 12px rgba(0,0,0,0.35))"}}/>
+                <text x={12} y={22} fontSize={12} fontWeight="700" fill="white">{"Speed: "+cv.toFixed(1)+" knots"}</text>
+                <line x1={8} y1={30} x2={tipW-8} y2={30} stroke="#334155" strokeWidth={1}/>
                 <circle cx={22} cy={47} r={5} fill="#16A34A"/>
-                <text x={32} y={51} fontSize={11} fill="#4B5563">{"Predicted Power:"}</text>
-                <text x={tipW-10} y={51} fontSize={11} fontWeight="600" fill="#111827" textAnchor="end">{predV.toLocaleString()+" kW"}</text>
+                <text x={32} y={51} fontSize={11} fill="#94A3B8">{"Predicted Power:"}</text>
+                <text x={tipW-10} y={51} fontSize={11} fontWeight="600" fill="white" textAnchor="end">{predV.toLocaleString()+" kW"}</text>
                 <circle cx={22} cy={67} r={5} fill="#EA580C"/>
-                <text x={32} y={71} fontSize={11} fill="#4B5563">{"Reported Power:"}</text>
-                <text x={tipW-10} y={71} fontSize={11} fontWeight="600" fill="#111827" textAnchor="end">{repV.toLocaleString()+" kW"}</text>
+                <text x={32} y={71} fontSize={11} fill="#94A3B8">{"Reported Power:"}</text>
+                <text x={tipW-10} y={71} fontSize={11} fontWeight="600" fill="white" textAnchor="end">{repV.toLocaleString()+" kW"}</text>
                 <line x1={15} y1={86} x2={29} y2={86} stroke="#6366F1" strokeWidth={2} strokeDasharray="4 2"/>
-                <text x={32} y={90} fontSize={11} fill="#4B5563">{"Sea Trial Power:"}</text>
-                <text x={tipW-10} y={90} fontSize={11} fontWeight="600" fill="#111827" textAnchor="end">{stV.toLocaleString()+" kW"}</text>
+                <text x={32} y={90} fontSize={11} fill="#94A3B8">{"Sea Trial Power:"}</text>
+                <text x={tipW-10} y={90} fontSize={11} fontWeight="600" fill="white" textAnchor="end">{stV.toLocaleString()+" kW"}</text>
                 <rect x={15} y={100} width={14} height={10} rx={2} fill="rgba(99,102,241,0.25)" stroke="rgba(99,102,241,0.5)" strokeWidth={1}/>
-                <text x={32} y={110} fontSize={11} fill="#4B5563">{"Sea Trial Power +5%:"}</text>
-                <text x={tipW-10} y={110} fontSize={11} fontWeight="600" fill="#111827" textAnchor="end">{stP5V.toLocaleString()+" kW"}</text>
+                <text x={32} y={110} fontSize={11} fill="#94A3B8">{"Sea Trial Power +5%:"}</text>
+                <text x={tipW-10} y={110} fontSize={11} fontWeight="600" fill="white" textAnchor="end">{stP5V.toLocaleString()+" kW"}</text>
               </g>
             </g>
           );
