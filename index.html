@@ -6430,8 +6430,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             </div>
           </div>
           )}
-          {/* Time range buttons */}
-          <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",flexShrink:0,marginBottom:2}}>
+          {/* Time range buttons — card view only */}
+          {!showOpenLegend&&<div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",flexShrink:0,marginBottom:2}}>
             {[{d:30,l:"30 Days"},{d:60,l:"60 Days"},{d:180,l:"180 Days"}].map(function(r,i){
               var act=rangeMode===r.d;
               return (
@@ -6448,7 +6448,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 </React.Fragment>
               );
             })}
-          </div>
+          </div>}
           {/* Chart */}
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
@@ -8320,6 +8320,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var [spSteamHigh,setSpSteamHigh]=useState(24);
       var [spSpeedLow,setSpSpeedLow]=useState(10);
       var [spSpeedHigh,setSpSpeedHigh]=useState(40);
+      // Main Engine Health specific state
+      var [meLoadCond,setMeLoadCond]=useState("Laden");
+      var [meWindBF,setMeWindBF]=useState("");
+      var [meWaveGOG,setMeWaveGOG]=useState("");
+      var [meSteamLow,setMeSteamLow]=useState(0);
+      var [meSteamHigh,setMeSteamHigh]=useState(24);
+      var [meSpeedLow,setMeSpeedLow]=useState(10);
+      var [meSpeedHigh,setMeSpeedHigh]=useState(40);
       var [sogTab,setSogTab]=useState("me");
       useEffect(function(){
         if(showFilter){setFilterVis(false);requestAnimationFrame(function(){setFilterVis(true);});}
@@ -8569,6 +8577,89 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{sogSpeedLow}</div>
                       <span style={{color:"#94A3B8",fontSize:16,fontWeight:300}}>–</span>
                       <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{sogSpeedHigh}</div>
+                    </div>
+                  </div>
+                </React.Fragment>
+              ) : chart.title==="Main Engine Health" ? (
+                <React.Fragment>
+                  {/* Report Date */}
+                  <div style={{marginBottom:24,paddingBottom:24,borderBottom:"1px solid #F1F5F9"}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#0F172A",marginBottom:12}}>Report Date</div>
+                    <div style={{position:"relative"}}>
+                      <div style={{padding:"11px 40px 11px 14px",fontSize:14,color:"#0F172A",border:"1.5px solid #E2E8F0",borderRadius:10,background:"#fff",cursor:"pointer",userSelect:"none"}}>
+                        12/05/2025 to 03/01/2026
+                      </div>
+                      <svg style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}} width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                      </svg>
+                    </div>
+                  </div>
+                  {/* Load Condition */}
+                  <div style={{marginBottom:24,paddingBottom:24,borderBottom:"1px solid #F1F5F9"}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#0F172A",marginBottom:14}}>Load Condition</div>
+                    <div style={{display:"flex",gap:28}}>
+                      {["Laden","Ballast"].map(function(lc){
+                        var sel=meLoadCond===lc;
+                        return (
+                          <label key={lc} style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:14,color:"#374151",userSelect:"none"}}
+                            onClick={function(){setMeLoadCond(lc);}}>
+                            <div style={{width:18,height:18,borderRadius:"50%",border:"2px solid "+(sel?"#1852FE":"#CBD5E1"),background:"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
+                              {sel&&<div style={{width:8,height:8,borderRadius:"50%",background:"#1852FE"}}/>}
+                            </div>
+                            {lc}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  {/* Weather Conditions */}
+                  <div style={{marginBottom:24,paddingBottom:24,borderBottom:"1px solid #F1F5F9"}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#0F172A",marginBottom:16}}>Weather Conditions</div>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+                      <span style={{fontSize:14,color:"#374151"}}>Wind (Bft) ≤</span>
+                      <div style={{position:"relative",width:180}}>
+                        <select value={meWindBF} onChange={function(e){setMeWindBF(e.target.value);}} style={{width:"100%",appearance:"none",WebkitAppearance:"none",padding:"10px 32px 10px 14px",fontSize:14,color:meWindBF?"#0F172A":"#94A3B8",border:"1.5px solid #E2E8F0",borderRadius:8,background:"#fff",cursor:"pointer",outline:"none"}}>
+                          <option value="">Select value</option>
+                          {["1","2","3","4","5","6","7","8"].map(function(v){return <option key={v} value={v}>{v}</option>;})}
+                        </select>
+                        <svg style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      </div>
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                      <span style={{fontSize:14,color:"#374151"}}>Wave (GOG) ≤</span>
+                      <div style={{position:"relative",width:180}}>
+                        <select value={meWaveGOG} onChange={function(e){setMeWaveGOG(e.target.value);}} style={{width:"100%",appearance:"none",WebkitAppearance:"none",padding:"10px 32px 10px 14px",fontSize:14,color:meWaveGOG?"#0F172A":"#94A3B8",border:"1.5px solid #E2E8F0",borderRadius:8,background:"#fff",cursor:"pointer",outline:"none"}}>
+                          <option value="">Select value</option>
+                          {["0.5","1.0","1.5","2.0","2.5","3.0","3.5","4.0","5.0","6.0"].map(function(v){return <option key={v} value={v}>{v}</option>;})}
+                        </select>
+                        <svg style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Steaming Time */}
+                  <div style={{marginBottom:24,paddingBottom:24,borderBottom:"1px solid #F1F5F9"}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#0F172A",marginBottom:16}}>Steaming Time (hrs/day)</div>
+                    <div style={{padding:"0 4px"}}>
+                      <DualRangeSlider min={0} max={24} low={meSteamLow} high={meSteamHigh}
+                        onChange={function(l,h){setMeSteamLow(l);setMeSteamHigh(h);}}/>
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",gap:12,marginTop:14}}>
+                      <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{meSteamLow}</div>
+                      <span style={{color:"#94A3B8",fontSize:16,fontWeight:300}}>–</span>
+                      <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{meSteamHigh}</div>
+                    </div>
+                  </div>
+                  {/* Speed Range */}
+                  <div style={{marginBottom:8}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#0F172A",marginBottom:16}}>Speed Range (knots)</div>
+                    <div style={{padding:"0 4px"}}>
+                      <DualRangeSlider min={0} max={40} low={meSpeedLow} high={meSpeedHigh}
+                        onChange={function(l,h){setMeSpeedLow(l);setMeSpeedHigh(h);}}/>
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",gap:12,marginTop:14}}>
+                      <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{meSpeedLow}</div>
+                      <span style={{color:"#94A3B8",fontSize:16,fontWeight:300}}>–</span>
+                      <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{meSpeedHigh}</div>
                     </div>
                   </div>
                 </React.Fragment>
@@ -9011,7 +9102,51 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                   })}
                 </div>
               );
-            })() : (
+            })() : chart.title==="Main Engine Health" ? (function(){
+                var MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                var baseMs=new Date(2026,5,28).getTime();
+                var MED_ROWS=[];
+                for(var i=0;i<40;i++){
+                  var d=new Date(baseMs-i*4.5*86400000);
+                  var dateStr=d.getDate()+" "+MO[d.getMonth()]+" "+d.getFullYear();
+                  var devBase=20.5-i*0.35;
+                  var devNoise=Math.sin(i*1.7)*2.8+Math.sin(i*0.9)*1.6;
+                  var dev=Math.max(2.5,Math.round((devBase+devNoise)*10)/10);
+                  var shopTest=Math.round((164.8+Math.sin(i*0.4)*0.6)*10)/10;
+                  var reported=Math.round(shopTest*(1+dev/100)*10)/10;
+                  MED_ROWS.push({date:dateStr,dev:dev,shopTest:shopTest,reported:reported});
+                }
+                function devColor(d){return d>=20?"#EF4444":d>=15?"#F97316":d>=10?"#EAB305":"#22C55E";}
+                var gridTpl="1.4fr 1fr 1.8fr 1.8fr";
+                var SORT_ICON=<svg width="7" height="15" viewBox="0 0 10 18" fill="none" style={{flexShrink:0,marginLeft:2}}><polyline points="1,7 5,2 9,7" stroke="#94A3B8" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/><polyline points="1,11 5,16 9,11" stroke="#94A3B8" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+                var COLS=[
+                  {label:"Dates",icon:SORT_ICON},
+                  {label:"% deviation",icon:SORT_ICON},
+                  {label:"SFOC corrected Shop test (g/kWh)",icon:SORT_ICON},
+                  {label:"SFOC corrected Reported (g/kWh)",icon:SORT_ICON},
+                ];
+                return (
+                  <div style={{background:"#fff",borderRadius:14,border:"1px solid #E8ECF1",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,0.05)",fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif"}}>
+                    <div style={{display:"grid",gridTemplateColumns:gridTpl,background:"#F6F8FA",borderBottom:"1px solid #E8ECF1"}}>
+                      {COLS.map(function(col,i){return(
+                        <div key={i} style={{padding:"13px 18px",fontSize:13,fontWeight:600,color:"#64748B",display:"flex",alignItems:"center",gap:4}}>
+                          {col.label}{col.icon}
+                        </div>
+                      );})}
+                    </div>
+                    {MED_ROWS.map(function(row,ri){return(
+                      <div key={ri} style={{display:"grid",gridTemplateColumns:gridTpl,borderBottom:"1px solid #F0F3F6",background:"#fff",transition:"background 0.12s"}}
+                        onMouseEnter={function(e){e.currentTarget.style.background="#FAFBFC";}}
+                        onMouseLeave={function(e){e.currentTarget.style.background="#fff";}}>
+                        <div style={{padding:"13px 18px",fontSize:13,color:"#0D1B2A",fontWeight:500}}>{row.date}</div>
+                        <div style={{padding:"13px 18px",fontSize:13,fontWeight:700,color:devColor(row.dev)}}>{row.dev}%</div>
+                        <div style={{padding:"13px 18px",fontSize:13,color:"#0D1B2A"}}>{row.shopTest}</div>
+                        <div style={{padding:"13px 18px",fontSize:13,color:"#0D1B2A"}}>{row.reported}</div>
+                      </div>
+                    );})}
+                  </div>
+                );
+              })() : (
               <div style={{background:"#fff",borderRadius:14,border:"1px solid #E8ECF1",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,0.05)",fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif"}}>
                 {/* Title */}
                 <div style={{padding:"20px 24px 16px"}}>
