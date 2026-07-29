@@ -103,8 +103,37 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis,
       ScatterChart, Scatter, ZAxis, XAxis, YAxis, CartesianGrid, Tooltip,
       ResponsiveContainer, ComposedChart, Legend, Label, ReferenceLine, ReferenceArea,
-      Customized
+      Customized, Rectangle
     } = Recharts;
+
+    // Custom cursor for ComposedChart with bars — Recharts passes full viewBox to custom cursor
+    // elements on ComposedChart (not per-category like BarChart). points[0].x gives the correct
+    // hover x in plot-area coordinates; compute slot width from total width / data count.
+    function BarBandCursor(props) {
+      var vb = props.viewBox || {};
+      var totalW = vb.width || props.width || 480;
+      var plotX = vb.x != null ? vb.x : (props.x || 0);
+      var n = props.dataLen || 6;
+      var bw = totalW / n;
+      var cx;
+      if (props.points && props.points.length) {
+        cx = props.points[0].x;
+      } else if (props.coordinate) {
+        var idx = Math.floor((props.coordinate.x - plotX) / bw);
+        idx = Math.max(0, Math.min(n - 1, idx));
+        cx = plotX + (idx + 0.5) * bw;
+      } else {
+        return null;
+      }
+      var yOff = vb.y != null ? vb.y : (props.y || 0);
+      var ht = vb.height || props.height || 200;
+      return React.createElement('rect', {
+        x: cx - bw / 2, y: yOff,
+        width: bw, height: ht,
+        fill: 'rgba(148,163,184,0.18)',
+        stroke: 'none', strokeWidth: 0, pointerEvents: 'none'
+      });
+    }
 
     const B = "#1852FE";
     const THEME = {
@@ -645,7 +674,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
             {xAx(firstKey, xLabel||"")}
             {yAx(yLabel||"")}
-            <Tooltip content={<ModernTooltip/>}/>
+            <Tooltip content={<ModernTooltip/>} cursor={{fill:"rgba(148,163,184,0.06)"}}/>
             <Legend {...lgStyle}/>
             <Bar dataKey={dk} fill={"url(#"+gid+")"} radius={[8,8,0,0]} name={barName||dk} maxBarSize={sz}
               background={{fill:"#F1F5F9",radius:8}}/>
@@ -668,7 +697,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
             {xAx(firstKey, xLabel||"")}
             {yAx(yLabel||"")}
-            <Tooltip content={<ModernTooltip/>}/>
+            <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
             <Legend {...lgStyle}/>
             <Area type="monotone" dataKey={dk} stroke={stroke} fill={"url(#"+gid+")"} strokeWidth={2.5}
               dot={false} activeDot={{r:5,strokeWidth:2,stroke:"#fff",fill:stroke}} name={label||dk}/>
@@ -684,7 +713,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
             {xAx(firstKey, xLabel||"")}
             {yAx(yLabel||"")}
-            <Tooltip content={<ModernTooltip/>}/>
+            <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
             <Legend {...lgStyle}/>
             <Line type="monotone" dataKey={k1} stroke={c1} strokeWidth={2.5} dot={false}
               activeDot={{r:5,strokeWidth:2,stroke:"#fff",fill:c1}} name={n1||k1}/>
@@ -4882,7 +4911,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     <YAxis yAxisId="right" orientation="right" tick={{...axTick,fill:"#3B82F6"}} width={38} axisLine={false} tickLine={false}
                       domain={[12,14]} tickCount={5}
                       label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:6,style:{...axLabel,fill:"#3B82F6",textAnchor:"middle"}}}/>
-                    <Tooltip content={<ModernTooltip/>}/>
+                    <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
                     <Line yAxisId="left" type="linear" dataKey="slip" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
                     <Line yAxisId="left" type="linear" dataKey="slip7d" stroke="#F97316" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
                     <Line yAxisId="right" type="linear" dataKey="sog" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
@@ -4898,7 +4927,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     <YAxis yAxisId="right" orientation="right" tick={{...axTick,fill:"#3B82F6"}} width={38} axisLine={false} tickLine={false}
                       domain={[12,14]} tickCount={5}
                       label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:6,style:{...axLabel,fill:"#3B82F6",textAnchor:"middle"}}}/>
-                    <Tooltip content={<ModernTooltip/>}/>
+                    <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
                     <ReferenceLine yAxisId="left" x="01 Apr 2026" stroke="#CBD5E1" strokeWidth={1}/>
                     <Line yAxisId="left" type="linear" dataKey="slip" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
                     <Line yAxisId="left" type="linear" dataKey="slip7d" stroke="#F97316" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
@@ -5021,7 +5050,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <YAxis yAxisId="right" orientation="right" tick={{...axTick,fill:"#F97316"}} width={56} axisLine={false} tickLine={false}
                   domain={[0,80]} ticks={[0,20,40,60,80]}
                   label={{value:"Auxiliaries consumption (MT)",angle:90,position:"insideRight",offset:10,style:{...axLabel,textAnchor:"middle",fill:"#F97316"}}}/>
-                <Tooltip content={<ModernTooltip/>}/>
+                <Tooltip content={<ModernTooltip/>} cursor={<BarBandCursor dataLen={chartData.length}/>}/>
                 <Bar yAxisId="left" dataKey="propulsion" stackId="me" fill="#2563EB" name="Propulsion"/>
                 <Bar yAxisId="left" dataKey="manoeuvring" stackId="me" fill="#93C5FD" name="Manoeuvring" radius={[4,4,0,0]}/>
                 <Bar yAxisId="right" dataKey="auxiliaries" fill="#F97316" name="Auxiliaries" radius={[4,4,0,0]}/>
@@ -5129,7 +5158,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     label={{value:aerView==="Month"?"Month":"Voyage Number",position:"insideBottom",offset:-12,style:axLabel}}/>
                   <YAxis domain={[0,20]} ticks={[0,2,4,6,8,10,12,14,16,18,20]} tick={axTick} axisLine={false} tickLine={false}
                     label={{value:"AER Rating",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
-                  <Tooltip content={<ModernTooltip/>}/>
+                  <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
                   <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{fontSize:11,paddingBottom:6}}/>
                   <Area type="monotone" dataKey="required" stroke="#F59E0B" strokeWidth={2.5} strokeDasharray="6 3"
                     fill="url(#aerRequiredGrad)" dot={<AerRequiredDot/>}
@@ -5223,7 +5252,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   label={{value:"Month",position:"insideBottom",offset:-12,style:axLabel}}/>
                 <YAxis domain={[0,1200]} ticks={[0,200,400,600,800,1000,1200]} tick={axTick} axisLine={false} tickLine={false}
                   label={{value:"tCO₂eq",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
-                <Tooltip content={<ModernTooltip/>}/>
+                <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
                 <Area type="monotone" dataKey="co2" stroke="#3B82F6" strokeWidth={2.5} fill="url(#ghgG1)"
                   dot={{r:3.5,fill:"#3B82F6",stroke:"#fff",strokeWidth:2}} activeDot={{r:6,fill:"#3B82F6",stroke:"#fff",strokeWidth:2}} name="CO₂"/>
                 <Area type="monotone" dataKey="n2o" stroke="#EAB308" strokeWidth={2.5} fill="url(#ghgG2)"
@@ -5266,7 +5295,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   label={{value:"Total emissions",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
                 <YAxis yAxisId="right" orientation="right" domain={[0,100]} ticks={[0,20,40,60,80,100]} tick={axTick} axisLine={false} tickLine={false}
                   label={{value:"Consumption",angle:90,position:"insideRight",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
-                <Tooltip content={<ModernTooltip/>}/>
+                <Tooltip content={<ModernTooltip/>} cursor={<BarBandCursor dataLen={euData.length}/>}/>
                 <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{fontSize:11,paddingBottom:8}}/>
                 <Bar yAxisId="left" dataKey="emissions" name="Total emissions" fill="url(#euEmissionsGrad)" radius={[5,5,0,0]} maxBarSize={38}/>
                 <Bar yAxisId="right" dataKey="consumption" name="Consumption" fill="url(#euConsumpGrad)" radius={[5,5,0,0]} maxBarSize={38}/>
@@ -5331,7 +5360,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               label={{value:"Compliance balance (EUAs)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
             <YAxis yAxisId="right" orientation="right" domain={[0,5000]} ticks={[0,1000,2000,3000,4000]} tick={axTick} axisLine={false} tickLine={false}
               label={{value:"EUAs required",angle:90,position:"insideRight",offset:8,style:{...axLabel,textAnchor:"middle"}}}/>
-            <Tooltip content={<ModernTooltip/>}/>
+            <Tooltip content={<ModernTooltip/>} cursor={<BarBandCursor dataLen={fuelEUData.length}/>}/>
             <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{fontSize:11,paddingBottom:8}}/>
             <Bar yAxisId="left" dataKey="balance" name="Compliance balance" maxBarSize={30} radius={[4,4,4,4]}>
               {fuelEUData.map(function(entry,i){
@@ -6225,7 +6254,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   tickFormatter={function(v){return v===0?"0":v.toLocaleString();}} width={72}
                   tick={{fontSize:11,fill:"#555"}} axisLine={false} tickLine={false}
                   label={{value:"Shaft Power (kW)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
-                <Tooltip content={<ModernTooltip/>}/>
+                <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
                 <Area type="monotone" dataKey="bandLow" stackId="tb" stroke="none" fill="transparent" legendType="none" isAnimationActive={false} name="–"/>
                 <Area type="monotone" dataKey="bandFill" stackId="tb" stroke="none" fill="rgba(147,197,253,0.45)" legendType="none" isAnimationActive={false} name="–5% Band"/>
                 <Line type="monotone" dataKey="bench" stroke="#1E3A8A" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false} name="Benchmark (kW)"/>
@@ -6784,7 +6813,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   </defs>
                   <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
                   {xAx(key,isVoyage?"Voyage":"Month")} {yAx("Breaches")}
-                  <Tooltip content={<ModernTooltip/>}/><Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{paddingBottom:6,fontSize:11}}/>
+                  <Tooltip content={<ModernTooltip/>} cursor={{fill:"rgba(148,163,184,0.18)"}}/>
+                  <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{paddingBottom:6,fontSize:11}}/>
                   <Bar dataKey="speedBreach" fill="url(#bgSpeedBreach)" radius={[6,6,0,0]} name="Speed Breach" maxBarSize={38}/>
                   <Bar dataKey="consBreach"  fill="url(#bgConsBreach)"  radius={[6,6,0,0]} name="Consumption Breach" maxBarSize={38}/>
                 </BarChart>
@@ -6971,7 +7001,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <CartesianGrid horizontal={false} stroke="#F1F5F9" strokeDasharray="0"/>
               <XAxis type="number" tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}><Label value="Port calls" offset={-4} position="insideBottom" style={axLabel}/></XAxis>
               <YAxis type="category" dataKey="port" tick={axTick} width={72} axisLine={false} tickLine={false}/>
-              <Tooltip content={<ModernTooltip/>}/><Legend {...lgStyle}/>
+              <Tooltip content={<ModernTooltip/>} cursor={{fill:"rgba(148,163,184,0.06)"}}/>
+              <Legend {...lgStyle}/>
               <Bar dataKey="calls" fill="url(#bgCalls)" radius={[0,8,8,0]} name="Calls" maxBarSize={36}
                 background={{fill:"#F1F5F9",radius:8}}/>
             </BarChart>
@@ -7333,7 +7364,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               </defs>
               <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
               {xAx("vessel","Vessel")} {yAx("$K")}
-              <Tooltip content={<ModernTooltip/>}/><Legend {...lgStyle}/>
+              <Tooltip content={<ModernTooltip/>} cursor={{fill:"rgba(148,163,184,0.06)"}}/>
+              <Legend {...lgStyle}/>
               <Bar dataKey="revenue" fill="url(#bgRevenue)" radius={[8,8,0,0]} name="Revenue" maxBarSize={36}/>
               <Bar dataKey="opex" fill="url(#bgOpex)" radius={[8,8,0,0]} name="OPEX" maxBarSize={36}/>
               <Bar dataKey="profit" fill="url(#bgProfit)" radius={[8,8,0,0]} name="Profit" maxBarSize={36}/>
@@ -7420,7 +7452,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               </defs>
               <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
               {xAx("m","Month")} {yAx("Units")}
-              <Tooltip content={<ModernTooltip/>}/><Legend {...lgStyle}/>
+              <Tooltip content={<ModernTooltip/>} cursor={{fill:"rgba(148,163,184,0.06)"}}/>
+              <Legend {...lgStyle}/>
               <Bar dataKey="purchased" fill="url(#bgPurchased)" radius={[8,8,0,0]} name="Purchased" maxBarSize={36}/>
               <Bar dataKey="surrendered" fill="url(#bgSurrendered)" radius={[8,8,0,0]} name="Surrendered" maxBarSize={36}/>
             </BarChart>
@@ -7494,7 +7527,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               </defs>
               <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
               {xAx("vessel","Vessel")} {yAx("USD/day",48)}
-              <Tooltip content={<ModernTooltip/>}/><Legend {...lgStyle}/>
+              <Tooltip content={<ModernTooltip/>} cursor={{fill:"rgba(148,163,184,0.06)"}}/>
+              <Legend {...lgStyle}/>
               <Bar dataKey="pool" fill="url(#bgPool)" radius={[8,8,0,0]} name="Pool" maxBarSize={36}/>
               <Bar dataKey="own" fill="url(#bgOwn)" radius={[8,8,0,0]} name="Own" maxBarSize={36}/>
             </BarChart>
@@ -7521,7 +7555,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <ComposedChart data={fd(meData)} margin={{bottom:20,left:4,right:10,top:10}}>
               <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
               {xAx("m","Month")} {yAx("Value")}
-              <Tooltip content={<ModernTooltip/>}/><Legend {...lgStyle}/>
+              <Tooltip content={<ModernTooltip/>} cursor={<BarBandCursor dataLen={fd(meData).length}/>}/>
+              <Legend {...lgStyle}/>
               <Bar dataKey="load" fill="url(#bgCompleted)" radius={[8,8,0,0]} barSize={22} name="Load (%)" maxBarSize={36}/>
               <Line type="monotone" dataKey="temp" stroke="#EF4444" strokeWidth={2.5} dot={false} activeDot={{r:5,strokeWidth:2,stroke:"#fff",fill:"#EF4444"}} name="Temp (C)"/>
             </ComposedChart>
