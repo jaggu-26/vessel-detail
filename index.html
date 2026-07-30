@@ -3847,11 +3847,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             ?<SpeedPowerModal onClose={function(){setSimOpen(false);}}/>
             :title==="Hull Health"
             ?<HullHealthModal onClose={function(){setSimOpen(false);}}/>
-            :title==="Load SFOC Curve"
+            :title==="Load – SFOC"
             ?<LoadSFOCModal onClose={function(){setSimOpen(false);}}/>
-            :title==="Predicted vs Reported Consumption"
+            :title==="Fuel Performance Deviation"
             ?<EngineHealthModal onClose={function(){setSimOpen(false);}}/>
-            :title==="Main Engine RPM - Power Performance"
+            :title==="M/E RPM – Power"
             ?<MERPMPowerModal onClose={function(){setSimOpen(false);}}/>
             :title==="Main Engine Health"
             ?<MEHealthModal onClose={function(){setSimOpen(false);}}/>
@@ -7217,7 +7217,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       // Technical tab — 4 charts in 2×2 layout
       var technicalItems=[
-        Object.assign(cc("Hull Health","Speed loss vs month",
+        Object.assign(cc("Hull Health","Speed loss trend",
           function(n,detailViewMode){var vm=(detailViewMode||hhView).toLowerCase();return <HullHealthChart n={n} viewMode={vm} showColorWheel={!detailViewMode}/>;},3,{headerTabs:HullHealthTabs,tableData:(function(){
             var _MN2=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
             var _d2=new Date(); var _m2=_d2.getMonth(); var _y2=_d2.getFullYear();
@@ -7263,7 +7263,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               rows:_rows2
             };
           })()}),{rowHeight:500}),
-        Object.assign(cc("Speed Power Curve","Sea trial vs reported power",
+        Object.assign(cc("Speed Power Curve","Predicted vs Reported Power",
           function(){return <SpeedPowerChart/>;},3,{hideDeepDive:true,tableData:(function(){
             // Same formulas as SpeedPowerChart: Laden = 82*V^1.9, Ballast = 16.88*V^2.323
             var _sp=[7.2,8.2,9.1,10.1,11.1,12.1,13.0,14.0,15.0,15.9,16.9];
@@ -7296,7 +7296,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               rows:_curveRows.map(function(r){return {speed:r.speed,trialLaden:r.trialLaden,trialLadenP5:r.trialLadenP5,trialBallast:r.trialBallast,trialBallastP5:r.trialBallastP5,repLaden:r.repLaden||"—",repBallast:r.repBallast||"—"};})
             };
           })()}),{rowHeight:420}),
-        Object.assign(cc("Predicted vs Reported Consumption","By speed — laden / ballast",
+        Object.assign(cc("Fuel Performance Deviation","Predicted vs Reported Consumption Deviation",
           function(){return(
             <div style={{display:"flex",flexDirection:"column",width:"100%",height:"100%"}}>
               <div style={{flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",flexWrap:"wrap",gap:14,marginBottom:4}}>
@@ -7346,7 +7346,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               rows:_sRows.map(function(r){return {speed:r.speed,reported:r.reported!==null?r.reported:"—",predicted:r.predicted!==null?r.predicted:"—",laden:r.laden,ballast:r.ballast};})
             };
           })()}),{rowHeight:420}),
-        Object.assign(cc("Load SFOC Curve","Shop trial vs noon measurements",
+        Object.assign(cc("Load – SFOC","Measured vs Corrected SFOC and Shop Test Benchmark",
           function(){return <LoadSFOCChart/>;},3,{tableData:(function(){
             var _loads=[30,35,40,45,50,55,60,65,70,75,80,85,90,95,100];
             var _st=_loads.map(function(l){var base=190-0.35*l+0.003*l*l;return {l:l,sfoc:Math.round(base),mean:Math.round(base*0.92-10)};});
@@ -7367,9 +7367,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               })
             };
           })()}),{rowHeight:420}),
-        Object.assign(cc("Main Engine Health","Deviation % SFOCcorr (Reported vs Shop Test)",
+        Object.assign(cc("Main Engine Health","Reported vs Shop Test SFOCcorrected Deviation",
           function(n,detailViewMode){return <MEHealthChart showColorWheel={!detailViewMode} showOpenLegend={!!detailViewMode}/>;},3,{hideDeepDive:true}),{rowHeight:420}),
-        Object.assign(cc("Main Engine RPM - Power Performance","Shop test benchmark vs reported — good weather",
+        Object.assign(cc("M/E RPM – Power","Reported vs Shop Test Benchmark",
           function(){return <MERPMPowerChart/>;},3,{hideDeepDive:true,noExpand:true,tableData:(function(){
             var rpmPts=[47,50,53,56,59,61,64,67,70,73,76,79,83,87];
             function _bench(rpm){return Math.round(0.1061*Math.pow(rpm,2.67));}
