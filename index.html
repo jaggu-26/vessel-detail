@@ -7134,7 +7134,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
 
       var environmentalItems=[
-        Object.assign(cc("Required and Attained AER vs Month","CII voyage rating — voyage based",
+        Object.assign(cc("CII","CII rating by voyage (or monthly)",
           function(n, detailViewMode){var vm=detailViewMode?(detailViewMode.charAt(0).toUpperCase()+detailViewMode.slice(1)):aerView;return <AERVoyageChart aerView={vm} setAerView={setAerView}/>;}, 3, {headerTabs:AERTabs, hideDeepDive:true, tableData:{
             columns:[
               {key:"v",        label:"Voyage No."},
@@ -7173,7 +7173,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               rows:_rows
             };
           })()}),{rowHeight:420}),
-        Object.assign(cc("EU Emissions","Sea passages & port stay — total emissions vs consumption",
+        Object.assign(cc("EU Emissions","Sea passages & port stay — total consumption vs emissions",
           function(){return <EUEmissionsChart/>;}, 3, {hideDeepDive:true, tableData:{
             columns:[
               {key:"cat",         label:"EU Category"},
@@ -7187,7 +7187,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               {cat:"EU",         emissions:46,consumption:30},
             ]
           }}),{rowHeight:420}),
-        Object.assign(cc("Fuel EU Emissions","Compliance balance (EUAs) vs EUAs required per voyage",
+        Object.assign(cc("EU ETS and FuelEU CB","Compliance Balance and EUAs per voyage",
           function(){return <FuelEUEmissionsChart/>;}, 3, {hideDeepDive:true, tableData:{
             columns:[
               {key:"voy",     label:"Voyage"},
