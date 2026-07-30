@@ -1634,7 +1634,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <div style={{fontSize:18,fontWeight:700,color:THEME.text,letterSpacing:-0.3}}>
                     Deep Dive
                   </div>
-                  <div style={{fontSize:12,color:THEME.textSub,marginTop:2}}>Speed Consumption Curve</div>
+                  <div style={{fontSize:12,color:THEME.textSub,marginTop:2}}>Speed and Consumption</div>
                 </div>
                 <button onClick={onClose}
                   style={{background:"transparent",border:"none",cursor:"pointer",width:32,height:32,borderRadius:8,
@@ -2436,7 +2436,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,flexShrink:0}}>
                 <div>
                   <div style={{fontSize:18,fontWeight:700,color:THEME.text,letterSpacing:-0.3}}>Deep Dive</div>
-                  <div style={{fontSize:12,color:THEME.textSub,marginTop:2}}>Avg Fuel Consumption / Day</div>
+                  <div style={{fontSize:12,color:THEME.textSub,marginTop:2}}>Average Daily Consumption</div>
                 </div>
                 <button onClick={onClose}
                   style={{background:"transparent",border:"none",cursor:"pointer",width:32,height:32,borderRadius:8,
@@ -3837,11 +3837,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             }
           </div>
           {insightAnchor&&<AIInsightsPanel title={title} anchor={insightAnchor} onClose={handleCloseInsights}/>}
-          {simOpen&&(title==="Speed Consumption Curve"
+          {simOpen&&(title==="Speed and Consumption"
             ?<SpeedConsumptionModal title={title} onClose={function(){setSimOpen(false);}}/>
-            :title==="SOG & Slip Trend"
+            :title==="SOG and Slip"
             ?<SOGSlipModal onClose={function(){setSimOpen(false);}}/>
-            :title==="Avg Fuel Consumption / Day"
+            :title==="Average Daily Consumption"
             ?<AvgFuelModal onClose={function(){setSimOpen(false);}}/>
             :title==="Speed Power Curve"
             ?<SpeedPowerModal onClose={function(){setSimOpen(false);}}/>
@@ -6843,7 +6843,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         </div>
       );
       var operationalItems=[
-        cc("Warranted Speed & Consumption Breach","Monthly breach count",
+        cc("Warranty Breach","Monthly (Voyage wise) breach count",
           function(n, detailViewMode){
             var vm=detailViewMode?(detailViewMode.charAt(0).toUpperCase()+detailViewMode.slice(1)):wscView;
             var isVoyage=vm==="Voyage";
@@ -6900,7 +6900,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             });
             return Object.keys(map).map(function(k){return map[k];}).sort(function(a,b){return a.speed-b.speed;});
           })();
-          return cc("Speed Consumption Curve","Ballast vs Laden — Head sea",
+          return cc("Speed and Consumption","Ballast vs Laden – At Sea",
             function(n){
               function bReg(x){return Math.max(0,0.00082*Math.pow(x,2.9));}
               function lReg(x){return Math.max(0,0.00108*Math.pow(x,2.95));}
@@ -6981,7 +6981,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               rows: sccTableRows
             }});
         })(),
-        cc("Avg Fuel Consumption / Day","Main engine & auxiliary",
+        cc("Average Daily Consumption","Main Engine & Auxiliary consumption per day",
           function(n){return <AvgFuelConsChart months={n}/>;}, 2,
           {tableData:(function(){
             var _rawRows=[
@@ -7013,7 +7013,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               rows:_rows
             };
           })()}),
-        cc("SOG & Slip Trend","Laden / Ballast — slip & speed over ground",
+        cc("SOG and Slip","Laden/Ballast – slip & speed over ground",
           function(n,detailViewMode){var vm=detailViewMode?(detailViewMode.charAt(0).toUpperCase()+detailViewMode.slice(1)):sogSlipView;return <SlipSOGChart months={n} viewMode={vm.toLowerCase()}/>;}, 3,
           {headerTabs:SOGSlipTabs, tableData:(function(){
             var _MN3=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -8693,7 +8693,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     </div>
                   </div>
                 </React.Fragment>
-              ) : chart.title==="SOG & Slip Trend" ? (
+              ) : chart.title==="SOG and Slip" ? (
                 <React.Fragment>
                   {/* Report Date */}
                   <div style={{marginBottom:24,paddingBottom:24,borderBottom:"1px solid #F1F5F9"}}>
@@ -9042,7 +9042,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                   </div>
                 )}
                 <div key={viewMode} style={{background:"#fff",borderRadius:12,border:"0.5px solid #E2E8F0",padding:"24px 24px 20px",marginBottom:24}}>
-                  {chart.title==="SOG & Slip Trend" ? (
+                  {chart.title==="SOG and Slip" ? (
                     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
                       <div style={{display:"flex",gap:2,background:"#F1F5F9",borderRadius:20,padding:"2px"}}>
                         {[["laden","Laden"],["ballast","Ballast"]].map(function(item){
@@ -9053,7 +9053,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                     </div>
                   ) : null}
                   <div style={{width:"100%",height:420}}>
-                    {chart.title==="SOG & Slip Trend" ? (
+                    {chart.title==="SOG and Slip" ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <ComposedChart data={sogChartData} margin={{top:10,right:60,bottom:44,left:50}}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#e8eaed" vertical={false}/>
