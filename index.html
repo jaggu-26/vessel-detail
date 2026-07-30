@@ -8981,6 +8981,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               Analytics — {tabLabel}
             </button>
             <div style={{flex:1}}/>
+            {chart.tab!=="environmental"&&chart.title!=="Warranty Breach"&&(
             <button onClick={function(){setShowFilter(true);}}
               style={{display:"flex",alignItems:"center",gap:6,height:36,padding:"0 14px",borderRadius:4,border:"1.5px solid #1852FE",background:"#EEF2FF",cursor:"pointer",fontSize:13,fontWeight:600,color:"#1852FE",flexShrink:0,transition:"all 0.15s",fontFamily:"inherit",whiteSpace:"nowrap"}}
 onMouseEnter={function(e){e.currentTarget.style.background="#E0E7FF";}}
@@ -8989,6 +8990,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
               Filters
               {activeFilterCount>0&&<span style={{background:"#1852FE",color:"#fff",borderRadius:"50%",width:16,height:16,fontSize:10,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",marginLeft:2}}>{activeFilterCount}</span>}
             </button>
+            )}
             <button style={{display:"flex",alignItems:"center",gap:6,height:36,padding:"0 14px",borderRadius:4,border:"1.5px solid #1852FE",background:"#EEF2FF",cursor:"pointer",fontSize:13,fontWeight:600,color:"#1852FE",flexShrink:0,transition:"all 0.15s",fontFamily:"inherit",whiteSpace:"nowrap"}}
 onMouseEnter={function(e){e.currentTarget.style.background="#E0E7FF";}}
 onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
