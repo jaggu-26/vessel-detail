@@ -6082,9 +6082,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     }
 
     // ── Load SFOC Curve Chart
-    function LoadSFOCChart({loadCond,seaTrialCurve}){
+    function LoadSFOCChart(){
       var containerRef=React.useRef(null);
-      var [dims,setDims]=React.useState({w:700,h:400});
+      var [dims,setDims]=React.useState({w:700,h:380});
       var [tooltip,setTooltip]=React.useState(null);
 
       React.useEffect(function(){
@@ -6100,141 +6100,149 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         return function(){ro.disconnect();};
       },[]);
 
-      var lf=loadCond==="ballast"?1.06:1.0;
-      var showCurve=seaTrialCurve!==false;
+      function shopTrial(l){return Math.round((127+16*Math.exp(-0.065*(l-20)))*10)/10;}
+      function meanCorr(l){return Math.round((shopTrial(l)+18-(l-20)*0.025)*10)/10;}
+      function uppLimit(l){return Math.round(meanCorr(l)*1.05*10)/10;}
 
-      // U-shaped shop trial curve — min ~162 at 47% load
-      function stY(l){
-        var base=l<=47?162+Math.pow((47-l)/27,1.5)*16:162+((l-47)/53)*12;
-        return Math.round(base*lf*10)/10;
-      }
+      var scatterData=React.useMemo(function(){
+        var seed=7919;
+        function rng(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}
+        var pts=[];
+        for(var i=0;i<28;i++){var l=25+rng()*72;pts.push({type:"meas-out",l:Math.round(l*10)/10,sfoc:Math.round((uppLimit(l)+8+rng()*28)*10)/10});}
+        for(var i=0;i<4;i++){var l=35+rng()*45;pts.push({type:"meas-out",l:Math.round(l*10)/10,sfoc:Math.round((shopTrial(l)-8-rng()*12)*10)/10});}
+        for(var i=0;i<8;i++){var l=40+rng()*55;var sb=shopTrial(l),ub=uppLimit(l);pts.push({type:"meas-in",l:Math.round(l*10)/10,sfoc:Math.round((sb+0.2*(ub-sb)+rng()*0.6*(ub-sb))*10)/10});}
+        for(var i=0;i<20;i++){var l=25+rng()*75;var sb=shopTrial(l),ub=uppLimit(l);pts.push({type:"corr-in",l:Math.round(l*10)/10,sfoc:Math.round((sb+0.1*(ub-sb)+rng()*0.8*(ub-sb))*10)/10});}
+        for(var i=0;i<12;i++){var l=25+rng()*55;pts.push({type:"corr-out",l:Math.round(l*10)/10,sfoc:Math.round((uppLimit(l)+4+rng()*18)*10)/10});}
+        return pts;
+      },[]);
 
-      var MONTHS=[
-        {label:"2025-Apr",color:"#38BDF8",seed:101,n:72},
-        {label:"2025-Feb",color:"#1E40AF",seed:202,n:66},
-        {label:"2025-Jan",color:"#F97316",seed:303,n:78},
-        {label:"2025-Jul",color:"#7C3AED",seed:404,n:62},
-        {label:"2025-Jun",color:"#EC4899",seed:505,n:70},
-        {label:"2025-Mar",color:"#9333EA",seed:606,n:74},
-        {label:"2025-May",color:"#CA8A04",seed:707,n:66},
-      ];
-
-      // Seeded deterministic scatter data per month
-      var allData=React.useMemo(function(){
-        return MONTHS.map(function(m){
-          var k=m.seed;
-          function r(){k=(k*1103515245+12345)&0x7fffffff;return k/0x7fffffff;}
-          var pts=[];
-          for(var i=0;i<m.n;i++){
-            var load=27+r()*56;
-            var base=stY(load);
-            var sfoc=base+9+(r()-0.28)*48;
-            sfoc=Math.max(156,Math.min(228,sfoc));
-            pts.push({l:Math.round(load*10)/10,sfoc:Math.round(sfoc*10)/10,month:m.label,color:m.color});
-          }
-          return {month:m,pts:pts};
-        });
-      },[loadCond]);
-
-      var mg={top:8,right:28,bottom:38,left:66};
+      var mg={top:14,right:34,bottom:76,left:72};
       var plotW=Math.max(0,dims.w-mg.left-mg.right);
       var plotH=Math.max(0,dims.h-mg.top-mg.bottom);
-
-      var xMin=20,xMax=108,yMin=140,yMax=242;
+      var xMin=20,xMax=108,yMin=100,yMax=232;
       function xs(l){return mg.left+(l-xMin)/(xMax-xMin)*plotW;}
       function ys(s){return mg.top+(yMax-s)/(yMax-yMin)*plotH;}
+      function xInv(px){return (px-mg.left)/plotW*(xMax-xMin)+xMin;}
 
-      // Build smooth shop trial curve path
-      var curvePath=(function(){
-        var pts=[];
-        for(var l=20;l<=100;l+=0.5)pts.push([xs(l),ys(stY(l))]);
-        return pts.map(function(p,i){return (i===0?"M":"L")+p[0].toFixed(1)+","+p[1].toFixed(1);}).join(" ");
+      var curveLs=(function(){var a=[];for(var l=20;l<=102;l+=0.5)a.push(l);return a;})();
+      function buildPath(fn){return curveLs.map(function(l,i){return(i===0?"M":"L")+xs(l).toFixed(1)+","+ys(fn(l)).toFixed(1);}).join(" ");}
+      var areaPath=(function(){
+        var fwd=curveLs.map(function(l,i){return(i===0?"M":"L")+xs(l).toFixed(1)+","+ys(uppLimit(l)).toFixed(1);}).join(" ");
+        var bwd=curveLs.slice().reverse().map(function(l){return "L"+xs(l).toFixed(1)+","+ys(shopTrial(l)).toFixed(1);}).join(" ");
+        return fwd+" "+bwd+" Z";
       })();
 
       var xTicks=[20,30,40,50,60,70,80,90,100];
-      var yTicks=[140,160,180,200,220,240];
+      var yTicks=[100,120,140,160,180,200,220];
+      var CURVES=[
+        {key:"st",fn:shopTrial,name:"Shop Trial SFOC",stroke:"#1E3A8A",dash:"",sw:2.5},
+        {key:"mc",fn:meanCorr,name:"Mean Corr. SFOC",stroke:"#1E3A8A",dash:"8,4",sw:2},
+        {key:"ul",fn:uppLimit,name:"Upp. Limit SFOC (+5%)",stroke:"#1E3A8A",dash:"3,3",sw:2},
+      ];
+      var CATS={
+        "meas-out":{label:"SFOC Measured (Outside Band)",color:"#EF4444"},
+        "meas-in":{label:"SFOC Measured (Within Band)",color:"#16A34A"},
+        "corr-in":{label:"SFOC Corrected (Within Band)",color:"#86EFAC"},
+        "corr-out":{label:"SFOC Corrected (Outside Band)",color:"#F97316"},
+      };
+
+      function TooltipBox(props){
+        var t=props.t;
+        var tw=226,th=t.kind==="pt"?94:78;
+        var tx=t.cx+14,ty=t.cy-th/2;
+        if(tx+tw>dims.w-6)tx=t.cx-tw-14;
+        if(ty+th>dims.h-4)ty=dims.h-th-4;
+        if(ty<4)ty=4;
+        return (
+          <g style={{pointerEvents:"none"}}>
+            <rect x={tx} y={ty} width={tw} height={th} rx={7} fill="#0D1B3E" opacity={0.96}/>
+            {t.kind==="pt"?(
+              <React.Fragment>
+                <circle cx={tx+14} cy={ty+17} r={5} fill={CATS[t.pt.type].color}/>
+                <text x={tx+26} y={ty+21} fontSize={11.5} fontWeight={600} fill="white">{CATS[t.pt.type].label}</text>
+                <text x={tx+12} y={ty+40} fontSize={11} fill="#94A3B8">Load: {t.pt.l} %</text>
+                <text x={tx+12} y={ty+57} fontSize={11} fill="#94A3B8">SFOC: {t.pt.sfoc} g/kWh</text>
+                <text x={tx+12} y={ty+74} fontSize={11} fill="#94A3B8">Speed: 14.0 knots</text>
+              </React.Fragment>
+            ):(
+              <React.Fragment>
+                <text x={tx+12} y={ty+19} fontSize={11.5} fontWeight={600} fill="white">{t.curveName}{"  "}Speed: 14.0 knots</text>
+                <text x={tx+12} y={ty+38} fontSize={11} fill="#94A3B8">Load: {t.load} %</text>
+                <text x={tx+12} y={ty+55} fontSize={11} fill="#94A3B8">SFOC: {t.sfoc} g/kWh</text>
+              </React.Fragment>
+            )}
+          </g>
+        );
+      }
 
       return (
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",fontFamily:"inherit",userSelect:"none"}}>
-          {/* Month legend */}
-          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"4px 14px",padding:"5px 8px 2px",flexShrink:0,flexWrap:"wrap",fontSize:11,color:"#64748B"}}>
-            <span style={{fontWeight:600,color:"#64748B",marginRight:2}}>Month</span>
-            {MONTHS.map(function(m){
-              return (
-                <div key={m.label} style={{display:"flex",alignItems:"center",gap:4}}>
-                  <svg width="10" height="10" style={{flexShrink:0}}><circle cx="5" cy="5" r="4.5" fill={m.color}/></svg>
-                  <span style={{color:"#64748B"}}>{m.label}</span>
-                </div>
-              );
-            })}
-            {showCurve&&(
-              <div style={{display:"flex",alignItems:"center",gap:5}}>
-                <div style={{width:22,height:2.5,background:"#1E3A8A",borderRadius:2,flexShrink:0}}/>
-                <span style={{color:"#64748B"}}>Shop Trial Curve</span>
-              </div>
-            )}
-          </div>
-          {/* SVG chart area */}
           <div style={{flex:1,minHeight:0,position:"relative"}} ref={containerRef}>
             {dims.w>50&&dims.h>50&&(
               <svg width={dims.w} height={dims.h} style={{display:"block"}}>
-                {/* Horizontal grid lines */}
-                {yTicks.map(function(yv){
-                  return <line key={yv} x1={mg.left} y1={ys(yv)} x2={mg.left+plotW} y2={ys(yv)}
-                    stroke="#E5E7EB" strokeWidth={1}/>;
-                })}
-                {/* X axis baseline */}
-                <line x1={mg.left} y1={mg.top+plotH} x2={mg.left+plotW} y2={mg.top+plotH}
-                  stroke="#E2E8F0" strokeWidth={1}/>
-                {/* X tick labels */}
-                {xTicks.map(function(xv){
-                  return <text key={xv} x={xs(xv)} y={mg.top+plotH+16} textAnchor="middle" fontSize={13} fill="#94A3B8" fontFamily="inherit">{xv+"%"}</text>;
-                })}
-                {/* X axis label */}
-                <text x={mg.left+plotW/2} y={mg.top+plotH+34} textAnchor="middle" fontSize={12} fill="#94A3B8" fontFamily="inherit">LOAD (%)</text>
-                {/* Y tick labels */}
-                {yTicks.map(function(yv){
-                  return <text key={yv} x={mg.left-7} y={ys(yv)+4} textAnchor="end" fontSize={13} fill="#94A3B8" fontFamily="inherit">{yv}</text>;
-                })}
-                {/* Y axis label */}
-                <text transform={"rotate(-90)"} x={-(mg.top+plotH/2)} y={14} textAnchor="middle" fontSize={12} fill="#94A3B8" fontFamily="inherit">SFOC Corrected (g/kWh)</text>
-                {/* Shop Trial Curve */}
-                {showCurve&&<path d={curvePath} stroke="#1E3A8A" strokeWidth={2.5} fill="none" strokeLinejoin="round"/>}
-                {/* Scatter dots — hollow circles per month */}
-                {allData.map(function(md){
-                  var color=md.month.color;
-                  return md.pts.map(function(pt,i){
-                    var cx=xs(pt.l);
-                    var cy=ys(pt.sfoc);
-                    if(cx<mg.left-1||cx>mg.left+plotW+1||cy<mg.top-1||cy>mg.top+plotH+1)return null;
-                    return (
-                      <circle key={md.month.label+i} cx={cx} cy={cy} r={4.5}
-                        fill="none" stroke={color} strokeWidth={1.5} opacity={0.75}
-                        style={{cursor:"default"}}
-                        onMouseEnter={function(){setTooltip({cx:cx,cy:cy,month:pt.month,load:pt.l,sfoc:pt.sfoc,color:color});}}
-                        onMouseLeave={function(){setTooltip(null);}}
-                      />
-                    );
-                  });
-                })}
-                {/* Tooltip */}
-                {tooltip&&(function(){
-                  var tw=196,th=74,tx=tooltip.cx+14,ty=tooltip.cy-10;
-                  if(tx+tw>dims.w-6)tx=tooltip.cx-tw-14;
-                  if(ty+th>dims.h-4)ty=dims.h-th-4;
-                  if(ty<2)ty=2;
-                  return (
-                    <g style={{pointerEvents:"none"}}>
-                      <rect x={tx} y={ty} width={tw} height={th} rx={6} fill="#0D1B3E" opacity={0.95}/>
-                      <circle cx={tx+14} cy={ty+17} r={5} fill={tooltip.color}/>
-                      <text x={tx+24} y={ty+21} fontSize={11.5} fontWeight={600} fill="white">Month: {tooltip.month}</text>
-                      <text x={tx+12} y={ty+39} fontSize={11} fill="#94A3B8">Load: {tooltip.load} %</text>
-                      <text x={tx+12} y={ty+57} fontSize={11} fill="#94A3B8">SFOC Corrected: {tooltip.sfoc} g/kWh</text>
-                    </g>
+                <path d={areaPath} fill="#DBEAFE" opacity={0.55}/>
+                {yTicks.map(function(yv){return <line key={yv} x1={mg.left} y1={ys(yv)} x2={mg.left+plotW} y2={ys(yv)} stroke="#E5E7EB" strokeWidth={1}/>;})}
+                <line x1={mg.left} y1={mg.top+plotH} x2={mg.left+plotW} y2={mg.top+plotH} stroke="#CBD5E1" strokeWidth={1}/>
+                <line x1={mg.left} y1={mg.top} x2={mg.left} y2={mg.top+plotH} stroke="#CBD5E1" strokeWidth={1}/>
+                {xTicks.map(function(xv){return(
+                  <React.Fragment key={xv}>
+                    <line x1={xs(xv)} y1={mg.top+plotH} x2={xs(xv)} y2={mg.top+plotH+4} stroke="#CBD5E1" strokeWidth={1}/>
+                    <text x={xs(xv)} y={mg.top+plotH+17} textAnchor="middle" fontSize={12} fill="#94A3B8" fontFamily="inherit">{xv}</text>
+                  </React.Fragment>
+                );})}
+                <text x={mg.left+plotW/2} y={mg.top+plotH+33} textAnchor="middle" fontSize={12} fill="#64748B" fontFamily="inherit" fontWeight={500}>Load (%)</text>
+                {yTicks.map(function(yv){return <text key={yv} x={mg.left-8} y={ys(yv)+4} textAnchor="end" fontSize={12} fill="#94A3B8" fontFamily="inherit">{yv}</text>;})}
+                <text transform={"rotate(-90)"} x={-(mg.top+plotH/2)} y={16} textAnchor="middle" fontSize={12} fill="#64748B" fontFamily="inherit" fontWeight={500}>SFOC (g/kWh)</text>
+                {CURVES.map(function(curve){return(
+                  <g key={curve.key}>
+                    <path d={buildPath(curve.fn)} stroke={curve.stroke} strokeWidth={curve.sw} fill="none" strokeDasharray={curve.dash||undefined}/>
+                    <path d={buildPath(curve.fn)} stroke="transparent" strokeWidth={16} fill="none" style={{cursor:"crosshair"}}
+                      onMouseMove={function(e){
+                        if(!containerRef.current)return;
+                        var rect=containerRef.current.getBoundingClientRect();
+                        var l=Math.round(Math.max(20,Math.min(102,xInv(e.clientX-rect.left)))*10)/10;
+                        var sfoc=curve.fn(l);
+                        setTooltip({kind:"curve",cx:xs(l),cy:ys(sfoc),curveName:curve.name,load:l,sfoc:sfoc});
+                      }}
+                      onMouseLeave={function(){setTooltip(null);}}
+                    />
+                  </g>
+                );})}
+                {scatterData.map(function(pt,i){
+                  var cx_=xs(pt.l),cy_=ys(pt.sfoc);
+                  if(cx_<mg.left-2||cx_>mg.left+plotW+2||cy_<mg.top-2||cy_>mg.top+plotH+2)return null;
+                  var isHov=tooltip&&tooltip.kind==="pt"&&tooltip.pt===pt;
+                  return(
+                    <circle key={i} cx={cx_} cy={cy_} r={isHov?6:4.5} fill={CATS[pt.type].color} opacity={0.88}
+                      style={{cursor:"default"}}
+                      onMouseEnter={function(){setTooltip({kind:"pt",cx:cx_,cy:cy_,pt:pt});}}
+                      onMouseLeave={function(){setTooltip(null);}}
+                    />
                   );
-                })()}
+                })}
+                {tooltip&&<TooltipBox t={tooltip}/>}
               </svg>
             )}
+          </div>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"4px 18px",padding:"6px 8px 2px",flexShrink:0,flexWrap:"wrap",fontSize:11,color:"#64748B"}}>
+            {Object.keys(CATS).map(function(k){var cat=CATS[k];return(
+              <div key={k} style={{display:"flex",alignItems:"center",gap:5}}>
+                <svg width="10" height="10" style={{flexShrink:0}}><circle cx="5" cy="5" r="4.5" fill={cat.color}/></svg>
+                <span>{cat.label}</span>
+              </div>
+            );})}
+            <div style={{display:"flex",alignItems:"center",gap:5}}>
+              <svg width="22" height="8" style={{flexShrink:0}}><line x1="1" y1="4" x2="21" y2="4" stroke="#1E3A8A" strokeWidth="2.5"/></svg>
+              <span>Shop Trial SFOC</span>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:5}}>
+              <svg width="22" height="8" style={{flexShrink:0}}><line x1="1" y1="4" x2="21" y2="4" stroke="#1E3A8A" strokeWidth="2" strokeDasharray="6,3"/></svg>
+              <span>Mean Corr. SFOC</span>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:5}}>
+              <svg width="22" height="8" style={{flexShrink:0}}><line x1="1" y1="4" x2="21" y2="4" stroke="#1E3A8A" strokeWidth="2" strokeDasharray="3,3"/></svg>
+              <span>Upp. Limit SFOC (+5%)</span>
+            </div>
           </div>
         </div>
       );
@@ -8508,6 +8516,17 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var [meSpeedLow,setMeSpeedLow]=useState(10);
       var [meSpeedHigh,setMeSpeedHigh]=useState(40);
       var [sogTab,setSogTab]=useState("me");
+      // Load SFOC specific state
+      var [lsWindBF,setLsWindBF]=useState("");
+      var [lsWaveGOG,setLsWaveGOG]=useState("");
+      var [lsSteamLow,setLsSteamLow]=useState(0);
+      var [lsSteamHigh,setLsSteamHigh]=useState(24);
+      var [lsSpeedLow,setLsSpeedLow]=useState(10);
+      var [lsSpeedHigh,setLsSpeedHigh]=useState(40);
+      var [lsLoadLaden,setLsLoadLaden]=useState(true);
+      var [lsLoadBallast,setLsLoadBallast]=useState(true);
+      var [lsTropical,setLsTropical]=useState(false);
+      var [lsNonTropical,setLsNonTropical]=useState(true);
       useEffect(function(){
         if(showFilter){setFilterVis(false);requestAnimationFrame(function(){setFilterVis(true);});}
       },[showFilter]);
@@ -8839,6 +8858,105 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{meSpeedLow}</div>
                       <span style={{color:"#94A3B8",fontSize:16,fontWeight:300}}>–</span>
                       <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{meSpeedHigh}</div>
+                    </div>
+                  </div>
+                </React.Fragment>
+              ) : chart.title==="Load – SFOC" ? (
+                <React.Fragment>
+                  {/* Report Date */}
+                  <div style={{marginBottom:24,paddingBottom:24,borderBottom:"1px solid #F1F5F9"}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#0F172A",marginBottom:12}}>Report Date</div>
+                    <div style={{position:"relative"}}>
+                      <div style={{padding:"11px 40px 11px 14px",fontSize:14,color:"#0F172A",border:"1.5px solid #E2E8F0",borderRadius:10,background:"#fff",cursor:"pointer",userSelect:"none"}}>
+                        12/05/2025 to 03/01/2026
+                      </div>
+                      <svg style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}} width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                      </svg>
+                    </div>
+                  </div>
+                  {/* Weather Conditions */}
+                  <div style={{marginBottom:24,paddingBottom:24,borderBottom:"1px solid #F1F5F9"}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#0F172A",marginBottom:16}}>Weather Conditions</div>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+                      <span style={{fontSize:14,color:"#374151"}}>Wind (Bf) ≤</span>
+                      <div style={{position:"relative",width:180}}>
+                        <select value={lsWindBF} onChange={function(e){setLsWindBF(e.target.value);}} style={{width:"100%",appearance:"none",WebkitAppearance:"none",padding:"10px 32px 10px 14px",fontSize:14,color:lsWindBF?"#0F172A":"#94A3B8",border:"1.5px solid #E2E8F0",borderRadius:8,background:"#fff",cursor:"pointer",outline:"none"}}>
+                          <option value="">Select value</option>
+                          {["1","2","3","4","5","6","7","8"].map(function(v){return <option key={v} value={v}>{v}</option>;})}
+                        </select>
+                        <svg style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      </div>
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                      <span style={{fontSize:14,color:"#374151"}}>Wave (GOG) ≤</span>
+                      <div style={{position:"relative",width:180}}>
+                        <select value={lsWaveGOG} onChange={function(e){setLsWaveGOG(e.target.value);}} style={{width:"100%",appearance:"none",WebkitAppearance:"none",padding:"10px 32px 10px 14px",fontSize:14,color:lsWaveGOG?"#0F172A":"#94A3B8",border:"1.5px solid #E2E8F0",borderRadius:8,background:"#fff",cursor:"pointer",outline:"none"}}>
+                          <option value="">Select value</option>
+                          {["0.5","1.0","1.5","2.0","2.5","3.0","3.5","4.0","5.0","6.0"].map(function(v){return <option key={v} value={v}>{v}</option>;})}
+                        </select>
+                        <svg style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Steaming Time */}
+                  <div style={{marginBottom:24,paddingBottom:24,borderBottom:"1px solid #F1F5F9"}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#0F172A",marginBottom:16}}>Steaming Time (hrs/day)</div>
+                    <div style={{padding:"0 4px"}}>
+                      <DualRangeSlider min={0} max={24} low={lsSteamLow} high={lsSteamHigh} onChange={function(l,h){setLsSteamLow(l);setLsSteamHigh(h);}}/>
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",gap:12,marginTop:14}}>
+                      <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{lsSteamLow}</div>
+                      <span style={{color:"#94A3B8",fontSize:16,fontWeight:300}}>–</span>
+                      <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{lsSteamHigh}</div>
+                    </div>
+                  </div>
+                  {/* Speed Range */}
+                  <div style={{marginBottom:24,paddingBottom:24,borderBottom:"1px solid #F1F5F9"}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#0F172A",marginBottom:16}}>Speed Range (knots)</div>
+                    <div style={{padding:"0 4px"}}>
+                      <DualRangeSlider min={0} max={40} low={lsSpeedLow} high={lsSpeedHigh} onChange={function(l,h){setLsSpeedLow(l);setLsSpeedHigh(h);}}/>
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",gap:12,marginTop:14}}>
+                      <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{lsSpeedLow}</div>
+                      <span style={{color:"#94A3B8",fontSize:16,fontWeight:300}}>–</span>
+                      <div style={{flex:1,border:"1.5px solid #E2E8F0",borderRadius:8,padding:"10px 14px",fontSize:14,color:"#374151",textAlign:"center",fontWeight:500}}>{lsSpeedHigh}</div>
+                    </div>
+                  </div>
+                  {/* Load Condition */}
+                  <div style={{marginBottom:24,paddingBottom:24,borderBottom:"1px solid #F1F5F9"}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#0F172A",marginBottom:14}}>Load Condition</div>
+                    <div style={{display:"flex",gap:28}}>
+                      {[["Laden",lsLoadLaden,setLsLoadLaden],["Ballast",lsLoadBallast,setLsLoadBallast]].map(function(item){
+                        var label=item[0],checked=item[1],setter=item[2];
+                        return (
+                          <label key={label} style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:14,color:"#374151",userSelect:"none"}}
+                            onClick={function(){setter(function(v){return !v;});}}>
+                            <div style={{width:18,height:18,borderRadius:4,border:"2px solid "+(checked?"#1852FE":"#CBD5E1"),background:checked?"#1852FE":"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
+                              {checked&&<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                            </div>
+                            {label}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  {/* Tropical / Non-Tropical */}
+                  <div style={{marginBottom:8}}>
+                    <div style={{fontSize:14,fontWeight:700,color:"#0F172A",marginBottom:14}}>Tropical / Non-Tropical</div>
+                    <div style={{display:"flex",gap:28}}>
+                      {[["Tropical",lsTropical,setLsTropical],["Non-Tropical",lsNonTropical,setLsNonTropical]].map(function(item){
+                        var label=item[0],checked=item[1],setter=item[2];
+                        return (
+                          <label key={label} style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:14,color:"#374151",userSelect:"none"}}
+                            onClick={function(){setter(function(v){return !v;});}}>
+                            <div style={{width:18,height:18,borderRadius:4,border:"2px solid "+(checked?"#1852FE":"#CBD5E1"),background:checked?"#1852FE":"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
+                              {checked&&<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                            </div>
+                            {label}
+                          </label>
+                        );
+                      })}
                     </div>
                   </div>
                 </React.Fragment>
