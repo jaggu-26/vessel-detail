@@ -6179,7 +6179,13 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       return (
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",fontFamily:"inherit",userSelect:"none"}}>
-          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"flex-end",alignItems:"center",gap:"6px 16px",fontSize:11,color:"#374151",padding:"4px 12px 6px",lineHeight:"18px",flexShrink:0,position:"relative"}}>
+          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"flex-end",alignItems:"center",gap:"6px 16px",fontSize:11,color:"#374151",padding:"4px 12px 6px",lineHeight:"18px",flexShrink:0}}>
+            {Object.keys(CATS).map(function(k){var cat=CATS[k];return(
+              <div key={k} style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
+                <svg width="10" height="10" style={{flexShrink:0}}><circle cx="5" cy="5" r="4.5" fill={cat.color}/></svg>
+                <span>{cat.label}</span>
+              </div>
+            );})}
             <div style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
               <svg width="22" height="8" style={{flexShrink:0}}><line x1="1" y1="4" x2="21" y2="4" stroke="#1E3A8A" strokeWidth="2.5"/></svg>
               <span>Shop Trial SFOC</span>
@@ -6191,28 +6197,6 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <div style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
               <svg width="22" height="8" style={{flexShrink:0}}><line x1="1" y1="4" x2="21" y2="4" stroke="#1E3A8A" strokeWidth="2" strokeDasharray="3,3"/></svg>
               <span>Upp. Limit SFOC (+5%)</span>
-            </div>
-            <div style={{width:16,height:16,cursor:"pointer",flexShrink:0,position:"relative"}}
-              onMouseEnter={function(){setShowLegend(true);}}
-              onMouseLeave={function(){setShowLegend(false);}}>
-              <svg width="16" height="16" viewBox="0 0 16 16" style={{display:"block"}}>
-                <path d="M8,8 L8,0 A8,8 0 0,1 16,8 Z" fill="#EF4444"/>
-                <path d="M8,8 L16,8 A8,8 0 0,1 8,16 Z" fill="#16A34A"/>
-                <path d="M8,8 L8,16 A8,8 0 0,1 0,8 Z" fill="#86EFAC"/>
-                <path d="M8,8 L0,8 A8,8 0 0,1 8,0 Z" fill="#F97316"/>
-                <circle cx="8" cy="8" r="8" fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/>
-              </svg>
-              {legendVisible&&(
-                <div style={{position:"absolute",right:0,top:22,width:276,zIndex:20,background:"#fff",borderRadius:8,border:"1px solid #CBD5E1",boxShadow:"0 6px 20px rgba(0,0,0,0.12)",padding:"12px 14px",fontFamily:"inherit",pointerEvents:"none"}}>
-                  <div style={{fontSize:12,fontWeight:700,color:"#1E293B",marginBottom:8}}>SFOC Categories</div>
-                  {Object.keys(CATS).map(function(k){var cat=CATS[k];return(
-                    <div key={k} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                      <svg width="10" height="10" style={{flexShrink:0}}><circle cx="5" cy="5" r="4.5" fill={cat.color}/></svg>
-                      <span style={{fontSize:11,color:"#475569"}}>{cat.label}</span>
-                    </div>
-                  );})}
-                </div>
-              )}
             </div>
           </div>
           <div style={{flex:1,minHeight:0,position:"relative"}} ref={containerRef}>
