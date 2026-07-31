@@ -6116,7 +6116,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         return pts;
       },[]);
 
-      var mg={top:14,right:34,bottom:76,left:72};
+      var mg={top:14,right:34,bottom:44,left:72};
       var plotW=Math.max(0,dims.w-mg.left-mg.right);
       var plotH=Math.max(0,dims.h-mg.top-mg.bottom);
       var xMin=20,xMax=108,yMin=100,yMax=232;
@@ -6177,6 +6177,26 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       return (
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",fontFamily:"inherit",userSelect:"none"}}>
+          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"flex-end",gap:"6px 16px",fontSize:11,color:"#374151",padding:"4px 12px 6px",lineHeight:"18px",flexShrink:0}}>
+            {Object.keys(CATS).map(function(k){var cat=CATS[k];return(
+              <div key={k} style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
+                <svg width="10" height="10" style={{flexShrink:0}}><circle cx="5" cy="5" r="4.5" fill={cat.color}/></svg>
+                <span>{cat.label}</span>
+              </div>
+            );})}
+            <div style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
+              <svg width="22" height="8" style={{flexShrink:0}}><line x1="1" y1="4" x2="21" y2="4" stroke="#1E3A8A" strokeWidth="2.5"/></svg>
+              <span>Shop Trial SFOC</span>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
+              <svg width="22" height="8" style={{flexShrink:0}}><line x1="1" y1="4" x2="21" y2="4" stroke="#1E3A8A" strokeWidth="2" strokeDasharray="6,3"/></svg>
+              <span>Mean Corr. SFOC</span>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
+              <svg width="22" height="8" style={{flexShrink:0}}><line x1="1" y1="4" x2="21" y2="4" stroke="#1E3A8A" strokeWidth="2" strokeDasharray="3,3"/></svg>
+              <span>Upp. Limit SFOC (+5%)</span>
+            </div>
+          </div>
           <div style={{flex:1,minHeight:0,position:"relative"}} ref={containerRef}>
             {dims.w>50&&dims.h>50&&(
               <svg width={dims.w} height={dims.h} style={{display:"block"}}>
@@ -6223,26 +6243,6 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 {tooltip&&<TooltipBox t={tooltip}/>}
               </svg>
             )}
-          </div>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"4px 18px",padding:"6px 8px 2px",flexShrink:0,flexWrap:"wrap",fontSize:11,color:"#64748B"}}>
-            {Object.keys(CATS).map(function(k){var cat=CATS[k];return(
-              <div key={k} style={{display:"flex",alignItems:"center",gap:5}}>
-                <svg width="10" height="10" style={{flexShrink:0}}><circle cx="5" cy="5" r="4.5" fill={cat.color}/></svg>
-                <span>{cat.label}</span>
-              </div>
-            );})}
-            <div style={{display:"flex",alignItems:"center",gap:5}}>
-              <svg width="22" height="8" style={{flexShrink:0}}><line x1="1" y1="4" x2="21" y2="4" stroke="#1E3A8A" strokeWidth="2.5"/></svg>
-              <span>Shop Trial SFOC</span>
-            </div>
-            <div style={{display:"flex",alignItems:"center",gap:5}}>
-              <svg width="22" height="8" style={{flexShrink:0}}><line x1="1" y1="4" x2="21" y2="4" stroke="#1E3A8A" strokeWidth="2" strokeDasharray="6,3"/></svg>
-              <span>Mean Corr. SFOC</span>
-            </div>
-            <div style={{display:"flex",alignItems:"center",gap:5}}>
-              <svg width="22" height="8" style={{flexShrink:0}}><line x1="1" y1="4" x2="21" y2="4" stroke="#1E3A8A" strokeWidth="2" strokeDasharray="3,3"/></svg>
-              <span>Upp. Limit SFOC (+5%)</span>
-            </div>
           </div>
         </div>
       );
