@@ -6082,11 +6082,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     }
 
     // ── Load SFOC Curve Chart
-    function LoadSFOCChart(){
+    function LoadSFOCChart({showLegendOpen}){
       var containerRef=React.useRef(null);
       var [dims,setDims]=React.useState({w:700,h:380});
       var [tooltip,setTooltip]=React.useState(null);
       var [showLegend,setShowLegend]=React.useState(false);
+      var legendVisible=showLegendOpen||showLegend;
 
       React.useEffect(function(){
         if(!containerRef.current)return;
@@ -6201,7 +6202,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <path d="M8,8 L0,8 A8,8 0 0,1 8,0 Z" fill="#F97316"/>
                 <circle cx="8" cy="8" r="8" fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/>
               </svg>
-              {showLegend&&(
+              {legendVisible&&(
                 <div style={{position:"absolute",right:0,top:22,width:276,zIndex:20,background:"#fff",borderRadius:8,border:"1px solid #CBD5E1",boxShadow:"0 6px 20px rgba(0,0,0,0.12)",padding:"12px 14px",fontFamily:"inherit",pointerEvents:"none"}}>
                   <div style={{fontSize:12,fontWeight:700,color:"#1E293B",marginBottom:8}}>SFOC Categories</div>
                   {Object.keys(CATS).map(function(k){var cat=CATS[k];return(
@@ -7372,7 +7373,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             };
           })()}),{rowHeight:420}),
         Object.assign(cc("Load – SFOC","Measured vs Corrected SFOC and Shop Test Benchmark",
-          function(){return <LoadSFOCChart/>;},3,{tableData:(function(){
+          function(n,detailViewMode){return <LoadSFOCChart showLegendOpen={!!detailViewMode}/>;},3,{tableData:(function(){
             var _loads=[30,35,40,45,50,55,60,65,70,75,80,85,90,95,100];
             var _st=_loads.map(function(l){var base=190-0.35*l+0.003*l*l;return {l:l,sfoc:Math.round(base),mean:Math.round(base*0.92-10)};});
             var _nm=[{l:33,s:246},{l:34,s:238},{l:35,s:218},{l:36,s:230},{l:37,s:242},{l:38,s:224},{l:39,s:233},{l:40,s:220},{l:41,s:225},{l:42,s:214},{l:45,s:208},{l:47,s:215},{l:50,s:210},{l:52,s:205},{l:55,s:212},{l:57,s:218},{l:58,s:206},{l:59,s:214},{l:60,s:200},{l:61,s:208},{l:62,s:195},{l:65,s:202},{l:68,s:198},{l:70,s:195}];
