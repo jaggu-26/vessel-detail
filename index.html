@@ -5313,7 +5313,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <XAxis dataKey="m" tick={axTick} axisLine={false} tickLine={false}
                   label={{value:"Month",position:"insideBottom",offset:-12,style:axLabel}}/>
                 <YAxis domain={[0,1200]} ticks={[0,200,400,600,800,1000,1200]} tick={axTick} axisLine={false} tickLine={false}
-                  label={{value:"tCO₂eq",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
+                  label={{value:"MT",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
                 <Area type="monotone" dataKey="co2" stroke="#3B82F6" strokeWidth={2.5} fill="url(#ghgG1)"
                   dot={{r:3.5,fill:"#3B82F6",stroke:"#fff",strokeWidth:2}} activeDot={{r:6,fill:"#3B82F6",stroke:"#fff",strokeWidth:2}} name="CO₂"/>
@@ -7174,7 +7174,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             ]
           }}),{rowHeight:420}),
         Object.assign(cc("Global GHG Emissions","Month-on-month cumulative emissions",
-          function(){return <GlobalGHGChart ghgYear={ghgYear} setGhgYear={setGhgYear}/>;}, 3, {headerTabs:GHGTabs, hideDeepDive:true, tableData:(function(){
+          function(){return <GlobalGHGChart ghgYear={ghgYear} setGhgYear={setGhgYear}/>;}, 3, {hideDeepDive:true, tableData:(function(){
             var _MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
             var _rows=_MN.map(function(m,i){
               var t=i/11;
