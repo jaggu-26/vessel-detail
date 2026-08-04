@@ -3862,7 +3862,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             ?<LoadSFOCModal onClose={function(){setSimOpen(false);}}/>
             :title==="Fuel Performance Deviation"
             ?<EngineHealthModal onClose={function(){setSimOpen(false);}}/>
-            :title==="M/E RPM – Power"
+            :title==="Main Engine RPM – Power"
             ?<MERPMPowerModal onClose={function(){setSimOpen(false);}}/>
             :title==="Main Engine Health"
             ?<MEHealthModal onClose={function(){setSimOpen(false);}}/>
@@ -6864,7 +6864,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         </div>
       );
       var operationalItems=[
-        cc("Warranty Breach","Monthly (Voyage wise) breach count",
+        cc("Warranty Breach","Warranty Breach – Monthly / Voyage breach count",
           function(n, detailViewMode){
             var vm=detailViewMode?(detailViewMode.charAt(0).toUpperCase()+detailViewMode.slice(1)):wscView;
             var isVoyage=vm==="Voyage";
@@ -7155,7 +7155,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
 
       var environmentalItems=[
-        Object.assign(cc("CII","CII rating by voyage (or monthly)",
+        Object.assign(cc("CII Rating","AER – CII rating by voyage",
           function(n, detailViewMode){var vm=detailViewMode?(detailViewMode.charAt(0).toUpperCase()+detailViewMode.slice(1)):aerView;return <AERVoyageChart aerView={vm} setAerView={setAerView}/>;}, 3, {headerTabs:AERTabs, hideDeepDive:true, tableData:{
             columns:[
               {key:"v",        label:"Voyage No."},
@@ -7194,7 +7194,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               rows:_rows
             };
           })()}),{rowHeight:420}),
-        Object.assign(cc("EU Emissions","Sea passages & port stay — total consumption vs emissions",
+        Object.assign(cc("Emissions","Sea passages & port stay — total consumption and emissions",
           function(){return <EUEmissionsChart/>;}, 3, {hideDeepDive:true, tableData:{
             columns:[
               {key:"cat",         label:"EU Category"},
@@ -7284,7 +7284,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               rows:_rows2
             };
           })()}),{rowHeight:500}),
-        Object.assign(cc("Speed Power Curve","Predicted vs Reported Power",
+        Object.assign(cc("Speed Power Curve","Main Engine Reported and Predicted Power deviation",
           function(){return <SpeedPowerChart/>;},3,{hideDeepDive:true,tableData:(function(){
             // Same formulas as SpeedPowerChart: Laden = 82*V^1.9, Ballast = 16.88*V^2.323
             var _sp=[7.2,8.2,9.1,10.1,11.1,12.1,13.0,14.0,15.0,15.9,16.9];
@@ -7317,7 +7317,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               rows:_curveRows.map(function(r){return {speed:r.speed,trialLaden:r.trialLaden,trialLadenP5:r.trialLadenP5,trialBallast:r.trialBallast,trialBallastP5:r.trialBallastP5,repLaden:r.repLaden||"—",repBallast:r.repBallast||"—"};})
             };
           })()}),{rowHeight:420}),
-        Object.assign(cc("Fuel Performance Deviation","Predicted vs Reported Consumption Deviation",
+        Object.assign(cc("Fuel Performance Deviation","Main Engine Reported and Predicted Consumption deviation",
           function(){return(
             <div style={{display:"flex",flexDirection:"column",width:"100%",height:"100%"}}>
               <div style={{flexShrink:0,display:"flex",alignItems:"center",justifyContent:"flex-end",flexWrap:"wrap",gap:14,marginBottom:4,padding:"0 4px 0 0"}}>
@@ -7390,7 +7390,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           })()}),{rowHeight:420}),
         Object.assign(cc("Main Engine Health","Reported vs Shop Test SFOCcorrected Deviation",
           function(n,detailViewMode){return <MEHealthChart showColorWheel={!detailViewMode} showOpenLegend={!!detailViewMode}/>;},3,{hideDeepDive:true}),{rowHeight:420}),
-        Object.assign(cc("M/E RPM – Power","Reported vs Shop Test Benchmark",
+        Object.assign(cc("Main Engine RPM – Power","Reported vs Shop Test Benchmark",
           function(){return <MERPMPowerChart/>;},3,{hideDeepDive:true,noExpand:true,tableData:(function(){
             var rpmPts=[47,50,53,56,59,61,64,67,70,73,76,79,83,87];
             function _bench(rpm){return Math.round(0.1061*Math.pow(rpm,2.67));}
