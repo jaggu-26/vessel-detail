@@ -1673,40 +1673,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <div>
                 <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:7,textTransform:"uppercase",letterSpacing:0.5}}>SOG (kn)</div>
                 <SpeedRangeSlider min={0} max={20} low={sogMin} high={sogMax} onLow={setSogMin} onHigh={setSogMax}/>
-                <div style={{display:"flex",gap:10,marginTop:6}}>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:10,color:"#94A3B8",marginBottom:3}}>MIN</div>
-                    <input type="number" value={sogMin} onChange={function(e){setSogMin(Number(e.target.value));}}
-                      style={{width:"100%",border:"1px solid #e2e4e8",borderRadius:6,padding:"5px 8px",
-                        fontSize:12,color:THEME.text,background:"#fff",outline:"none",boxSizing:"border-box"}}/>
-                  </div>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:10,color:"#94A3B8",marginBottom:3}}>MAX</div>
-                    <input type="number" value={sogMax} onChange={function(e){setSogMax(Number(e.target.value));}}
-                      style={{width:"100%",border:"1px solid #e2e4e8",borderRadius:6,padding:"5px 8px",
-                        fontSize:12,color:THEME.text,background:"#fff",outline:"none",boxSizing:"border-box"}}/>
-                  </div>
-                </div>
               </div>
 
               {/* Steaming Hours */}
               <div>
                 <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:7,textTransform:"uppercase",letterSpacing:0.5}}>Steaming Hours (hrs/day)</div>
                 <SpeedRangeSlider min={0} max={26} low={steamMin} high={steamMax} onLow={setSteamMin} onHigh={setSteamMax}/>
-                <div style={{display:"flex",gap:10,marginTop:6}}>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:10,color:"#94A3B8",marginBottom:3}}>MIN</div>
-                    <input type="number" value={steamMin} onChange={function(e){setSteamMin(Number(e.target.value));}}
-                      style={{width:"100%",border:"1px solid #e2e4e8",borderRadius:6,padding:"5px 8px",
-                        fontSize:12,color:THEME.text,background:"#fff",outline:"none",boxSizing:"border-box"}}/>
-                  </div>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:10,color:"#94A3B8",marginBottom:3}}>MAX</div>
-                    <input type="number" value={steamMax} onChange={function(e){setSteamMax(Number(e.target.value));}}
-                      style={{width:"100%",border:"1px solid #e2e4e8",borderRadius:6,padding:"5px 8px",
-                        fontSize:12,color:THEME.text,background:"#fff",outline:"none",boxSizing:"border-box"}}/>
-                  </div>
-                </div>
               </div>
 
               {/* Draft */}
