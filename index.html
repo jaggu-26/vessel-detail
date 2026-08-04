@@ -1551,25 +1551,34 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         );
       }
 
-      function SimTooltip({active,payload}){
+      function SimTooltip({active,payload,label}){
         if(!active||!payload||!payload.length)return null;
-        var pt=payload[0]&&payload[0].payload;
-        if(!pt||pt.speed==null)return null;
+        var ROWS=[
+          {key:"ladCorr",label:"Laden Corrected Curve",   color:"#2563EB"},
+          {key:"ladBase",label:"Laden Baseline Curve",     color:"#93C5FD"},
+          {key:"balCorr",label:"Ballast Corrected Curve",  color:"#F59E0B"},
+          {key:"balBase",label:"Ballast Baseline Curve",   color:"#FCD34D"},
+        ];
         return(
-          <div style={{background:"#fff",border:"1px solid #e2e4e8",borderRadius:8,padding:"10px 14px",
-            boxShadow:"0 4px 16px rgba(0,0,0,0.10)",minWidth:200,pointerEvents:"none"}}>
-            <div style={{fontWeight:700,fontSize:13,color:THEME.text,marginBottom:9}}>
-              {loadCond==="laden"?"Laden":"Ballast"}&nbsp;·&nbsp;{pt.speed} kn
+          <div style={{background:"#1E293B",borderRadius:10,padding:"14px 16px",
+            minWidth:230,boxShadow:"0 8px 24px rgba(0,0,0,0.28)",pointerEvents:"none"}}>
+            <div style={{fontSize:13,fontWeight:700,color:"#fff",marginBottom:10}}>
+              {label} kn
             </div>
-            <div style={{display:"flex",justifyContent:"space-between",gap:24,fontSize:11,color:THEME.textSub,marginBottom:4}}>
-              <span>Upper</span><span style={{fontWeight:500,color:THEME.text}}>{pt.upper!=null?pt.upper.toFixed(2):"—"}</span>
-            </div>
-            <div style={{display:"flex",justifyContent:"space-between",gap:24,fontSize:11,color:B,fontWeight:600,marginBottom:4}}>
-              <span>— Total Consumptions</span><span>{pt.value!=null?pt.value.toFixed(2):"—"}</span>
-            </div>
-            <div style={{display:"flex",justifyContent:"space-between",gap:24,fontSize:11,color:THEME.textSub}}>
-              <span>Lower</span><span style={{fontWeight:500,color:THEME.text}}>{pt.lower!=null?pt.lower.toFixed(2):"—"}</span>
-            </div>
+            <div style={{height:1,background:"rgba(255,255,255,0.12)",marginBottom:10}}/>
+            {ROWS.map(function(row){
+              var p=payload.find(function(x){return x.dataKey===row.key;});
+              var val=p&&p.value!=null?p.value.toFixed(1):"—";
+              return(
+                <div key={row.key} style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:7}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <div style={{width:10,height:10,borderRadius:"50%",background:row.color,flexShrink:0}}/>
+                    <span style={{fontSize:12,color:"#CBD5E1"}}>{row.label}</span>
+                  </div>
+                  <span style={{fontSize:12,fontWeight:600,color:"#fff",marginLeft:14}}>{val}</span>
+                </div>
+              );
+            })}
           </div>
         );
       }
