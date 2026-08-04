@@ -1585,124 +1585,153 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <div style={{width:272,flexShrink:0,background:"#f5f7fa",borderRight:"1px solid #e8eaed",
               padding:"24px 20px",display:"flex",flexDirection:"column",gap:18,overflowY:"auto"}}>
 
-              {(function(){
-                var SL=function(t){return <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:7,textTransform:"uppercase",letterSpacing:0.5}}>{t}</div>;};
-                var TogGrp=function(opts,val,set){
-                  return(
-                    <div style={{display:"flex",borderRadius:6,border:"1px solid #e2e4e8",overflow:"hidden"}}>
-                      {opts.map(function(o,i){
-                        var act=val===o[0];
-                        return(
-                          <button key={o[0]} onClick={function(){set(o[0]);}}
-                            style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:act?600:400,
-                              background:act?B:"#fff",color:act?"#fff":"#64748B",border:"none",
-                              borderLeft:i>0?"1px solid #e2e4e8":"none",cursor:"pointer"}}>
-                            {o[1]}
-                          </button>
-                        );
-                      })}
+              {/* Date Range */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:7,textTransform:"uppercase",letterSpacing:0.5}}>Date Range</div>
+                <div style={{display:"flex",gap:8}}>
+                  {["12/12/2025","31/12/2026"].map(function(d){return(
+                    <div key={d} style={{flex:1,display:"flex",alignItems:"center",gap:5,background:"#fff",
+                      border:"1px solid #e2e4e8",borderRadius:7,padding:"6px 8px"}}>
+                      <span style={{flex:1,fontSize:11,color:THEME.text}}>{d}</span>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.8" style={{flexShrink:0}}>
+                        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                      </svg>
                     </div>
-                  );
-                };
-                var CalIcon=function(){return(
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="1.8" style={{flexShrink:0}}>
-                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                  </svg>
-                );};
-                var WxSelect=function(label,val,set,opts){return(
-                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                    <span style={{fontSize:12,color:THEME.text,whiteSpace:"nowrap",minWidth:102}}>{label}</span>
-                    <select value={val} onChange={function(e){set(e.target.value);}}
-                      style={{flex:1,background:"#fff",border:"1px solid #e2e4e8",borderRadius:6,
-                        padding:"6px 8px",fontSize:12,color:THEME.text,outline:"none",cursor:"pointer"}}>
-                      <option value="">Select</option>
-                      {opts.map(function(n){return <option key={n} value={n}>{n}</option>;})}
-                    </select>
+                  );})}
+                </div>
+              </div>
+
+              {/* Weather Filters */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:7,textTransform:"uppercase",letterSpacing:0.5}}>Weather Filters</div>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+                  <span style={{fontSize:12,color:THEME.text,whiteSpace:"nowrap",minWidth:102}}>Wind BF (&lt;=)</span>
+                  <select value={windBF} onChange={function(e){setWindBF(e.target.value);}}
+                    style={{flex:1,background:"#fff",border:"1px solid #e2e4e8",borderRadius:6,
+                      padding:"6px 8px",fontSize:12,color:THEME.text,outline:"none",cursor:"pointer"}}>
+                    <option value="">Select</option>
+                    {[0,1,2,3,4,5,6,7,8].map(function(n){return <option key={n} value={n}>{n}</option>;})}
+                  </select>
+                </div>
+                <div style={{display:"flex",alignItems:"center",gap:8}}>
+                  <span style={{fontSize:12,color:THEME.text,whiteSpace:"nowrap",minWidth:102}}>Wave DSS (&lt;=)</span>
+                  <select value={waveDSS} onChange={function(e){setWaveDSS(e.target.value);}}
+                    style={{flex:1,background:"#fff",border:"1px solid #e2e4e8",borderRadius:6,
+                      padding:"6px 8px",fontSize:12,color:THEME.text,outline:"none",cursor:"pointer"}}>
+                    <option value="">Select</option>
+                    {[0,1,2,3,4,5,6,7].map(function(n){return <option key={n} value={n}>{n}</option>;})}
+                  </select>
+                </div>
+              </div>
+
+              {/* Load Condition */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:7,textTransform:"uppercase",letterSpacing:0.5}}>Load Condition</div>
+                <div style={{display:"flex",borderRadius:6,border:"1px solid #e2e4e8",overflow:"hidden"}}>
+                  <button onClick={function(){setLoadCond("laden");}}
+                    style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:loadCond==="laden"?600:400,
+                      background:loadCond==="laden"?B:"#fff",color:loadCond==="laden"?"#fff":"#64748B",
+                      border:"none",cursor:"pointer"}}>Laden</button>
+                  <button onClick={function(){setLoadCond("ballast");}}
+                    style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:loadCond==="ballast"?600:400,
+                      background:loadCond==="ballast"?B:"#fff",color:loadCond==="ballast"?"#fff":"#64748B",
+                      border:"none",borderLeft:"1px solid #e2e4e8",cursor:"pointer"}}>Ballast</button>
+                </div>
+              </div>
+
+              {/* Toggle View */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:7,textTransform:"uppercase",letterSpacing:0.5}}>Toggle View</div>
+                <div style={{display:"flex",borderRadius:6,border:"1px solid #e2e4e8",overflow:"hidden"}}>
+                  <button onClick={function(){setConsumer("me");}}
+                    style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:consumer==="me"?600:400,
+                      background:consumer==="me"?B:"#fff",color:consumer==="me"?"#fff":"#64748B",
+                      border:"none",cursor:"pointer"}}>ME</button>
+                  <button onClick={function(){setConsumer("me_aux");}}
+                    style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:consumer==="me_aux"?600:400,
+                      background:consumer==="me_aux"?B:"#fff",color:consumer==="me_aux"?"#fff":"#64748B",
+                      border:"none",borderLeft:"1px solid #e2e4e8",cursor:"pointer"}}>ME + AUX</button>
+                </div>
+              </div>
+
+              {/* SOG */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:7,textTransform:"uppercase",letterSpacing:0.5}}>SOG (kn)</div>
+                <SpeedRangeSlider min={0} max={20} low={sogMin} high={sogMax} onLow={setSogMin} onHigh={setSogMax}/>
+                <div style={{display:"flex",gap:10,marginTop:6}}>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:10,color:"#94A3B8",marginBottom:3}}>MIN</div>
+                    <input type="number" value={sogMin} onChange={function(e){setSogMin(Number(e.target.value));}}
+                      style={{width:"100%",border:"1px solid #e2e4e8",borderRadius:6,padding:"5px 8px",
+                        fontSize:12,color:THEME.text,background:"#fff",outline:"none",boxSizing:"border-box"}}/>
                   </div>
-                );};
-                var RangeBlock=function(label,low,high,setLow,setHigh,absMin,absMax){return(
-                  <div>
-                    {SL(label)}
-                    <SpeedRangeSlider min={absMin} max={absMax} low={low} high={high} onLow={setLow} onHigh={setHigh}/>
-                    <div style={{display:"flex",gap:10,marginTop:6}}>
-                      {[["MIN",low,setLow],["MAX",high,setHigh]].map(function(cell){return(
-                        <div key={cell[0]} style={{flex:1}}>
-                          <div style={{fontSize:10,color:"#94A3B8",marginBottom:3}}>{cell[0]}</div>
-                          <input type="number" value={cell[1]}
-                            onChange={function(e){cell[2](Number(e.target.value));}}
-                            style={{width:"100%",border:"1px solid #e2e4e8",borderRadius:6,
-                              padding:"5px 8px",fontSize:12,color:THEME.text,background:"#fff",outline:"none",boxSizing:"border-box"}}/>
-                        </div>
-                      );})}
-                    </div>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:10,color:"#94A3B8",marginBottom:3}}>MAX</div>
+                    <input type="number" value={sogMax} onChange={function(e){setSogMax(Number(e.target.value));}}
+                      style={{width:"100%",border:"1px solid #e2e4e8",borderRadius:6,padding:"5px 8px",
+                        fontSize:12,color:THEME.text,background:"#fff",outline:"none",boxSizing:"border-box"}}/>
                   </div>
-                );};
-                return(
-                  <React.Fragment>
-                    {/* Date Range */}
-                    <div>
-                      {SL("Date Range")}
-                      <div style={{display:"flex",gap:8}}>
-                        {[["12/12/2025"],["31/12/2026"]].map(function(d){return(
-                          <div key={d[0]} style={{flex:1,display:"flex",alignItems:"center",gap:5,background:"#fff",
-                            border:"1px solid #e2e4e8",borderRadius:7,padding:"6px 8px"}}>
-                            <span style={{flex:1,fontSize:11,color:THEME.text}}>{d[0]}</span>
-                            <CalIcon/>
-                          </div>
-                        );})}
-                      </div>
-                    </div>
+                </div>
+              </div>
 
-                    {/* Weather Filters */}
-                    <div>
-                      {SL("Weather Filters")}
-                      {WxSelect("Wind BF (<=)",windBF,setWindBF,[0,1,2,3,4,5,6,7,8])}
-                      {WxSelect("Wave DSS (<=)",waveDSS,setWaveDSS,[0,1,2,3,4,5,6,7])}
-                    </div>
+              {/* Steaming Hours */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:7,textTransform:"uppercase",letterSpacing:0.5}}>Steaming Hours (hrs/day)</div>
+                <SpeedRangeSlider min={0} max={26} low={steamMin} high={steamMax} onLow={setSteamMin} onHigh={setSteamMax}/>
+                <div style={{display:"flex",gap:10,marginTop:6}}>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:10,color:"#94A3B8",marginBottom:3}}>MIN</div>
+                    <input type="number" value={steamMin} onChange={function(e){setSteamMin(Number(e.target.value));}}
+                      style={{width:"100%",border:"1px solid #e2e4e8",borderRadius:6,padding:"5px 8px",
+                        fontSize:12,color:THEME.text,background:"#fff",outline:"none",boxSizing:"border-box"}}/>
+                  </div>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:10,color:"#94A3B8",marginBottom:3}}>MAX</div>
+                    <input type="number" value={steamMax} onChange={function(e){setSteamMax(Number(e.target.value));}}
+                      style={{width:"100%",border:"1px solid #e2e4e8",borderRadius:6,padding:"5px 8px",
+                        fontSize:12,color:THEME.text,background:"#fff",outline:"none",boxSizing:"border-box"}}/>
+                  </div>
+                </div>
+              </div>
 
-                    {/* Load Condition */}
-                    <div>
-                      {SL("Load Condition")}
-                      {TogGrp([["laden","Laden"],["ballast","Ballast"]],loadCond,setLoadCond)}
-                    </div>
+              {/* Draft */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:7,textTransform:"uppercase",letterSpacing:0.5}}>Draft (m)</div>
+                <input type="number" value={draft} step={0.1}
+                  onChange={function(e){setDraft(parseFloat(e.target.value)||0);}}
+                  style={{width:90,border:"1px solid #e2e4e8",borderRadius:6,
+                    padding:"6px 10px",fontSize:13,color:THEME.text,background:"#fff",outline:"none"}}/>
+              </div>
 
-                    {/* Toggle View */}
-                    <div>
-                      {SL("Toggle View")}
-                      {TogGrp([["me","ME"],["me_aux","ME + AUX"]],consumer,setConsumer)}
-                    </div>
+              {/* Plot Type */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:7,textTransform:"uppercase",letterSpacing:0.5}}>Plot Type</div>
+                <div style={{display:"flex",borderRadius:6,border:"1px solid #e2e4e8",overflow:"hidden"}}>
+                  <button onClick={function(){setPlotType("curve");}}
+                    style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:plotType==="curve"?600:400,
+                      background:plotType==="curve"?B:"#fff",color:plotType==="curve"?"#fff":"#64748B",
+                      border:"none",cursor:"pointer"}}>Curve</button>
+                  <button onClick={function(){setPlotType("matrix");}}
+                    style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:plotType==="matrix"?600:400,
+                      background:plotType==="matrix"?B:"#fff",color:plotType==="matrix"?"#fff":"#64748B",
+                      border:"none",borderLeft:"1px solid #e2e4e8",cursor:"pointer"}}>Matrix</button>
+                </div>
+              </div>
 
-                    {/* SOG */}
-                    {RangeBlock("SOG (kn)",sogMin,sogMax,setSogMin,setSogMax,0,20)}
-
-                    {/* Steaming Hours */}
-                    {RangeBlock("Steaming Hours (hrs/day)",steamMin,steamMax,setSteamMin,setSteamMax,0,26)}
-
-                    {/* Draft */}
-                    <div>
-                      {SL("Draft (m)")}
-                      <div style={{display:"flex",alignItems:"center"}}>
-                        <input type="number" value={draft} step={0.1}
-                          onChange={function(e){setDraft(parseFloat(e.target.value)||0);}}
-                          style={{width:80,border:"1px solid #e2e4e8",borderRadius:6,
-                            padding:"6px 10px",fontSize:13,color:THEME.text,background:"#fff",outline:"none"}}/>
-                      </div>
-                    </div>
-
-                    {/* Plot Type */}
-                    <div>
-                      {SL("Plot Type")}
-                      {TogGrp([["curve","Curve"],["matrix","Matrix"]],plotType,setPlotType)}
-                    </div>
-
-                    {/* Fuel Type */}
-                    <div>
-                      {SL("Fuel Type")}
-                      {TogGrp([["hfo","HFO"],["mgo","MGO"]],fuelType,setFuelType)}
-                    </div>
-                  </React.Fragment>
-                );
-              })()}
+              {/* Fuel Type */}
+              <div>
+                <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:7,textTransform:"uppercase",letterSpacing:0.5}}>Fuel Type</div>
+                <div style={{display:"flex",borderRadius:6,border:"1px solid #e2e4e8",overflow:"hidden"}}>
+                  <button onClick={function(){setFuelType("hfo");}}
+                    style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:fuelType==="hfo"?600:400,
+                      background:fuelType==="hfo"?B:"#fff",color:fuelType==="hfo"?"#fff":"#64748B",
+                      border:"none",cursor:"pointer"}}>HFO</button>
+                  <button onClick={function(){setFuelType("mgo");}}
+                    style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:fuelType==="mgo"?600:400,
+                      background:fuelType==="mgo"?B:"#fff",color:fuelType==="mgo"?"#fff":"#64748B",
+                      border:"none",borderLeft:"1px solid #e2e4e8",cursor:"pointer"}}>MGO</button>
+                </div>
+              </div>
             </div>
 
             {/* ── Chart area ── */}
