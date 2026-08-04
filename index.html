@@ -1627,30 +1627,40 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               {/* Load Condition */}
               <div>
                 <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:7,textTransform:"uppercase",letterSpacing:0.5}}>Load Condition</div>
-                <div style={{display:"flex",borderRadius:6,border:"1px solid #e2e4e8",overflow:"hidden"}}>
-                  <button onClick={function(){setLoadCond("laden");}}
-                    style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:loadCond==="laden"?600:400,
-                      background:loadCond==="laden"?B:"#fff",color:loadCond==="laden"?"#fff":"#64748B",
-                      border:"none",cursor:"pointer"}}>Laden</button>
-                  <button onClick={function(){setLoadCond("ballast");}}
-                    style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:loadCond==="ballast"?600:400,
-                      background:loadCond==="ballast"?B:"#fff",color:loadCond==="ballast"?"#fff":"#64748B",
-                      border:"none",borderLeft:"1px solid #e2e4e8",cursor:"pointer"}}>Ballast</button>
+                <div style={{display:"flex",gap:20}}>
+                  {[["laden","Laden"],["ballast","Ballast"]].map(function(o){
+                    var on=loadCond===o[0];
+                    return(
+                      <label key={o[0]} onClick={function(){setLoadCond(o[0]);}}
+                        style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}>
+                        <div style={{width:20,height:20,borderRadius:"50%",border:"2px solid "+(on?B:"#CBD5E1"),
+                          background:on?B:"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
+                          {on&&<div style={{width:7,height:7,borderRadius:"50%",background:"#fff"}}/>}
+                        </div>
+                        <span style={{fontSize:13,fontWeight:on?600:400,color:on?THEME.text:"#64748B"}}>{o[1]}</span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Toggle View */}
               <div>
                 <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:7,textTransform:"uppercase",letterSpacing:0.5}}>Toggle View</div>
-                <div style={{display:"flex",borderRadius:6,border:"1px solid #e2e4e8",overflow:"hidden"}}>
-                  <button onClick={function(){setConsumer("me");}}
-                    style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:consumer==="me"?600:400,
-                      background:consumer==="me"?B:"#fff",color:consumer==="me"?"#fff":"#64748B",
-                      border:"none",cursor:"pointer"}}>ME</button>
-                  <button onClick={function(){setConsumer("me_aux");}}
-                    style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:consumer==="me_aux"?600:400,
-                      background:consumer==="me_aux"?B:"#fff",color:consumer==="me_aux"?"#fff":"#64748B",
-                      border:"none",borderLeft:"1px solid #e2e4e8",cursor:"pointer"}}>ME + AUX</button>
+                <div style={{display:"flex",gap:20}}>
+                  {[["me","ME"],["me_aux","ME + AUX"]].map(function(o){
+                    var on=consumer===o[0];
+                    return(
+                      <label key={o[0]} onClick={function(){setConsumer(o[0]);}}
+                        style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}>
+                        <div style={{width:20,height:20,borderRadius:"50%",border:"2px solid "+(on?B:"#CBD5E1"),
+                          background:on?B:"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
+                          {on&&<div style={{width:7,height:7,borderRadius:"50%",background:"#fff"}}/>}
+                        </div>
+                        <span style={{fontSize:13,fontWeight:on?600:400,color:on?THEME.text:"#64748B"}}>{o[1]}</span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -1706,30 +1716,40 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               {/* Plot Type */}
               <div>
                 <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:7,textTransform:"uppercase",letterSpacing:0.5}}>Plot Type</div>
-                <div style={{display:"flex",borderRadius:6,border:"1px solid #e2e4e8",overflow:"hidden"}}>
-                  <button onClick={function(){setPlotType("curve");}}
-                    style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:plotType==="curve"?600:400,
-                      background:plotType==="curve"?B:"#fff",color:plotType==="curve"?"#fff":"#64748B",
-                      border:"none",cursor:"pointer"}}>Curve</button>
-                  <button onClick={function(){setPlotType("matrix");}}
-                    style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:plotType==="matrix"?600:400,
-                      background:plotType==="matrix"?B:"#fff",color:plotType==="matrix"?"#fff":"#64748B",
-                      border:"none",borderLeft:"1px solid #e2e4e8",cursor:"pointer"}}>Matrix</button>
+                <div style={{display:"flex",gap:20}}>
+                  {[["curve","Curve"],["matrix","Matrix"]].map(function(o){
+                    var on=plotType===o[0];
+                    return(
+                      <label key={o[0]} onClick={function(){setPlotType(o[0]);}}
+                        style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}>
+                        <div style={{width:20,height:20,borderRadius:"50%",border:"2px solid "+(on?B:"#CBD5E1"),
+                          background:on?B:"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
+                          {on&&<div style={{width:7,height:7,borderRadius:"50%",background:"#fff"}}/>}
+                        </div>
+                        <span style={{fontSize:13,fontWeight:on?600:400,color:on?THEME.text:"#64748B"}}>{o[1]}</span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Fuel Type */}
               <div>
                 <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:7,textTransform:"uppercase",letterSpacing:0.5}}>Fuel Type</div>
-                <div style={{display:"flex",borderRadius:6,border:"1px solid #e2e4e8",overflow:"hidden"}}>
-                  <button onClick={function(){setFuelType("hfo");}}
-                    style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:fuelType==="hfo"?600:400,
-                      background:fuelType==="hfo"?B:"#fff",color:fuelType==="hfo"?"#fff":"#64748B",
-                      border:"none",cursor:"pointer"}}>HFO</button>
-                  <button onClick={function(){setFuelType("mgo");}}
-                    style={{flex:1,padding:"7px 4px",fontSize:12,fontWeight:fuelType==="mgo"?600:400,
-                      background:fuelType==="mgo"?B:"#fff",color:fuelType==="mgo"?"#fff":"#64748B",
-                      border:"none",borderLeft:"1px solid #e2e4e8",cursor:"pointer"}}>MGO</button>
+                <div style={{display:"flex",gap:20}}>
+                  {[["hfo","HFO"],["mgo","MGO"]].map(function(o){
+                    var on=fuelType===o[0];
+                    return(
+                      <label key={o[0]} onClick={function(){setFuelType(o[0]);}}
+                        style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}>
+                        <div style={{width:20,height:20,borderRadius:"50%",border:"2px solid "+(on?B:"#CBD5E1"),
+                          background:on?B:"#fff",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
+                          {on&&<div style={{width:7,height:7,borderRadius:"50%",background:"#fff"}}/>}
+                        </div>
+                        <span style={{fontSize:13,fontWeight:on?600:400,color:on?THEME.text:"#64748B"}}>{o[1]}</span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
             </div>
