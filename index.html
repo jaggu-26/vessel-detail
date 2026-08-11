@@ -2745,6 +2745,188 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     }
 
     // ── Engine Health Deterioration chart — risk-band area + hover tooltip ────────
+    function FuelConsumptionSpeedChart(){
+      var [hoverSpd,setHoverSpd]=React.useState(null);
+      var curvePts=[
+        {spd:7,   pred:38,   rep:22,   shop:10.0,s5:10.5},
+        {spd:7.5, pred:40,   rep:24,   shop:10.8,s5:11.3},
+        {spd:8,   pred:42,   rep:26,   shop:12.0,s5:12.6},
+        {spd:8.5, pred:44,   rep:28,   shop:13.5,s5:14.2},
+        {spd:9,   pred:47,   rep:30,   shop:15.0,s5:15.8},
+        {spd:9.5, pred:49.5, rep:32.5, shop:17.3,s5:18.2},
+        {spd:10,  pred:52,   rep:35,   shop:20.0,s5:21.0},
+        {spd:10.5,pred:55,   rep:37.5, shop:22.8,s5:23.9},
+        {spd:11,  pred:59,   rep:40,   shop:27.0,s5:28.4},
+        {spd:11.5,pred:63,   rep:43.5, shop:30.4,s5:31.9},
+        {spd:12,  pred:67,   rep:47,   shop:34.0,s5:35.7},
+        {spd:12.5,pred:73,   rep:52,   shop:37.8,s5:39.7},
+        {spd:13,  pred:79,   rep:57,   shop:42.0,s5:44.1},
+        {spd:13.5,pred:85.5, rep:62,   shop:46.5,s5:48.8},
+        {spd:14,  pred:92.4, rep:67.1, shop:51.2,s5:53.8},
+        {spd:14.5,pred:100,  rep:73,   shop:56.2,s5:59.0},
+        {spd:15,  pred:108,  rep:79,   shop:62.0,s5:65.1},
+        {spd:15.5,pred:117,  rep:86,   shop:68.5,s5:71.9},
+        {spd:16,  pred:126,  rep:92,   shop:74.0,s5:77.7},
+        {spd:16.5,pred:136,  rep:99,   shop:82.0,s5:86.1},
+        {spd:17,  pred:145,  rep:105,  shop:89.0,s5:93.5},
+      ];
+      var predDots=[
+        {spd:10.2,v:60},{spd:10.5,v:58},{spd:11.0,v:60},{spd:11.2,v:65},
+        {spd:11.3,v:65},{spd:11.5,v:65},{spd:11.6,v:68},{spd:11.7,v:68},
+        {spd:12.0,v:67},{spd:12.1,v:65},{spd:12.2,v:66},{spd:12.3,v:68},
+        {spd:12.5,v:70},{spd:12.7,v:78},{spd:13.0,v:80},{spd:13.2,v:83},
+        {spd:13.5,v:95},{spd:14.5,v:104},{spd:14.8,v:97},{spd:14.9,v:97},
+      ];
+      var repDots=[
+        {spd:10.2,v:43},{spd:10.5,v:38},{spd:10.6,v:44},
+        {spd:11.0,v:35},{spd:11.3,v:38},{spd:11.4,v:40},{spd:11.6,v:47},
+        {spd:11.7,v:45},{spd:11.8,v:46},{spd:12.0,v:47},{spd:12.1,v:50},
+        {spd:12.2,v:44},{spd:12.25,v:47},{spd:12.3,v:47},{spd:12.4,v:45},
+        {spd:12.5,v:48},{spd:12.55,v:50},{spd:13.2,v:63},{spd:13.4,v:63},
+        {spd:14.5,v:75},{spd:14.6,v:76},
+      ];
+      function interp(spd,key){
+        var lo=null,hi=null;
+        for(var i=0;i<curvePts.length;i++){
+          if(curvePts[i].spd<=spd)lo=curvePts[i];
+          if(!hi&&curvePts[i].spd>spd)hi=curvePts[i];
+        }
+        if(!lo)return curvePts[0][key];
+        if(!hi)return lo[key];
+        var t=(spd-lo.spd)/(hi.spd-lo.spd);
+        return lo[key]+t*(hi[key]-lo[key]);
+      }
+      function smoothPath(pts,xs,ys){
+        if(pts.length<2)return '';
+        var d='M'+xs(pts[0].spd)+' '+ys(pts[0].v);
+        for(var i=1;i<pts.length;i++){
+          var px=pts[i-1].spd,py=pts[i-1].v,cx2=pts[i].spd,cy2=pts[i].v;
+          d+=' C'+xs(px+(cx2-px)*0.5)+' '+ys(py)+' '+xs(cx2-(cx2-px)*0.5)+' '+ys(cy2)+' '+xs(cx2)+' '+ys(cy2);
+        }
+        return d;
+      }
+      var BandLayer=function(props){
+        var xm=props.xAxisMap,ym=props.yAxisMap;
+        if(!xm||!ym)return null;
+        var xs=xm[0]&&xm[0].scale,ys=ym[0]&&ym[0].scale;
+        if(!xs||!ys)return null;
+        var top=curvePts.map(function(p){return [xs(p.spd),ys(p.s5)];});
+        var bot=curvePts.slice().reverse().map(function(p){return [xs(p.spd),ys(p.shop)];});
+        var d=top.map(function(p,i){return(i===0?'M':'L')+p[0]+' '+p[1];}).join(' ')
+          +' '+bot.map(function(p){return 'L'+p[0]+' '+p[1];}).join(' ')+' Z';
+        return <path d={d} fill="rgba(167,139,250,0.22)" stroke="none"/>;
+      };
+      var CurvesLayer=function(props){
+        var xm=props.xAxisMap,ym=props.yAxisMap;
+        if(!xm||!ym)return null;
+        var xs=xm[0]&&xm[0].scale,ys=ym[0]&&ym[0].scale;
+        if(!xs||!ys)return null;
+        var pC=curvePts.map(function(p){return{spd:p.spd,v:p.pred};});
+        var rC=curvePts.map(function(p){return{spd:p.spd,v:p.rep};});
+        var sC=curvePts.map(function(p){return{spd:p.spd,v:p.s5};});
+        return(
+          <g>
+            <path d={smoothPath(pC,xs,ys)} fill="none" stroke="#22C55E" strokeWidth={2.5}/>
+            <path d={smoothPath(rC,xs,ys)} fill="none" stroke="#F97316" strokeWidth={2.5}/>
+            <path d={smoothPath(sC,xs,ys)} fill="none" stroke="#7C3AED" strokeWidth={2} strokeDasharray="8 4"/>
+          </g>
+        );
+      };
+      var DotsLayer3=function(props){
+        var xm=props.xAxisMap,ym=props.yAxisMap;
+        if(!xm||!ym)return null;
+        var xs=xm[0]&&xm[0].scale,ys=ym[0]&&ym[0].scale;
+        if(!xs||!ys)return null;
+        return(
+          <g>
+            {predDots.map(function(p,i){return <circle key={'p'+i} cx={xs(p.spd)} cy={ys(p.v)} r={4.5} fill="#22C55E"/>;})}
+            {repDots.map(function(p,i){return <circle key={'r'+i} cx={xs(p.spd)} cy={ys(p.v)} r={4.5} fill="#F97316"/>;})}
+
+          </g>
+        );
+      };
+      var CrosshairLayer4=function(props){
+        var xm=props.xAxisMap,ym=props.yAxisMap;
+        if(!xm||!ym||hoverSpd==null)return null;
+        var xs=xm[0]&&xm[0].scale,ys=ym[0]&&ym[0].scale;
+        if(!xs||!ys)return null;
+        var cx=xs(hoverSpd),yTop=ys(160),yBot=ys(0);
+        var pV=interp(hoverSpd,'pred'),rV=interp(hoverSpd,'rep');
+        var sV=interp(hoverSpd,'shop'),s5V=interp(hoverSpd,'s5');
+        var tipW=272,tipH=122;
+        var tipX=cx+18,tipY=yTop+12;
+        if(tipX+tipW>xs(17)-4)tipX=cx-tipW-18;
+        return(
+          <g style={{pointerEvents:'none'}}>
+            <line x1={cx} y1={yTop} x2={cx} y2={yBot} stroke="#94A3B8" strokeDasharray="5 3" strokeWidth={1.5}/>
+            <circle cx={cx} cy={ys(pV)} r={6} fill="none" stroke="#22C55E" strokeWidth={2.5}/>
+            <circle cx={cx} cy={ys(rV)} r={6} fill="none" stroke="#F97316" strokeWidth={2.5}/>
+            <circle cx={cx} cy={ys(s5V)} r={6} fill="none" stroke="#7C3AED" strokeWidth={2.5}/>
+            <rect x={tipX} y={tipY} width={tipW} height={tipH} rx={8} fill="#fff"
+              stroke="#E2E8F0" strokeWidth={1} style={{filter:'drop-shadow(0 4px 14px rgba(0,0,0,0.13))'}}/>
+            <text x={tipX+14} y={tipY+20} fontSize={12} fontWeight="700" fill="#0F172A">{'Speed: '+hoverSpd.toFixed(1)+' knots'}</text>
+            <line x1={tipX+8} y1={tipY+27} x2={tipX+tipW-8} y2={tipY+27} stroke="#E2E8F0" strokeWidth={1}/>
+            <circle cx={tipX+16} cy={tipY+41} r={4} fill="#22C55E"/>
+            <text x={tipX+26} y={tipY+45} fontSize={11} fill="#64748B">Predicted ME Consumption:</text>
+            <text x={tipX+tipW-12} y={tipY+45} fontSize={11} fontWeight="600" fill="#0F172A" textAnchor="end">{pV.toFixed(1)+' MT'}</text>
+            <circle cx={tipX+16} cy={tipY+59} r={4} fill="#F97316"/>
+            <text x={tipX+26} y={tipY+63} fontSize={11} fill="#64748B">Reported ME Consumption:</text>
+            <text x={tipX+tipW-12} y={tipY+63} fontSize={11} fontWeight="600" fill="#0F172A" textAnchor="end">{rV.toFixed(1)+' MT'}</text>
+            <line x1={tipX+10} y1={tipY+77} x2={tipX+26} y2={tipY+77} stroke="#7C3AED" strokeWidth={2} strokeDasharray="5 3"/>
+            <text x={tipX+32} y={tipY+81} fontSize={11} fill="#64748B">Shop Test ME Consumption:</text>
+            <text x={tipX+tipW-12} y={tipY+81} fontSize={11} fontWeight="600" fill="#0F172A" textAnchor="end">{sV.toFixed(1)+' MT'}</text>
+            <rect x={tipX+10} y={tipY+90} width={16} height={11} fill="rgba(167,139,250,0.35)" rx={2}/>
+            <text x={tipX+32} y={tipY+100} fontSize={11} fill="#64748B">Shop Test ME Consumption +5%:</text>
+            <text x={tipX+tipW-12} y={tipY+100} fontSize={11} fontWeight="600" fill="#0F172A" textAnchor="end">{s5V.toFixed(1)+' MT'}</text>
+          </g>
+        );
+      };
+      var xTicks=[7,8,9,10,11,12,13,14,15,16,17];
+      var yTicks=[0,20,40,60,80,100,120,140,160];
+      return(
+        <div style={{width:'100%',height:'100%',display:'flex',flexDirection:'column',fontFamily:'inherit'}}>
+          <div style={{display:'flex',gap:'8px 14px',padding:'2px 8px 8px',flexWrap:'wrap',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            <div style={{display:'flex',alignItems:'center',gap:5}}>
+              <svg width="24" height="12"><line x1="0" y1="6" x2="24" y2="6" stroke="#22C55E" strokeWidth="2.5"/><circle cx="12" cy="6" r="4" fill="#22C55E"/></svg>
+              <span style={{fontSize:10.5,color:'#374151'}}>Predicted ME Consumption (Laden)</span>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:5}}>
+              <svg width="24" height="12"><line x1="0" y1="6" x2="24" y2="6" stroke="#F97316" strokeWidth="2.5"/><circle cx="12" cy="6" r="4" fill="#F97316"/></svg>
+              <span style={{fontSize:10.5,color:'#374151'}}>Reported ME Consumption (Laden)</span>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:5}}>
+              <svg width="28" height="12"><line x1="0" y1="6" x2="28" y2="6" stroke="#7C3AED" strokeWidth="2" strokeDasharray="6 3"/></svg>
+              <span style={{fontSize:10.5,color:'#374151'}}>Shop Test ME Consumption (Laden) +5%</span>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:5}}>
+              <div style={{width:16,height:12,background:'rgba(167,139,250,0.35)',borderRadius:2}}/>
+              <span style={{fontSize:10.5,color:'#374151'}}>+5% Band</span>
+            </div>
+          </div>
+          <div style={{flex:1,minHeight:0}}>
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={curvePts} margin={{top:8,right:24,bottom:36,left:16}}
+                onMouseMove={function(e){if(e&&e.activeLabel!=null)setHoverSpd(+e.activeLabel);}}
+                onMouseLeave={function(){setHoverSpd(null);}}>
+                <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.15)" strokeDasharray="5 4"/>
+                <XAxis dataKey="spd" type="number" domain={[7,17]} ticks={xTicks}
+                  tick={axTick} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
+                  label={{value:"Speed (knots)",position:"insideBottom",offset:-10,style:axLabel}}/>
+                <YAxis domain={[0,160]} ticks={yTicks} tick={axTick} axisLine={false} tickLine={false}
+                  label={{value:"ME Consumption (MT)",angle:-90,position:"insideLeft",offset:14,
+                    style:{...axLabel,textAnchor:"middle"}}}/>
+                <Tooltip content={function(){return null;}}/>
+                <Customized component={BandLayer}/>
+                <Customized component={CurvesLayer}/>
+                <Customized component={DotsLayer3}/>
+                <Customized component={CrosshairLayer4}/>
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      );
+    }
+
     function EngineHealthDeteriorationChart(){
       var MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       var FMN=["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -7604,29 +7786,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             };
           })()}),{rowHeight:420}),
         Object.assign(cc("Fuel Performance Deviation","Main Engine Reported and Predicted Consumption deviation",
-          function(){return(
-            <div style={{display:"flex",flexDirection:"column",width:"100%",height:"100%"}}>
-              <div style={{flexShrink:0,display:"flex",alignItems:"center",justifyContent:"flex-end",flexWrap:"wrap",gap:14,marginBottom:4,padding:"0 4px 0 0"}}>
-                {[["#16A34A","0–10%"],["#F59E0B","10–20%"],["#EF4444",">20%"]].map(function(r){
-                  return(
-                    <div key={r[1]} style={{display:"flex",alignItems:"center",gap:5}}>
-                      <div style={{width:18,height:3,borderRadius:2,background:r[0],flexShrink:0}}/>
-                      <span style={{fontSize:10,color:THEME.textSub}}>{r[1]}</span>
-                    </div>
-                  );
-                })}
-                <div style={{display:"flex",alignItems:"center",gap:5}}>
-                  <div style={{width:7,height:7,borderRadius:"50%",background:"#3B82F6",opacity:0.8,flexShrink:0}}/>
-                  <span style={{fontSize:10,color:THEME.textSub}}>Data Points</span>
-                </div>
-                <div style={{display:"flex",alignItems:"center",gap:5}}>
-                  <div style={{width:18,height:2,background:"#16A34A",borderRadius:2,flexShrink:0}}/>
-                  <span style={{fontSize:10,color:THEME.textSub}}>7D Avg</span>
-                </div>
-              </div>
-              <div style={{flex:1,minHeight:0}}><EngineHealthDeteriorationChart/></div>
-            </div>
-          );},3,{tableData:(function(){
+          function(){return <FuelConsumptionSpeedChart/>;},3,{tableData:(function(){
             var _ld=[];
             for(var _sv=7.5;_sv<=15.6;_sv=Math.round((_sv+0.1)*10)/10){
               var _dd=_sv-10.2;
