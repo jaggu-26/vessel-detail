@@ -3684,19 +3684,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   </svg>
                 </button>
               </div>
-              <div style={{display:"flex",flexWrap:"wrap",gap:"4px 18px",fontSize:11,color:"#374151",marginBottom:8,flexShrink:0}}>
-                {[["#EF4444","SFOC Measured (Outside Band)"],["#16A34A","SFOC Measured (Within Band)"],
-                  ["#86EFAC","SFOC Corrected (Within Band)"],["#F97316","SFOC Corrected (Outside Band)"]].map(function(item){
-                  return(
-                    <div key={item[1]} style={{display:"flex",alignItems:"center",gap:5}}>
-                      <svg width="10" height="10" style={{flexShrink:0}}><circle cx="5" cy="5" r="4.5" fill={item[0]}/></svg>
-                      <span>{item[1]}</span>
-                    </div>
-                  );
-                })}
-              </div>
               <div style={{flex:1,minHeight:0}}>
-                <LoadSFOCChart loadCond={loadCond} seaTrialCurve={seaTrialCurve}/>
+                <LoadSFOCDeepDiveChart loadCond={loadCond} seaTrialCurve={seaTrialCurve}/>
               </div>
             </div>
           </div>
@@ -6338,7 +6327,6 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <path d={areaPath} fill="#DBEAFE" opacity={0.55}/>
                 {yTicks.map(function(yv){return <line key={yv} x1={mg.left} y1={ys(yv)} x2={mg.left+plotW} y2={ys(yv)} stroke="#E5E7EB" strokeWidth={1}/>;})}
                 <line x1={mg.left} y1={mg.top+plotH} x2={mg.left+plotW} y2={mg.top+plotH} stroke="#CBD5E1" strokeWidth={1}/>
-                <line x1={mg.left} y1={mg.top} x2={mg.left} y2={mg.top+plotH} stroke="#CBD5E1" strokeWidth={1}/>
                 {xTicks.map(function(xv){return(
                   <React.Fragment key={xv}>
                     <line x1={xs(xv)} y1={mg.top+plotH} x2={xs(xv)} y2={mg.top+plotH+4} stroke="#CBD5E1" strokeWidth={1}/>
@@ -6371,6 +6359,168 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     <circle key={i} cx={cx_} cy={cy_} r={isHov?6:4.5} fill={CATS[pt.type].color} opacity={0.88}
                       style={{cursor:"default"}}
                       onMouseEnter={function(){setTooltip({kind:"pt",cx:cx_,cy:cy_,pt:pt});}}
+                      onMouseLeave={function(){setTooltip(null);}}
+                    />
+                  );
+                })}
+                {tooltip&&<TooltipBox t={tooltip}/>}
+              </svg>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // ── Deep Dive month-scatter SFOC chart (modal only) ──────────────────────────
+    function LoadSFOCDeepDiveChart({loadCond, seaTrialCurve}){
+      var containerRef=React.useRef(null);
+      var [dims,setDims]=React.useState({w:700,h:380});
+      var [tooltip,setTooltip]=React.useState(null);
+
+      React.useEffect(function(){
+        if(!containerRef.current)return;
+        var el=containerRef.current;
+        var ro=new ResizeObserver(function(entries){
+          var e=entries[0];
+          if(e)setDims({w:Math.floor(e.contentRect.width),h:Math.floor(e.contentRect.height)});
+        });
+        ro.observe(el);
+        var r=el.getBoundingClientRect();
+        if(r.width>0)setDims({w:Math.floor(r.width),h:Math.floor(r.height)});
+        return function(){ro.disconnect();};
+      },[]);
+
+      var MONTHS=[
+        {key:"2025-Jan",color:"#F97316"},
+        {key:"2025-Feb",color:"#1E40AF"},
+        {key:"2025-Mar",color:"#9333EA"},
+        {key:"2025-Apr",color:"#60A5FA"},
+        {key:"2025-May",color:"#EAB308"},
+        {key:"2025-Jun",color:"#EC4899"},
+        {key:"2025-Jul",color:"#7C3AED"},
+      ];
+
+      // U-shaped shop trial curve — minimum around 47% load
+      function shopTrialFn(l){
+        return Math.round((163+12*Math.exp(-0.09*(l-20))+0.005*Math.pow(l-47,2))*10)/10;
+      }
+
+      var scatterData=React.useMemo(function(){
+        var seed=53791;
+        function rng(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}
+        var pts=[];
+        MONTHS.forEach(function(m){
+          for(var i=0;i<55;i++){
+            var l=25+rng()*68;
+            var base=shopTrialFn(l);
+            var sfoc=base+16+rng()*38+(rng()<0.12?rng()*18:0);
+            if(rng()<0.08)sfoc=base-3-rng()*10;
+            pts.push({month:m.key,color:m.color,l:Math.round(l*10)/10,sfoc:Math.round(sfoc*10)/10});
+          }
+        });
+        return pts;
+      },[]);
+
+      var mg={top:10,right:24,bottom:46,left:72};
+      var plotW=Math.max(0,dims.w-mg.left-mg.right);
+      var plotH=Math.max(0,dims.h-mg.top-mg.bottom);
+      var xMin=18,xMax=106,yMin=140,yMax=244;
+      function xs(l){return mg.left+(l-xMin)/(xMax-xMin)*plotW;}
+      function ys(s){return mg.top+(yMax-s)/(yMax-yMin)*plotH;}
+      function xInv(px){return (px-mg.left)/plotW*(xMax-xMin)+xMin;}
+
+      var curveLs=(function(){var a=[];for(var l=20;l<=102;l+=0.5)a.push(l);return a;})();
+      function buildCurvePath(){
+        return curveLs.map(function(l,i){return(i===0?"M":"L")+xs(l).toFixed(1)+","+ys(shopTrialFn(l)).toFixed(1);}).join(" ");
+      }
+
+      var xTicks=[20,30,40,50,60,70,80,90,100];
+      var yTicks=[140,160,180,200,220,240];
+
+      function TooltipBox(props){
+        var t=props.t;
+        var tw=232,th=t.kind==="pt"?94:78;
+        var tx=t.cx+14,ty=t.cy-th/2;
+        if(tx+tw>dims.w-6)tx=t.cx-tw-14;
+        if(ty+th>dims.h-4)ty=dims.h-th-4;
+        if(ty<4)ty=4;
+        return(
+          <g style={{pointerEvents:"none"}}>
+            <rect x={tx} y={ty} width={tw} height={th} rx={8} fill="#0D1B3E" opacity={0.97}/>
+            {t.kind==="pt"?(
+              <React.Fragment>
+                <circle cx={tx+14} cy={ty+18} r={5} fill="none" stroke={t.color} strokeWidth={2.2}/>
+                <text x={tx+26} y={ty+22} fontSize={11.5} fontWeight={600} fill="#fff">Month: {t.month}</text>
+                <text x={tx+12} y={ty+42} fontSize={11} fill="#94A3B8">Load: {t.l} %</text>
+                <text x={tx+12} y={ty+59} fontSize={11} fill="#94A3B8">SFOC Corrected: {t.sfoc} g/kWh</text>
+              </React.Fragment>
+            ):(
+              <React.Fragment>
+                <line x1={tx+10} y1={ty+18} x2={tx+28} y2={ty+18} stroke="#1E3A8A" strokeWidth={2.5}/>
+                <text x={tx+34} y={ty+22} fontSize={11.5} fontWeight={600} fill="#fff">Shop Trial Curve</text>
+                <text x={tx+12} y={ty+42} fontSize={11} fill="#94A3B8">Load: {t.l} %</text>
+                <text x={tx+12} y={ty+59} fontSize={11} fill="#94A3B8">SFOC: {t.sfoc} g/kWh</text>
+              </React.Fragment>
+            )}
+          </g>
+        );
+      }
+
+      return(
+        <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",fontFamily:"inherit",userSelect:"none"}}>
+          {/* Legend row */}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"flex-end",padding:"2px 4px 6px",flexShrink:0,gap:10,flexWrap:"wrap"}}>
+            <span style={{fontSize:11,fontWeight:600,color:"#374151"}}>Month</span>
+            {MONTHS.map(function(m){return(
+              <div key={m.key} style={{display:"flex",alignItems:"center",gap:4,whiteSpace:"nowrap"}}>
+                <svg width="10" height="10" style={{flexShrink:0}}><circle cx="5" cy="5" r="4" fill="white" stroke={m.color} strokeWidth="2"/></svg>
+                <span style={{fontSize:11,color:"#374151"}}>{m.key}</span>
+              </div>
+            );})}
+            <div style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap",flexShrink:0}}>
+              <svg width="22" height="8" style={{flexShrink:0}}><line x1="1" y1="4" x2="21" y2="4" stroke="#1E3A8A" strokeWidth="2.5"/></svg>
+              <span style={{fontSize:11,color:"#374151"}}>Shop Trial Curve</span>
+            </div>
+          </div>
+          {/* SVG chart */}
+          <div style={{flex:1,minHeight:0,position:"relative"}} ref={containerRef}>
+            {dims.w>50&&dims.h>50&&(
+              <svg width={dims.w} height={dims.h} style={{display:"block"}}>
+                {yTicks.map(function(yv){return <line key={yv} x1={mg.left} y1={ys(yv)} x2={mg.left+plotW} y2={ys(yv)} stroke="#E5E7EB" strokeWidth={1}/>;})}
+                <line x1={mg.left} y1={mg.top+plotH} x2={mg.left+plotW} y2={mg.top+plotH} stroke="#CBD5E1" strokeWidth={1}/>
+                <line x1={mg.left} y1={mg.top} x2={mg.left} y2={mg.top+plotH} stroke="#CBD5E1" strokeWidth={1}/>
+                {xTicks.map(function(xv){return(
+                  <React.Fragment key={xv}>
+                    <line x1={xs(xv)} y1={mg.top+plotH} x2={xs(xv)} y2={mg.top+plotH+4} stroke="#CBD5E1" strokeWidth={1}/>
+                    <text x={xs(xv)} y={mg.top+plotH+17} textAnchor="middle" fontSize={12} fill="#94A3B8" fontFamily="inherit">{xv}%</text>
+                  </React.Fragment>
+                );})}
+                <text x={mg.left+plotW/2} y={mg.top+plotH+35} textAnchor="middle" fontSize={12} fill="#64748B" fontFamily="inherit" fontWeight={500}>LOAD (%)</text>
+                {yTicks.map(function(yv){return <text key={yv} x={mg.left-8} y={ys(yv)+4} textAnchor="end" fontSize={12} fill="#94A3B8" fontFamily="inherit">{yv}</text>;})}
+                <text transform={"rotate(-90)"} x={-(mg.top+plotH/2)} y={16} textAnchor="middle" fontSize={12} fill="#64748B" fontFamily="inherit" fontWeight={500}>SFOC Corrected (g/kWh)</text>
+                {/* Shop Trial Curve */}
+                <path d={buildCurvePath()} stroke="#1E3A8A" strokeWidth={2.5} fill="none"/>
+                <path d={buildCurvePath()} stroke="transparent" strokeWidth={14} fill="none" style={{cursor:"crosshair"}}
+                  onMouseMove={function(e){
+                    if(!containerRef.current)return;
+                    var rect=containerRef.current.getBoundingClientRect();
+                    var l=Math.round(Math.max(20,Math.min(102,xInv(e.clientX-rect.left)))*10)/10;
+                    var sfoc=shopTrialFn(l);
+                    setTooltip({kind:"curve",cx:xs(l),cy:ys(sfoc),l:l,sfoc:sfoc});
+                  }}
+                  onMouseLeave={function(){setTooltip(null);}}
+                />
+                {/* Scatter dots — hollow circles coloured by month */}
+                {scatterData.map(function(pt,i){
+                  var cx_=xs(pt.l),cy_=ys(pt.sfoc);
+                  if(cx_<mg.left-2||cx_>mg.left+plotW+2||cy_<mg.top-2||cy_>mg.top+plotH+2)return null;
+                  var isHov=tooltip&&tooltip.kind==="pt"&&tooltip.idx===i;
+                  return(
+                    <circle key={i} cx={cx_} cy={cy_} r={isHov?6:4}
+                      fill="white" fillOpacity={0.65}
+                      stroke={pt.color} strokeWidth={isHov?2.2:1.8} opacity={0.88}
+                      style={{cursor:"default"}}
+                      onMouseEnter={function(){setTooltip({kind:"pt",cx:cx_,cy:cy_,idx:i,month:pt.month,l:pt.l,sfoc:pt.sfoc,color:pt.color});}}
                       onMouseLeave={function(){setTooltip(null);}}
                     />
                   );
