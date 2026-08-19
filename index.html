@@ -7164,23 +7164,50 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       }
 
       // Operational tab items (spans: [3,3, 3,3, 6, 6, 3,3, 6])
-      var wscData=[
-        {m:"Jan",speedBreach:3,consBreach:2},{m:"Feb",speedBreach:5,consBreach:4},
-        {m:"Mar",speedBreach:2,consBreach:3},{m:"Apr",speedBreach:6,consBreach:5},
-        {m:"May",speedBreach:4,consBreach:6},{m:"Jun",speedBreach:7,consBreach:4},
-        {m:"Jul",speedBreach:3,consBreach:5},{m:"Aug",speedBreach:8,consBreach:7},
-        {m:"Sep",speedBreach:5,consBreach:3},{m:"Oct",speedBreach:4,consBreach:6},
-        {m:"Nov",speedBreach:6,consBreach:4},{m:"Dec",speedBreach:3,consBreach:2},
+      var wscDataLaden=[
+        {m:"Jan",speedBreach:4,consBreach:3},{m:"Feb",speedBreach:6,consBreach:5},
+        {m:"Mar",speedBreach:3,consBreach:4},{m:"Apr",speedBreach:7,consBreach:6},
+        {m:"May",speedBreach:5,consBreach:7},{m:"Jun",speedBreach:8,consBreach:5},
+        {m:"Jul",speedBreach:4,consBreach:6},{m:"Aug",speedBreach:9,consBreach:8},
+        {m:"Sep",speedBreach:6,consBreach:4},{m:"Oct",speedBreach:5,consBreach:7},
+        {m:"Nov",speedBreach:7,consBreach:5},{m:"Dec",speedBreach:4,consBreach:3},
       ];
-      var wscVoyageData=[
-        {v:"V-201",speedBreach:1,consBreach:2},{v:"V-202",speedBreach:2,consBreach:1},
-        {v:"V-203",speedBreach:3,consBreach:2},{v:"V-204",speedBreach:1,consBreach:3},
-        {v:"V-205",speedBreach:2,consBreach:2},{v:"V-206",speedBreach:4,consBreach:1},
-        {v:"V-207",speedBreach:2,consBreach:3},{v:"V-208",speedBreach:3,consBreach:2},
-        {v:"V-209",speedBreach:1,consBreach:1},{v:"V-210",speedBreach:2,consBreach:2},
-        {v:"V-211",speedBreach:3,consBreach:4},{v:"V-212",speedBreach:1,consBreach:2},
+      var wscDataBallast=[
+        {m:"Jan",speedBreach:2,consBreach:1},{m:"Feb",speedBreach:3,consBreach:2},
+        {m:"Mar",speedBreach:1,consBreach:2},{m:"Apr",speedBreach:4,consBreach:3},
+        {m:"May",speedBreach:2,consBreach:4},{m:"Jun",speedBreach:5,consBreach:2},
+        {m:"Jul",speedBreach:2,consBreach:3},{m:"Aug",speedBreach:6,consBreach:5},
+        {m:"Sep",speedBreach:3,consBreach:2},{m:"Oct",speedBreach:3,consBreach:4},
+        {m:"Nov",speedBreach:4,consBreach:3},{m:"Dec",speedBreach:2,consBreach:1},
       ];
+      var wscData=wscDataLaden.map(function(l,i){
+        var b=wscDataBallast[i];
+        return {m:l.m,speedBreach:l.speedBreach,consBreach:l.consBreach,
+          speedBreachB:b.speedBreach,consBreachB:b.consBreach};
+      });
+      var wscVoyageDataLaden=[
+        {v:"V-201",speedBreach:2,consBreach:3},{v:"V-202",speedBreach:3,consBreach:2},
+        {v:"V-203",speedBreach:4,consBreach:3},{v:"V-204",speedBreach:2,consBreach:4},
+        {v:"V-205",speedBreach:3,consBreach:3},{v:"V-206",speedBreach:5,consBreach:2},
+        {v:"V-207",speedBreach:3,consBreach:4},{v:"V-208",speedBreach:4,consBreach:3},
+        {v:"V-209",speedBreach:2,consBreach:2},{v:"V-210",speedBreach:3,consBreach:3},
+        {v:"V-211",speedBreach:4,consBreach:5},{v:"V-212",speedBreach:2,consBreach:3},
+      ];
+      var wscVoyageDataBallast=[
+        {v:"V-201",speedBreach:1,consBreach:1},{v:"V-202",speedBreach:1,consBreach:1},
+        {v:"V-203",speedBreach:2,consBreach:1},{v:"V-204",speedBreach:1,consBreach:2},
+        {v:"V-205",speedBreach:1,consBreach:1},{v:"V-206",speedBreach:2,consBreach:1},
+        {v:"V-207",speedBreach:1,consBreach:2},{v:"V-208",speedBreach:2,consBreach:1},
+        {v:"V-209",speedBreach:1,consBreach:1},{v:"V-210",speedBreach:1,consBreach:1},
+        {v:"V-211",speedBreach:2,consBreach:2},{v:"V-212",speedBreach:1,consBreach:1},
+      ];
+      var wscVoyageData=wscVoyageDataLaden.map(function(l,i){
+        var b=wscVoyageDataBallast[i];
+        return {v:l.v,speedBreach:l.speedBreach,consBreach:l.consBreach,
+          speedBreachB:b.speedBreach,consBreachB:b.consBreach};
+      });
       var [wscView,setWscView]=React.useState("Month");
+      var [wscFilter,setWscFilter]=React.useState(["laden"]);
       var [sogSlipView,setSogSlipView]=React.useState("Month");
       var [hhView,setHhView]=React.useState("Month");
       var HullHealthTabs=(
@@ -7248,29 +7275,68 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           function(n, detailViewMode){
             var vm=detailViewMode?(detailViewMode.charAt(0).toUpperCase()+detailViewMode.slice(1)):wscView;
             var isVoyage=vm==="Voyage";
-            var data=isVoyage?wscVoyageData:fd(wscData,n);
+            var rawData=isVoyage?wscVoyageData:fd(wscData,n);
             var key=isVoyage?"v":"m";
+            var hasLaden=wscFilter.includes("laden"), hasBallast=wscFilter.includes("ballast");
+            var chartData=rawData.map(function(d){
+              var row={};
+              row[key]=d[key];
+              if(hasLaden&&hasBallast){
+                row.speedBreach=+(((d.speedBreach||0)+(d.speedBreachB||0))/2).toFixed(1);
+                row.consBreach=+(((d.consBreach||0)+(d.consBreachB||0))/2).toFixed(1);
+              } else if(hasBallast){
+                row.speedBreach=d.speedBreachB||0;
+                row.consBreach=d.consBreachB||0;
+              } else {
+                row.speedBreach=d.speedBreach||0;
+                row.consBreach=d.consBreach||0;
+              }
+              return row;
+            });
+            function wscTab(label,k){
+              var active=wscFilter.includes(k);
+              return <button key={k} onClick={function(){
+                setWscFilter(function(prev){
+                  return active&&prev.length>1?prev.filter(function(x){return x!==k;}):active?prev:prev.concat([k]);
+                });
+              }} style={{
+                padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",
+                border:"none",
+                background:active?"#2563EB":"transparent",
+                color:active?"#fff":"#94A3B8",
+                transition:"all 0.15s",
+              }}>{label}</button>;
+            }
             return (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data} barSize={38} margin={{bottom:24,left:4,right:10,top:4}}>
-                  <defs>
-                    <linearGradient id="bgSpeedBreach" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#3B82F6" stopOpacity={1}/>
-                      <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.55}/>
-                    </linearGradient>
-                    <linearGradient id="bgConsBreach" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#F87171" stopOpacity={1}/>
-                      <stop offset="100%" stopColor="#F87171" stopOpacity={0.55}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
-                  {xAx(key,isVoyage?"Voyage":"Month")} {yAx("Breaches")}
-                  <Tooltip content={<ModernTooltip/>} cursor={{fill:"rgba(148,163,184,0.18)"}}/>
-                  <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{paddingBottom:6,fontSize:11}}/>
-                  <Bar dataKey="speedBreach" fill="url(#bgSpeedBreach)" radius={[6,6,0,0]} name="Speed Breach" maxBarSize={38}/>
-                  <Bar dataKey="consBreach"  fill="url(#bgConsBreach)"  radius={[6,6,0,0]} name="Consumption Breach" maxBarSize={38}/>
-                </BarChart>
-              </ResponsiveContainer>
+              <div style={{display:"flex",flexDirection:"column",width:"100%",height:"100%"}}>
+                <div style={{display:"flex",alignItems:"center",marginBottom:6}}>
+                  <div style={{display:"flex",gap:1,background:"#F1F5F9",borderRadius:20,padding:"2px"}}>
+                    {wscTab("Laden","laden")}{wscTab("Ballast","ballast")}
+                  </div>
+                </div>
+                <div style={{flex:1,minHeight:0}}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} barSize={38} margin={{bottom:24,left:4,right:10,top:4}}>
+                      <defs>
+                        <linearGradient id="bgSpeedBreach" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#3B82F6" stopOpacity={1}/>
+                          <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.55}/>
+                        </linearGradient>
+                        <linearGradient id="bgConsBreach" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#F87171" stopOpacity={1}/>
+                          <stop offset="100%" stopColor="#F87171" stopOpacity={0.55}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
+                      {xAx(key,isVoyage?"Voyage":"Month")} {yAx("Breaches")}
+                      <Tooltip content={<ModernTooltip/>} cursor={{fill:"rgba(148,163,184,0.18)"}}/>
+                      <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{paddingBottom:6,fontSize:11}}/>
+                      <Bar dataKey="speedBreach" fill="url(#bgSpeedBreach)" radius={[6,6,0,0]} name="Speed Breach" maxBarSize={38}/>
+                      <Bar dataKey="consBreach"  fill="url(#bgConsBreach)"  radius={[6,6,0,0]} name="Consumption Breach" maxBarSize={38}/>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
             );
           }, 2, {headerTabs:WSCTabs, tableData:{
             columns:[
