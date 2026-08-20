@@ -11125,6 +11125,35 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       {id:"lng_conv",   label:"LNG Carrier · Conventional"},
       {id:"lng_small",  label:"LNG Carrier · Small Scale"},
     ];
+    var VESSEL_TYPE_TO_PG = {
+      "Chemical Tanker|Mid Range":   "chem_mid",
+      "Chemical Tanker|Handymax":    "chem_hand",
+      "Chemical Tanker|Short Range": "chem_sr",
+      "Chemical Tanker|Long Range":  "chem_lr",
+      "Product Tanker|LR1":          "prod_lr1",
+      "Product Tanker|LR2":          "prod_lr2",
+      "Product Tanker|MR":           "prod_mr",
+      "Product Tanker|SR":           "prod_sr",
+      "Crude|VLCC":                  "crude_vlcc",
+      "Crude|Suezmax":               "crude_suez",
+      "Crude|Aframax":               "crude_afra",
+      "Crude|Panamax":               "crude_pana",
+      "Bulk Carrier|Capesize":       "bulk_cape",
+      "Bulk Carrier|Panamax":        "bulk_pana",
+      "Bulk Carrier|Supramax":       "bulk_supra",
+      "Bulk Carrier|Handymax":       "bulk_hand",
+      "Container|Feeder":            "cont_feeder",
+      "Container|Sub-Panamax":       "cont_sub",
+      "LNG Carrier|Conventional":    "lng_conv",
+      "LNG Carrier|Long Range":      "lng_conv",
+      "LNG Carrier|Mid Range":       "lng_small",
+      "LNG Carrier|Small Scale":     "lng_small",
+    };
+    function getDefaultPgId(vessel){
+      if(!vessel) return "chem_mid";
+      var key = (vessel.type||"")+(vessel.range?"|"+vessel.range:"");
+      return VESSEL_TYPE_TO_PG[key] || "chem_mid";
+    }
     var DEFAULT_FILTERS = {
       peerBenchmark: true,
       activePeerGroups: {chem_mid:true},
@@ -11134,7 +11163,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       voyageView: {goodWeather:false, ecaZone:false},
       fuelTypes: {hsfo:false, vlsfo:true, mgo:false, lng:false, methanol:false},
     };
-    function CompFilterPanel({filters, setFilters, onReset, sortMetric, setSortMetric, sortDir, setSortDir}) {
+    function CompFilterPanel({filters, setFilters, onReset}) {
       function set(key, val){ setFilters(function(p){ return Object.assign({},p,{[key]:val}); }); }
       var [pgOpen, setPgOpen] = React.useState(false);
       var pgRef = React.useRef(null);
@@ -11285,54 +11314,6 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           {/* ── 4. Steaming Hours ── */}
           <RangeSection label="Steaming Hours" unit="hrs" rangeKey="draftRange" min={0} max={25}/>
 
-          {/* ── 5. Sort by ── */}
-          <div style={{marginBottom:16}}>
-            <div style={{fontSize:12,fontWeight:700,color:"#0F172A",marginBottom:10}}>Sort by</div>
-            {/* Metric dropdown */}
-            <div style={{position:"relative",marginBottom:8}}>
-              <select value={sortMetric} onChange={function(e){setSortMetric(e.target.value);}}
-                style={{width:"100%",height:32,border:"1px solid #E2E8F0",borderRadius:8,padding:"0 28px 0 10px",
-                  fontSize:12,color:sortMetric?"#0F172A":"#94A3B8",background:"#fff",outline:"none",
-                  cursor:"pointer",fontFamily:"inherit",appearance:"none",WebkitAppearance:"none"}}>
-                <option value="">All Metrics</option>
-                {COMP_METRICS_DEF.map(function(m){
-                  return <option key={m.id} value={m.id}>{m.label}</option>;
-                })}
-              </select>
-              <svg style={{position:"absolute",right:9,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}}
-                width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 9l6 6 6-6"/>
-              </svg>
-            </div>
-            {/* Best to Worst toggle */}
-            <div style={{display:"flex",border:"1px solid #E2E8F0",borderRadius:8,overflow:"hidden"}}>
-              <button onClick={function(){setSortDir("best");}}
-                style={{flex:1,height:30,border:"none",borderRight:"1px solid #E2E8F0",
-                  background:sortDir==="best"?"#1852FE":"#fff",
-                  color:sortDir==="best"?"#fff":"#64748B",
-                  fontSize:11,fontWeight:sortDir==="best"?700:500,cursor:"pointer",
-                  display:"flex",alignItems:"center",justifyContent:"center",gap:4,
-                  transition:"all 0.15s",fontFamily:"inherit"}}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 19V5M5 12l7-7 7 7"/>
-                </svg>
-                Best to Worst
-              </button>
-              <button onClick={function(){setSortDir("worst");}}
-                style={{flex:1,height:30,border:"none",
-                  background:sortDir==="worst"?"#1852FE":"#fff",
-                  color:sortDir==="worst"?"#fff":"#64748B",
-                  fontSize:11,fontWeight:sortDir==="worst"?700:500,cursor:"pointer",
-                  display:"flex",alignItems:"center",justifyContent:"center",gap:4,
-                  transition:"all 0.15s",fontFamily:"inherit"}}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 5v14M5 12l7 7 7-7"/>
-                </svg>
-                Worst to Best
-              </button>
-            </div>
-          </div>
-
           {/* ── Reset ── */}
           <div style={{display:"flex",gap:8}}>
             <button onClick={onReset}
@@ -11361,7 +11342,11 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       });
       var [searchQ,setSearchQ] = useState("");
       var [searchOpen,setSearchOpen] = useState(true);
-      var [filters,setFilters] = useState(DEFAULT_FILTERS);
+      var [filters,setFilters] = useState(function(){
+        var pgId = getDefaultPgId(currentVessel);
+        var pg = {}; pg[pgId] = true;
+        return Object.assign({}, DEFAULT_FILTERS, {activePeerGroups: pg});
+      });
       var [sortMetric,setSortMetric] = useState("");
       var [sortDir,setSortDir] = useState("best");
       var searchWrapRef = useRef(null);
@@ -11500,7 +11485,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           <div style={{flex:1,display:"flex",overflow:"hidden",padding:"0 24px 28px",gap:16}}>
 
             {/* ── Left Filter Panel ── */}
-            <CompFilterPanel filters={filters} setFilters={setFilters} onReset={function(){setFilters(DEFAULT_FILTERS);setSortMetric("");setSortDir("best");}} sortMetric={sortMetric} setSortMetric={setSortMetric} sortDir={sortDir} setSortDir={setSortDir}/>
+            <CompFilterPanel filters={filters} setFilters={setFilters} onReset={function(){var pgId=getDefaultPgId(currentVessel);var pg={};pg[pgId]=true;setFilters(Object.assign({},DEFAULT_FILTERS,{activePeerGroups:pg}));setSortMetric("");setSortDir("best");}}/>
 
             {/* ── Right: Scrollable table ── */}
             <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",minWidth:0}}>
@@ -11738,7 +11723,6 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                             var pVal=pData[metric.id];
                             var activePgId=filters.activePeerGroups?Object.keys(filters.activePeerGroups).find(function(k){return filters.activePeerGroups[k];}):null;
                             var pgLabel=activePgId&&PEER_GROUP_BASE[activePgId]?PEER_GROUP_BASE[activePgId].label:"Fleet average";
-                            var pgShort=pgLabel.split(" · ").pop();
                             return (
                               <td key="peer" style={{padding:"12px 16px",
                                 borderLeft:"1px solid #EDE9FE",
@@ -11747,7 +11731,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                                 <div style={{fontSize:14,fontWeight:700,color:"#6D28D9",marginBottom:4,lineHeight:1.2}}>
                                   {pVal||"—"}
                                 </div>
-                                <div style={{fontSize:11,color:"#A78BFA",fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:90}}>{pgShort}</div>
+                                <div style={{fontSize:10,color:"#A78BFA",fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:110}}>{pgLabel}</div>
                               </td>
                             );
                           })()}
