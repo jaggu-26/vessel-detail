@@ -11528,9 +11528,9 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
             <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",minWidth:0}}>
 
               {/* ── Scrollable table area + sticky download footer ── */}
-              <div style={{display:"flex",flexDirection:"column"}}>
+              <div style={{display:"flex",flexDirection:"column",border:"1px solid #E2E8F0",borderRadius:10,overflow:"hidden",background:"#fff"}}>
               <div style={{overflow:"auto",maxHeight:"calc(100vh - 130px)"}}>
-              <div style={{background:"#fff",borderRadius:10,border:"1px solid #E2E8F0",width:"100%",minWidth:tableWidth,overflow:"hidden"}}>
+              <div style={{background:"#fff",width:"100%",minWidth:tableWidth,overflow:"hidden"}}>
                 <table style={{width:"100%",minWidth:tableWidth,borderCollapse:"collapse",tableLayout:"fixed"}}>
                   <colgroup>
                     <col style={{width:MCOL,minWidth:MCOL}}/>
@@ -11778,7 +11778,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
 
               {/* ── Sticky Download footer ── */}
               <div style={{flexShrink:0,background:"#fff",borderTop:"1.5px solid #E2E8F0",
-                           borderRadius:"0 0 10px 10px",padding:"10px 18px",
+                           padding:"10px 18px",
                            display:"flex",justifyContent:"flex-end",
                            boxShadow:"0 -2px 8px rgba(0,0,0,0.04)"}}>
                 <button style={{display:"flex",alignItems:"center",gap:6,background:"none",border:"none",cursor:"pointer",fontSize:13,color:"#64748B",fontWeight:500,fontFamily:"inherit",padding:"4px 0"}}
