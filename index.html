@@ -5299,11 +5299,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <span style={{fontSize:9,color:"#94A3B8",fontWeight:600}}>ME (Propulsion + Manoeuvring)</span>
                 <div style={{display:"flex",alignItems:"center",gap:4}}>
                   <div style={{display:"flex",alignItems:"center",gap:3}}>
-                    <span style={{width:8,height:8,borderRadius:2,background:"#2563EB",display:"inline-block",flexShrink:0}}/>
+                    <span style={{width:8,height:8,borderRadius:2,background:"linear-gradient(to top,#1E40AF,#60A5FA)",display:"inline-block",flexShrink:0}}/>
                     <span style={{fontSize:9,color:"#64748B"}}>Propulsion</span>
                   </div>
                   <div style={{display:"flex",alignItems:"center",gap:3}}>
-                    <span style={{width:8,height:8,borderRadius:2,background:"#93C5FD",display:"inline-block",flexShrink:0}}/>
+                    <span style={{width:8,height:8,borderRadius:2,background:"linear-gradient(to top,#60A5FA,#BAE6FD)",display:"inline-block",flexShrink:0}}/>
                     <span style={{fontSize:9,color:"#64748B"}}>Manoeuvring</span>
                   </div>
                 </div>
@@ -5314,7 +5314,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <div style={{display:"flex",alignItems:"center",gap:5}}>
                 <span style={{fontSize:9,color:"#94A3B8",fontWeight:600}}>Auxiliaries</span>
                 <div style={{display:"flex",alignItems:"center",gap:3}}>
-                  <span style={{width:8,height:8,borderRadius:2,background:"#F97316",display:"inline-block",flexShrink:0}}/>
+                  <span style={{width:8,height:8,borderRadius:2,background:"linear-gradient(to top,#C2410C,#FB923C)",display:"inline-block",flexShrink:0}}/>
                   <span style={{fontSize:9,color:"#64748B"}}>Auxiliaries</span>
                 </div>
               </div>
@@ -5332,9 +5332,20 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   domain={[0,80]} ticks={[0,20,40,60,80]}
                   label={{value:"Auxiliaries consumption (MT)",angle:90,position:"insideRight",offset:10,style:{...axLabel,textAnchor:"middle",fill:"#F97316"}}}/>
                 <Tooltip content={<ModernTooltip/>} cursor={<BarBandCursor dataLen={chartData.length}/>}/>
-                <Bar yAxisId="left" dataKey="propulsion" stackId="me" fill="#2563EB" name="Propulsion"/>
-                <Bar yAxisId="left" dataKey="manoeuvring" stackId="me" fill="#93C5FD" name="Manoeuvring" radius={[4,4,0,0]}/>
-                <Bar yAxisId="right" dataKey="auxiliaries" fill="#F97316" name="Auxiliaries" radius={[4,4,0,0]}/>
+                <Customized component={function(){return React.createElement("defs",null,
+                  React.createElement("linearGradient",{id:"afcGradProp",x1:"0",y1:"1",x2:"0",y2:"0"},
+                    React.createElement("stop",{offset:"0%",stopColor:"#1E40AF"}),
+                    React.createElement("stop",{offset:"100%",stopColor:"#60A5FA"})),
+                  React.createElement("linearGradient",{id:"afcGradMano",x1:"0",y1:"1",x2:"0",y2:"0"},
+                    React.createElement("stop",{offset:"0%",stopColor:"#60A5FA"}),
+                    React.createElement("stop",{offset:"100%",stopColor:"#BAE6FD"})),
+                  React.createElement("linearGradient",{id:"afcGradAux",x1:"0",y1:"1",x2:"0",y2:"0"},
+                    React.createElement("stop",{offset:"0%",stopColor:"#C2410C"}),
+                    React.createElement("stop",{offset:"100%",stopColor:"#FB923C"}))
+                );}}/>
+                <Bar yAxisId="left" dataKey="propulsion" stackId="me" fill="url(#afcGradProp)" name="Propulsion"/>
+                <Bar yAxisId="left" dataKey="manoeuvring" stackId="me" fill="url(#afcGradMano)" name="Manoeuvring" radius={[4,4,0,0]}/>
+                <Bar yAxisId="right" dataKey="auxiliaries" fill="url(#afcGradAux)" name="Auxiliaries" radius={[4,4,0,0]}/>
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -7208,6 +7219,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       });
       var [wscView,setWscView]=React.useState("Month");
       var [wscFilter,setWscFilter]=React.useState(["laden"]);
+      var [sccFilter,setSccFilter]=React.useState(["laden","ballast"]);
       var [sogSlipView,setSogSlipView]=React.useState("Month");
       var [hhView,setHhView]=React.useState("Month");
       var HullHealthTabs=(
@@ -7378,11 +7390,69 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           })();
           return cc("Speed and Consumption","Ballast vs Laden – At Sea",
             function(n){
+              var hasLaden=sccFilter.includes("laden"), hasBallast=sccFilter.includes("ballast");
+              function sccTab(label,k){
+                var active=sccFilter.includes(k);
+                return (
+                  <button key={k} onClick={function(){
+                    setSccFilter(function(prev){
+                      if(prev.includes(k)){
+                        var next=prev.filter(function(v){return v!==k;});
+                        return next.length===0?prev:next;
+                      }
+                      return prev.concat(k);
+                    });
+                  }} style={{padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",border:"none",
+                    background:active?(k==="laden"?"#F97316":"#0EA5E9"):"transparent",
+                    color:active?"#fff":"#64748B",transition:"0.15s"}}>
+                    {label}
+                  </button>
+                );
+              }
               function bReg(x){return Math.max(0,0.00082*Math.pow(x,2.9));}
               function lReg(x){return Math.max(0,0.00108*Math.pow(x,2.95));}
               var bRegData=[],lRegData=[];
               for(var i=0;i<=56;i++){var s=i*0.25;bRegData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(bReg(s).toFixed(3))});lRegData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(lReg(s).toFixed(3))});}
+              var sccLegendItems=[
+                hasBallast&&["#0EA5E9","Ballast Regression","line"],
+                hasLaden&&["#F97316","Laden Regression","dash"],
+                hasBallast&&["#0EA5E9","Ballast","circle"],
+                hasLaden&&["#F97316","Laden","circle"],
+              ].filter(Boolean);
               return (
+              <div style={{display:"flex",flexDirection:"column",width:"100%",height:"100%"}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6,flexShrink:0}}>
+                  <div style={{display:"flex",gap:1,background:"#F1F5F9",borderRadius:20,padding:"2px"}}>
+                    {sccTab("Laden","laden")}{sccTab("Ballast","ballast")}
+                  </div>
+                  <div style={{display:"flex",alignItems:"center",gap:12}}>
+                    {hasBallast&&(
+                      <div style={{display:"flex",alignItems:"center",gap:4}}>
+                        <svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke="#0EA5E9" strokeWidth="2"/></svg>
+                        <span style={{fontSize:11,color:"#64748B"}}>Ballast Reg.</span>
+                      </div>
+                    )}
+                    {hasLaden&&(
+                      <div style={{display:"flex",alignItems:"center",gap:4}}>
+                        <svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke="#F97316" strokeWidth="2" strokeDasharray="5 3"/></svg>
+                        <span style={{fontSize:11,color:"#64748B"}}>Laden Reg.</span>
+                      </div>
+                    )}
+                    {hasBallast&&(
+                      <div style={{display:"flex",alignItems:"center",gap:4}}>
+                        <div style={{width:8,height:8,borderRadius:"50%",background:"#0EA5E9",flexShrink:0}}/>
+                        <span style={{fontSize:11,color:"#64748B"}}>Ballast</span>
+                      </div>
+                    )}
+                    {hasLaden&&(
+                      <div style={{display:"flex",alignItems:"center",gap:4}}>
+                        <div style={{width:8,height:8,borderRadius:"50%",background:"#F97316",flexShrink:0}}/>
+                        <span style={{fontSize:11,color:"#64748B"}}>Laden</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div style={{flex:1,minHeight:0}}>
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart margin={{bottom:24,left:4,right:10,top:4}}>
                   <CartesianGrid stroke="#F1F5F9" strokeDasharray="0" vertical={false}/>
@@ -7396,7 +7466,6 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <Tooltip cursor={{stroke:"#E2E8F0",strokeDasharray:"4 2"}} content={function(props){
                     var active=props.active,payload=props.payload;
                     if(!active||!payload||!payload.length) return null;
-                    // Scatter payload: multiple entries per series (one for x dataKey, one for y dataKey)
                     var byName={};
                     payload.forEach(function(p){
                       if(!byName[p.name]) byName[p.name]={name:p.name,color:p.color,fill:p.fill};
@@ -7431,22 +7500,22 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       </div>
                     );
                   }}/>
-                  <Legend verticalAlign="top" align="right" iconSize={8} iconType="square"
-                    wrapperStyle={{paddingTop:4,paddingBottom:16,fontSize:11}}/>
-                  <Scatter name="Ballast Regression" data={bRegData}
+                  {hasBallast&&<Scatter name="Ballast Regression" data={bRegData}
                     line={{stroke:"#0EA5E9",strokeWidth:2}} lineType="joint"
-                    dot={false} fill="#0EA5E9" legendType="line"/>
-                  <Scatter name="Laden Regression" data={lRegData}
+                    dot={false} fill="#0EA5E9" legendType="none"/>}
+                  {hasLaden&&<Scatter name="Laden Regression" data={lRegData}
                     line={{stroke:"#F97316",strokeWidth:2,strokeDasharray:"7 4"}} lineType="joint"
-                    dot={false} fill="#F97316" legendType="plainline"/>
-                  <Scatter name="Ballast" data={ballastPts} legendType="circle"
+                    dot={false} fill="#F97316" legendType="none"/>}
+                  {hasBallast&&<Scatter name="Ballast" data={ballastPts} legendType="none"
                     fill="#0EA5E9"
-                    shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill="#0EA5E9"/>;}}/>
-                  <Scatter name="Laden" data={ladenPts} legendType="circle"
+                    shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill="#0EA5E9"/>;}}/>}
+                  {hasLaden&&<Scatter name="Laden" data={ladenPts} legendType="none"
                     fill="#F97316"
-                    shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill="#F97316"/>;}}/>
+                    shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill="#F97316"/>;}}/>}
                 </ScatterChart>
               </ResponsiveContainer>
+                </div>
+              </div>
               );
             }, 2, {tableData:{
               columns:[
@@ -11008,7 +11077,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
     ];
     var DEFAULT_FILTERS = {
       peerBenchmark: true,
-      activePeerGroups: {chem_mid:true, chem_hand:true},
+      activePeerGroups: {chem_mid:true},
       loadCond: "all",
       speedRange: [6, 18],
       draftRange: [4, 18],
@@ -11086,7 +11155,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                     return (
                       <div key={pg.id}
                         onClick={function(){
-                          var next = Object.assign({},filters.activePeerGroups||{},{[pg.id]:!active});
+                          var next = {};
+                          next[pg.id] = true;
                           set("activePeerGroups",next);
                         }}
                         style={{padding:"3px 8px",borderRadius:20,fontSize:10,fontWeight:600,cursor:"pointer",
@@ -11129,58 +11199,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           {/* ── 4. Draft Range ── */}
           <RangeSection label="Draft Range" unit="m" rangeKey="draftRange" min={0} max={25}/>
 
-          {/* ── 5. Voyage View ── */}
+          {/* ── 5. Sort by ── */}
           <div style={{marginBottom:16}}>
-            <div style={{fontSize:12,fontWeight:700,color:"#0F172A",marginBottom:8}}>Voyage View</div>
-            <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-              {[{id:"goodWeather",label:"Good Weather"},{id:"ecaZone",label:"ECA Zone"}].map(function(opt){
-                var active = !!(filters.voyageView&&filters.voyageView[opt.id]);
-                return (
-                  <div key={opt.id}
-                    onClick={function(){
-                      var next = Object.assign({},filters.voyageView||{},{[opt.id]:!active});
-                      set("voyageView",next);
-                    }}
-                    style={{padding:"5px 12px",borderRadius:20,fontSize:12,fontWeight:500,cursor:"pointer",
-                      transition:"all 0.15s",userSelect:"none",
-                      background:active?"#0F172A":"#F8FAFC",
-                      color:active?"#fff":"#64748B",
-                      border:"1px solid "+(active?"#0F172A":"#E2E8F0")}}>
-                    {opt.label}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* ── 6. Fuel Type ── */}
-          <div style={{marginBottom:16}}>
-            <div style={{fontSize:12,fontWeight:700,color:"#0F172A",marginBottom:8}}>Fuel Type</div>
-            <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-              {[{id:"hsfo",label:"HSFO"},{id:"vlsfo",label:"VLSFO"},{id:"mgo",label:"MGO"},{id:"lng",label:"LNG"},{id:"methanol",label:"Methanol"}].map(function(ft){
-                var active = !!(filters.fuelTypes&&filters.fuelTypes[ft.id]);
-                var colors = {hsfo:["#FEF3C7","#92400E","#FDE68A"],vlsfo:["#EEF2FF","#1852FE","#C7D4FD"],mgo:["#F0FDF4","#166534","#BBF7D0"],lng:["#F0F9FF","#0369A1","#BAE6FD"],methanol:["#FDF4FF","#7E22CE","#E9D5FF"]};
-                var c = colors[ft.id]||["#F8FAFC","#64748B","#E2E8F0"];
-                return (
-                  <div key={ft.id}
-                    onClick={function(){
-                      var next = Object.assign({},filters.fuelTypes||{},{[ft.id]:!active});
-                      set("fuelTypes",next);
-                    }}
-                    style={{padding:"4px 10px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",
-                      transition:"all 0.15s",userSelect:"none",
-                      background:active?c[0]:"#F8FAFC",
-                      color:active?c[1]:"#94A3B8",
-                      border:"1px solid "+(active?c[2]:"#E2E8F0")}}>
-                    {ft.label}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* ── 7. Sort by ── */}
-          <div style={{marginTop:"auto",paddingTop:16,borderTop:"1px solid #F1F5F9",marginBottom:14}}>
             <div style={{fontSize:12,fontWeight:700,color:"#0F172A",marginBottom:10}}>Sort by</div>
             {/* Metric dropdown */}
             <div style={{position:"relative",marginBottom:8}}>
@@ -11227,13 +11247,13 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
             </div>
           </div>
 
-          {/* ── Buttons ── */}
-          <div style={{display:"flex",gap:8,paddingTop:14,borderTop:"1px solid #F1F5F9"}}>
+          {/* ── Reset ── */}
+          <div style={{display:"flex",gap:8}}>
             <button onClick={onReset}
-              style={{flex:1,height:34,borderRadius:8,border:"1.5px solid #E2E8F0",background:"#fff",
-                cursor:"pointer",fontSize:12,fontWeight:600,color:"#374151",transition:"all 0.15s",fontFamily:"inherit"}}
-              onMouseEnter={function(e){e.currentTarget.style.borderColor="#94A3B8";}}
-              onMouseLeave={function(e){e.currentTarget.style.borderColor="#E2E8F0";}}>
+              style={{flex:1,height:36,borderRadius:4,border:"1.5px solid #1852FE",background:"#EEF2FF",
+                cursor:"pointer",fontSize:13,fontWeight:600,color:"#1852FE",transition:"all 0.15s",fontFamily:"inherit"}}
+              onMouseEnter={function(e){e.currentTarget.style.background="#E0E7FF";}}
+              onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
               Reset
             </button>
           </div>
