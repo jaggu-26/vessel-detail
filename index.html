@@ -11316,12 +11316,12 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           <div style={{marginBottom:16}}>
             <div style={{fontSize:12,fontWeight:700,color:"#0F172A",marginBottom:10}}>Weather Conditions</div>
             {/* Wind */}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-              <span style={{fontSize:12,color:"#334155",whiteSpace:"nowrap"}}>Wind (Bf) ≤</span>
-              <div style={{position:"relative",width:150}}>
+            <div style={{marginBottom:8}}>
+              <div style={{fontSize:11,color:"#64748B",marginBottom:4}}>Wind (Bf) ≤</div>
+              <div style={{position:"relative"}}>
                 <select value={filters.windBf||""} onChange={function(e){set("windBf",e.target.value);}}
-                  style={{width:"100%",height:34,border:"1px solid #E2E8F0",borderRadius:8,
-                    padding:"0 28px 0 12px",fontSize:12,
+                  style={{width:"100%",height:32,border:"1px solid #E2E8F0",borderRadius:8,
+                    padding:"0 28px 0 10px",fontSize:12,
                     color:filters.windBf?"#0F172A":"#94A3B8",
                     background:"#fff",outline:"none",cursor:"pointer",
                     fontFamily:"inherit",appearance:"none",WebkitAppearance:"none"}}>
@@ -11337,12 +11337,12 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
               </div>
             </div>
             {/* Wave */}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-              <span style={{fontSize:12,color:"#334155",whiteSpace:"nowrap"}}>Wave (GOG) ≤</span>
-              <div style={{position:"relative",width:150}}>
+            <div>
+              <div style={{fontSize:11,color:"#64748B",marginBottom:4}}>Wave (GOG) ≤</div>
+              <div style={{position:"relative"}}>
                 <select value={filters.waveGog||""} onChange={function(e){set("waveGog",e.target.value);}}
-                  style={{width:"100%",height:34,border:"1px solid #E2E8F0",borderRadius:8,
-                    padding:"0 28px 0 12px",fontSize:12,
+                  style={{width:"100%",height:32,border:"1px solid #E2E8F0",borderRadius:8,
+                    padding:"0 28px 0 10px",fontSize:12,
                     color:filters.waveGog?"#0F172A":"#94A3B8",
                     background:"#fff",outline:"none",cursor:"pointer",
                     fontFamily:"inherit",appearance:"none",WebkitAppearance:"none"}}>
