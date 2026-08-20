@@ -11153,7 +11153,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       voyageView: {goodWeather:false, ecaZone:false},
       fuelTypes: {hsfo:false, vlsfo:true, mgo:false, lng:false, methanol:false},
     };
-    function CompFilterPanel({filters, setFilters, onReset}) {
+    function CompFilterPanel({filters, setFilters, onReset, cmpTab, setCmpTab}) {
       function set(key, val){ setFilters(function(p){ return Object.assign({},p,{[key]:val}); }); }
       var [pgOpen, setPgOpen] = React.useState(false);
       var pgRef = React.useRef(null);
@@ -11278,20 +11278,19 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
             )}
           </div>
 
-          {/* ── 2. Load Condition ── */}
+          {/* ── 2. Metric Category ── */}
           <div style={{marginBottom:16}}>
-            <div style={{fontSize:12,fontWeight:700,color:"#0F172A",marginBottom:8}}>Load Condition</div>
             <div style={{display:"flex",borderRadius:8,overflow:"hidden",border:"1px solid #E2E8F0"}}>
-              {["all","laden","ballast"].map(function(opt,i){
-                var active = filters.loadCond===opt;
+              {["All","Operational","Environmental","Technical"].map(function(opt,i){
+                var active = (cmpTab||"All")===opt;
                 return (
                   <button key={opt}
-                    onClick={function(){ set("loadCond",opt); }}
+                    onClick={function(){ setCmpTab(opt); }}
                     style={{flex:1,height:30,border:"none",borderLeft:i>0?"1px solid #E2E8F0":"none",
                       background:active?"#1852FE":"#fff",color:active?"#fff":"#64748B",
                       fontSize:11,fontWeight:active?700:500,cursor:"pointer",
-                      transition:"all 0.15s",textTransform:"capitalize",fontFamily:"inherit"}}>
-                    {opt==="all"?"All":opt.charAt(0).toUpperCase()+opt.slice(1)}
+                      transition:"all 0.15s",fontFamily:"inherit"}}>
+                    {opt}
                   </button>
                 );
               })}
@@ -11470,28 +11469,6 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
             </div>
             {/* Right: flex:1 — tabs + spacer + controls, aligned with table */}
             <div style={{flex:1,display:"flex",alignItems:"center",gap:12,minWidth:0}}>
-              {/* Pill tabs */}
-              <div style={{display:"flex",alignItems:"center",gap:4,background:"#e2e8ef",borderRadius:6,padding:"3px",flexShrink:0}}>
-                {CMP_TABS.map(function(t){
-                  var isActive = cmpTab === t.id;
-                  return (
-                    <button key={t.id}
-                      onClick={function(){ if(!t.disabled) setCmpTab(t.id); }}
-                      disabled={t.disabled}
-                      style={{
-                        height:26,padding:"0 12px",borderRadius:4,border:"none",
-                        cursor:t.disabled?"not-allowed":"pointer",
-                        fontSize:12,fontWeight:600,fontFamily:"inherit",
-                        background:isActive?"#1852FE":"transparent",
-                        color:isActive?"#ffffff":t.disabled?"#CBD5E1":"#64748B",
-                        opacity:t.disabled?0.55:1,
-                        boxShadow:isActive?"0 1px 3px rgba(24,82,254,0.25)":"none",
-                        transition:"all 0.15s",whiteSpace:"nowrap"}}>
-                      {t.label}
-                    </button>
-                  );
-                })}
-              </div>
               <div style={{flex:1}}/>
               {/* Add a Metric + Date Range */}
               <div style={{display:"flex",alignItems:"center",gap:16,flexShrink:0}}>
@@ -11522,7 +11499,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           <div style={{flex:1,display:"flex",overflow:"hidden",padding:"0 24px 28px",gap:16}}>
 
             {/* ── Left Filter Panel ── */}
-            <CompFilterPanel filters={filters} setFilters={setFilters} onReset={function(){var pgId=getDefaultPgId(currentVessel);var pg={};pg[pgId]=true;setFilters(Object.assign({},DEFAULT_FILTERS,{activePeerGroups:pg}));setSortMetric("");setSortDir("best");}}/>
+            <CompFilterPanel filters={filters} setFilters={setFilters} onReset={function(){var pgId=getDefaultPgId(currentVessel);var pg={};pg[pgId]=true;setFilters(Object.assign({},DEFAULT_FILTERS,{activePeerGroups:pg}));setSortMetric("");setSortDir("best");setCmpTab("All");}} cmpTab={cmpTab} setCmpTab={setCmpTab}/>
 
             {/* ── Right: Scrollable table ── */}
             <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",minWidth:0}}>
