@@ -11157,6 +11157,9 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       activePeerGroups: {chem_mid:true},
       loadCond: "all",
       speedRange: [6, 18],
+      windBf: "",
+      waveGog: "",
+      steamingRange: [0, 24],
       draftRange: [4, 18],
       voyageView: {goodWeather:false, ecaZone:false},
       fuelTypes: {hsfo:false, vlsfo:true, mgo:false, lng:false, methanol:false},
@@ -11309,8 +11312,55 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           {/* ── 3. Speed Range ── */}
           <RangeSection label="Speed Range" unit="SOG kn" rangeKey="speedRange" min={0} max={25}/>
 
-          {/* ── 4. Steaming Hours ── */}
-          <RangeSection label="Steaming Hours" unit="hrs" rangeKey="draftRange" min={0} max={25}/>
+          {/* ── 4. Weather Conditions ── */}
+          <div style={{marginBottom:16}}>
+            <div style={{fontSize:12,fontWeight:700,color:"#0F172A",marginBottom:10}}>Weather Conditions</div>
+            {/* Wind */}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
+              <span style={{fontSize:12,color:"#334155",whiteSpace:"nowrap"}}>Wind (Bf) ≤</span>
+              <div style={{position:"relative",width:150}}>
+                <select value={filters.windBf||""} onChange={function(e){set("windBf",e.target.value);}}
+                  style={{width:"100%",height:34,border:"1px solid #E2E8F0",borderRadius:8,
+                    padding:"0 28px 0 12px",fontSize:12,
+                    color:filters.windBf?"#0F172A":"#94A3B8",
+                    background:"#fff",outline:"none",cursor:"pointer",
+                    fontFamily:"inherit",appearance:"none",WebkitAppearance:"none"}}>
+                  <option value="">Select value</option>
+                  {[0,1,2,3,4,5,6,7,8,9,10,11,12].map(function(v){
+                    return <option key={v} value={v}>{v}{v===0?" (Calm)":v===3?" (Gentle)":v===6?" (Strong)":v===9?" (Severe)":v===12?" (Hurricane)":""}</option>;
+                  })}
+                </select>
+                <svg style={{position:"absolute",right:9,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}}
+                  width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </div>
+            </div>
+            {/* Wave */}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <span style={{fontSize:12,color:"#334155",whiteSpace:"nowrap"}}>Wave (GOG) ≤</span>
+              <div style={{position:"relative",width:150}}>
+                <select value={filters.waveGog||""} onChange={function(e){set("waveGog",e.target.value);}}
+                  style={{width:"100%",height:34,border:"1px solid #E2E8F0",borderRadius:8,
+                    padding:"0 28px 0 12px",fontSize:12,
+                    color:filters.waveGog?"#0F172A":"#94A3B8",
+                    background:"#fff",outline:"none",cursor:"pointer",
+                    fontFamily:"inherit",appearance:"none",WebkitAppearance:"none"}}>
+                  <option value="">Select value</option>
+                  {["0.5","1.0","1.5","2.0","2.5","3.0","4.0","5.0","6.0"].map(function(v){
+                    return <option key={v} value={v}>{v} m</option>;
+                  })}
+                </select>
+                <svg style={{position:"absolute",right:9,top:"50%",transform:"translateY(-50%)",pointerEvents:"none"}}
+                  width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          {/* ── 5. Steaming Time ── */}
+          <RangeSection label="Steaming Time (hrs/day)" unit="hrs" rangeKey="steamingRange" min={0} max={24}/>
 
           {/* ── Reset ── */}
           <div style={{display:"flex",gap:8}}>
