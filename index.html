@@ -11172,25 +11172,23 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
               <div>
                 <div style={{fontSize:11,fontWeight:600,color:"#64748B",marginBottom:6,textTransform:"uppercase",letterSpacing:"0.05em"}}>Active Peer Groups</div>
                 <div ref={pgRef} style={{position:"relative"}}>
-                  {/* Trigger button — same style as Last 180 Days */}
-                  <button onClick={function(){setPgOpen(function(v){return !v;});}}
-                    style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,width:"100%",
-                      height:36,padding:"0 12px",borderRadius:6,border:"none",
-                      background:"#e2e8ef",cursor:"pointer",fontSize:13,fontWeight:600,
-                      color:"#0E1A33",userSelect:"none",transition:"background 0.15s",fontFamily:"inherit"}}
-                    onMouseEnter={function(e){e.currentTarget.style.background="#d0d8e4";}}
-                    onMouseLeave={function(e){e.currentTarget.style.background="#e2e8ef";}}>
-                    <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,textAlign:"left"}}>
+                  {/* Trigger — same style as Sort by select */}
+                  <div style={{position:"relative"}}>
+                    <button onClick={function(){setPgOpen(function(v){return !v;});}}
+                      style={{width:"100%",height:32,border:"1px solid #E2E8F0",borderRadius:8,
+                        padding:"0 28px 0 10px",fontSize:12,background:"#fff",outline:"none",
+                        cursor:"pointer",fontFamily:"inherit",appearance:"none",WebkitAppearance:"none",
+                        textAlign:"left",color:"#0F172A",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
                       {(function(){
                         var active=PEER_GROUPS.find(function(pg){return filters.activePeerGroups&&filters.activePeerGroups[pg.id];});
                         return active?active.label:"Select peer group";
                       })()}
-                    </span>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5"
-                      style={{transform:pgOpen?"rotate(180deg)":"rotate(0deg)",transition:"transform 0.2s",flexShrink:0}}>
-                      <polyline points="6 9 12 15 18 9"/>
+                    </button>
+                    <svg style={{position:"absolute",right:9,top:"50%",transform:pgOpen?"translateY(-50%) rotate(180deg)":"translateY(-50%)",transition:"transform 0.2s",pointerEvents:"none"}}
+                      width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M6 9l6 6 6-6"/>
                     </svg>
-                  </button>
+                  </div>
                   {/* Dropdown panel */}
                   {pgOpen&&(
                     <div style={{position:"absolute",top:"calc(100% + 6px)",left:0,right:0,zIndex:9999,
