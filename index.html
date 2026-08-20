@@ -10326,17 +10326,6 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       {id:"fueleu_balance", label:"FuelEU Compliance Balance",     subgroup:"Compliance",         group:"Environmental",tab:"Environmental", recommended:true},
       {id:"ghg_intensity",  label:"GHG Intensity (gCO₂eq/MJ)",    subgroup:"GHG",                group:"Environmental",tab:"Environmental", recommended:true},
       {id:"energy_consumed",label:"Total Energy Consumed (MJ)",    subgroup:"Energy",             group:"Environmental",tab:"Environmental", recommended:true},
-      // ── LNG KPIs ─────────────────────────────────────────────────────────────
-      {id:"bog_rate",       label:"BOG Rate",                      subgroup:"Cargo",              group:"LNG KPIs",    tab:"LNG KPIs",      recommended:true},
-      {id:"lng_cons",       label:"LNG Consumption",               subgroup:"Consumption",        group:"LNG KPIs",    tab:"LNG KPIs",      recommended:true},
-      {id:"tank_temp",      label:"Cargo Tank Temp",               subgroup:"Cargo",              group:"LNG KPIs",    tab:"LNG KPIs",      recommended:false},
-      {id:"tank_press",     label:"Cargo Tank Pressure",           subgroup:"Cargo",              group:"LNG KPIs",    tab:"LNG KPIs",      recommended:false},
-      {id:"heel_vol",       label:"Heel Volume",                   subgroup:"Cargo",              group:"LNG KPIs",    tab:"LNG KPIs",      recommended:false},
-      {id:"reliq_power",    label:"Reliquefaction Power",          subgroup:"Equipment",          group:"LNG KPIs",    tab:"LNG KPIs",      recommended:false},
-      {id:"gcu_hrs",        label:"GCU Operating Hours",           subgroup:"Equipment",          group:"LNG KPIs",    tab:"LNG KPIs",      recommended:false},
-      {id:"cargo_loaded",   label:"Cargo Loaded",                  subgroup:"Cargo",              group:"LNG KPIs",    tab:"LNG KPIs",      recommended:true},
-      {id:"ullage",         label:"Ullage",                        subgroup:"Cargo",              group:"LNG KPIs",    tab:"LNG KPIs",      recommended:false},
-      {id:"vaporizer",      label:"Vaporizer Efficiency",          subgroup:"Equipment",          group:"LNG KPIs",    tab:"LNG KPIs",      recommended:false},
     ];
     function vesselSeed(n){var s=0;for(var i=0;i<n.length;i++)s=(s*31+n.charCodeAt(i))%997;return s;}
     function getVesselCompData(v, filters){
@@ -10904,9 +10893,9 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       var [activeTab, setActiveTab] = useState("All");
       var [sel, setSel] = useState(defaultSel);
       var searchRef = useRef(null);
-      var MTABS = ["All","Operational","Technical","Environmental","LNG KPIs"];
-      var GROUP_COLOR = {Operational:"#B45309",Technical:"#7C3AED",Environmental:"#0F6E56","LNG KPIs":"#0369A1"};
-      var GROUP_BG    = {Operational:"#FFFBEB",Technical:"#F5F3FF",Environmental:"#ECFDF5","LNG KPIs":"#F0F9FF"};
+      var MTABS = ["All","Operational","Technical","Environmental"];
+      var GROUP_COLOR = {Operational:"#B45309",Technical:"#7C3AED",Environmental:"#0F6E56"};
+      var GROUP_BG    = {Operational:"#FFFBEB",Technical:"#F5F3FF",Environmental:"#ECFDF5"};
 
       useEffect(function(){
         setTimeout(function(){ if(searchRef.current) searchRef.current.focus(); }, 80);
@@ -11439,8 +11428,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       });
 
       // Group header colours aligned with COMP_METRICS_DEF groups
-      var GROUP_COLOR = {Operational:"#334155",Environmental:"#334155",Technical:"#334155","LNG KPIs":"#334155"};
-      var GROUP_BG   = {Operational:"#e2e8ee",Environmental:"#e2e8ee",Technical:"#e2e8ee","LNG KPIs":"#e2e8ee"};
+      var GROUP_COLOR = {Operational:"#334155",Environmental:"#334155",Technical:"#334155"};
+      var GROUP_BG   = {Operational:"#e2e8ee",Environmental:"#e2e8ee",Technical:"#e2e8ee"};
 
       var MCOL=200, VCOL=200, PCOL=135;
       var tableWidth = MCOL + allVessels.length*VCOL + (showPeer?PCOL:0) + (compVessels.length<3?VCOL:0);
