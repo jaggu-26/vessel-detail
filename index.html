@@ -10430,8 +10430,33 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         range:    v ? v.range : "",
       };
     }
+    var PEER_GROUP_BASE = {
+      chem_mid:   {cons:1.00, speed:1.00, cii:1.00, days:1.00, power:1.00, sog:12.4, sfoc:174, aer:72, co2:52.1, label:"Chemical Tanker · Mid Range"},
+      chem_hand:  {cons:0.88, speed:1.04, cii:0.94, days:0.90, power:0.84, sog:13.1, sfoc:169, aer:68, co2:47.8, label:"Chemical Tanker · Handymax"},
+      chem_sr:    {cons:0.72, speed:1.06, cii:0.88, days:0.76, power:0.70, sog:13.4, sfoc:165, aer:62, co2:42.0, label:"Chemical Tanker · Short Range"},
+      chem_lr:    {cons:1.14, speed:0.97, cii:1.06, days:1.12, power:1.10, sog:11.9, sfoc:178, aer:76, co2:58.2, label:"Chemical Tanker · Long Range"},
+      prod_lr1:   {cons:1.18, speed:0.96, cii:1.08, days:1.08, power:1.14, sog:11.7, sfoc:176, aer:74, co2:56.8, label:"Product Tanker · LR1"},
+      prod_lr2:   {cons:1.28, speed:0.94, cii:1.12, days:1.14, power:1.22, sog:11.4, sfoc:180, aer:78, co2:61.4, label:"Product Tanker · LR2"},
+      prod_mr:    {cons:0.96, speed:1.02, cii:0.98, days:0.96, power:0.94, sog:12.6, sfoc:172, aer:70, co2:50.4, label:"Product Tanker · MR"},
+      prod_sr:    {cons:0.78, speed:1.05, cii:0.90, days:0.82, power:0.76, sog:13.2, sfoc:168, aer:64, co2:44.8, label:"Product Tanker · SR"},
+      crude_vlcc: {cons:1.72, speed:0.88, cii:1.28, days:1.42, power:1.68, sog:10.8, sfoc:188, aer:96, co2:82.6, label:"Crude · VLCC"},
+      crude_suez: {cons:1.44, speed:0.91, cii:1.18, days:1.24, power:1.40, sog:11.2, sfoc:184, aer:86, co2:70.4, label:"Crude · Suezmax"},
+      crude_afra: {cons:1.22, speed:0.94, cii:1.10, days:1.10, power:1.18, sog:11.6, sfoc:181, aer:80, co2:62.8, label:"Crude · Aframax"},
+      crude_pana: {cons:1.08, speed:0.98, cii:1.04, days:1.02, power:1.06, sog:12.0, sfoc:177, aer:75, co2:55.2, label:"Crude · Panamax"},
+      bulk_cape:  {cons:1.52, speed:0.90, cii:1.20, days:1.30, power:1.48, sog:11.0, sfoc:186, aer:88, co2:74.2, label:"Bulk Carrier · Capesize"},
+      bulk_pana:  {cons:1.08, speed:0.98, cii:1.02, days:1.04, power:1.06, sog:12.1, sfoc:176, aer:72, co2:54.6, label:"Bulk Carrier · Panamax"},
+      bulk_supra: {cons:0.90, speed:1.01, cii:0.96, days:0.94, power:0.88, sog:12.5, sfoc:172, aer:68, co2:49.2, label:"Bulk Carrier · Supramax"},
+      bulk_hand:  {cons:0.78, speed:1.04, cii:0.90, days:0.84, power:0.76, sog:13.0, sfoc:168, aer:62, co2:43.4, label:"Bulk Carrier · Handymax"},
+      cont_feeder:{cons:0.82, speed:1.08, cii:0.92, days:0.80, power:0.80, sog:13.6, sfoc:170, aer:65, co2:45.6, label:"Container · Feeder"},
+      cont_sub:   {cons:1.10, speed:1.04, cii:1.04, days:1.00, power:1.08, sog:13.2, sfoc:175, aer:72, co2:54.0, label:"Container · Sub-Panamax"},
+      lng_conv:   {cons:1.38, speed:0.93, cii:1.14, days:1.18, power:1.34, sog:11.4, sfoc:182, aer:82, co2:66.8, label:"LNG Carrier · Conventional"},
+      lng_small:  {cons:0.94, speed:1.02, cii:0.96, days:0.92, power:0.92, sog:12.4, sfoc:171, aer:70, co2:50.2, label:"LNG Carrier · Small Scale"},
+    };
     function getPeerBenchmarkData(filters){
       var f = filters || {};
+      var activePgId = f.activePeerGroups ? Object.keys(f.activePeerGroups).find(function(k){return f.activePeerGroups[k];}) : null;
+      var pgBase = (activePgId && PEER_GROUP_BASE[activePgId]) ? PEER_GROUP_BASE[activePgId] : PEER_GROUP_BASE.chem_mid;
+      var pgM = pgBase.cons;
       var loadM = f.loadCond==="laden" ? 1.08 : f.loadCond==="ballast" ? 0.93 : 1.0;
       var fuelShift = 0;
       if(f.fuelTypes){
@@ -10447,72 +10472,83 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       var draftM = 0.92 + (draftMid/25)*0.16;
       var ecaM = (f.voyageView && f.voyageView.ecaZone) ? 0.72 : 1.0;
       var weatherM = (f.voyageView && f.voyageView.goodWeather) ? 1.04 : 1.0;
+      var baseSog = pgBase.sog * pgBase.speed;
+      var baseSfoc = pgBase.sfoc;
       var m = loadM * speedM;
+      var pgSpeedM = pgBase.speed;
+      var pgConsM  = pgBase.cons;
+      var pgCiiM   = pgBase.cii;
+      var pgDaysM  = pgBase.days;
+      var pgPowerM = pgBase.power;
       var ciiGrades = ["A","B","C","D","E"];
+      var baseSogVal  = pgBase.sog * pgSpeedM * weatherM;
+      var baseConsVal = 21.4 * pgConsM * m;
+      var baseAerVal  = pgBase.aer * pgCiiM * m;
+      var baseCo2Val  = pgBase.co2 * pgConsM * m;
+      var baseSfocVal = (pgBase.sfoc + fuelShift) * m;
       return {
-        range: "Fleet Average",
-        speed_sog:   (12.4*weatherM).toFixed(1)+" kn",
-        speed_stw:   (11.8*weatherM).toFixed(1)+" kn",
-        cp_speed:    "12.5 kn",
-        speed_loss:  (0.6/weatherM).toFixed(2)+" kn",
-        distance:    (3800*weatherM).toFixed(0)+" nm",
-        sog_slip:    (9.2/weatherM).toFixed(1)+"%",
-        fuel_me:     ((172+fuelShift)*m).toFixed(1)+" g/kWh",
-        fuel_dg:     ((218+fuelShift)*m).toFixed(1)+" g/kWh",
-        fuel_boiler: ((265+fuelShift)*m).toFixed(1)+" g/kWh",
-        fuel_total:  ((192+fuelShift)*m).toFixed(1)+" g/kWh",
-        fuel_cons:   (21.4*m).toFixed(1)+" MT/d",
-        me_power:    (7200*m).toFixed(0)+" kW",
+        range: pgBase.label,
+        speed_sog:   baseSogVal.toFixed(1)+" kn",
+        speed_stw:   (baseSogVal*0.95).toFixed(1)+" kn",
+        cp_speed:    (baseSogVal*1.01).toFixed(1)+" kn",
+        speed_loss:  (0.6/weatherM/pgSpeedM).toFixed(2)+" kn",
+        distance:    (3800*weatherM*pgSpeedM).toFixed(0)+" nm",
+        sog_slip:    (9.2/weatherM/pgSpeedM).toFixed(1)+"%",
+        fuel_me:     (baseSfocVal).toFixed(1)+" g/kWh",
+        fuel_dg:     ((baseSfocVal/pgBase.sfoc*(218+fuelShift))*m).toFixed(1)+" g/kWh",
+        fuel_boiler: ((baseSfocVal/pgBase.sfoc*(265+fuelShift))*m).toFixed(1)+" g/kWh",
+        fuel_total:  ((baseSfocVal/pgBase.sfoc*(192+fuelShift))*m).toFixed(1)+" g/kWh",
+        fuel_cons:   baseConsVal.toFixed(1)+" MT/d",
+        me_power:    (7200*m*pgPowerM).toFixed(0)+" kW",
         rpm_avg:     "78 rpm",
         prop_slip:   (7.8).toFixed(1)+"%",
-        cii_aer:     Math.round(78*m)+" ("+ciiGrades[Math.min(4,Math.round(m*1.5))]+")",
-        co2:         (52.1*m).toFixed(1)+" t/d",
+        cii_aer:     baseAerVal.toFixed(1)+" ("+ciiGrades[Math.min(4,Math.round(pgCiiM*m*1.5))]+") ",
+        co2:         baseCo2Val.toFixed(1)+" t/d",
         sox:         (1.45*ecaM).toFixed(2)+" t/d",
         nox:         (9.6*ecaM).toFixed(1)+" kg/d",
-        eeoi:        (5.1*m).toFixed(2)+" gCO₂/t·nm",
-        ghg:         (94.5*m).toFixed(1)+" gCO₂e/t·nm",
-        ets:         Math.round(148*m)+" tCO₂",
+        eeoi:        (5.1*m*pgConsM).toFixed(2)+" gCO₂/t·nm",
+        ghg:         (94.5*m*pgConsM).toFixed(1)+" gCO₂e/t·nm",
+        ets:         Math.round(148*m*pgConsM)+" tCO₂",
         // Operational
-        laden_days:     Math.round(14*loadM)+" days",
-        ballast_days:   Math.round(11*loadM)+" days",
+        laden_days:     Math.round(14*loadM*pgDaysM)+" days",
+        ballast_days:   Math.round(11*loadM*pgDaysM)+" days",
         port_days:      "4 days",
         idle_berth:     "12 hrs",
-        me_cons_laden:  (24.1*m).toFixed(1)+" MT/d",
-        me_cons_ballast:(17.4*m).toFixed(1)+" MT/d",
-        ae_cons:        (2.1*m).toFixed(2)+" MT/d",
-        sog_laden:      (12.8*weatherM).toFixed(1)+" kn",
-        sog_ballast:    (11.6*weatherM).toFixed(1)+" kn",
-        eeoi_op:        (5.1*m).toFixed(2)+" gCO₂/t·nm",
+        me_cons_laden:  (24.1*m*pgConsM).toFixed(1)+" MT/d",
+        me_cons_ballast:(17.4*m*pgConsM).toFixed(1)+" MT/d",
+        ae_cons:        (2.1*m*pgConsM).toFixed(2)+" MT/d",
+        sog_laden:      (baseSogVal*1.03).toFixed(1)+" kn",
+        sog_ballast:    (baseSogVal*0.94).toFixed(1)+" kn",
+        eeoi_op:        (5.1*m*pgConsM).toFixed(2)+" gCO₂/t·nm",
         warranty:       "1 breach",
-        distance:       (3800*weatherM).toFixed(0)+" nm",
         anchorage:      "18 hrs",
-        slip_laden:     (4.2/weatherM).toFixed(1)+"%",
-        slip_ballast:   (5.1/weatherM).toFixed(1)+"%",
+        slip_laden:     (4.2/weatherM/pgSpeedM).toFixed(1)+"%",
+        slip_ballast:   (5.1/weatherM/pgSpeedM).toFixed(1)+"%",
         // Technical
         hull_speed_loss:(2.1*draftM).toFixed(2)+"%",
-        eng_fuel_loss:  (1.4*m).toFixed(2)+"%",
+        eng_fuel_loss:  (1.4*m*pgConsM).toFixed(2)+"%",
         dev_pred_cons:  "+2.4%",
-        engine_load:    Math.min(99,Math.round(78*m))+"%",
+        engine_load:    Math.min(99,Math.round(78*m*pgPowerM))+"%",
         rpm_avg:        "82 rpm",
-        stw_laden:      (12.4*weatherM).toFixed(1)+" kn",
-        stw_ballast:    (11.1*weatherM).toFixed(1)+" kn",
-        sfoc:           ((174+fuelShift)*m).toFixed(1)+" g/kWh",
+        stw_laden:      (baseSogVal*1.00).toFixed(1)+" kn",
+        stw_ballast:    (baseSogVal*0.90).toFixed(1)+" kn",
+        sfoc:           baseSfocVal.toFixed(1)+" g/kWh",
         draft_laden:    (11.8*draftM).toFixed(2)+" m",
         // Environmental
-        co2_total:      Math.round(1480*m)+" t",
-        ch4_total:      (22.4*m).toFixed(1)+" kg",
-        n2o_total:      (5.1*m).toFixed(2)+" kg",
-        aer_actual:     (72*m).toFixed(1)+" gCO₂/t·nm",
+        co2_total:      Math.round(1480*m*pgConsM)+" t",
+        ch4_total:      (22.4*m*pgConsM).toFixed(1)+" kg",
+        n2o_total:      (5.1*m*pgConsM).toFixed(2)+" kg",
+        aer_actual:     baseAerVal.toFixed(1)+" gCO₂/t·nm",
         aer_required:   "70.0 gCO₂/t·nm",
-        cii_rating:     "B",
-        cii_projected:  "C",
-        ets_required:   Math.round(168*m)+" tCO₂",
+        cii_rating:     pgCiiM*m < 0.95 ? "A" : pgCiiM*m < 1.05 ? "B" : pgCiiM*m < 1.15 ? "C" : pgCiiM*m < 1.25 ? "D" : "E",
+        cii_projected:  pgCiiM*m < 1.0 ? "B" : "C",
+        ets_required:   Math.round(168*m*pgConsM)+" tCO₂",
         fueleu_balance: "+1.8%",
-        ghg_intensity:  (94.5*m).toFixed(1)+" gCO₂eq/MJ",
-        energy_consumed:Math.round(20800*m)+" MJ",
+        ghg_intensity:  (94.5*m*pgConsM).toFixed(1)+" gCO₂eq/MJ",
+        energy_consumed:Math.round(20800*m*pgPowerM)+" MJ",
         // LNG KPIs
         bog_rate:       "0.098 %/day",
-        lng_cons:       (20.2*m).toFixed(1)+" t/d",
+        lng_cons:       (20.2*m*pgConsM).toFixed(1)+" t/d",
         tank_temp:      "-160.5 °C",
         tank_press:     "1.068 bar",
         heel_vol:       "420 m³",
@@ -11700,6 +11736,9 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                           {showPeer&&(function(){
                             var pData=getPeerBenchmarkData(filters);
                             var pVal=pData[metric.id];
+                            var activePgId=filters.activePeerGroups?Object.keys(filters.activePeerGroups).find(function(k){return filters.activePeerGroups[k];}):null;
+                            var pgLabel=activePgId&&PEER_GROUP_BASE[activePgId]?PEER_GROUP_BASE[activePgId].label:"Fleet average";
+                            var pgShort=pgLabel.split(" · ").pop();
                             return (
                               <td key="peer" style={{padding:"12px 16px",
                                 borderLeft:"1px solid #EDE9FE",
@@ -11708,7 +11747,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                                 <div style={{fontSize:14,fontWeight:700,color:"#6D28D9",marginBottom:4,lineHeight:1.2}}>
                                   {pVal||"—"}
                                 </div>
-                                <div style={{fontSize:11,color:"#A78BFA",fontWeight:500}}>Fleet avg</div>
+                                <div style={{fontSize:11,color:"#A78BFA",fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:90}}>{pgShort}</div>
                               </td>
                             );
                           })()}
