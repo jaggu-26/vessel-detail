@@ -11490,10 +11490,9 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                         <th style={{padding:"10px 16px",background:"#FAF5FF",borderLeft:"1px solid #E2E8F0",verticalAlign:"middle",position:"sticky",top:0,zIndex:10,textAlign:"left",borderTopRightRadius:compVessels.length>=3?10:0}}>
                           <div style={{fontSize:13,fontWeight:600,color:"#7C3AED",whiteSpace:"nowrap",textAlign:"left"}}>Peer Average</div>
                           <div style={{fontSize:10,color:"#A78BFA",marginTop:2,whiteSpace:"nowrap",textAlign:"left"}}>
-                            {(function(){
-                              var active = filters.activePeerGroups ? PEER_GROUPS.filter(function(pg){ return filters.activePeerGroups[pg.id]; }) : [];
-                              return active.length > 0 ? active.length+" group"+(active.length>1?"s":"")+" · Fleet avg" : "Fleet average";
-                            })()}
+                            {currentVessel && currentVessel.type
+                              ? currentVessel.type+(currentVessel.range?" · "+currentVessel.range:"")
+                              : "Fleet average"}
                           </div>
                         </th>
                       )}
