@@ -5299,11 +5299,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <span style={{fontSize:9,color:"#94A3B8",fontWeight:600}}>ME (Propulsion + Manoeuvring)</span>
                 <div style={{display:"flex",alignItems:"center",gap:4}}>
                   <div style={{display:"flex",alignItems:"center",gap:3}}>
-                    <span style={{width:8,height:8,borderRadius:2,background:"linear-gradient(to top,#1E40AF,#60A5FA)",display:"inline-block",flexShrink:0}}/>
+                    <span style={{width:8,height:8,borderRadius:2,background:"#2563EB",display:"inline-block",flexShrink:0}}/>
                     <span style={{fontSize:9,color:"#64748B"}}>Propulsion</span>
                   </div>
                   <div style={{display:"flex",alignItems:"center",gap:3}}>
-                    <span style={{width:8,height:8,borderRadius:2,background:"linear-gradient(to top,#60A5FA,#BAE6FD)",display:"inline-block",flexShrink:0}}/>
+                    <span style={{width:8,height:8,borderRadius:2,background:"#60A5FA",display:"inline-block",flexShrink:0}}/>
                     <span style={{fontSize:9,color:"#64748B"}}>Manoeuvring</span>
                   </div>
                 </div>
@@ -5314,7 +5314,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <div style={{display:"flex",alignItems:"center",gap:5}}>
                 <span style={{fontSize:9,color:"#94A3B8",fontWeight:600}}>Auxiliaries</span>
                 <div style={{display:"flex",alignItems:"center",gap:3}}>
-                  <span style={{width:8,height:8,borderRadius:2,background:"linear-gradient(to top,#C2410C,#FB923C)",display:"inline-block",flexShrink:0}}/>
+                  <span style={{width:8,height:8,borderRadius:2,background:"#F97316",display:"inline-block",flexShrink:0}}/>
                   <span style={{fontSize:9,color:"#64748B"}}>Auxiliaries</span>
                 </div>
               </div>
@@ -5333,15 +5333,15 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   label={{value:"Auxiliaries consumption (MT)",angle:90,position:"insideRight",offset:10,style:{...axLabel,textAnchor:"middle",fill:"#F97316"}}}/>
                 <Tooltip content={<ModernTooltip/>} cursor={<BarBandCursor dataLen={chartData.length}/>}/>
                 <Customized component={function(){return React.createElement("defs",null,
-                  React.createElement("linearGradient",{id:"afcGradProp",x1:"0",y1:"1",x2:"0",y2:"0"},
-                    React.createElement("stop",{offset:"0%",stopColor:"#1E40AF"}),
-                    React.createElement("stop",{offset:"100%",stopColor:"#60A5FA"})),
-                  React.createElement("linearGradient",{id:"afcGradMano",x1:"0",y1:"1",x2:"0",y2:"0"},
-                    React.createElement("stop",{offset:"0%",stopColor:"#60A5FA"}),
-                    React.createElement("stop",{offset:"100%",stopColor:"#BAE6FD"})),
-                  React.createElement("linearGradient",{id:"afcGradAux",x1:"0",y1:"1",x2:"0",y2:"0"},
-                    React.createElement("stop",{offset:"0%",stopColor:"#C2410C"}),
-                    React.createElement("stop",{offset:"100%",stopColor:"#FB923C"}))
+                  React.createElement("linearGradient",{id:"afcGradProp",x1:"0",y1:"0",x2:"0",y2:"1"},
+                    React.createElement("stop",{offset:"0%",stopColor:"#2563EB",stopOpacity:1}),
+                    React.createElement("stop",{offset:"100%",stopColor:"#2563EB",stopOpacity:0.55})),
+                  React.createElement("linearGradient",{id:"afcGradMano",x1:"0",y1:"0",x2:"0",y2:"1"},
+                    React.createElement("stop",{offset:"0%",stopColor:"#60A5FA",stopOpacity:1}),
+                    React.createElement("stop",{offset:"100%",stopColor:"#60A5FA",stopOpacity:0.55})),
+                  React.createElement("linearGradient",{id:"afcGradAux",x1:"0",y1:"0",x2:"0",y2:"1"},
+                    React.createElement("stop",{offset:"0%",stopColor:"#F97316",stopOpacity:1}),
+                    React.createElement("stop",{offset:"100%",stopColor:"#F97316",stopOpacity:0.55}))
                 );}}/>
                 <Bar yAxisId="left" dataKey="propulsion" stackId="me" fill="url(#afcGradProp)" name="Propulsion"/>
                 <Bar yAxisId="left" dataKey="manoeuvring" stackId="me" fill="url(#afcGradMano)" name="Manoeuvring" radius={[4,4,0,0]}/>
@@ -13180,6 +13180,78 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
 
     var _ILLUS_SVG=`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="114" viewBox="0 0 120 114"><ellipse cx="60" cy="107" rx="42" ry="9" fill="#c8d1e8"/><rect x="19" y="4" width="82" height="62" rx="8" fill="#dce3f4"/><rect x="25" y="10" width="70" height="48" rx="5" fill="#eef1f9"/><rect x="31" y="42" width="7" height="12" rx="2" fill="#b4bee0"/><rect x="41" y="35" width="7" height="19" rx="2" fill="#9facd8"/><rect x="51" y="38" width="7" height="16" rx="2" fill="#b4bee0"/><rect x="61" y="28" width="7" height="26" rx="2" fill="#1852FE" opacity="0.45"/><rect x="71" y="32" width="7" height="22" rx="2" fill="#9facd8"/><rect x="81" y="24" width="7" height="30" rx="2" fill="#1852FE" opacity="0.6"/><polyline points="34,46 44,38 54,41 64,31 74,34 88,25" stroke="#1852FE" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/><circle cx="64" cy="31" r="2.5" fill="#1852FE" opacity="0.9"/><circle cx="88" cy="25" r="2.5" fill="#1852FE" opacity="0.9"/><rect x="51" y="66" width="18" height="8" rx="2" fill="#c8d0e8"/><rect x="41" y="74" width="38" height="7" rx="3.5" fill="#c8d0e8"/></svg>`;
 
+    var _CHART_COLOUR_SECTIONS=[
+      {group:"Operational Charts"},
+      {section:"Warranty Breach",type:"Bar Chart",colors:[
+        {hex:"#3B82F6",label:"Speed Breach",swatch:"gradient-v",gradFrom:"#3B82F6",gradTo:"rgba(59,130,246,0.55)",s0:"100%",s1:"55%"},
+        {hex:"#F87171",label:"Consumption Breach",swatch:"gradient-v",gradFrom:"#F87171",gradTo:"rgba(248,113,113,0.55)",s0:"100%",s1:"55%"},
+      ]},
+      {section:"Speed and Consumption",type:"Scatter Chart",colors:[
+        {hex:"#0EA5E9",label:"Ballast — scatter & regression",swatch:"solid"},
+        {hex:"#F97316",label:"Laden — scatter & regression (dashed)",swatch:"dashed"},
+      ]},
+      {section:"Average Daily Consumption",type:"Stacked Bar Chart",colors:[
+        {hex:"#2563EB",label:"ME Propulsion",swatch:"gradient-v",gradFrom:"#2563EB",gradTo:"rgba(37,99,235,0.55)",s0:"100%",s1:"55%"},
+        {hex:"#60A5FA",label:"Manoeuvring",swatch:"gradient-v",gradFrom:"#60A5FA",gradTo:"rgba(96,165,250,0.55)",s0:"100%",s1:"55%"},
+        {hex:"#F97316",label:"Auxiliaries",swatch:"gradient-v",gradFrom:"#F97316",gradTo:"rgba(249,115,22,0.55)",s0:"100%",s1:"55%"},
+      ]},
+      {section:"SOG and Slip",type:"Line Chart",colors:[
+        {hex:"#3B82F6",label:"Slip % (dashed) & SOG",swatch:"dashed"},
+        {hex:"#F97316",label:"Slip 7D Average",swatch:"solid"},
+      ]},
+      {section:"CII Rating (AER)",type:"Area + Band Chart",colors:[
+        {hex:"#16A34A",label:"Attained AER — Excellent (A)",swatch:"solid"},
+        {hex:"#F59E0B",label:"Required AER",swatch:"solid"},
+        {hex:"#22C55E",label:"Band A — Excellent (≤ 3.7)",swatch:"band"},
+        {hex:"#EAB308",label:"Band C — Moderate (5.0–6.2)",swatch:"band"},
+        {hex:"#F97316",label:"Band D — Poor (6.2–7.4)",swatch:"band"},
+        {hex:"#EF4444",label:"Band E — Very Poor (> 7.4)",swatch:"band"},
+      ]},
+      {section:"Global GHG Emissions",type:"Area Chart",colors:[
+        {hex:"#3B82F6",label:"Total CO₂",swatch:"solid"},
+        {hex:"#EAB308",label:"Total N₂O",swatch:"solid"},
+        {hex:"#22C55E",label:"Total CH₄",swatch:"solid"},
+      ]},
+      {section:"Emissions (EU)",type:"Bar Chart",colors:[
+        {hex:"#4C6EF5",label:"Total Emissions",swatch:"gradient-v",gradFrom:"#4C6EF5",gradTo:"rgba(129,140,248,0.70)",s0:"100%",s1:"70%"},
+        {hex:"#F59E0B",label:"Consumption",swatch:"gradient-v",gradFrom:"#F59E0B",gradTo:"rgba(252,211,77,0.70)",s0:"100%",s1:"70%"},
+      ]},
+      {section:"EU ETS and FuelEU CB",type:"Bar + Line Chart",colors:[
+        {hex:"#22C55E",label:"Positive Compliance Balance",swatch:"gradient-v",gradFrom:"#22C55E",gradTo:"rgba(74,222,128,0.75)",s0:"100%",s1:"75%"},
+        {hex:"#EF4444",label:"Negative Compliance Balance",swatch:"gradient-v",gradFrom:"rgba(239,68,68,0.75)",gradTo:"#DC2626",s0:"75%",s1:"100%"},
+        {hex:"#3B82F6",label:"EUAs Required (line)",swatch:"solid"},
+      ]},
+      {section:"Top Port Calls",type:"Horizontal Bar",colors:[
+        {hex:"#8B5CF6",label:"Port Calls",swatch:"gradient-h",gradFrom:"rgba(139,92,246,0.55)",gradTo:"#8B5CF6",s0:"55%",s1:"100%"},
+      ]},
+      {section:"Incident Breakdown",type:"Bar Chart",colors:[
+        {hex:"#D87870",label:"Incidents",swatch:"gradient-v",gradFrom:"#D87870",gradTo:"rgba(216,120,112,0.55)",s0:"100%",s1:"55%"},
+      ]},
+      {section:"Hull Health",type:"Scatter + Band Chart",colors:[
+        {hex:"#3B82F6",label:"Speed Loss data points",swatch:"solid"},
+        {hex:"#86EFAC",label:"Band: Good (0–10%)",swatch:"band"},
+        {hex:"#FDE047",label:"Band: Caution (10–20%)",swatch:"band"},
+        {hex:"#EF4444",label:"Band: Critical (> 20%)",swatch:"band"},
+      ]},
+      {section:"Fleet Performance",type:"Radar Chart",colors:[
+        {hex:"#3B82F6",label:"Score",swatch:"solid"},
+      ]},
+      {section:"Fleet Composition",type:"Pie Chart",colors:[
+        {hex:"#1852FE",label:"Series 1",swatch:"solid"},
+        {hex:"#0F6E56",label:"Series 2",swatch:"solid"},
+        {hex:"#F59E0B",label:"Series 3",swatch:"solid"},
+        {hex:"#EF4444",label:"Series 4",swatch:"solid"},
+        {hex:"#8B5CF6",label:"Series 5",swatch:"solid"},
+        {hex:"#06B6D4",label:"Series 6",swatch:"solid"},
+      ]},
+      {section:"On-time Delivery",type:"Area Chart",colors:[
+        {hex:"#5499D8",label:"On-time Rate",swatch:"solid"},
+      ]},
+      {section:"Vessel Utilisation",type:"Area Chart",colors:[
+        {hex:"#48AB87",label:"Utilisation %",swatch:"solid"},
+      ]},
+    ];
+
     function AssetsPanel(){
       var [open,setOpen]=React.useState(false);
       var [activeTab,setActiveTab]=React.useState('icons');
@@ -13222,7 +13294,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       }
 
       var tabStyle=function(t){return{
-        padding:"6px 14px",fontSize:11,fontWeight:600,cursor:"pointer",border:"none",background:"none",
+        padding:"11px 14px",fontSize:11,fontWeight:600,cursor:"pointer",border:"none",background:"none",
         color:activeTab===t?"#1852FE":"#94A3B8",
         borderBottom:"2px solid "+(activeTab===t?"#1852FE":"transparent"),
         transition:"all 0.12s",letterSpacing:"0.1px"
@@ -13235,11 +13307,11 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           {open&&(
             <div style={{marginBottom:10,width:500,background:"#fff",borderRadius:14,
               boxShadow:"0 24px 64px rgba(0,0,0,0.18),0 4px 16px rgba(0,0,0,0.10)",
-              border:"1px solid #E2E8F0",overflow:"hidden",maxHeight:"76vh",display:"flex",flexDirection:"column"}}
+              overflow:"hidden",maxHeight:"76vh",display:"flex",flexDirection:"column"}}
               onClick={function(e){e.stopPropagation();}}>
 
               {/* Header */}
-              <div style={{background:"#001E4C",padding:"11px 16px",display:"flex",alignItems:"center",flexShrink:0}}>
+              <div style={{background:"#1752FE",padding:"11px 16px",display:"flex",alignItems:"center",flexShrink:0}}>
                 <div style={{display:"flex",alignItems:"center",gap:8}}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="14" cy="6.5" r="3.5"/>
@@ -13255,7 +13327,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
               <div style={{display:"flex",borderBottom:"1px solid #E2E8F0",background:"#fff",flexShrink:0,padding:"0 8px"}}>
                 <button style={tabStyle('icons')} onClick={function(e){e.stopPropagation();setActiveTab('icons');}}>Icons</button>
                 <button style={tabStyle('illustrations')} onClick={function(e){e.stopPropagation();setActiveTab('illustrations');}}>Illustrations</button>
-                <button style={tabStyle('colors')} onClick={function(e){e.stopPropagation();setActiveTab('colors');}}>Colors</button>
+                <button style={tabStyle('colours')} onClick={function(e){e.stopPropagation();setActiveTab('colours');}}>Colours</button>
               </div>
 
               {/* Tab: Icons */}
@@ -13314,14 +13386,14 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                     onMouseEnter={function(){setIllusHov(true);}}
                     onMouseLeave={function(){setIllusHov(false);}}
                     onClick={function(e){e.stopPropagation();copyIllus();}}>
-                    <div style={{position:"relative",height:114,width:120}}>
+                    <div style={{position:"relative",display:"inline-block"}}>
                       <svg width="120" height="18" viewBox="0 0 120 18" fill="none"
-                        style={{position:"absolute",bottom:0,left:0,transformOrigin:"center center",
+                        style={{position:"absolute",bottom:6,left:"50%",transformOrigin:"center center",
                           animation:"shadowPulse 2.8s ease-in-out infinite"}}>
                         <ellipse cx="60" cy="9" rx="42" ry="9" fill="#c8d1e8"/>
                       </svg>
                       <svg width="120" height="96" viewBox="0 0 120 96" fill="none"
-                        style={{display:"block",animation:"levitate 2.8s ease-in-out infinite",position:"absolute",top:0,left:0,zIndex:1}}>
+                        style={{display:"block",animation:"levitate 2.8s ease-in-out infinite",position:"relative",zIndex:1}}>
                         <rect x="19" y="4" width="82" height="62" rx="8" fill="#dce3f4"/>
                         <rect x="25" y="10" width="70" height="48" rx="5" fill="#eef1f9"/>
                         <rect x="25" y="10" width="70" height="48" rx="5" fill="url(#scr2)" opacity="0.6"/>
@@ -13360,32 +13432,59 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                 </div>
               )}
 
-              {/* Tab: Colors */}
-              {activeTab==='colors'&&(
+              {/* Tab: Colours */}
+              {activeTab==='colours'&&(
                 <div style={{overflowY:"auto",padding:"10px 14px 14px"}}>
-                  {colorGroups.map(function(group){
-                    var cols=_CHART_COLORS.filter(function(c){return c.group===group;});
+                  {_CHART_COLOUR_SECTIONS.map(function(sec,si){
+                    if(sec.group){
+                      return (
+                        <div key={"grp"+si} style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,marginTop:si>0?20:2}}>
+                          <span style={{fontSize:10,fontWeight:700,color:"#1752FE",letterSpacing:"0.8px",textTransform:"uppercase",whiteSpace:"nowrap"}}>{sec.group}</span>
+                          <div style={{flex:1,height:1,background:"#E2E8F0"}}/>
+                        </div>
+                      );
+                    }
                     return (
-                      <div key={group} style={{marginBottom:14}}>
-                        <div style={{fontSize:9,fontWeight:700,color:"#94A3B8",letterSpacing:"0.9px",textTransform:"uppercase",marginBottom:7,paddingLeft:1}}>{group}</div>
+                      <div key={sec.section} style={{marginBottom:18}}>
+                        <div style={{marginBottom:8}}>
+                          <div style={{fontSize:12,fontWeight:700,color:"#0F172A",marginBottom:2}}>{sec.section}</div>
+                          <div style={{fontSize:10,color:"#94A3B8",fontWeight:500}}>{sec.type}</div>
+                        </div>
                         <div style={{display:"flex",flexDirection:"column",gap:3}}>
-                          {cols.map(function(c,i){
-                            var isCopied=copiedName===c.hex;
+                          {sec.colors.map(function(c){
+                            var isCopied=copiedName===c.hex+sec.section;
                             return (
-                              <div key={group+i} title={"Click to copy "+c.hex}
-                                style={{display:"flex",alignItems:"center",gap:10,padding:"5px 8px",borderRadius:7,
+                              <div key={c.hex+c.label}
+                                style={{display:"flex",alignItems:"center",gap:8,padding:"4px 8px",borderRadius:6,
                                   background:"#F8FAFC",border:"0.5px solid #E2E8F0",cursor:"pointer",transition:"background 0.1s"}}
-                                onClick={function(e){e.stopPropagation();copyColorHex(c.hex);}}>
-                                <div style={{width:28,height:28,borderRadius:6,background:c.hex,flexShrink:0,
-                                  boxShadow:"inset 0 0 0 1px rgba(0,0,0,0.08)"}}/>
-                                <div style={{flex:1,minWidth:0}}>
-                                  <div style={{fontSize:11,fontWeight:600,color:"#0F172A",marginBottom:1}}>{c.name}</div>
-                                  <div style={{fontSize:9.5,color:"#64748B",lineHeight:1.4}}>{c.usage}</div>
-                                </div>
-                                <div style={{flexShrink:0,textAlign:"right"}}>
-                                  <div style={{fontSize:10.5,fontWeight:700,color:"#1852FE",fontFamily:"monospace",letterSpacing:"0.3px"}}>{isCopied?"Copied!":c.hex}</div>
-                                  <div style={{fontSize:9,color:"#94A3B8",fontFamily:"monospace"}}>{"rgb("+hexToRgb(c.hex)+")"}</div>
-                                </div>
+                                onClick={function(e){e.stopPropagation();navigator.clipboard.writeText(c.hex).then(function(){
+                                  setCopiedName(c.hex+sec.section);setTimeout(function(){setCopiedName('');},1500);
+                                });}}>
+                                {c.swatch==="dashed"?(
+                                  <div style={{width:48,height:48,borderRadius:6,flexShrink:0,background:"#F1F5F9",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                                    <svg width="36" height="10"><line x1="0" y1="5" x2="36" y2="5" stroke={c.hex} strokeWidth="3" strokeDasharray="5 3"/></svg>
+                                  </div>
+                                ):c.swatch==="band"?(
+                                  <div style={{width:48,height:48,borderRadius:6,background:c.hex,opacity:0.55,flexShrink:0}}/>
+                                ):c.swatch==="gradient-v"?(
+                                  <div style={{width:48,height:48,borderRadius:6,flexShrink:0,position:"relative",overflow:"hidden",
+                                    background:"linear-gradient(to bottom,"+c.gradFrom+","+c.gradTo+")"}}>
+                                    {c.s0&&<span style={{position:"absolute",top:3,left:0,right:0,textAlign:"center",fontSize:8,fontWeight:700,color:"rgba(255,255,255,0.9)",lineHeight:1}}>{c.s0}</span>}
+                                    {c.s1&&<span style={{position:"absolute",bottom:3,left:0,right:0,textAlign:"center",fontSize:8,fontWeight:700,color:"rgba(255,255,255,0.9)",lineHeight:1}}>{c.s1}</span>}
+                                  </div>
+                                ):c.swatch==="gradient-h"?(
+                                  <div style={{width:48,height:48,borderRadius:6,flexShrink:0,position:"relative",overflow:"hidden",
+                                    background:"linear-gradient(to right,"+c.gradFrom+","+c.gradTo+")"}}>
+                                    {c.s0&&<span style={{position:"absolute",top:"50%",left:3,transform:"translateY(-50%)",fontSize:8,fontWeight:700,color:"rgba(255,255,255,0.9)",lineHeight:1}}>{c.s0}</span>}
+                                    {c.s1&&<span style={{position:"absolute",top:"50%",right:3,transform:"translateY(-50%)",fontSize:8,fontWeight:700,color:"rgba(255,255,255,0.9)",lineHeight:1}}>{c.s1}</span>}
+                                  </div>
+                                ):(
+                                  <div style={{width:48,height:48,borderRadius:6,background:c.hex,flexShrink:0}}/>
+                                )}
+                                <span style={{flex:1,fontSize:10.5,fontWeight:500,color:"#0F172A"}}>{c.label}</span>
+                                <span style={{fontSize:10,fontWeight:700,color:isCopied?"#16A34A":"#1852FE",fontFamily:"monospace",flexShrink:0}}>
+                                  {isCopied?"Copied!":c.hex}
+                                </span>
                               </div>
                             );
                           })}
