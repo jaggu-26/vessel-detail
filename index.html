@@ -7219,7 +7219,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       });
       var [wscView,setWscView]=React.useState("Month");
       var [wscFilter,setWscFilter]=React.useState(["laden"]);
-      var [sccFilter,setSccFilter]=React.useState(["laden","ballast"]);
+      var [sccFilter,setSccFilter]=React.useState(["laden"]);
       var [sogSlipView,setSogSlipView]=React.useState("Month");
       var [hhView,setHhView]=React.useState("Month");
       var HullHealthTabs=(
@@ -7393,21 +7393,17 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               var hasLaden=sccFilter.includes("laden"), hasBallast=sccFilter.includes("ballast");
               function sccTab(label,k){
                 var active=sccFilter.includes(k);
-                return (
-                  <button key={k} onClick={function(){
-                    setSccFilter(function(prev){
-                      if(prev.includes(k)){
-                        var next=prev.filter(function(v){return v!==k;});
-                        return next.length===0?prev:next;
-                      }
-                      return prev.concat(k);
-                    });
-                  }} style={{padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",border:"none",
-                    background:active?(k==="laden"?"#F97316":"#0EA5E9"):"transparent",
-                    color:active?"#fff":"#64748B",transition:"0.15s"}}>
-                    {label}
-                  </button>
-                );
+                return <button key={k} onClick={function(){
+                  setSccFilter(function(prev){
+                    return active&&prev.length>1?prev.filter(function(x){return x!==k;}):active?prev:prev.concat([k]);
+                  });
+                }} style={{
+                  padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",
+                  border:"none",
+                  background:active?"#2563EB":"transparent",
+                  color:active?"#fff":"#94A3B8",
+                  transition:"all 0.15s",
+                }}>{label}</button>;
               }
               function bReg(x){return Math.max(0,0.00082*Math.pow(x,2.9));}
               function lReg(x){return Math.max(0,0.00108*Math.pow(x,2.95));}
