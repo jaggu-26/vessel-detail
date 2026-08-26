@@ -10292,6 +10292,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       {id:"port_days",      label:"Port Days",                     subgroup:"Vessel Utilisation", group:"Operational", tab:"Operational",   recommended:true},
       {id:"me_cons_laden",  label:"ME Cons/day (Laden)",           subgroup:"Consumption",        group:"Operational", tab:"Operational",   recommended:true},
       {id:"me_cons_ballast",label:"ME Cons/day (Ballast)",         subgroup:"Consumption",        group:"Operational", tab:"Operational",   recommended:true},
+      {id:"fuel_type_usage",label:"Fuel Type Usage",              subgroup:"Consumption",        group:"Operational", tab:"Operational",   recommended:true},
       {id:"ae_cons",        label:"Avg AE Consumption",            subgroup:"Consumption",        group:"Operational", tab:"Operational",   recommended:true},
       {id:"sog_laden",      label:"Avg SOG (Laden)",               subgroup:"Speed",              group:"Operational", tab:"Operational",   recommended:true},
       {id:"sog_ballast",    label:"Avg SOG (Ballast)",             subgroup:"Speed",              group:"Operational", tab:"Operational",   recommended:true},
@@ -10363,6 +10364,17 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         idle_berth:     (8+(s4%16))+" hrs",
         me_cons_laden:  ((22+(s%8)*0.6)*m).toFixed(1)+" MT/d",
         me_cons_ballast:((16+(s2%6)*0.5)*m).toFixed(1)+" MT/d",
+        fuel_type_usage:(function(){
+          var hfo=Math.round(600+(s%200)); var lfo=Math.round(200+(s2%150));
+          var mgo=Math.round(80+(s3%80));  var bio=Math.round(20+(s4%40));
+          var tot=hfo+lfo+mgo+bio;
+          return [
+            {type:"HFO",mt:hfo,pct:Math.round(hfo/tot*100)},
+            {type:"LFO",mt:lfo,pct:Math.round(lfo/tot*100)},
+            {type:"MGO",mt:mgo,pct:Math.round(mgo/tot*100)},
+            {type:"Bio",mt:bio,pct:Math.round(bio/tot*100)},
+          ];
+        })(),
         ae_cons:        ((1.8+(s3%4)*0.2)*m).toFixed(2)+" MT/d",
         sog_laden:      ((12+(s%6)*0.3)*weatherM).toFixed(1)+" kn",
         sog_ballast:    ((11+(s2%5)*0.3)*weatherM).toFixed(1)+" kn",
@@ -10499,6 +10511,12 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         idle_berth:     "12 hrs",
         me_cons_laden:  (24.1*m*pgConsM).toFixed(1)+" MT/d",
         me_cons_ballast:(17.4*m*pgConsM).toFixed(1)+" MT/d",
+        fuel_type_usage:[
+          {type:"HFO",mt:680,pct:61},
+          {type:"LFO",mt:240,pct:22},
+          {type:"MGO",mt:110,pct:10},
+          {type:"Bio",mt:75,pct:7},
+        ],
         ae_cons:        (2.1*m*pgConsM).toFixed(2)+" MT/d",
         sog_laden:      (baseSogVal*1.03).toFixed(1)+" kn",
         sog_ballast:    (baseSogVal*0.94).toFixed(1)+" kn",
@@ -11728,9 +11746,21 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                                   </div>
                                 ) : (
                                   <div>
-                                    <div style={{fontSize:14,fontWeight:700,color:valColor,marginBottom:3,lineHeight:1.2}}>
-                                      {val||"—"}
-                                    </div>
+                                    {Array.isArray(val)?(
+                                      <div style={{marginBottom:3}}>
+                                        {val.map(function(f,fi){return(
+                                          <div key={fi} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,marginBottom:fi<val.length-1?4:0}}>
+                                            <span style={{fontSize:11,fontWeight:600,color:valColor,minWidth:28}}>{f.type}</span>
+                                            <span style={{fontSize:11,color:"#475569",fontWeight:500,flex:1}}>{f.mt} MT</span>
+                                            <span style={{fontSize:11,fontWeight:700,color:"#1752FE",minWidth:32,textAlign:"right"}}>{f.pct}%</span>
+                                          </div>
+                                        );})}
+                                      </div>
+                                    ):(
+                                      <div style={{fontSize:14,fontWeight:700,color:valColor,marginBottom:3,lineHeight:1.2}}>
+                                        {val||"—"}
+                                      </div>
+                                    )}
                                     <div style={{fontSize:11,color:"#94A3B8",fontWeight:500,lineHeight:1.3}}>
                                       {pts} pts
                                     </div>
@@ -11755,9 +11785,21 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                                 borderLeft:"1px solid #EDE9FE",
                                 background:isAlt?"rgba(245,243,255,0.8)":"rgba(250,245,255,0.5)",
                                 verticalAlign:"top"}}>
-                                <div style={{fontSize:14,fontWeight:700,color:"#6D28D9",marginBottom:4,lineHeight:1.2}}>
-                                  {pVal||"—"}
-                                </div>
+                                {Array.isArray(pVal)?(
+                                  <div style={{marginBottom:4}}>
+                                    {pVal.map(function(f,fi){return(
+                                      <div key={fi} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,marginBottom:fi<pVal.length-1?4:0}}>
+                                        <span style={{fontSize:11,fontWeight:600,color:"#6D28D9",minWidth:28}}>{f.type}</span>
+                                        <span style={{fontSize:11,color:"#7C3AED",fontWeight:500,flex:1}}>{f.mt} MT</span>
+                                        <span style={{fontSize:11,fontWeight:700,color:"#6D28D9",minWidth:32,textAlign:"right"}}>{f.pct}%</span>
+                                      </div>
+                                    );})}
+                                  </div>
+                                ):(
+                                  <div style={{fontSize:14,fontWeight:700,color:"#6D28D9",marginBottom:4,lineHeight:1.2}}>
+                                    {pVal||"—"}
+                                  </div>
+                                )}
                                 <div style={{fontSize:10,color:"#A78BFA",fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:110}}>{pgLabel}</div>
                               </td>
                             );
