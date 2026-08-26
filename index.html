@@ -13187,8 +13187,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         {hex:"#F87171",label:"Consumption Breach",swatch:"gradient-v",gradFrom:"#F87171",gradTo:"rgba(248,113,113,0.55)",s0:"100%",s1:"55%"},
       ]},
       {section:"Speed and Consumption",type:"Scatter Chart",colors:[
-        {hex:"#0EA5E9",label:"Ballast — scatter & regression",swatch:"solid"},
-        {hex:"#F97316",label:"Laden — scatter & regression (dashed)",swatch:"dashed"},
+        {hex:"#0EA5E9",label:"Ballast — scatter & regression line",swatch:"solid"},
+        {hex:"#F97316",label:"Laden — scatter & regression line (dashed)",swatch:"dashed"},
       ]},
       {section:"Average Daily Consumption",type:"Stacked Bar Chart",colors:[
         {hex:"#2563EB",label:"ME Propulsion",swatch:"gradient-v",gradFrom:"#2563EB",gradTo:"rgba(37,99,235,0.55)",s0:"100%",s1:"55%"},
@@ -13196,41 +13196,13 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         {hex:"#F97316",label:"Auxiliaries",swatch:"gradient-v",gradFrom:"#F97316",gradTo:"rgba(249,115,22,0.55)",s0:"100%",s1:"55%"},
       ]},
       {section:"SOG and Slip",type:"Line Chart",colors:[
-        {hex:"#3B82F6",label:"Slip % (dashed) & SOG",swatch:"dashed"},
+        {hex:"#3B82F6",label:"Slip % (dashed) & SOG line",swatch:"dashed"},
         {hex:"#F97316",label:"Slip 7D Average",swatch:"solid"},
-      ]},
-      {group:"Environmental Charts"},
-      {section:"CII Rating (AER)",type:"Area + Band Chart",colors:[
-        {hex:"#16A34A",label:"Attained AER — Excellent (A)",swatch:"solid"},
-        {hex:"#F59E0B",label:"Required AER",swatch:"solid"},
-        {hex:"#22C55E",label:"Band A — Excellent (≤ 3.7)",swatch:"band"},
-        {hex:"#EAB308",label:"Band C — Moderate (5.0–6.2)",swatch:"band"},
-        {hex:"#F97316",label:"Band D — Poor (6.2–7.4)",swatch:"band"},
-        {hex:"#EF4444",label:"Band E — Very Poor (> 7.4)",swatch:"band"},
-      ]},
-      {section:"Global GHG Emissions",type:"Area Chart",colors:[
-        {hex:"#3B82F6",label:"Total CO₂",swatch:"solid"},
-        {hex:"#EAB308",label:"Total N₂O",swatch:"solid"},
-        {hex:"#22C55E",label:"Total CH₄",swatch:"solid"},
-      ]},
-      {section:"Emissions (EU)",type:"Bar Chart",colors:[
-        {hex:"#4C6EF5",label:"Total Emissions",swatch:"gradient-v",gradFrom:"#4C6EF5",gradTo:"rgba(129,140,248,0.70)",s0:"100%",s1:"70%"},
-        {hex:"#F59E0B",label:"Consumption",swatch:"gradient-v",gradFrom:"#F59E0B",gradTo:"rgba(252,211,77,0.70)",s0:"100%",s1:"70%"},
-      ]},
-      {section:"EU ETS and FuelEU CB",type:"Bar + Line Chart",colors:[
-        {hex:"#22C55E",label:"Positive Compliance Balance",swatch:"gradient-v",gradFrom:"#22C55E",gradTo:"rgba(74,222,128,0.75)",s0:"100%",s1:"75%"},
-        {hex:"#EF4444",label:"Negative Compliance Balance",swatch:"gradient-v",gradFrom:"rgba(239,68,68,0.75)",gradTo:"#DC2626",s0:"75%",s1:"100%"},
-        {hex:"#3B82F6",label:"EUAs Required (line)",swatch:"solid"},
-      ]},
-      {group:"Technical Charts"},
-      {section:"Hull Health",type:"Scatter + Band Chart",colors:[
-        {hex:"#3B82F6",label:"Speed Loss data points",swatch:"solid"},
-        {hex:"#86EFAC",label:"Band: Good (0–10%)",swatch:"band"},
-        {hex:"#FDE047",label:"Band: Caution (10–20%)",swatch:"band"},
-        {hex:"#EF4444",label:"Band: Critical (> 20%)",swatch:"band"},
+        {hex:"#CBD5E1",label:"Reference line (date marker)",swatch:"solid"},
       ]},
       {section:"Fleet Performance",type:"Radar Chart",colors:[
-        {hex:"#3B82F6",label:"Score",swatch:"solid"},
+        {hex:"#3B82F6",label:"Score — stroke",swatch:"solid"},
+        {hex:"#3B82F6",label:"Score — fill (15% opacity)",swatch:"band"},
       ]},
       {section:"Fleet Composition",type:"Pie Chart",colors:[
         {hex:"#1852FE",label:"Series 1",swatch:"solid"},
@@ -13241,10 +13213,51 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         {hex:"#06B6D4",label:"Series 6",swatch:"solid"},
       ]},
       {section:"On-time Delivery",type:"Area Chart",colors:[
-        {hex:"#5499D8",label:"On-time Rate",swatch:"solid"},
+        {hex:"#5499D8",label:"On-time Rate — line",swatch:"solid"},
+        {hex:"#5499D8",label:"On-time Rate — area fill",swatch:"gradient-v",gradFrom:"rgba(84,153,216,0.25)",gradTo:"rgba(84,153,216,0.02)",s0:"25%",s1:"2%"},
       ]},
       {section:"Vessel Utilisation",type:"Area Chart",colors:[
-        {hex:"#48AB87",label:"Utilisation %",swatch:"solid"},
+        {hex:"#48AB87",label:"Utilisation % — line",swatch:"solid"},
+        {hex:"#48AB87",label:"Utilisation % — area fill",swatch:"gradient-v",gradFrom:"rgba(72,171,135,0.25)",gradTo:"rgba(72,171,135,0.02)",s0:"25%",s1:"2%"},
+      ]},
+      {group:"Environmental Charts"},
+      {section:"CII Rating (AER)",type:"Area + Band Chart",colors:[
+        {hex:"#16A34A",label:"Attained AER line",swatch:"solid"},
+        {hex:"#F59E0B",label:"Required AER line (dashed)",swatch:"dashed"},
+        {hex:"#16A34A",label:"Band A — Excellent (AER ≤ 3.7)",swatch:"band"},
+        {hex:"#22C55E",label:"Band B — Good (3.7–5.0)",swatch:"band"},
+        {hex:"#84CC16",label:"Band B/C boundary reference",swatch:"solid"},
+        {hex:"#EAB308",label:"Band C — Moderate (5.0–6.2)",swatch:"band"},
+        {hex:"#F97316",label:"Band D — Poor (6.2–7.4)",swatch:"band"},
+        {hex:"#EF4444",label:"Band E — Very Poor (> 7.4)",swatch:"band"},
+      ]},
+      {section:"Global GHG Emissions",type:"Area Chart",colors:[
+        {hex:"#3B82F6",label:"Total CO₂",swatch:"gradient-v",gradFrom:"rgba(59,130,246,0.45)",gradTo:"rgba(59,130,246,0.01)",s0:"45%",s1:"1%"},
+        {hex:"#EAB308",label:"Total N₂O",swatch:"gradient-v",gradFrom:"rgba(234,179,8,0.50)",gradTo:"rgba(234,179,8,0.01)",s0:"50%",s1:"1%"},
+        {hex:"#22C55E",label:"Total CH₄",swatch:"gradient-v",gradFrom:"rgba(34,197,94,0.42)",gradTo:"rgba(34,197,94,0.01)",s0:"42%",s1:"1%"},
+      ]},
+      {section:"Emissions (EU)",type:"Bar Chart",colors:[
+        {hex:"#4C6EF5",label:"Total Emissions — top stop",swatch:"gradient-v",gradFrom:"#4C6EF5",gradTo:"rgba(129,140,248,0.70)",s0:"100%",s1:"70%"},
+        {hex:"#818CF8",label:"Total Emissions — bottom stop",swatch:"solid"},
+        {hex:"#F59E0B",label:"Consumption — top stop",swatch:"gradient-v",gradFrom:"#F59E0B",gradTo:"rgba(252,211,77,0.70)",s0:"100%",s1:"70%"},
+        {hex:"#FCD34D",label:"Consumption — bottom stop",swatch:"solid"},
+      ]},
+      {section:"EU ETS and FuelEU CB",type:"Bar + Line Chart",colors:[
+        {hex:"#22C55E",label:"Positive Balance — top stop",swatch:"gradient-v",gradFrom:"#22C55E",gradTo:"rgba(74,222,128,0.75)",s0:"100%",s1:"75%"},
+        {hex:"#4ADE80",label:"Positive Balance — bottom stop",swatch:"solid"},
+        {hex:"#EF4444",label:"Negative Balance — top stop",swatch:"gradient-v",gradFrom:"rgba(239,68,68,0.75)",gradTo:"#DC2626",s0:"75%",s1:"100%"},
+        {hex:"#DC2626",label:"Negative Balance — bottom stop",swatch:"solid"},
+        {hex:"#3B82F6",label:"EUAs Required (line + dots)",swatch:"solid"},
+      ]},
+      {group:"Technical Charts"},
+      {section:"Hull Health",type:"Scatter + Band Chart",colors:[
+        {hex:"#16A34A",label:"Line segments — Good (0–10%)",swatch:"solid"},
+        {hex:"#F97316",label:"Line segments — Caution (10–20%)",swatch:"solid"},
+        {hex:"#EF4444",label:"Line segments — Critical (> 20%) & port stay lines",swatch:"solid"},
+        {hex:"#3B82F6",label:"Speed loss scatter dots",swatch:"solid"},
+        {hex:"#86EFAC",label:"Fill band — Good (0–10%)",swatch:"band"},
+        {hex:"#FDE047",label:"Fill band — Caution (10–20%)",swatch:"band"},
+        {hex:"#EF4444",label:"Fill band — Critical (> 20%)",swatch:"band"},
       ]},
     ];
 
