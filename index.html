@@ -35,6 +35,7 @@ html, body, #root { height: 100%; width: 100%; overflow: hidden; }
   0%   { background-position: -600px 0; }
   100% { background-position:  600px 0; }
 }
+.osm-light-tiles { filter: grayscale(1) brightness(1.14) contrast(0.82) opacity(0.9); }
 .recharts-legend-item {
   display: inline-flex !important;
   align-items: center !important;
@@ -12216,6 +12217,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
           noWrap: true,
+          className: 'osm-light-tiles',
           attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         }).addTo(map);
         if (!startPos) {
