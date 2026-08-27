@@ -35,9 +35,6 @@ html, body, #root { height: 100%; width: 100%; overflow: hidden; }
   0%   { background-position: -600px 0; }
   100% { background-position:  600px 0; }
 }
-.fuel-more-wrap { position: relative; display: inline-block; }
-.fuel-more-wrap .fuel-tooltip { display: none; position: absolute; left: 0; top: 100%; margin-top: 6px; z-index: 9999; background: #0F172A; border-radius: 8px; padding: 12px 14px; min-width: 220px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); pointer-events: none; }
-.fuel-more-wrap:hover .fuel-tooltip { display: block; }
 .recharts-legend-item {
   display: inline-flex !important;
   align-items: center !important;
@@ -1033,6 +1030,49 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
     }
 
+    function FuelMoreBtn({fuels,accentColor}) {
+      var [open,setOpen]=React.useState(false);
+      var wrapRef=React.useRef(null);
+      React.useEffect(function(){
+        if(!open) return;
+        function handler(e){ if(wrapRef.current&&!wrapRef.current.contains(e.target)) setOpen(false); }
+        document.addEventListener("mousedown",handler);
+        return function(){ document.removeEventListener("mousedown",handler); };
+      },[open]);
+      return (
+        <div ref={wrapRef} style={{position:"relative",display:"inline-block",marginTop:5}}>
+          <span onClick={function(e){e.stopPropagation();setOpen(function(v){return !v;});}}
+            style={{fontSize:11,fontWeight:600,color:accentColor||"#1752FE",cursor:"pointer",
+              textDecoration:"underline",textUnderlineOffset:2}}>more</span>
+          {open&&(
+            <div style={{position:"absolute",left:0,top:"100%",marginTop:6,zIndex:9999,
+              background:"#0F172A",borderRadius:8,padding:"12px 14px",minWidth:230,
+              boxShadow:"0 8px 24px rgba(0,0,0,0.35)"}}>
+              <button onClick={function(){setOpen(false);}} style={{position:"absolute",top:8,right:8,
+                background:"none",border:"none",cursor:"pointer",color:"#94A3B8",fontSize:14,
+                lineHeight:1,padding:2}} aria-label="Close">✕</button>
+              {fuels.map(function(f,fi){return(
+                <div key={fi} style={{marginBottom:fi<fuels.length-1?10:0}}>
+                  <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+                    <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>{f.type}</span>
+                    <span style={{fontSize:11,color:"#94A3B8"}}>{f.mt}MT</span>
+                    <span style={{fontSize:11,fontWeight:700,color:"#60A5FA"}}>({f.pct}%)</span>
+                  </div>
+                  {f.sub&&f.sub.map(function(s,si){return(
+                    <div key={si} style={{display:"flex",alignItems:"center",gap:6,
+                      marginBottom:si<f.sub.length-1?3:0}}>
+                      <span style={{fontSize:10,color:"#CBD5E1",flex:1}}>{s.type}</span>
+                      <span style={{fontSize:10,color:"#94A3B8"}}>{s.mt}MT</span>
+                      <span style={{fontSize:10,color:"#94A3B8"}}>({s.pct}%)</span>
+                    </div>
+                  );})}
+                </div>
+              );})}
+            </div>
+          )}
+        </div>
+      );
+    }
     function IconTooltipBtn({children, tip, onClick}) {
       var [pos,setPos]=useState(null);
       var btnRef=useRef(null);
@@ -11772,27 +11812,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                                             <span style={{fontSize:11,fontWeight:700,color:"#1752FE",minWidth:32,textAlign:"right"}}>{f.pct}%</span>
                                           </div>
                                         );})}
-                                        <div className="fuel-more-wrap" style={{marginTop:5}}>
-                                          <span style={{fontSize:11,fontWeight:600,color:"#1752FE",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:2}}>more</span>
-                                          <div className="fuel-tooltip">
-                                            {val.map(function(f,fi){return(
-                                              <div key={fi} style={{marginBottom:fi<val.length-1?10:0}}>
-                                                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
-                                                  <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>{f.type}</span>
-                                                  <span style={{fontSize:11,color:"#94A3B8",marginLeft:8}}>{f.mt}MT</span>
-                                                  <span style={{fontSize:11,fontWeight:700,color:"#60A5FA",marginLeft:6}}>({f.pct}%)</span>
-                                                </div>
-                                                {f.sub&&f.sub.map(function(s,si){return(
-                                                  <div key={si} style={{display:"flex",alignItems:"center",justifyContent:"space-between",paddingLeft:10,marginBottom:si<f.sub.length-1?3:0}}>
-                                                    <span style={{fontSize:10,color:"#CBD5E1",flex:1}}>{s.type}</span>
-                                                    <span style={{fontSize:10,color:"#94A3B8",marginLeft:8}}>{s.mt}MT</span>
-                                                    <span style={{fontSize:10,color:"#94A3B8",marginLeft:6}}>({s.pct}%)</span>
-                                                  </div>
-                                                );})}
-                                              </div>
-                                            );})}
-                                          </div>
-                                        </div>
+                                        <FuelMoreBtn fuels={val} accentColor="#1752FE"/>
                                       </div>
                                     ):(
                                       <div style={{fontSize:14,fontWeight:700,color:valColor,marginBottom:3,lineHeight:1.2}}>
@@ -11832,27 +11852,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                                         <span style={{fontSize:11,fontWeight:700,color:"#6D28D9",minWidth:32,textAlign:"right"}}>{f.pct}%</span>
                                       </div>
                                     );})}
-                                    <div className="fuel-more-wrap" style={{marginTop:5}}>
-                                      <span style={{fontSize:11,fontWeight:600,color:"#7C3AED",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:2}}>more</span>
-                                      <div className="fuel-tooltip">
-                                        {pVal.map(function(f,fi){return(
-                                          <div key={fi} style={{marginBottom:fi<pVal.length-1?10:0}}>
-                                            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
-                                              <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>{f.type}</span>
-                                              <span style={{fontSize:11,color:"#94A3B8",marginLeft:8}}>{f.mt}MT</span>
-                                              <span style={{fontSize:11,fontWeight:700,color:"#60A5FA",marginLeft:6}}>({f.pct}%)</span>
-                                            </div>
-                                            {f.sub&&f.sub.map(function(s,si){return(
-                                              <div key={si} style={{display:"flex",alignItems:"center",justifyContent:"space-between",paddingLeft:10,marginBottom:si<f.sub.length-1?3:0}}>
-                                                <span style={{fontSize:10,color:"#CBD5E1",flex:1}}>{s.type}</span>
-                                                <span style={{fontSize:10,color:"#94A3B8",marginLeft:8}}>{s.mt}MT</span>
-                                                <span style={{fontSize:10,color:"#94A3B8",marginLeft:6}}>({s.pct}%)</span>
-                                              </div>
-                                            );})}
-                                          </div>
-                                        );})}
-                                      </div>
-                                    </div>
+                                    <FuelMoreBtn fuels={pVal} accentColor="#7C3AED"/>
                                   </div>
                                 ):(
                                   <div style={{fontSize:14,fontWeight:700,color:"#6D28D9",marginBottom:4,lineHeight:1.2}}>
