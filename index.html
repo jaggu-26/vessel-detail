@@ -35,6 +35,9 @@ html, body, #root { height: 100%; width: 100%; overflow: hidden; }
   0%   { background-position: -600px 0; }
   100% { background-position:  600px 0; }
 }
+.fuel-more-wrap { position: relative; display: inline-block; }
+.fuel-more-wrap .fuel-tooltip { display: none; position: absolute; left: 0; top: 100%; margin-top: 6px; z-index: 9999; background: #0F172A; border-radius: 8px; padding: 12px 14px; min-width: 220px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); pointer-events: none; }
+.fuel-more-wrap:hover .fuel-tooltip { display: block; }
 .recharts-legend-item {
   display: inline-flex !important;
   align-items: center !important;
@@ -10368,11 +10371,25 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           var hfo=Math.round(600+(s%200)); var lfo=Math.round(200+(s2%150));
           var mgo=Math.round(80+(s3%80));  var bio=Math.round(20+(s4%40));
           var tot=hfo+lfo+mgo+bio;
+          var hfoA=Math.round(hfo*(50+(s%20))/100); var hfoB=hfo-hfoA;
+          var mgoA=Math.round(mgo*(50+(s2%20))/100); var mgoB=mgo-mgoA;
+          var bioA=Math.round(bio*(50+(s3%20))/100); var bioB=bio-bioA;
           return [
-            {type:"HFO",mt:hfo,pct:Math.round(hfo/tot*100)},
-            {type:"LFO",mt:lfo,pct:Math.round(lfo/tot*100)},
-            {type:"MGO",mt:mgo,pct:Math.round(mgo/tot*100)},
-            {type:"Bio",mt:bio,pct:Math.round(bio/tot*100)},
+            {type:"HFO",mt:hfo,pct:Math.round(hfo/tot*100),sub:[
+              {type:"HSFO>0.5",mt:hfoA,pct:Math.round(hfoA/hfo*100)},
+              {type:"HFO",mt:hfoB,pct:Math.round(hfoB/hfo*100)},
+            ]},
+            {type:"LFO",mt:lfo,pct:Math.round(lfo/tot*100),sub:[
+              {type:"LSFO",mt:lfo,pct:100},
+            ]},
+            {type:"MGO",mt:mgo,pct:Math.round(mgo/tot*100),sub:[
+              {type:"MGO>0.1",mt:mgoA,pct:Math.round(mgoA/mgo*100)},
+              {type:"MGO",mt:mgoB,pct:Math.round(mgoB/mgo*100)},
+            ]},
+            {type:"Bio",mt:bio,pct:Math.round(bio/tot*100),sub:[
+              {type:"Bio>20 CJ",mt:bioA,pct:Math.round(bioA/bio*100)},
+              {type:"Bio",mt:bioB,pct:Math.round(bioB/bio*100)},
+            ]},
           ];
         })(),
         ae_cons:        ((1.8+(s3%4)*0.2)*m).toFixed(2)+" MT/d",
@@ -10512,10 +10529,10 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         me_cons_laden:  (24.1*m*pgConsM).toFixed(1)+" MT/d",
         me_cons_ballast:(17.4*m*pgConsM).toFixed(1)+" MT/d",
         fuel_type_usage:[
-          {type:"HFO",mt:680,pct:61},
-          {type:"LFO",mt:240,pct:22},
-          {type:"MGO",mt:110,pct:10},
-          {type:"Bio",mt:75,pct:7},
+          {type:"HFO",mt:680,pct:61,sub:[{type:"HSFO>0.5",mt:350,pct:51},{type:"HFO",mt:330,pct:49}]},
+          {type:"LFO",mt:240,pct:22,sub:[{type:"LSFO",mt:240,pct:100}]},
+          {type:"MGO",mt:110,pct:10,sub:[{type:"MGO>0.1",mt:60,pct:55},{type:"MGO",mt:50,pct:45}]},
+          {type:"Bio",mt:75,pct:7,sub:[{type:"Bio>20 CJ",mt:40,pct:53},{type:"Bio",mt:35,pct:47}]},
         ],
         ae_cons:        (2.1*m*pgConsM).toFixed(2)+" MT/d",
         sog_laden:      (baseSogVal*1.03).toFixed(1)+" kn",
@@ -11755,6 +11772,27 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                                             <span style={{fontSize:11,fontWeight:700,color:"#1752FE",minWidth:32,textAlign:"right"}}>{f.pct}%</span>
                                           </div>
                                         );})}
+                                        <div className="fuel-more-wrap" style={{marginTop:5}}>
+                                          <span style={{fontSize:11,fontWeight:600,color:"#1752FE",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:2}}>more</span>
+                                          <div className="fuel-tooltip">
+                                            {val.map(function(f,fi){return(
+                                              <div key={fi} style={{marginBottom:fi<val.length-1?10:0}}>
+                                                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
+                                                  <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>{f.type}</span>
+                                                  <span style={{fontSize:11,color:"#94A3B8",marginLeft:8}}>{f.mt}MT</span>
+                                                  <span style={{fontSize:11,fontWeight:700,color:"#60A5FA",marginLeft:6}}>({f.pct}%)</span>
+                                                </div>
+                                                {f.sub&&f.sub.map(function(s,si){return(
+                                                  <div key={si} style={{display:"flex",alignItems:"center",justifyContent:"space-between",paddingLeft:10,marginBottom:si<f.sub.length-1?3:0}}>
+                                                    <span style={{fontSize:10,color:"#CBD5E1",flex:1}}>{s.type}</span>
+                                                    <span style={{fontSize:10,color:"#94A3B8",marginLeft:8}}>{s.mt}MT</span>
+                                                    <span style={{fontSize:10,color:"#94A3B8",marginLeft:6}}>({s.pct}%)</span>
+                                                  </div>
+                                                );})}
+                                              </div>
+                                            );})}
+                                          </div>
+                                        </div>
                                       </div>
                                     ):(
                                       <div style={{fontSize:14,fontWeight:700,color:valColor,marginBottom:3,lineHeight:1.2}}>
@@ -11794,6 +11832,27 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                                         <span style={{fontSize:11,fontWeight:700,color:"#6D28D9",minWidth:32,textAlign:"right"}}>{f.pct}%</span>
                                       </div>
                                     );})}
+                                    <div className="fuel-more-wrap" style={{marginTop:5}}>
+                                      <span style={{fontSize:11,fontWeight:600,color:"#7C3AED",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:2}}>more</span>
+                                      <div className="fuel-tooltip">
+                                        {pVal.map(function(f,fi){return(
+                                          <div key={fi} style={{marginBottom:fi<pVal.length-1?10:0}}>
+                                            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
+                                              <span style={{fontSize:11,fontWeight:700,color:"#fff"}}>{f.type}</span>
+                                              <span style={{fontSize:11,color:"#94A3B8",marginLeft:8}}>{f.mt}MT</span>
+                                              <span style={{fontSize:11,fontWeight:700,color:"#60A5FA",marginLeft:6}}>({f.pct}%)</span>
+                                            </div>
+                                            {f.sub&&f.sub.map(function(s,si){return(
+                                              <div key={si} style={{display:"flex",alignItems:"center",justifyContent:"space-between",paddingLeft:10,marginBottom:si<f.sub.length-1?3:0}}>
+                                                <span style={{fontSize:10,color:"#CBD5E1",flex:1}}>{s.type}</span>
+                                                <span style={{fontSize:10,color:"#94A3B8",marginLeft:8}}>{s.mt}MT</span>
+                                                <span style={{fontSize:10,color:"#94A3B8",marginLeft:6}}>({s.pct}%)</span>
+                                              </div>
+                                            );})}
+                                          </div>
+                                        );})}
+                                      </div>
+                                    </div>
                                   </div>
                                 ):(
                                   <div style={{fontSize:14,fontWeight:700,color:"#6D28D9",marginBottom:4,lineHeight:1.2}}>
