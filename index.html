@@ -10911,14 +10911,14 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
             {/* Footer */}
             <div style={{padding:"16px 28px 24px",display:"flex",gap:14,borderTop:"1px solid #F1F5F9"}}>
               <button onClick={onClose}
-                style={{flex:1,height:48,borderRadius:10,border:"1.5px solid #1852FE",background:"#EEF6FF",cursor:"pointer",fontSize:15,fontWeight:600,color:"#1852FE",transition:"all 0.15s"}}
+                style={{flex:1,height:48,borderRadius:4,border:"1.5px solid #1852FE",background:"#EEF6FF",cursor:"pointer",fontSize:15,fontWeight:600,color:"#1852FE",transition:"all 0.15s"}}
                 onMouseEnter={function(e){e.currentTarget.style.background="#dbeafe";}}
                 onMouseLeave={function(e){e.currentTarget.style.background="#EEF6FF";}}>
                 Cancel
               </button>
               <button
                 onClick={function(){if(selected.length>0&&onCompare){onCompare(selected);onClose();}}}
-                style={{flex:1,height:48,borderRadius:10,border:"none",background:selected.length>0?"#1852FE":"#94A3B8",cursor:selected.length>0?"pointer":"not-allowed",fontSize:15,fontWeight:600,color:"#fff",transition:"all 0.15s"}}
+                style={{flex:1,height:48,borderRadius:4,border:"none",background:selected.length>0?"#1852FE":"#94A3B8",cursor:selected.length>0?"pointer":"not-allowed",fontSize:15,fontWeight:600,color:"#fff",transition:"all 0.15s"}}
                 onMouseEnter={function(e){if(selected.length>0)e.currentTarget.style.background="#1240d6";}}
                 onMouseLeave={function(e){e.currentTarget.style.background=selected.length>0?"#1852FE":"#94A3B8";}}>
                 Compare
