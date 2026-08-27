@@ -1031,7 +1031,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       );
     }
 
-    function FuelMoreBtn({fuels,accentColor}) {
+    function FuelMoreBtn({fuels,accentColor,alignRight}) {
       var [open,setOpen]=React.useState(false);
       var wrapRef=React.useRef(null);
       React.useEffect(function(){
@@ -1046,7 +1046,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             style={{fontSize:11,fontWeight:600,color:accentColor||"#1752FE",cursor:"pointer",
               textDecoration:"underline",textUnderlineOffset:2}}>details</span>
           {open&&(
-            <div style={{position:"absolute",left:0,top:"100%",marginTop:6,zIndex:9999,
+            <div style={{position:"absolute",left:alignRight?undefined:0,right:alignRight?0:undefined,top:"100%",marginTop:6,zIndex:9999,
               background:"#0F172A",borderRadius:8,padding:"12px 14px",minWidth:230,
               boxShadow:"0 8px 24px rgba(0,0,0,0.35)"}}>
               <button onClick={function(){setOpen(false);}} style={{position:"absolute",top:8,right:8,
@@ -11853,7 +11853,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                                         <span style={{fontSize:11,fontWeight:700,color:"#0F172A",minWidth:32,textAlign:"right"}}>{f.pct}%</span>
                                       </div>
                                     );})}
-                                    <FuelMoreBtn fuels={pVal} accentColor="#7C3AED"/>
+                                    <FuelMoreBtn fuels={pVal} accentColor="#7C3AED" alignRight={true}/>
                                   </div>
                                 ):(
                                   <div style={{fontSize:14,fontWeight:700,color:"#6D28D9",marginBottom:4,lineHeight:1.2}}>
