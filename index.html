@@ -5776,9 +5776,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               label={{value:"EUAs required",angle:90,position:"insideRight",offset:8,style:{...axLabel,textAnchor:"middle"}}}/>
             <Tooltip content={<ModernTooltip/>} cursor={<BarBandCursor dataLen={fuelEUData.length}/>}/>
             <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{fontSize:11,paddingBottom:8}}/>
-            <Bar yAxisId="left" dataKey="balance" name="Compliance balance" maxBarSize={30} radius={[4,4,4,4]}>
+            <Bar yAxisId="left" dataKey="balance" name="Compliance balance" maxBarSize={30}>
               {fuelEUData.map(function(entry,i){
-                return <Cell key={i} fill={entry.balance>=0?"url(#fuelGreenGrad)":"url(#fuelRedGrad)"}/>;
+                return <Cell key={i} fill={entry.balance>=0?"url(#fuelGreenGrad)":"url(#fuelRedGrad)"}
+                  radius={entry.balance>=0?[4,4,0,0]:[0,0,4,4]}/>;
               })}
             </Bar>
             <Line yAxisId="right" type="monotone" dataKey="euas" stroke={p.feu_line} strokeWidth={2.5}
