@@ -107,6 +107,63 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       Customized, Rectangle
     } = Recharts;
 
+    // ── Chart Palette (Version 1 / Version 2) ────────────────────────────────
+    var ChartPaletteCtx = React.createContext(null);
+    var CHART_PALETTES = {
+      v1: {
+        // Warranty Breach
+        wb_speed:"#3B82F6", wb_cons:"#F87171",
+        // Speed & Consumption scatter
+        sc_ballast:"#0EA5E9", sc_laden:"#F97316",
+        // Avg Daily Consumption bars
+        adc_prop:"#2563EB", adc_mano:"#60A5FA", adc_aux:"#F97316",
+        // SOG & Slip lines
+        ss_slip:"#3B82F6", ss_avg:"#F97316",
+        // Global GHG areas
+        ghg_co2:"#3B82F6", ghg_n2o:"#EAB308", ghg_ch4:"#22C55E",
+        // EU Emissions bars
+        eu_emiss:"#4C6EF5", eu_emiss2:"#818CF8", eu_cons:"#F59E0B", eu_cons2:"#FCD34D",
+        // FuelEU balance
+        feu_pos:"#22C55E", feu_pos2:"#4ADE80", feu_neg:"#EF4444", feu_neg2:"#DC2626", feu_line:"#3B82F6",
+        // Technical — Speed/Power + Cons/Speed
+        tech_pred:"#16A34A", tech_rep:"#EA580C", tech_trial:"#6366F1",
+        tech_laden:"#16A34A", tech_ballast:"#A0522D",
+        // Load SFOC scatter categories
+        sfoc_out:"#EF4444", sfoc_in:"#16A34A", sfoc_cout:"#F97316", sfoc_cin:"#86EFAC",
+        // ME RPM/Power
+        merpm_scatter:"#38BDF8", merpm_fit:"#F97316",
+        // Threshold (hull + engine health line segments)
+        th_good:"#16A34A", th_warn:"#F97316", th_bad:"#EF4444",
+      },
+      v2: {
+        // Warranty Breach
+        wb_speed:"#8B5CF6", wb_cons:"#F59E0B",
+        // Speed & Consumption scatter
+        sc_ballast:"#8B5CF6", sc_laden:"#F59E0B",
+        // Avg Daily Consumption bars
+        adc_prop:"#6D28D9", adc_mano:"#A78BFA", adc_aux:"#F59E0B",
+        // SOG & Slip lines
+        ss_slip:"#8B5CF6", ss_avg:"#F59E0B",
+        // Global GHG areas
+        ghg_co2:"#0891B2", ghg_n2o:"#D97706", ghg_ch4:"#7C3AED",
+        // EU Emissions bars
+        eu_emiss:"#0891B2", eu_emiss2:"#67E8F9", eu_cons:"#D97706", eu_cons2:"#FCD34D",
+        // FuelEU balance
+        feu_pos:"#0891B2", feu_pos2:"#22D3EE", feu_neg:"#F43F5E", feu_neg2:"#FB7185", feu_line:"#8B5CF6",
+        // Technical — Speed/Power + Cons/Speed
+        tech_pred:"#06B6D4", tech_rep:"#F59E0B", tech_trial:"#8B5CF6",
+        tech_laden:"#06B6D4", tech_ballast:"#F59E0B",
+        // Load SFOC scatter categories
+        sfoc_out:"#F43F5E", sfoc_in:"#06B6D4", sfoc_cout:"#F59E0B", sfoc_cin:"#67E8F9",
+        // ME RPM/Power
+        merpm_scatter:"#A78BFA", merpm_fit:"#F59E0B",
+        // Threshold (hull + engine health line segments) — no red or green
+        th_good:"#06B6D4", th_warn:"#F59E0B", th_bad:"#8B5CF6",
+      }
+    };
+    var _gChartPal = CHART_PALETTES.v1;
+    // ── end Chart Palette ─────────────────────────────────────────────────────
+
     // Custom cursor for ComposedChart with bars — Recharts passes full viewBox to custom cursor
     // elements on ComposedChart (not per-category like BarChart). points[0].x gives the correct
     // hover x in plot-area coordinates; compute slot width from total width / data count.
@@ -887,7 +944,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <div style={{display:"flex"}}>
                 <div style={{width:190,borderRight:showCal?"0.5px solid #eef0f4":"none",padding:"6px 0",flexShrink:0}}>
                   {PRESETS.map(function(p){
-                    var isAct=(p.label==="Custom"&&showCal)||(p.label!=="Custom"&&selected===p.label&&!showCal);
+                    var isAct=(p.label==="Custom"&&showCal)||(p.label!=="Custom"&&selected==={p.label}&&!showCal);
                     return(
                       <div key={p.label} onClick={function(){handlePreset(p);}}
                         style={{padding:"10px 18px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between",
@@ -5146,6 +5203,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Laden Slip % & SOG chart — module level for stable identity
     function SlipSOGChart(props){
+      var p=_gChartPal;
+
       var viewMode=props.viewMode||"month";
       var [condition,setCondition]=React.useState("laden");
       var isVoyage=viewMode==="voyage";
@@ -5191,9 +5250,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var voyageData=_vBase.map(function(r){return {v:r.v,slip:+(r.slip*_lf).toFixed(2),slip7d:+(r.slip7d*_lf).toFixed(2),sog:+(r.sog+_sogOff).toFixed(2)};});
       var _ticks=["01 Jan 2026","01 Feb 2026","01 Mar 2026","01 Apr 2026","01 May 2026","01 Jun 2026","01 Jul 2026"];
       var _legendItems=[
-        {label:_condLabel+" Slip %",      color:"#3B82F6",dash:true},
-        {label:_condLabel+" Slip % (7D Avg)", color:"#F97316",dash:false},
-        {label:_condLabel+" SOG",         color:"#3B82F6",dash:true},
+        {label:_condLabel+" Slip %",      color:p.ss_slip,dash:true},
+        {label:_condLabel+" Slip % (7D Avg)", color:p.ss_avg,dash:false},
+        {label:_condLabel+" SOG",         color:p.ss_slip,dash:true},
       ];
       return (
         <div style={{display:"flex",flexDirection:"column",width:"100%",height:"100%"}}>
@@ -5233,13 +5292,13 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     <YAxis yAxisId="left" tick={axTick} width={40} axisLine={false} tickLine={false}
                       domain={[1,7]} tickCount={4}
                       label={{value:"Slip (%)",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
-                    <YAxis yAxisId="right" orientation="right" tick={{...axTick,fill:"#3B82F6"}} width={38} axisLine={false} tickLine={false}
+                    <YAxis yAxisId="right" orientation="right" tick={{...axTick,fill:p.ss_slip}} width={38} axisLine={false} tickLine={false}
                       domain={[12,14]} tickCount={5}
-                      label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:6,style:{...axLabel,fill:"#3B82F6",textAnchor:"middle"}}}/>
+                      label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:6,style:{...axLabel,fill:p.ss_slip,textAnchor:"middle"}}}/>
                     <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
-                    <Line yAxisId="left" type="linear" dataKey="slip" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
-                    <Line yAxisId="left" type="linear" dataKey="slip7d" stroke="#F97316" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
-                    <Line yAxisId="right" type="linear" dataKey="sog" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+                    <Line yAxisId="left" type="linear" dataKey="slip" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+                    <Line yAxisId="left" type="linear" dataKey="slip7d" stroke={p.ss_avg} dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+                    <Line yAxisId="right" type="linear" dataKey="sog" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
                   </ComposedChart>
                 : <ComposedChart data={monthData} margin={{bottom:24,left:4,right:44,top:4}}>
                     <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
@@ -5249,14 +5308,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     <YAxis yAxisId="left" tick={axTick} width={40} axisLine={false} tickLine={false}
                       domain={[1,7]} tickCount={4}
                       label={{value:"Slip (%)",angle:-90,position:"insideLeft",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
-                    <YAxis yAxisId="right" orientation="right" tick={{...axTick,fill:"#3B82F6"}} width={38} axisLine={false} tickLine={false}
+                    <YAxis yAxisId="right" orientation="right" tick={{...axTick,fill:p.ss_slip}} width={38} axisLine={false} tickLine={false}
                       domain={[12,14]} tickCount={5}
-                      label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:6,style:{...axLabel,fill:"#3B82F6",textAnchor:"middle"}}}/>
+                      label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:6,style:{...axLabel,fill:p.ss_slip,textAnchor:"middle"}}}/>
                     <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
                     <ReferenceLine yAxisId="left" x="01 Apr 2026" stroke="#CBD5E1" strokeWidth={1}/>
-                    <Line yAxisId="left" type="linear" dataKey="slip" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
-                    <Line yAxisId="left" type="linear" dataKey="slip7d" stroke="#F97316" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
-                    <Line yAxisId="right" type="linear" dataKey="sog" stroke="#3B82F6" strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+                    <Line yAxisId="left" type="linear" dataKey="slip" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+                    <Line yAxisId="left" type="linear" dataKey="slip7d" stroke={p.ss_avg} dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+                    <Line yAxisId="right" type="linear" dataKey="sog" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
                   </ComposedChart>
               }
             </ResponsiveContainer>
@@ -5268,6 +5327,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     // ── Avg Fuel Consumption chart — defined at module level so its identity
     //    is stable across SectionCharts re-renders (hover state, etc.)
     function AvgFuelConsChart(props){
+      var p=_gChartPal;
+
       var months = props.months || 6;
       var [filter, setFilter] = React.useState(["eca"]);
       var _MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -5320,7 +5381,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         }} style={{
           padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",
           border:"none",
-          background:active?"#2563EB":"transparent",
+          background:active?p.adc_prop:"transparent",
           color:active?"#fff":"#94A3B8",
           fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif",
           transition:"all 0.15s",
@@ -5343,11 +5404,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <span style={{fontSize:9,color:"#94A3B8",fontWeight:600}}>ME (Propulsion + Manoeuvring)</span>
                 <div style={{display:"flex",alignItems:"center",gap:4}}>
                   <div style={{display:"flex",alignItems:"center",gap:3}}>
-                    <span style={{width:8,height:8,borderRadius:2,background:"#2563EB",display:"inline-block",flexShrink:0}}/>
+                    <span style={{width:8,height:8,borderRadius:2,background:p.adc_prop,display:"inline-block",flexShrink:0}}/>
                     <span style={{fontSize:9,color:"#64748B"}}>Propulsion</span>
                   </div>
                   <div style={{display:"flex",alignItems:"center",gap:3}}>
-                    <span style={{width:8,height:8,borderRadius:2,background:"#60A5FA",display:"inline-block",flexShrink:0}}/>
+                    <span style={{width:8,height:8,borderRadius:2,background:p.adc_mano,display:"inline-block",flexShrink:0}}/>
                     <span style={{fontSize:9,color:"#64748B"}}>Manoeuvring</span>
                   </div>
                 </div>
@@ -5358,7 +5419,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <div style={{display:"flex",alignItems:"center",gap:5}}>
                 <span style={{fontSize:9,color:"#94A3B8",fontWeight:600}}>Auxiliaries</span>
                 <div style={{display:"flex",alignItems:"center",gap:3}}>
-                  <span style={{width:8,height:8,borderRadius:2,background:"#F97316",display:"inline-block",flexShrink:0}}/>
+                  <span style={{width:8,height:8,borderRadius:2,background:p.adc_aux,display:"inline-block",flexShrink:0}}/>
                   <span style={{fontSize:9,color:"#64748B"}}>Auxiliaries</span>
                 </div>
               </div>
@@ -5371,21 +5432,21 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 {xAx("m","Month")}
                 <YAxis yAxisId="left" tick={axTick} width={54} axisLine={false} tickLine={false}
                   domain={[0,220]} ticks={[0,55,110,165,220]}
-                  label={{value:"ME consumption (MT)",angle:-90,position:"insideLeft",offset:10,style:{...axLabel,textAnchor:"middle",fill:"#2563EB"}}}/>
-                <YAxis yAxisId="right" orientation="right" tick={{...axTick,fill:"#F97316"}} width={56} axisLine={false} tickLine={false}
+                  label={{value:"ME consumption (MT)",angle:-90,position:"insideLeft",offset:10,style:{...axLabel,textAnchor:"middle",fill:p.adc_prop}}}/>
+                <YAxis yAxisId="right" orientation="right" tick={{...axTick,fill:p.adc_aux}} width={56} axisLine={false} tickLine={false}
                   domain={[0,80]} ticks={[0,20,40,60,80]}
-                  label={{value:"Auxiliaries consumption (MT)",angle:90,position:"insideRight",offset:10,style:{...axLabel,textAnchor:"middle",fill:"#F97316"}}}/>
+                  label={{value:"Auxiliaries consumption (MT)",angle:90,position:"insideRight",offset:10,style:{...axLabel,textAnchor:"middle",fill:p.adc_aux}}}/>
                 <Tooltip content={<ModernTooltip/>} cursor={<BarBandCursor dataLen={chartData.length}/>}/>
                 <Customized component={function(){return React.createElement("defs",null,
                   React.createElement("linearGradient",{id:"afcGradProp",x1:"0",y1:"0",x2:"0",y2:"1"},
-                    React.createElement("stop",{offset:"0%",stopColor:"#2563EB",stopOpacity:1}),
-                    React.createElement("stop",{offset:"100%",stopColor:"#2563EB",stopOpacity:0.55})),
+                    React.createElement("stop",{offset:"0%",stopColor:p.adc_prop,stopOpacity:1}),
+                    React.createElement("stop",{offset:"100%",stopColor:p.adc_prop,stopOpacity:0.55})),
                   React.createElement("linearGradient",{id:"afcGradMano",x1:"0",y1:"0",x2:"0",y2:"1"},
-                    React.createElement("stop",{offset:"0%",stopColor:"#60A5FA",stopOpacity:1}),
-                    React.createElement("stop",{offset:"100%",stopColor:"#60A5FA",stopOpacity:0.55})),
+                    React.createElement("stop",{offset:"0%",stopColor:p.adc_mano,stopOpacity:1}),
+                    React.createElement("stop",{offset:"100%",stopColor:p.adc_mano,stopOpacity:0.55})),
                   React.createElement("linearGradient",{id:"afcGradAux",x1:"0",y1:"0",x2:"0",y2:"1"},
-                    React.createElement("stop",{offset:"0%",stopColor:"#F97316",stopOpacity:1}),
-                    React.createElement("stop",{offset:"100%",stopColor:"#F97316",stopOpacity:0.55}))
+                    React.createElement("stop",{offset:"0%",stopColor:p.adc_aux,stopOpacity:1}),
+                    React.createElement("stop",{offset:"100%",stopColor:p.adc_aux,stopOpacity:0.55}))
                 );}}/>
                 <Bar yAxisId="left" dataKey="propulsion" stackId="me" fill="url(#afcGradProp)" name="Propulsion"/>
                 <Bar yAxisId="left" dataKey="manoeuvring" stackId="me" fill="url(#afcGradMano)" name="Manoeuvring" radius={[4,4,0,0]}/>
@@ -5399,6 +5460,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── AER Voyage Chart — module level
     function AERVoyageChart({aerView, setAerView}){
+      var p=_gChartPal;
       if(!aerView) aerView="Month";
       if(!setAerView) setAerView=function(){};
       var voyageData=[
@@ -5447,8 +5509,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         if(p.cx==null||p.cy==null) return null;
         return (
           <g>
-            <circle cx={p.cx} cy={p.cy} r={11} fill="#16A34A" fillOpacity={0.12}/>
-            <circle cx={p.cx} cy={p.cy} r={7} fill="#16A34A" stroke="#fff" strokeWidth={2.5}/>
+            <circle cx={p.cx} cy={p.cy} r={11} fill={_gChartPal.tech_pred} fillOpacity={0.12}/>
+            <circle cx={p.cx} cy={p.cy} r={7} fill={_gChartPal.tech_pred} stroke="#fff" strokeWidth={2.5}/>
           </g>
         );
       };
@@ -5456,8 +5518,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         if(p.cx==null||p.cy==null) return null;
         return (
           <g>
-            <circle cx={p.cx} cy={p.cy} r={7} fill="#F59E0B" fillOpacity={0.15}/>
-            <circle cx={p.cx} cy={p.cy} r={4} fill="#F59E0B" stroke="#fff" strokeWidth={2}/>
+            <circle cx={p.cx} cy={p.cy} r={7} fill={_gChartPal.eu_cons} fillOpacity={0.15}/>
+            <circle cx={p.cx} cy={p.cy} r={4} fill={_gChartPal.eu_cons} stroke="#fff" strokeWidth={2}/>
           </g>
         );
       };
@@ -5469,12 +5531,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <ComposedChart data={aerData} margin={{top:16,right:10,bottom:24,left:8}}>
                   <defs>
                     <linearGradient id="aerAttainedGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#16A34A" stopOpacity={0.28}/>
-                      <stop offset="100%" stopColor="#16A34A" stopOpacity={0.03}/>
+                      <stop offset="0%" stopColor={p.tech_pred} stopOpacity={0.28}/>
+                      <stop offset="100%" stopColor={p.tech_pred} stopOpacity={0.03}/>
                     </linearGradient>
                     <linearGradient id="aerRequiredGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#F59E0B" stopOpacity={0.18}/>
-                      <stop offset="100%" stopColor="#F59E0B" stopOpacity={0.02}/>
+                      <stop offset="0%" stopColor={p.eu_cons} stopOpacity={0.18}/>
+                      <stop offset="100%" stopColor={p.eu_cons} stopOpacity={0.02}/>
                     </linearGradient>
                     <filter id="aerGlow">
                       <feGaussianBlur stdDeviation="2" result="blur"/>
@@ -5488,7 +5550,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <ReferenceLine y={7.4} stroke="#F97316" strokeDasharray="3 2" strokeWidth={1} strokeOpacity={0.4}/>
                   <ReferenceLine y={6.2} stroke="#EAB308" strokeDasharray="3 2" strokeWidth={1} strokeOpacity={0.4}/>
                   <ReferenceLine y={5.0} stroke="#84CC16" strokeDasharray="3 2" strokeWidth={1} strokeOpacity={0.4}/>
-                  <ReferenceLine y={3.7} stroke="#16A34A" strokeDasharray="3 2" strokeWidth={1} strokeOpacity={0.4}/>
+                  <ReferenceLine y={3.7} stroke={p.tech_pred} strokeDasharray="3 2" strokeWidth={1} strokeOpacity={0.4}/>
                   <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
                   <XAxis dataKey={aerView==="Month"?"m":"v"} tick={<AerXTick/>} axisLine={{stroke:"#E2E8F0"}} tickLine={false} height={aerView==="Month"?36:52}
                     label={{value:aerView==="Month"?"Month":"Voyage Number",position:"insideBottom",offset:-12,style:axLabel}}/>
@@ -5496,12 +5558,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     label={{value:"AER Rating",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
                   <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
                   <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{fontSize:11,paddingBottom:6}}/>
-                  <Area type="monotone" dataKey="required" stroke="#F59E0B" strokeWidth={2.5} strokeDasharray="6 3"
+                  <Area type="monotone" dataKey="required" stroke={p.eu_cons} strokeWidth={2.5} strokeDasharray="6 3"
                     fill="url(#aerRequiredGrad)" dot={<AerRequiredDot/>}
-                    activeDot={{r:6,fill:"#F59E0B",stroke:"#fff",strokeWidth:2}} name="Required AER"/>
-                  <Area type="monotone" dataKey="attained" stroke="#16A34A" strokeWidth={2.5}
+                    activeDot={{r:6,fill:p.eu_cons,stroke:"#fff",strokeWidth:2}} name="Required AER"/>
+                  <Area type="monotone" dataKey="attained" stroke={p.tech_pred} strokeWidth={2.5}
                     fill="url(#aerAttainedGrad)" dot={<AerAttainedDot/>}
-                    activeDot={{r:9,fill:"#16A34A",stroke:"#fff",strokeWidth:2.5}} name="Attained AER (Voyage based)"/>
+                    activeDot={{r:9,fill:p.tech_pred,stroke:"#fff",strokeWidth:2.5}} name="Attained AER (Voyage based)"/>
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
@@ -5531,6 +5593,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Global GHG Emissions Chart — module level
     function GlobalGHGChart({ghgYear, setGhgYear}){
+      var p=_gChartPal;
       if(!ghgYear) ghgYear="2025";
       if(!setGhgYear) setGhgYear=function(){};
       var MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -5551,9 +5614,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
           <div style={{display:"flex",gap:12,justifyContent:"flex-end",paddingBottom:6,flexWrap:"wrap"}}>
             {[
-              {label:"Total CO₂",color:"#3B82F6"},
-              {label:"Total N₂O",color:"#EAB308"},
-              {label:"Total CH₄",color:"#22C55E"},
+              {label:"Total CO₂",color:p.ghg_co2},
+              {label:"Total N₂O",color:p.ghg_n2o},
+              {label:"Total CH₄",color:p.ghg_ch4},
             ].map(function(it){
               return (
                 <div key={it.label} style={{display:"flex",alignItems:"center",gap:5}}>
@@ -5568,19 +5631,19 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <ComposedChart data={ghgData} margin={{top:4,right:16,bottom:36,left:8}}>
                 <defs>
                   <linearGradient id="ghgG1" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.45}/>
-                    <stop offset="60%" stopColor="#3B82F6" stopOpacity={0.12}/>
-                    <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.01}/>
+                    <stop offset="0%" stopColor={p.ghg_co2} stopOpacity={0.45}/>
+                    <stop offset="60%" stopColor={p.ghg_co2} stopOpacity={0.12}/>
+                    <stop offset="100%" stopColor={p.ghg_co2} stopOpacity={0.01}/>
                   </linearGradient>
                   <linearGradient id="ghgG2" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#EAB308" stopOpacity={0.50}/>
-                    <stop offset="60%" stopColor="#EAB308" stopOpacity={0.14}/>
-                    <stop offset="100%" stopColor="#EAB308" stopOpacity={0.01}/>
+                    <stop offset="0%" stopColor={p.ghg_n2o} stopOpacity={0.50}/>
+                    <stop offset="60%" stopColor={p.ghg_n2o} stopOpacity={0.14}/>
+                    <stop offset="100%" stopColor={p.ghg_n2o} stopOpacity={0.01}/>
                   </linearGradient>
                   <linearGradient id="ghgG3" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#22C55E" stopOpacity={0.42}/>
-                    <stop offset="60%" stopColor="#22C55E" stopOpacity={0.12}/>
-                    <stop offset="100%" stopColor="#22C55E" stopOpacity={0.01}/>
+                    <stop offset="0%" stopColor={p.ghg_ch4} stopOpacity={0.42}/>
+                    <stop offset="60%" stopColor={p.ghg_ch4} stopOpacity={0.12}/>
+                    <stop offset="100%" stopColor={p.ghg_ch4} stopOpacity={0.01}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
@@ -5589,12 +5652,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <YAxis domain={[0,1200]} ticks={[0,200,400,600,800,1000,1200]} tick={axTick} axisLine={false} tickLine={false}
                   label={{value:"MT",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
-                <Area type="monotone" dataKey="co2" stroke="#3B82F6" strokeWidth={2.5} fill="url(#ghgG1)"
-                  dot={{r:3.5,fill:"#3B82F6",stroke:"#fff",strokeWidth:2}} activeDot={{r:6,fill:"#3B82F6",stroke:"#fff",strokeWidth:2}} name="CO₂"/>
-                <Area type="monotone" dataKey="n2o" stroke="#EAB308" strokeWidth={2.5} fill="url(#ghgG2)"
-                  dot={{r:3.5,fill:"#EAB308",stroke:"#fff",strokeWidth:2}} activeDot={{r:6,fill:"#EAB308",stroke:"#fff",strokeWidth:2}} name="N₂O"/>
-                <Area type="monotone" dataKey="ch4" stroke="#22C55E" strokeWidth={2.5} fill="url(#ghgG3)"
-                  dot={{r:3.5,fill:"#22C55E",stroke:"#fff",strokeWidth:2}} activeDot={{r:6,fill:"#22C55E",stroke:"#fff",strokeWidth:2}} name="CH₄"/>
+                <Area type="monotone" dataKey="co2" stroke={p.ghg_co2} strokeWidth={2.5} fill="url(#ghgG1)"
+                  dot={{r:3.5,fill:p.ghg_co2,stroke:"#fff",strokeWidth:2}} activeDot={{r:6,fill:p.ghg_co2,stroke:"#fff",strokeWidth:2}} name="CO₂"/>
+                <Area type="monotone" dataKey="n2o" stroke={p.ghg_n2o} strokeWidth={2.5} fill="url(#ghgG2)"
+                  dot={{r:3.5,fill:p.ghg_n2o,stroke:"#fff",strokeWidth:2}} activeDot={{r:6,fill:p.ghg_n2o,stroke:"#fff",strokeWidth:2}} name="N₂O"/>
+                <Area type="monotone" dataKey="ch4" stroke={p.ghg_ch4} strokeWidth={2.5} fill="url(#ghgG3)"
+                  dot={{r:3.5,fill:p.ghg_ch4,stroke:"#fff",strokeWidth:2}} activeDot={{r:6,fill:p.ghg_ch4,stroke:"#fff",strokeWidth:2}} name="CH₄"/>
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -5604,6 +5667,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── EU Emissions Chart — module level
     function EUEmissionsChart(){
+      var p=_gChartPal;
+
       var euData=[
         {cat:"EU → EU",   emissions:86, consumption:58},
         {cat:"EU → NonEU",emissions:96, consumption:72},
@@ -5617,12 +5682,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <ComposedChart data={euData} margin={{top:16,right:48,bottom:24,left:8}} barGap={3} barCategoryGap="28%">
                 <defs>
                   <linearGradient id="euEmissionsGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#4C6EF5" stopOpacity={1}/>
-                    <stop offset="100%" stopColor="#818CF8" stopOpacity={0.7}/>
+                    <stop offset="0%" stopColor={p.eu_emiss} stopOpacity={1}/>
+                    <stop offset="100%" stopColor={p.eu_emiss2} stopOpacity={0.7}/>
                   </linearGradient>
                   <linearGradient id="euConsumpGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#F59E0B" stopOpacity={1}/>
-                    <stop offset="100%" stopColor="#FCD34D" stopOpacity={0.7}/>
+                    <stop offset="0%" stopColor={p.eu_cons} stopOpacity={1}/>
+                    <stop offset="100%" stopColor={p.eu_cons2} stopOpacity={0.7}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
@@ -5650,6 +5715,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Fuel EU Emissions Chart — module level
     function FuelEUEmissionsChart(){
+      var p=_gChartPal;
+
       var fuelEUData=[
         {voy:"VY-001",balance:50,   euas:2400},
         {voy:"VY-002",balance:-80,  euas:2600},
@@ -5666,8 +5733,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         if(p.cx==null||p.cy==null) return null;
         return (
           <g>
-            <circle cx={p.cx} cy={p.cy} r={8} fill="#3B82F6" fillOpacity={0.15}/>
-            <circle cx={p.cx} cy={p.cy} r={4.5} fill="#3B82F6" stroke="#fff" strokeWidth={2}/>
+            <circle cx={p.cx} cy={p.cy} r={8} fill={_gChartPal.feu_line} fillOpacity={0.15}/>
+            <circle cx={p.cx} cy={p.cy} r={4.5} fill={_gChartPal.feu_line} stroke="#fff" strokeWidth={2}/>
           </g>
         );
       };
@@ -5676,16 +5743,16 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           <ComposedChart data={fuelEUData} margin={{top:16,right:56,bottom:24,left:8}}>
             <defs>
               <linearGradient id="fuelGreenGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#22C55E" stopOpacity={1}/>
-                <stop offset="100%" stopColor="#4ADE80" stopOpacity={0.75}/>
+                <stop offset="0%" stopColor={p.feu_pos} stopOpacity={1}/>
+                <stop offset="100%" stopColor={p.feu_pos2} stopOpacity={0.75}/>
               </linearGradient>
               <linearGradient id="fuelRedGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#EF4444" stopOpacity={0.75}/>
-                <stop offset="100%" stopColor="#DC2626" stopOpacity={1}/>
+                <stop offset="0%" stopColor={p.feu_neg} stopOpacity={0.75}/>
+                <stop offset="100%" stopColor={p.feu_neg2} stopOpacity={1}/>
               </linearGradient>
               <linearGradient id="fuelLineGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.25}/>
-                <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.02}/>
+                <stop offset="0%" stopColor={p.feu_line} stopOpacity={0.25}/>
+                <stop offset="100%" stopColor={p.feu_line} stopOpacity={0.02}/>
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
@@ -5703,8 +5770,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 return <Cell key={i} fill={entry.balance>=0?"url(#fuelGreenGrad)":"url(#fuelRedGrad)"}/>;
               })}
             </Bar>
-            <Line yAxisId="right" type="monotone" dataKey="euas" stroke="#3B82F6" strokeWidth={2.5}
-              dot={<EUALineDot/>} activeDot={{r:8,fill:"#3B82F6",stroke:"#fff",strokeWidth:2.5}} name="EUAs required"/>
+            <Line yAxisId="right" type="monotone" dataKey="euas" stroke={p.feu_line} strokeWidth={2.5}
+              dot={<EUALineDot/>} activeDot={{r:8,fill:p.feu_line,stroke:"#fff",strokeWidth:2.5}} name="EUAs required"/>
           </ComposedChart>
         </ResponsiveContainer>
       );
@@ -5712,6 +5779,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Hull Health Chart — Power BI style (Nov 2024 → Dec 2025)
     function HullHealthChart({n, viewMode, showColorWheel}){
+      var p=_gChartPal;
       // x=1 → Nov 2024, x=3 → Jan 2025, x=5 → Mar 2025, x=7 → May 2025,
       // x=9 → Jul 2025, x=11 → Sep 2025, x=13 → Nov 2025, x=15 → Jan 2026
       var SMN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -5799,7 +5867,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         if(!xMap||!yMap) return null;
         var xs=xMap[0]&&xMap[0].scale; var ys=yMap[0]&&yMap[0].scale;
         if(!xs||!ys) return null;
-        function clr(y){return y<=10?"#16A34A":y<=20?"#F97316":"#EF4444";}
+        function clr(y){return y<=10?_gChartPal.th_good:y<=20?_gChartPal.th_warn:_gChartPal.th_bad;}
         function crossPt(a,b,th){var t=(th-a.y)/(b.y-a.y);return {x:a.x+t*(b.x-a.x),y:th};}
         var segs=[];
         for(var i=0;i<lineData.length-1;i++){
@@ -6066,6 +6134,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Speed Power Curve Chart
     function SpeedPowerChart(){
+      var p=_gChartPal;
+
       var [activeV,setActiveV]=React.useState(null);
 
       // Calibrated to match reference: at 14kn → predicted=7860, reported=5650, seaTrial=4550, stP5=4780
@@ -6126,21 +6196,21 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           crosshair=(
             <g>
               <line x1={cx} y1={yTop} x2={cx} y2={yBot} stroke="#CBD5E1" strokeDasharray="5 3" strokeWidth={1.5}/>
-              <circle cx={cx} cy={predY} r={9} fill="none" stroke="#16A34A" strokeWidth={2.5}/>
-              <circle cx={cx} cy={repY} r={9} fill="none" stroke="#EA580C" strokeWidth={2.5}/>
-              <circle cx={cx} cy={stP5Y} r={9} fill="none" stroke="#6366F1" strokeWidth={2.5}/>
+              <circle cx={cx} cy={predY} r={9} fill="none" stroke={p.tech_pred} strokeWidth={2.5}/>
+              <circle cx={cx} cy={repY} r={9} fill="none" stroke={p.tech_rep} strokeWidth={2.5}/>
+              <circle cx={cx} cy={stP5Y} r={9} fill="none" stroke={p.tech_trial} strokeWidth={2.5}/>
               <g transform={"translate("+tipX+","+tipY+")"}>
                 <rect x={0} y={0} width={tipW} height={tipH} rx={8} fill="#1E293B" stroke="#334155" strokeWidth={1}
                   style={{filter:"drop-shadow(0 4px 12px rgba(0,0,0,0.35))"}}/>
                 <text x={12} y={22} fontSize={12} fontWeight="700" fill="white">{"Speed: "+cv.toFixed(1)+" knots"}</text>
                 <line x1={8} y1={30} x2={tipW-8} y2={30} stroke="#334155" strokeWidth={1}/>
-                <circle cx={22} cy={47} r={5} fill="#16A34A"/>
+                <circle cx={22} cy={47} r={5} fill={p.tech_pred}/>
                 <text x={32} y={51} fontSize={11} fill="#94A3B8">{"Predicted Power:"}</text>
                 <text x={tipW-10} y={51} fontSize={11} fontWeight="600" fill="white" textAnchor="end">{predV.toLocaleString()+" kW"}</text>
-                <circle cx={22} cy={67} r={5} fill="#EA580C"/>
+                <circle cx={22} cy={67} r={5} fill={p.tech_rep}/>
                 <text x={32} y={71} fontSize={11} fill="#94A3B8">{"Reported Power:"}</text>
                 <text x={tipW-10} y={71} fontSize={11} fontWeight="600" fill="white" textAnchor="end">{repV.toLocaleString()+" kW"}</text>
-                <line x1={15} y1={86} x2={29} y2={86} stroke="#6366F1" strokeWidth={2} strokeDasharray="4 2"/>
+                <line x1={15} y1={86} x2={29} y2={86} stroke={p.tech_trial} strokeWidth={2} strokeDasharray="4 2"/>
                 <text x={32} y={90} fontSize={11} fill="#94A3B8">{"Sea Trial Power:"}</text>
                 <text x={tipW-10} y={90} fontSize={11} fontWeight="600" fill="white" textAnchor="end">{stV.toLocaleString()+" kW"}</text>
                 <rect x={15} y={100} width={14} height={10} rx={2} fill="rgba(99,102,241,0.25)" stroke="rgba(99,102,241,0.5)" strokeWidth={1}/>
@@ -6156,12 +6226,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             {reportedPts.map(function(p,i){
               var px=xs(p.v),py=ys(p.y);
               if(isNaN(px)||isNaN(py)) return null;
-              return <circle key={"rp"+i} cx={px} cy={py} r={6} fill="#EA580C" fillOpacity={0.88} stroke="white" strokeWidth={1.5}/>;
+              return <circle key={"rp"+i} cx={px} cy={py} r={6} fill={_gChartPal.tech_rep} fillOpacity={0.88} stroke="white" strokeWidth={1.5}/>;
             })}
             {predictedPts.map(function(p,i){
               var px=xs(p.v),py=ys(p.y);
               if(isNaN(px)||isNaN(py)) return null;
-              return <circle key={"pp"+i} cx={px} cy={py} r={6} fill="#16A34A" fillOpacity={0.88} stroke="white" strokeWidth={1.5}/>;
+              return <circle key={"pp"+i} cx={px} cy={py} r={6} fill={_gChartPal.tech_pred} fillOpacity={0.88} stroke="white" strokeWidth={1.5}/>;
             })}
             {crosshair}
           </g>
@@ -6169,9 +6239,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       };
 
       var legendItems=[
-        {color:"#16A34A",type:"line-dot",label:"Predicted Power (Laden)"},
-        {color:"#EA580C",type:"line-dot",label:"Reported Power (Laden)"},
-        {color:"#6366F1",type:"dash",label:"Sea Trial Power (Laden) +5%"},
+        {color:p.tech_pred,type:"line-dot",label:"Predicted Power (Laden)"},
+        {color:p.tech_rep,type:"line-dot",label:"Reported Power (Laden)"},
+        {color:p.tech_trial,type:"dash",label:"Sea Trial Power (Laden) +5%"},
         {color:"rgba(99,102,241,0.28)",type:"rect",label:"+5% Band"},
       ];
 
@@ -6215,9 +6285,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <Tooltip content={function(){return null;}}/>
                 <Area type="monotone" dataKey="stBase" stackId="st" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
                 <Area type="monotone" dataKey="stBand" stackId="st" stroke="none" fill="rgba(99,102,241,0.22)" legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="stP5" stroke="#6366F1" strokeWidth={2} strokeDasharray="7 4" dot={false} legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="reported" stroke="#EA580C" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="predicted" stroke="#16A34A" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="stP5" stroke={p.tech_trial} strokeWidth={2} strokeDasharray="7 4" dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="reported" stroke={p.tech_rep} strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="predicted" stroke={p.tech_pred} strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
                 <Customized component={OverlayLayer}/>
               </ComposedChart>
             </ResponsiveContainer>
@@ -6228,6 +6298,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Predicted vs Reported Consumption by Speed
     function ConsumptionSpeedChart(){
+      var p=_gChartPal;
+
       var [activeV,setActiveV]=React.useState(null);
 
       // Curve data — U-shaped consumption vs speed (7.5 to 15.5 knots)
@@ -6347,14 +6419,14 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 payload={[
                   {value:"Reported Consumption", color:"#1E3A5F", type:"circle"},
                   {value:"Predicted Consumption",color:"#F59E0B", type:"circle"},
-                  {value:"Laden curve",           color:"#16A34A", type:"line"},
-                  {value:"Ballast curve",          color:"#A0522D", type:"line"},
+                  {value:"Laden curve",           color:p.tech_laden, type:"line"},
+                  {value:"Ballast curve",          color:p.tech_ballast, type:"line"},
                   {value:"Weather limit",          color:"#94A3B8", type:"line"},
                 ]}/>
-              {/* Green laden curve */}
-              <Line type="monotone" dataKey="laden" stroke="#16A34A" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
-              {/* Brown ballast curve */}
-              <Line type="monotone" dataKey="ballast" stroke="#A0522D" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
+              {/* Laden curve */}
+              <Line type="monotone" dataKey="laden" stroke={p.tech_laden} strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
+              {/* Ballast curve */}
+              <Line type="monotone" dataKey="ballast" stroke={p.tech_ballast} strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
               {/* Grey dashed weather curve */}
               <Line type="monotone" dataKey="weather" stroke="#94A3B8" strokeWidth={2.5}
                 strokeDasharray="6 4" dot={false} legendType="none" isAnimationActive={false}/>
@@ -6368,6 +6440,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Load SFOC Curve Chart
     function LoadSFOCChart({showLegendOpen}){
+      var p=_gChartPal;
       var containerRef=React.useRef(null);
       var [dims,setDims]=React.useState({w:700,h:380});
       var [tooltip,setTooltip]=React.useState(null);
@@ -6427,10 +6500,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         {key:"ul",fn:uppLimit,name:"Upp. Limit SFOC (+5%)",stroke:"#1E3A8A",dash:"3,3",sw:2},
       ];
       var CATS={
-        "meas-out":{label:"SFOC Measured (Outside Band)",color:"#EF4444"},
-        "meas-in":{label:"SFOC Measured (Within Band)",color:"#16A34A"},
-        "corr-in":{label:"SFOC Corrected (Within Band)",color:"#86EFAC"},
-        "corr-out":{label:"SFOC Corrected (Outside Band)",color:"#F97316"},
+        "meas-out":{label:"SFOC Measured (Outside Band)",color:p.sfoc_out},
+        "meas-in":{label:"SFOC Measured (Within Band)",color:p.sfoc_in},
+        "corr-in":{label:"SFOC Corrected (Within Band)",color:p.sfoc_cin},
+        "corr-out":{label:"SFOC Corrected (Outside Band)",color:p.sfoc_cout},
       };
 
       function TooltipBox(props){
@@ -6698,6 +6771,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── ME RPM Power Performance Chart
     function MERPMPowerChart(){
+      var p=_gChartPal;
+
       // Reported scatter points — merged into main dataset for tooltip support
       var reportedPts=[
         {rpm:61,rep:6300},{rpm:62.5,rep:6500},
@@ -6717,7 +6792,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       reportedPts.forEach(function(p){allRpms[p.rpm]=true;});
       var rpmSorted=Object.keys(allRpms).map(Number).sort(function(a,b){return a-b;});
       var repMap={};
-      reportedPts.forEach(function(p){repMap[p.rpm]=p.rep;});
+      reportedPts.forEach(function(p){repMap[p.rpm]={p.rep};});
       var curveData=rpmSorted.map(function(rpm){
         var b=bench(rpm);
         var bandLow=Math.round(b*0.95);
@@ -6732,8 +6807,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var legendItems=[
         {color:"#1E3A8A",type:"line",label:"Benchmark (Shop Test)"},
         {color:"rgba(147,197,253,0.55)",type:"rect",label:"–5% Tolerance Band"},
-        {color:"#38BDF8",type:"dot",label:"Reported"},
-        {color:"#F97316",type:"dash",label:"Reported Fit"},
+        {color:p.merpm_scatter,type:"dot",label:"Reported"},
+        {color:p.merpm_fit,type:"dash",label:"Reported Fit"},
       ];
       return (
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
@@ -6765,16 +6840,16 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <Area type="monotone" dataKey="bandLow" stackId="tb" stroke="none" fill="transparent" legendType="none" isAnimationActive={false} name="–"/>
                 <Area type="monotone" dataKey="bandFill" stackId="tb" stroke="none" fill="rgba(147,197,253,0.45)" legendType="none" isAnimationActive={false} name="–5% Band"/>
                 <Line type="monotone" dataKey="bench" stroke="#1E3A8A" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false} name="Benchmark (kW)"/>
-                <Line type="monotone" dataKey="rfit" stroke="#F97316" strokeWidth={1.8} strokeDasharray="6 3" dot={false} legendType="none" connectNulls={false} isAnimationActive={false} name="Reported Fit (kW)"/>
+                <Line type="monotone" dataKey="rfit" stroke={p.merpm_fit} strokeWidth={1.8} strokeDasharray="6 3" dot={false} legendType="none" connectNulls={false} isAnimationActive={false} name="Reported Fit (kW)"/>
                 <Line type="monotone" dataKey="rep"
-                  stroke="#38BDF8" strokeWidth={0}
+                  stroke={p.merpm_scatter} strokeWidth={0}
                   dot={function(props){
                     if(props.value==null) return <g key={props.index}/>;
-                    return <circle key={props.index} cx={props.cx} cy={props.cy} r={5} fill="#38BDF8" stroke="#fff" strokeWidth={1.2} opacity={0.9}/>;
+                    return <circle key={props.index} cx={props.cx} cy={props.cy} r={5} fill={p.merpm_scatter} stroke="#fff" strokeWidth={1.2} opacity={0.9}/>;
                   }}
                   activeDot={function(props){
                     if(props.value==null) return <g/>;
-                    return <circle cx={props.cx} cy={props.cy} r={7} fill="#38BDF8" stroke="#fff" strokeWidth={1.5}/>;
+                    return <circle cx={props.cx} cy={props.cy} r={7} fill={p.merpm_scatter} stroke="#fff" strokeWidth={1.5}/>;
                   }}
                   connectNulls={false} legendType="none" isAnimationActive={false} name="Reported (kW)"/>
               </ComposedChart>
@@ -6786,6 +6861,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Main Engine Health Chart ──────────────────────────────────────────────────
     function MEHealthChart({showColorWheel, showOpenLegend}){
+      var p=_gChartPal;
       var SMN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       var FMN=["January","February","March","April","May","June","July","August","September","October","November","December"];
       // Base: May 2025 → x=0=May 2025, x=13≈Jun 2026, x=13.9≈Jul 2026 (current date)
@@ -6848,7 +6924,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         if(!xMap||!yMap) return null;
         var xs=xMap[0]&&xMap[0].scale; var ys=yMap[0]&&yMap[0].scale;
         if(!xs||!ys) return null;
-        function clr(y){return y<=10?"#16A34A":y<=20?"#F97316":"#EF4444";}
+        function clr(y){return y<=10?_gChartPal.th_good:y<=20?_gChartPal.th_warn:_gChartPal.th_bad;}
         function crossPt(a,b,th){var t=(th-a.y)/(b.y-a.y);return {x:a.x+t*(b.x-a.x),y:th};}
         var segs=[];
         for(var i=0;i<lineData.length-1;i++){
@@ -6918,7 +6994,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             {dotPts.map(function(p,i){
               var cx=xs(p.x),cy=ys(p.y);
               if(isNaN(cx)||isNaN(cy)) return null;
-              return <circle key={"d"+i} cx={cx} cy={cy} r={3} fill="#3B82F6" fillOpacity={0.80}/>;
+              return <circle key={"d"+i} cx={cx} cy={cy} r={3} fill={_gChartPal.th_good} fillOpacity={0.80}/>;
             })}
           </g>
         );
@@ -7370,7 +7446,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     {wscTab("Laden","laden")}{wscTab("Ballast","ballast")}
                   </div>
                   <div style={{display:"flex",alignItems:"center",gap:12}}>
-                    {[["#3B82F6","Speed Breach"],["#F87171","Consumption Breach"]].map(function(l){
+                    {[[_gChartPal.wb_speed,"Speed Breach"],[_gChartPal.wb_cons,"Consumption Breach"]].map(function(l){
                       return(
                         <div key={l[1]} style={{display:"flex",alignItems:"center",gap:4}}>
                           <div style={{width:8,height:8,borderRadius:2,background:l[0],flexShrink:0}}/>
@@ -7385,12 +7461,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     <BarChart data={chartData} barSize={38} margin={{bottom:24,left:4,right:10,top:4}}>
                       <defs>
                         <linearGradient id="bgSpeedBreach" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#3B82F6" stopOpacity={1}/>
-                          <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.55}/>
+                          <stop offset="0%" stopColor={_gChartPal.wb_speed} stopOpacity={1}/>
+                          <stop offset="100%" stopColor={_gChartPal.wb_speed} stopOpacity={0.55}/>
                         </linearGradient>
                         <linearGradient id="bgConsBreach" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#F87171" stopOpacity={1}/>
-                          <stop offset="100%" stopColor="#F87171" stopOpacity={0.55}/>
+                          <stop offset="0%" stopColor={_gChartPal.wb_cons} stopOpacity={1}/>
+                          <stop offset="100%" stopColor={_gChartPal.wb_cons} stopOpacity={0.55}/>
                         </linearGradient>
                       </defs>
                       <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
@@ -7427,7 +7503,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             var map={};
             ballastPts.forEach(function(p){map[p.x]={speed:p.x,ballast:p.y,laden:null};});
             ladenPts.forEach(function(p){
-              if(map[p.x]) map[p.x].laden=p.y;
+              if(map[p.x]) map[p.x].laden={p.y};
               else map[p.x]={speed:p.x,ballast:null,laden:p.y};
             });
             return Object.keys(map).map(function(k){return map[k];}).sort(function(a,b){return a.speed-b.speed;});
@@ -7454,10 +7530,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               var bRegData=[],lRegData=[];
               for(var i=0;i<=56;i++){var s=i*0.25;bRegData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(bReg(s).toFixed(3))});lRegData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(lReg(s).toFixed(3))});}
               var sccLegendItems=[
-                hasBallast&&["#0EA5E9","Ballast Regression","line"],
-                hasLaden&&["#F97316","Laden Regression","dash"],
-                hasBallast&&["#0EA5E9","Ballast","circle"],
-                hasLaden&&["#F97316","Laden","circle"],
+                hasBallast&&[_gChartPal.sc_ballast,"Ballast Regression","line"],
+                hasLaden&&[_gChartPal.sc_laden,"Laden Regression","dash"],
+                hasBallast&&[_gChartPal.sc_ballast,"Ballast","circle"],
+                hasLaden&&[_gChartPal.sc_laden,"Laden","circle"],
               ].filter(Boolean);
               return (
               <div style={{display:"flex",flexDirection:"column",width:"100%",height:"100%"}}>
@@ -7468,25 +7544,25 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <div style={{display:"flex",alignItems:"center",gap:12}}>
                     {hasBallast&&(
                       <div style={{display:"flex",alignItems:"center",gap:4}}>
-                        <svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke="#0EA5E9" strokeWidth="2"/></svg>
+                        <svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke={_gChartPal.sc_ballast} strokeWidth="2"/></svg>
                         <span style={{fontSize:11,color:"#64748B"}}>Ballast Reg.</span>
                       </div>
                     )}
                     {hasLaden&&(
                       <div style={{display:"flex",alignItems:"center",gap:4}}>
-                        <svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke="#F97316" strokeWidth="2" strokeDasharray="5 3"/></svg>
+                        <svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke={_gChartPal.sc_laden} strokeWidth="2" strokeDasharray="5 3"/></svg>
                         <span style={{fontSize:11,color:"#64748B"}}>Laden Reg.</span>
                       </div>
                     )}
                     {hasBallast&&(
                       <div style={{display:"flex",alignItems:"center",gap:4}}>
-                        <div style={{width:8,height:8,borderRadius:"50%",background:"#0EA5E9",flexShrink:0}}/>
+                        <div style={{width:8,height:8,borderRadius:"50%",background:_gChartPal.sc_ballast,flexShrink:0}}/>
                         <span style={{fontSize:11,color:"#64748B"}}>Ballast</span>
                       </div>
                     )}
                     {hasLaden&&(
                       <div style={{display:"flex",alignItems:"center",gap:4}}>
-                        <div style={{width:8,height:8,borderRadius:"50%",background:"#F97316",flexShrink:0}}/>
+                        <div style={{width:8,height:8,borderRadius:"50%",background:_gChartPal.sc_laden,flexShrink:0}}/>
                         <span style={{fontSize:11,color:"#64748B"}}>Laden</span>
                       </div>
                     )}
@@ -7509,8 +7585,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     var byName={};
                     payload.forEach(function(p){
                       if(!byName[p.name]) byName[p.name]={name:p.name,color:p.color,fill:p.fill};
-                      if(p.dataKey==="x") byName[p.name].speed=p.value;
-                      if(p.dataKey==="y") byName[p.name].fuel=p.value;
+                      if(p.dataKey==="x") byName[p.name].speed={p.value};
+                      if(p.dataKey==="y") byName[p.name].fuel={p.value};
                     });
                     var series=Object.keys(byName).map(function(k){return byName[k];}).filter(function(s){return s.speed!=null&&s.fuel!=null;});
                     if(!series.length) return null;
@@ -7541,17 +7617,17 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     );
                   }}/>
                   {hasBallast&&<Scatter name="Ballast Regression" data={bRegData}
-                    line={{stroke:"#0EA5E9",strokeWidth:2}} lineType="joint"
-                    dot={false} fill="#0EA5E9" legendType="none"/>}
+                    line={{stroke:_gChartPal.sc_ballast,strokeWidth:2}} lineType="joint"
+                    dot={false} fill={_gChartPal.sc_ballast} legendType="none"/>}
                   {hasLaden&&<Scatter name="Laden Regression" data={lRegData}
-                    line={{stroke:"#F97316",strokeWidth:2,strokeDasharray:"7 4"}} lineType="joint"
-                    dot={false} fill="#F97316" legendType="none"/>}
+                    line={{stroke:_gChartPal.sc_laden,strokeWidth:2,strokeDasharray:"7 4"}} lineType="joint"
+                    dot={false} fill={_gChartPal.sc_laden} legendType="none"/>}
                   {hasBallast&&<Scatter name="Ballast" data={ballastPts} legendType="none"
-                    fill="#0EA5E9"
-                    shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill="#0EA5E9"/>;}}/>}
+                    fill={_gChartPal.sc_ballast}
+                    shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill={_gChartPal.sc_ballast}/>;}}/>}
                   {hasLaden&&<Scatter name="Laden" data={ladenPts} legendType="none"
-                    fill="#F97316"
-                    shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill="#F97316"/>;}}/>}
+                    fill={_gChartPal.sc_laden}
+                    shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill={_gChartPal.sc_laden}/>;}}/>}
                 </ScatterChart>
               </ResponsiveContainer>
                 </div>
@@ -7894,7 +7970,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             var _aS={};
             _rPts.forEach(function(p){_aS[p.v]={speed:p.v,reported:p.c,predicted:null,laden:_cAt(p.v,"laden"),ballast:_cAt(p.v,"ballast")};});
             _pPts.forEach(function(p){
-              if(_aS[p.v]) _aS[p.v].predicted=p.c;
+              if(_aS[p.v]) _aS[p.v].predicted={p.c};
               else _aS[p.v]={speed:p.v,reported:null,predicted:p.c,laden:_cAt(p.v,"laden"),ballast:_cAt(p.v,"ballast")};
             });
             var _sRows=Object.keys(_aS).map(function(k){return _aS[k];}).sort(function(a,b){return a.speed-b.speed;});
@@ -12892,6 +12968,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       var principalWrapRef=useRef(null);
       var [customCharts,setCustomCharts]=useState([]);
       var [dashTab,setDashTab]=useState("operational");
+      var [chartVer,setChartVer]=useState("v1");
+      var [chartVerOpen,setChartVerOpen]=useState(false);
       var [detailChart,setDetailChart]=useState(null);
       var [selectedVessel,setSelectedVessel]=useState(null);
       var [showMap,setShowMap]=useState(true);
@@ -13190,6 +13268,40 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                     :[{label:"Last 30 Days",months:1},{label:"Last 60 Days",months:2},{label:"Last 180 Days",months:6},{label:"Last 365 Days",months:12},{label:"Custom",months:null}]
                   }
                   onRangeChange={setMonthCount} dark={kpiMode==="highlight2"||kpiMode==="highlight3"}/>
+                {/* Colour version picker */}
+                <div style={{position:"relative"}}>
+                  <button onClick={function(){setChartVerOpen(function(v){return !v;});}}
+                    title="Chart Colour Theme"
+                    style={{width:34,height:34,borderRadius:6,border:"1.5px solid #E2E8F0",background:chartVer==="v2"?"#EEF2FF":"#fff",
+                      cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="12" r="10" stroke={chartVer==="v2"?"#6D28D9":"#64748B"} strokeWidth="1.5"/>
+                      <path d="M12 2a10 10 0 0 1 0 20" fill="#EF4444" opacity="0.8"/>
+                      <path d="M12 2A10 10 0 0 0 2 12" fill="#3B82F6" opacity="0.8"/>
+                      <path d="M2 12a10 10 0 0 0 10 10" fill="#22C55E" opacity="0.8"/>
+                      <circle cx="12" cy="12" r="4" fill="#fff"/>
+                    </svg>
+                  </button>
+                  {chartVerOpen&&(
+                    <div style={{position:"absolute",right:0,top:"calc(100% + 6px)",background:"#fff",
+                      borderRadius:8,boxShadow:"0 4px 16px rgba(0,0,0,0.12)",border:"1px solid #E2E8F0",
+                      zIndex:999,minWidth:140,overflow:"hidden"}}>
+                      {["v1","v2"].map(function(v){return(
+                        <button key={v} onClick={function(){_gChartPal=CHART_PALETTES[v];setChartVer(v);setChartVerOpen(false);}}
+                          style={{display:"flex",alignItems:"center",gap:8,width:"100%",padding:"10px 14px",
+                            border:"none",background:chartVer===v?"#EEF2FF":"transparent",
+                            cursor:"pointer",fontSize:13,fontWeight:chartVer===v?700:500,
+                            color:chartVer===v?"#4F46E5":"#374151",textAlign:"left"}}>
+                          <span style={{width:12,height:12,borderRadius:"50%",flexShrink:0,
+                            background:v==="v1"?"linear-gradient(135deg,#3B82F6,#F97316)":"linear-gradient(135deg,#8B5CF6,#F59E0B)",
+                            display:"inline-block"}}/>
+                          {v==="v1"?"Version 1":"Version 2"}
+                          {chartVer===v&&<svg style={{marginLeft:"auto"}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>}
+                        </button>
+                      );})}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <div style={{flex:1,overflowY:"auto",padding:"20px 24px 24px",background:darkBg?"#EAEFF4":THEME.bg,transition:"background 0.2s"}}>
