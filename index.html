@@ -140,34 +140,34 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         fpd_pred:"#22C55E", fpd_rep:"#F97316", fpd_trial:"#7C3AED",
       },
       v2: {
-        // Warranty Breach — violet / rose
-        wb_speed:"#8B5CF6", wb_cons:"#FB7185",
-        // Speed & Consumption scatter — teal / amber
-        sc_ballast:"#14B8A6", sc_laden:"#F59E0B",
-        // Avg Daily Consumption bars — indigo / sky / orange
-        adc_prop:"#6366F1", adc_mano:"#38BDF8", adc_aux:"#FB923C",
-        // SOG & Slip lines — fuchsia / cyan
-        ss_slip:"#D946EF", ss_avg:"#22D3EE",
-        // Global GHG areas
-        ghg_co2:"#0891B2", ghg_n2o:"#D97706", ghg_ch4:"#7C3AED",
-        // EU Emissions bars
-        eu_emiss:"#0891B2", eu_emiss2:"#67E8F9", eu_cons:"#D97706", eu_cons2:"#FCD34D",
-        // FuelEU balance
-        feu_pos:"#0891B2", feu_pos2:"#22D3EE", feu_neg:"#F43F5E", feu_neg2:"#FB7185", feu_line:"#8B5CF6",
-        // Technical — Speed/Power Curve — cyan / amber / violet (no red/green)
-        tech_pred:"#06B6D4", tech_rep:"#F59E0B", tech_trial:"#8B5CF6",
-        // Technical — Consumption by Speed (Laden/Ballast) — pink / indigo (no red/green)
-        tech_laden:"#EC4899", tech_ballast:"#6366F1",
-        // Technical — Load SFOC scatter categories — deep violet / sky / gold / light cyan (no red/green)
-        sfoc_out:"#7C3AED", sfoc_in:"#0EA5E9", sfoc_cout:"#FBBF24", sfoc_cin:"#A5F3FC",
-        // Technical — ME RPM/Power — blue / orange (no red/green)
-        merpm_scatter:"#0284C7", merpm_fit:"#FB923C",
-        // Technical — Hull/Engine Health thresholds — sky / orange / purple (no red/green)
-        th_good:"#38BDF8", th_warn:"#FDBA74", th_bad:"#C084FC",
-        // Technical — Hull Health event markers (maintenance / port stay) — sky / violet (no red/green)
+        // Warranty Breach — violet / cyan (no red/green/orange/pink)
+        wb_speed:"#8B5CF6", wb_cons:"#06B6D4",
+        // Speed & Consumption scatter — indigo / yellow (no red/green/orange/pink)
+        sc_ballast:"#6366F1", sc_laden:"#FACC15",
+        // Avg Daily Consumption bars — blue / sky / purple (no red/green/orange/pink)
+        adc_prop:"#2563EB", adc_mano:"#38BDF8", adc_aux:"#A855F7",
+        // SOG & Slip lines — violet / cyan (no red/green/orange/pink)
+        ss_slip:"#7C3AED", ss_avg:"#0891B2",
+        // Global GHG areas — cyan / yellow / violet
+        ghg_co2:"#0891B2", ghg_n2o:"#EAB308", ghg_ch4:"#7C3AED",
+        // EU Emissions bars — cyan / yellow
+        eu_emiss:"#0891B2", eu_emiss2:"#67E8F9", eu_cons:"#FACC15", eu_cons2:"#FDE047",
+        // FuelEU balance — cyan / purple
+        feu_pos:"#0891B2", feu_pos2:"#22D3EE", feu_neg:"#A855F7", feu_neg2:"#6D28D9", feu_line:"#8B5CF6",
+        // Technical — Speed/Power Curve — cyan / yellow / violet (no red/green/orange/pink)
+        tech_pred:"#06B6D4", tech_rep:"#FACC15", tech_trial:"#8B5CF6",
+        // Technical — Consumption by Speed (Laden/Ballast) — purple / indigo (no red/green/orange/pink)
+        tech_laden:"#C084FC", tech_ballast:"#6366F1",
+        // Technical — Load SFOC scatter categories — deep violet / sky / yellow / light cyan (no red/green/orange/pink)
+        sfoc_out:"#7C3AED", sfoc_in:"#0EA5E9", sfoc_cout:"#EAB308", sfoc_cin:"#A5F3FC",
+        // Technical — ME RPM/Power — blue / yellow (no red/green/orange/pink)
+        merpm_scatter:"#0284C7", merpm_fit:"#FACC15",
+        // Technical — Hull/Engine Health thresholds — sky / yellow / purple (no red/green/orange/pink)
+        th_good:"#38BDF8", th_warn:"#FACC15", th_bad:"#C084FC",
+        // Technical — Hull Health event markers (maintenance / port stay) — sky / violet (no red/green/orange/pink)
         evt_good:"#0EA5E9", evt_bad:"#7C3AED",
-        // Technical — Fuel Performance Deviation — fuchsia / dark amber / blue (no red/green)
-        fpd_pred:"#E879F9", fpd_rep:"#D97706", fpd_trial:"#3B82F6",
+        // Technical — Fuel Performance Deviation — purple / yellow / blue (no red/green/orange/pink)
+        fpd_pred:"#A855F7", fpd_rep:"#EAB308", fpd_trial:"#3B82F6",
       }
     };
     var _gChartPal = CHART_PALETTES.v1;
@@ -13304,7 +13304,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                             cursor:"pointer",fontSize:13,fontWeight:chartVer===v?700:500,
                             color:chartVer===v?"#4F46E5":"#374151",textAlign:"left"}}>
                           <span style={{width:12,height:12,borderRadius:"50%",flexShrink:0,
-                            background:v==="v1"?"linear-gradient(135deg,#3B82F6,#F97316)":"linear-gradient(135deg,#8B5CF6,#F59E0B)",
+                            background:v==="v1"?"linear-gradient(135deg,#3B82F6,#F97316)":"linear-gradient(135deg,#8B5CF6,#FACC15)",
                             display:"inline-block"}}/>
                           {v==="v1"?"Version 1":"Version 2"}
                           {chartVer===v&&<svg style={{marginLeft:"auto"}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>}
@@ -13432,24 +13432,27 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
 
     var _ILLUS_SVG=`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="114" viewBox="0 0 120 114"><ellipse cx="60" cy="107" rx="42" ry="9" fill="#c8d1e8"/><rect x="19" y="4" width="82" height="62" rx="8" fill="#dce3f4"/><rect x="25" y="10" width="70" height="48" rx="5" fill="#eef1f9"/><rect x="31" y="42" width="7" height="12" rx="2" fill="#b4bee0"/><rect x="41" y="35" width="7" height="19" rx="2" fill="#9facd8"/><rect x="51" y="38" width="7" height="16" rx="2" fill="#b4bee0"/><rect x="61" y="28" width="7" height="26" rx="2" fill="#1852FE" opacity="0.45"/><rect x="71" y="32" width="7" height="22" rx="2" fill="#9facd8"/><rect x="81" y="24" width="7" height="30" rx="2" fill="#1852FE" opacity="0.6"/><polyline points="34,46 44,38 54,41 64,31 74,34 88,25" stroke="#1852FE" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/><circle cx="64" cy="31" r="2.5" fill="#1852FE" opacity="0.9"/><circle cx="88" cy="25" r="2.5" fill="#1852FE" opacity="0.9"/><rect x="51" y="66" width="18" height="8" rx="2" fill="#c8d0e8"/><rect x="41" y="74" width="38" height="7" rx="3.5" fill="#c8d0e8"/></svg>`;
 
-    var _CHART_COLOUR_SECTIONS=[
+    function getChartColourSections(){
+      var p=_gChartPal;
+      function grad(hex,alpha){ return {hex:hex,swatch:"gradient-v",gradFrom:hex,gradTo:fade(hex,alpha),s0:"100%",s1:Math.round(alpha*100)+"%"}; }
+      return [
       {group:"Operational Charts"},
       {section:"Warranty Breach",type:"Bar Chart",colors:[
-        {hex:"#3B82F6",label:"Speed Breach",swatch:"gradient-v",gradFrom:"#3B82F6",gradTo:"rgba(59,130,246,0.55)",s0:"100%",s1:"55%"},
-        {hex:"#F87171",label:"Consumption Breach",swatch:"gradient-v",gradFrom:"#F87171",gradTo:"rgba(248,113,113,0.55)",s0:"100%",s1:"55%"},
+        Object.assign({label:"Speed Breach"},grad(p.wb_speed,0.55)),
+        Object.assign({label:"Consumption Breach"},grad(p.wb_cons,0.55)),
       ]},
       {section:"Speed and Consumption",type:"Scatter Chart",colors:[
-        {hex:"#0EA5E9",label:"Ballast — scatter & regression line",swatch:"solid"},
-        {hex:"#F97316",label:"Laden — scatter & regression line (dashed)",swatch:"dashed"},
+        {hex:p.sc_ballast,label:"Ballast — scatter & regression line",swatch:"solid"},
+        {hex:p.sc_laden,label:"Laden — scatter & regression line (dashed)",swatch:"dashed"},
       ]},
       {section:"Average Daily Consumption",type:"Stacked Bar Chart",colors:[
-        {hex:"#2563EB",label:"ME Propulsion",swatch:"gradient-v",gradFrom:"#2563EB",gradTo:"rgba(37,99,235,0.55)",s0:"100%",s1:"55%"},
-        {hex:"#60A5FA",label:"Manoeuvring",swatch:"gradient-v",gradFrom:"#60A5FA",gradTo:"rgba(96,165,250,0.55)",s0:"100%",s1:"55%"},
-        {hex:"#F97316",label:"Auxiliaries",swatch:"gradient-v",gradFrom:"#F97316",gradTo:"rgba(249,115,22,0.55)",s0:"100%",s1:"55%"},
+        Object.assign({label:"ME Propulsion"},grad(p.adc_prop,0.55)),
+        Object.assign({label:"Manoeuvring"},grad(p.adc_mano,0.55)),
+        Object.assign({label:"Auxiliaries"},grad(p.adc_aux,0.55)),
       ]},
       {section:"SOG and Slip",type:"Line Chart",colors:[
-        {hex:"#3B82F6",label:"Slip % (dashed) & SOG line",swatch:"dashed"},
-        {hex:"#F97316",label:"Slip 7D Average",swatch:"solid"},
+        {hex:p.ss_slip,label:"Slip % (dashed) & SOG line",swatch:"dashed"},
+        {hex:p.ss_avg,label:"Slip 7D Average",swatch:"solid"},
         {hex:"#CBD5E1",label:"Reference line (date marker)",swatch:"solid"},
       ]},
       {section:"Fleet Performance",type:"Radar Chart",colors:[
@@ -13474,44 +13477,72 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       ]},
       {group:"Environmental Charts"},
       {section:"CII Rating (AER)",type:"Area + Band Chart",colors:[
-        {hex:"#16A34A",label:"Attained AER line",swatch:"solid"},
-        {hex:"#F59E0B",label:"Required AER line (dashed)",swatch:"dashed"},
-        {hex:"#16A34A",label:"Band A — Excellent (AER ≤ 3.7)",swatch:"band"},
-        {hex:"#22C55E",label:"Band B — Good (3.7–5.0)",swatch:"band"},
-        {hex:"#84CC16",label:"Band B/C boundary reference",swatch:"solid"},
-        {hex:"#EAB308",label:"Band C — Moderate (5.0–6.2)",swatch:"band"},
-        {hex:"#F97316",label:"Band D — Poor (6.2–7.4)",swatch:"band"},
-        {hex:"#EF4444",label:"Band E — Very Poor (> 7.4)",swatch:"band"},
+        {hex:p.tech_pred,label:"Attained AER line",swatch:"solid"},
+        {hex:p.eu_cons,label:"Required AER line (dashed)",swatch:"dashed"},
+        {hex:"#16A34A",label:"Band A — Excellent (AER ≤ 3.7) — fixed rating colour",swatch:"band"},
+        {hex:"#22C55E",label:"Band B — Good (3.7–5.0) — fixed rating colour",swatch:"band"},
+        {hex:"#84CC16",label:"Band B/C boundary reference — fixed rating colour",swatch:"solid"},
+        {hex:"#EAB308",label:"Band C — Moderate (5.0–6.2) — fixed rating colour",swatch:"band"},
+        {hex:"#F97316",label:"Band D — Poor (6.2–7.4) — fixed rating colour",swatch:"band"},
+        {hex:"#EF4444",label:"Band E — Very Poor (> 7.4) — fixed rating colour",swatch:"band"},
       ]},
       {section:"Global GHG Emissions",type:"Area Chart",colors:[
-        {hex:"#3B82F6",label:"Total CO₂",swatch:"gradient-v",gradFrom:"rgba(59,130,246,0.45)",gradTo:"rgba(59,130,246,0.01)",s0:"45%",s1:"1%"},
-        {hex:"#EAB308",label:"Total N₂O",swatch:"gradient-v",gradFrom:"rgba(234,179,8,0.50)",gradTo:"rgba(234,179,8,0.01)",s0:"50%",s1:"1%"},
-        {hex:"#22C55E",label:"Total CH₄",swatch:"gradient-v",gradFrom:"rgba(34,197,94,0.42)",gradTo:"rgba(34,197,94,0.01)",s0:"42%",s1:"1%"},
+        Object.assign({label:"Total CO₂"},grad(p.ghg_co2,0.45)),
+        Object.assign({label:"Total N₂O"},grad(p.ghg_n2o,0.50)),
+        Object.assign({label:"Total CH₄"},grad(p.ghg_ch4,0.42)),
       ]},
       {section:"Emissions (EU)",type:"Bar Chart",colors:[
-        {hex:"#4C6EF5",label:"Total Emissions — top stop",swatch:"gradient-v",gradFrom:"#4C6EF5",gradTo:"rgba(129,140,248,0.70)",s0:"100%",s1:"70%"},
-        {hex:"#818CF8",label:"Total Emissions — bottom stop",swatch:"solid"},
-        {hex:"#F59E0B",label:"Consumption — top stop",swatch:"gradient-v",gradFrom:"#F59E0B",gradTo:"rgba(252,211,77,0.70)",s0:"100%",s1:"70%"},
-        {hex:"#FCD34D",label:"Consumption — bottom stop",swatch:"solid"},
+        Object.assign({label:"Total Emissions — top stop"},grad(p.eu_emiss,0.70)),
+        {hex:p.eu_emiss2,label:"Total Emissions — bottom stop",swatch:"solid"},
+        Object.assign({label:"Consumption — top stop"},grad(p.eu_cons,0.70)),
+        {hex:p.eu_cons2,label:"Consumption — bottom stop",swatch:"solid"},
       ]},
       {section:"EU ETS and FuelEU CB",type:"Bar + Line Chart",colors:[
-        {hex:"#22C55E",label:"Positive Balance — top stop",swatch:"gradient-v",gradFrom:"#22C55E",gradTo:"rgba(74,222,128,0.75)",s0:"100%",s1:"75%"},
-        {hex:"#4ADE80",label:"Positive Balance — bottom stop",swatch:"solid"},
-        {hex:"#EF4444",label:"Negative Balance — top stop",swatch:"gradient-v",gradFrom:"rgba(239,68,68,0.75)",gradTo:"#DC2626",s0:"75%",s1:"100%"},
-        {hex:"#DC2626",label:"Negative Balance — bottom stop",swatch:"solid"},
-        {hex:"#3B82F6",label:"EUAs Required (line + dots)",swatch:"solid"},
+        Object.assign({label:"Positive Balance — top stop"},grad(p.feu_pos,0.75)),
+        {hex:p.feu_pos2,label:"Positive Balance — bottom stop",swatch:"solid"},
+        {hex:p.feu_neg,label:"Negative Balance — top stop",swatch:"gradient-v",gradFrom:fade(p.feu_neg,0.75),gradTo:p.feu_neg2,s0:"75%",s1:"100%"},
+        {hex:p.feu_neg2,label:"Negative Balance — bottom stop",swatch:"solid"},
+        {hex:p.feu_line,label:"EUAs Required (line + dots)",swatch:"solid"},
       ]},
       {group:"Technical Charts"},
       {section:"Hull Health",type:"Scatter + Band Chart",colors:[
-        {hex:"#16A34A",label:"Line segments — Good (0–10%)",swatch:"solid"},
-        {hex:"#F97316",label:"Line segments — Caution (10–20%)",swatch:"solid"},
-        {hex:"#EF4444",label:"Line segments — Critical (> 20%) & port stay lines",swatch:"solid"},
+        {hex:p.th_good,label:"Line segments — Good (0–10%)",swatch:"solid"},
+        {hex:p.th_warn,label:"Line segments — Caution (10–20%)",swatch:"solid"},
+        {hex:p.th_bad,label:"Line segments — Critical (> 20%)",swatch:"solid"},
+        {hex:p.evt_good,label:"Maintenance event marker",swatch:"solid"},
+        {hex:p.evt_bad,label:"Port stay marker & line",swatch:"solid"},
         {hex:"#3B82F6",label:"Speed loss scatter dots",swatch:"solid"},
-        {hex:"#86EFAC",label:"Fill band — Good (0–10%)",swatch:"band"},
-        {hex:"#FDE047",label:"Fill band — Caution (10–20%)",swatch:"band"},
-        {hex:"#EF4444",label:"Fill band — Critical (> 20%)",swatch:"band"},
+        {hex:"#86EFAC",label:"Fill band — Good (0–10%) — fixed",swatch:"band"},
+        {hex:"#FDE047",label:"Fill band — Caution (10–20%) — fixed",swatch:"band"},
+        {hex:"#EF4444",label:"Fill band — Critical (> 20%) — fixed",swatch:"band"},
       ]},
-    ];
+      {section:"Speed Power Curve",type:"Line + Scatter Chart",colors:[
+        {hex:p.tech_pred,label:"Predicted Power (Laden)",swatch:"solid"},
+        {hex:p.tech_rep,label:"Reported Power (Laden) — scatter",swatch:"solid"},
+        {hex:p.tech_trial,label:"Sea Trial Power (+5% band)",swatch:"dashed"},
+      ]},
+      {section:"Fuel Performance Deviation",type:"Line + Scatter Chart",colors:[
+        {hex:p.fpd_pred,label:"Predicted ME Consumption (Laden)",swatch:"solid"},
+        {hex:p.fpd_rep,label:"Reported ME Consumption (Laden)",swatch:"solid"},
+        {hex:p.fpd_trial,label:"Shop Test ME Consumption (+5% band)",swatch:"dashed"},
+      ]},
+      {section:"Load – SFOC",type:"Scatter Chart",colors:[
+        {hex:p.sfoc_out,label:"SFOC Measured (Outside Band)",swatch:"solid"},
+        {hex:p.sfoc_in,label:"SFOC Measured (Within Band)",swatch:"solid"},
+        {hex:p.sfoc_cout,label:"SFOC Corrected (Outside Band)",swatch:"solid"},
+        {hex:p.sfoc_cin,label:"SFOC Corrected (Within Band)",swatch:"solid"},
+      ]},
+      {section:"Main Engine RPM – Power",type:"Line + Scatter Chart",colors:[
+        {hex:p.merpm_scatter,label:"Reported — scatter dots",swatch:"solid"},
+        {hex:p.merpm_fit,label:"Reported Fit (dashed)",swatch:"dashed"},
+      ]},
+      {section:"Main Engine Health",type:"Scatter + Threshold Chart",colors:[
+        {hex:p.th_good,label:"Deviation % — Good (0–10%)",swatch:"solid"},
+        {hex:p.th_warn,label:"Deviation % — Caution (10–20%)",swatch:"solid"},
+        {hex:p.th_bad,label:"Deviation % — Critical (> 20%)",swatch:"solid"},
+      ]},
+      ];
+    }
 
     function AssetsPanel(){
       var [open,setOpen]=React.useState(false);
@@ -13696,7 +13727,15 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
               {/* Tab: Colours */}
               {activeTab==='colours'&&(
                 <div style={{overflowY:"auto",padding:"10px 14px 14px"}}>
-                  {_CHART_COLOUR_SECTIONS.map(function(sec,si){
+                  <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10,padding:"6px 10px",borderRadius:6,
+                    background:_gChartPal===CHART_PALETTES.v2?"#EEF2FF":"#F1F5F9"}}>
+                    <span style={{width:8,height:8,borderRadius:"50%",flexShrink:0,
+                      background:_gChartPal===CHART_PALETTES.v2?"linear-gradient(135deg,#8B5CF6,#FACC15)":"linear-gradient(135deg,#3B82F6,#F97316)"}}/>
+                    <span style={{fontSize:11,fontWeight:600,color:"#374151"}}>
+                      Showing {_gChartPal===CHART_PALETTES.v2?"Version 2":"Version 1"} colours — switch via the colour-wheel icon in the chart header
+                    </span>
+                  </div>
+                  {getChartColourSections().map(function(sec,si){
                     if(sec.group){
                       return (
                         <div key={"grp"+si} style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,marginTop:si>0?20:2}}>
