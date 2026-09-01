@@ -134,31 +134,40 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         merpm_scatter:"#38BDF8", merpm_fit:"#F97316",
         // Threshold (hull + engine health line segments)
         th_good:"#16A34A", th_warn:"#F97316", th_bad:"#EF4444",
+        // Hull Health event markers (maintenance / port stay)
+        evt_good:"#16A34A", evt_bad:"#EF4444",
+        // Fuel Performance Deviation
+        fpd_pred:"#22C55E", fpd_rep:"#F97316", fpd_trial:"#7C3AED",
       },
       v2: {
-        // Warranty Breach
-        wb_speed:"#8B5CF6", wb_cons:"#F59E0B",
-        // Speed & Consumption scatter
-        sc_ballast:"#8B5CF6", sc_laden:"#F59E0B",
-        // Avg Daily Consumption bars
-        adc_prop:"#6D28D9", adc_mano:"#A78BFA", adc_aux:"#F59E0B",
-        // SOG & Slip lines
-        ss_slip:"#8B5CF6", ss_avg:"#F59E0B",
+        // Warranty Breach — violet / rose
+        wb_speed:"#8B5CF6", wb_cons:"#FB7185",
+        // Speed & Consumption scatter — teal / amber
+        sc_ballast:"#14B8A6", sc_laden:"#F59E0B",
+        // Avg Daily Consumption bars — indigo / sky / orange
+        adc_prop:"#6366F1", adc_mano:"#38BDF8", adc_aux:"#FB923C",
+        // SOG & Slip lines — fuchsia / cyan
+        ss_slip:"#D946EF", ss_avg:"#22D3EE",
         // Global GHG areas
         ghg_co2:"#0891B2", ghg_n2o:"#D97706", ghg_ch4:"#7C3AED",
         // EU Emissions bars
         eu_emiss:"#0891B2", eu_emiss2:"#67E8F9", eu_cons:"#D97706", eu_cons2:"#FCD34D",
         // FuelEU balance
         feu_pos:"#0891B2", feu_pos2:"#22D3EE", feu_neg:"#F43F5E", feu_neg2:"#FB7185", feu_line:"#8B5CF6",
-        // Technical — Speed/Power + Cons/Speed
+        // Technical — Speed/Power Curve — cyan / amber / violet (no red/green)
         tech_pred:"#06B6D4", tech_rep:"#F59E0B", tech_trial:"#8B5CF6",
-        tech_laden:"#06B6D4", tech_ballast:"#F59E0B",
-        // Load SFOC scatter categories
-        sfoc_out:"#F43F5E", sfoc_in:"#06B6D4", sfoc_cout:"#F59E0B", sfoc_cin:"#67E8F9",
-        // ME RPM/Power
-        merpm_scatter:"#A78BFA", merpm_fit:"#F59E0B",
-        // Threshold (hull + engine health line segments) — no red or green
-        th_good:"#06B6D4", th_warn:"#F59E0B", th_bad:"#8B5CF6",
+        // Technical — Consumption by Speed (Laden/Ballast) — pink / indigo (no red/green)
+        tech_laden:"#EC4899", tech_ballast:"#6366F1",
+        // Technical — Load SFOC scatter categories — deep violet / sky / gold / light cyan (no red/green)
+        sfoc_out:"#7C3AED", sfoc_in:"#0EA5E9", sfoc_cout:"#FBBF24", sfoc_cin:"#A5F3FC",
+        // Technical — ME RPM/Power — blue / orange (no red/green)
+        merpm_scatter:"#0284C7", merpm_fit:"#FB923C",
+        // Technical — Hull/Engine Health thresholds — sky / orange / purple (no red/green)
+        th_good:"#38BDF8", th_warn:"#FDBA74", th_bad:"#C084FC",
+        // Technical — Hull Health event markers (maintenance / port stay) — sky / violet (no red/green)
+        evt_good:"#0EA5E9", evt_bad:"#7C3AED",
+        // Technical — Fuel Performance Deviation — fuchsia / dark amber / blue (no red/green)
+        fpd_pred:"#E879F9", fpd_rep:"#D97706", fpd_trial:"#3B82F6",
       }
     };
     var _gChartPal = CHART_PALETTES.v1;
@@ -2737,6 +2746,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Speed Power deep-dive chart — crosshair callouts on hover ─────────────────
     function SpeedPowerDeepDiveChart({weather,loadCond,seaTrialCurve}){
+      var p=_gChartPal;
       var [activeV,setActiveV]=React.useState(null);
       var lf=loadCond==="laden"?1.0:0.8;
       var wf=weather==="bf3dss4"?1.08:1.0;
@@ -2785,16 +2795,16 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <rect x={0} y={0} width={labelW} height={34} rx={6} fill="#fff" stroke="#CBD5E1" strokeWidth={1}/>
                 <polygon points={"0,14 -7,18 0,22"} fill="#fff" stroke="#CBD5E1" strokeWidth={1}/>
                 <text x={8} y={13} fontSize={10} fontWeight={600} fill="#1E293B">Predicted Power</text>
-                <text x={8} y={27} fontSize={11} fontWeight={700} fill="#166534">{pPt.p+" kW"}</text>
+                <text x={8} y={27} fontSize={11} fontWeight={700} fill={p.tech_pred}>{pPt.p+" kW"}</text>
               </g>
               <g transform={"translate("+(cx+10)+","+(ry+6)+")"}>
                 <rect x={0} y={0} width={labelW} height={34} rx={6} fill="#fff" stroke="#CBD5E1" strokeWidth={1}/>
                 <polygon points={"0,14 -7,18 0,22"} fill="#fff" stroke="#CBD5E1" strokeWidth={1}/>
                 <text x={8} y={13} fontSize={10} fontWeight={600} fill="#1E293B">Reported Power</text>
-                <text x={8} y={27} fontSize={11} fontWeight={700} fill="#EF4444">{rPt.p+" kW"}</text>
+                <text x={8} y={27} fontSize={11} fontWeight={700} fill={p.tech_rep}>{rPt.p+" kW"}</text>
               </g>
-              <circle cx={xs(pPt.s)} cy={py} r={9} fill="none" stroke="#166534" strokeWidth={2}/>
-              <circle cx={xs(rPt.s)} cy={ry} r={9} fill="none" stroke="#EF4444" strokeWidth={2}/>
+              <circle cx={xs(pPt.s)} cy={py} r={9} fill="none" stroke={p.tech_pred} strokeWidth={2}/>
+              <circle cx={xs(rPt.s)} cy={ry} r={9} fill="none" stroke={p.tech_rep} strokeWidth={2}/>
             </g>
           );
         }
@@ -2832,11 +2842,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 payload={[
                   {value:"Reported Power", color:"#1E3A5F", type:"circle"},
                   {value:"Predicted Power",color:"#F59E0B", type:"circle"},
-                  {value:"Predicted curve", color:"#16A34A", type:"line"},
-                  {value:"Reported curve",  color:"#EF4444", type:"line"},
+                  {value:"Predicted curve", color:p.tech_pred, type:"line"},
+                  {value:"Reported curve",  color:p.tech_rep, type:"line"},
                 ].concat(seaTrialCurve?[{value:"Sea trial curve", color:"#8B5CF6", type:"line"}]:[])}/>
-              <Line type="monotone" dataKey="predicted" stroke="#16A34A" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
-              <Line type="monotone" dataKey="reported" stroke="#EF4444" strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
+              <Line type="monotone" dataKey="predicted" stroke={p.tech_pred} strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
+              <Line type="monotone" dataKey="reported" stroke={p.tech_rep} strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
               {seaTrialCurve&&<Line type="monotone" dataKey="weather" stroke="#8B5CF6" strokeWidth={2.5} strokeDasharray="6 4" dot={false} legendType="none" isAnimationActive={false}/>}
               <Customized component={OverlayLayer}/>
             </ComposedChart>
@@ -2847,6 +2857,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Engine Health Deterioration chart — risk-band area + hover tooltip ────────
     function FuelConsumptionSpeedChart(){
+      var p=_gChartPal;
       var [hoverSpd,setHoverSpd]=React.useState(null);
       var curvePts=[
         {spd:7,   pred:38,   rep:22,   shop:10.0,s5:10.5},
@@ -2915,8 +2926,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         if(!xs||!ys)return null;
         return(
           <g>
-            {predDots.map(function(p,i){return <circle key={'p'+i} cx={xs(p.spd)} cy={ys(p.v)} r={4.5} fill="#22C55E"/>;})}
-            {repDots.map(function(p,i){return <circle key={'r'+i} cx={xs(p.spd)} cy={ys(p.v)} r={4.5} fill="#F97316"/>;})}
+            {predDots.map(function(p,i){return <circle key={'p'+i} cx={xs(p.spd)} cy={ys(p.v)} r={4.5} fill={_gChartPal.fpd_pred}/>;})}
+            {repDots.map(function(p,i){return <circle key={'r'+i} cx={xs(p.spd)} cy={ys(p.v)} r={4.5} fill={_gChartPal.fpd_rep}/>;})}
 
           </g>
         );
@@ -2935,20 +2946,20 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         return(
           <g style={{pointerEvents:'none'}}>
             <line x1={cx} y1={yTop} x2={cx} y2={yBot} stroke="#94A3B8" strokeDasharray="5 3" strokeWidth={1.5}/>
-            <circle cx={cx} cy={ys(pV)} r={6} fill="none" stroke="#22C55E" strokeWidth={2.5}/>
-            <circle cx={cx} cy={ys(rV)} r={6} fill="none" stroke="#F97316" strokeWidth={2.5}/>
-            <circle cx={cx} cy={ys(s5V)} r={6} fill="none" stroke="#7C3AED" strokeWidth={2.5}/>
+            <circle cx={cx} cy={ys(pV)} r={6} fill="none" stroke={p.fpd_pred} strokeWidth={2.5}/>
+            <circle cx={cx} cy={ys(rV)} r={6} fill="none" stroke={p.fpd_rep} strokeWidth={2.5}/>
+            <circle cx={cx} cy={ys(s5V)} r={6} fill="none" stroke={p.fpd_trial} strokeWidth={2.5}/>
             <rect x={tipX} y={tipY} width={tipW} height={tipH} rx={8} fill="#fff"
               stroke="#E2E8F0" strokeWidth={1} style={{filter:'drop-shadow(0 4px 14px rgba(0,0,0,0.13))'}}/>
             <text x={tipX+14} y={tipY+20} fontSize={12} fontWeight="700" fill="#0F172A">{'Speed: '+hoverSpd.toFixed(1)+' knots'}</text>
             <line x1={tipX+8} y1={tipY+27} x2={tipX+tipW-8} y2={tipY+27} stroke="#E2E8F0" strokeWidth={1}/>
-            <circle cx={tipX+16} cy={tipY+41} r={4} fill="#22C55E"/>
+            <circle cx={tipX+16} cy={tipY+41} r={4} fill={p.fpd_pred}/>
             <text x={tipX+26} y={tipY+45} fontSize={11} fill="#64748B">Predicted ME Consumption:</text>
             <text x={tipX+tipW-12} y={tipY+45} fontSize={11} fontWeight="600" fill="#0F172A" textAnchor="end">{pV.toFixed(1)+' MT'}</text>
-            <circle cx={tipX+16} cy={tipY+59} r={4} fill="#F97316"/>
+            <circle cx={tipX+16} cy={tipY+59} r={4} fill={p.fpd_rep}/>
             <text x={tipX+26} y={tipY+63} fontSize={11} fill="#64748B">Reported ME Consumption:</text>
             <text x={tipX+tipW-12} y={tipY+63} fontSize={11} fontWeight="600" fill="#0F172A" textAnchor="end">{rV.toFixed(1)+' MT'}</text>
-            <line x1={tipX+10} y1={tipY+77} x2={tipX+26} y2={tipY+77} stroke="#7C3AED" strokeWidth={2} strokeDasharray="5 3"/>
+            <line x1={tipX+10} y1={tipY+77} x2={tipX+26} y2={tipY+77} stroke={p.fpd_trial} strokeWidth={2} strokeDasharray="5 3"/>
             <text x={tipX+32} y={tipY+81} fontSize={11} fill="#64748B">Shop Test ME Consumption:</text>
             <text x={tipX+tipW-12} y={tipY+81} fontSize={11} fontWeight="600" fill="#0F172A" textAnchor="end">{sV.toFixed(1)+' MT'}</text>
             <rect x={tipX+10} y={tipY+90} width={16} height={11} fill="rgba(167,139,250,0.35)" rx={2}/>
@@ -2963,15 +2974,15 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         <div style={{width:'100%',height:'100%',display:'flex',flexDirection:'column',fontFamily:'inherit'}}>
           <div style={{display:'flex',gap:'8px 14px',padding:'2px 8px 8px',flexWrap:'wrap',alignItems:'center',justifyContent:'flex-end',flexShrink:0}}>
             <div style={{display:'flex',alignItems:'center',gap:5}}>
-              <svg width="24" height="12"><line x1="0" y1="6" x2="24" y2="6" stroke="#22C55E" strokeWidth="2.5"/><circle cx="12" cy="6" r="4" fill="#22C55E"/></svg>
+              <svg width="24" height="12"><line x1="0" y1="6" x2="24" y2="6" stroke={p.fpd_pred} strokeWidth="2.5"/><circle cx="12" cy="6" r="4" fill={p.fpd_pred}/></svg>
               <span style={{fontSize:10.5,color:'#374151'}}>Predicted ME Consumption (Laden)</span>
             </div>
             <div style={{display:'flex',alignItems:'center',gap:5}}>
-              <svg width="24" height="12"><line x1="0" y1="6" x2="24" y2="6" stroke="#F97316" strokeWidth="2.5"/><circle cx="12" cy="6" r="4" fill="#F97316"/></svg>
+              <svg width="24" height="12"><line x1="0" y1="6" x2="24" y2="6" stroke={p.fpd_rep} strokeWidth="2.5"/><circle cx="12" cy="6" r="4" fill={p.fpd_rep}/></svg>
               <span style={{fontSize:10.5,color:'#374151'}}>Reported ME Consumption (Laden)</span>
             </div>
             <div style={{display:'flex',alignItems:'center',gap:5}}>
-              <svg width="28" height="12"><line x1="0" y1="6" x2="28" y2="6" stroke="#7C3AED" strokeWidth="2" strokeDasharray="6 3"/></svg>
+              <svg width="28" height="12"><line x1="0" y1="6" x2="28" y2="6" stroke={p.fpd_trial} strokeWidth="2" strokeDasharray="6 3"/></svg>
               <span style={{fontSize:10.5,color:'#374151'}}>Shop Test ME Consumption (Laden) +5%</span>
             </div>
             <div style={{display:'flex',alignItems:'center',gap:5}}>
@@ -2993,9 +3004,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={function(){return null;}}/>
                 <Customized component={BandLayer}/>
-                <Line type="monotone" dataKey="pred" stroke="#22C55E" strokeWidth={2.5} dot={false} isAnimationActive={false} legendType="none"/>
-                <Line type="monotone" dataKey="rep" stroke="#F97316" strokeWidth={2.5} dot={false} isAnimationActive={false} legendType="none"/>
-                <Line type="monotone" dataKey="s5" stroke="#7C3AED" strokeWidth={2} strokeDasharray="8 4" dot={false} isAnimationActive={false} legendType="none"/>
+                <Line type="monotone" dataKey="pred" stroke={p.fpd_pred} strokeWidth={2.5} dot={false} isAnimationActive={false} legendType="none"/>
+                <Line type="monotone" dataKey="rep" stroke={p.fpd_rep} strokeWidth={2.5} dot={false} isAnimationActive={false} legendType="none"/>
+                <Line type="monotone" dataKey="s5" stroke={p.fpd_trial} strokeWidth={2} strokeDasharray="8 4" dot={false} isAnimationActive={false} legendType="none"/>
                 <Customized component={DotsLayer3}/>
                 <Customized component={CrosshairLayer4}/>
               </ComposedChart>
@@ -3045,7 +3056,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         if(!xMap||!yMap) return null;
         var xs=xMap[0]&&xMap[0].scale; var ys=yMap[0]&&yMap[0].scale;
         if(!xs||!ys) return null;
-        function clr(y){return y<=10?"#16A34A":y<=20?"#F59E0B":"#EF4444";}
+        function clr(y){return y<=10?_gChartPal.th_good:y<=20?_gChartPal.th_warn:_gChartPal.th_bad;}
         function crossPt(a,b,th){var t=(th-a.y)/(b.y-a.y);return {x:a.x+t*(b.x-a.x),y:th};}
         var segs=[];
         for(var i=0;i<allLine.length-1;i++){
@@ -3084,7 +3095,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         allDots.forEach(function(d){if(Math.abs(d.x-hoverX)<0.35&&(!near||Math.abs(d.x-hoverX)<Math.abs(near.x-hoverX)))near=d;});
         var dt=xToDate(hoverX);
         var dateStr=FMN[dt.getMonth()]+" "+dt.getFullYear();
-        var lineClr=linePt.y<=10?"#16A34A":linePt.y<=20?"#F59E0B":"#EF4444";
+        var lineClr=linePt.y<=10?_gChartPal.th_good:linePt.y<=20?_gChartPal.th_warn:_gChartPal.th_bad;
         var tipW=230; var tipH=near?100:74;
         var tipX=cx+18; var tipY=yTop+8;
         if(tipX+tipW>xs(X_END)) tipX=cx-tipW-14;
@@ -3415,10 +3426,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     <div style={{background:"#fff",borderRadius:10,border:"1px solid #E2E8F0",padding:"14px 16px"}}>
                       <div style={{fontSize:12,color:"#64748B",marginBottom:4}}>Consumption Drop</div>
                       <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={_gChartPal.th_good} strokeWidth="2.5">
                           <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
                         </svg>
-                        <span style={{fontSize:22,fontWeight:700,color:"#16A34A"}}>{sel.consDrop.toFixed(2)}%</span>
+                        <span style={{fontSize:22,fontWeight:700,color:_gChartPal.th_good}}>{sel.consDrop.toFixed(2)}%</span>
                       </div>
                       <div style={{fontSize:11,color:"#64748B"}}>Reduction in fuel consumption<br/>in post period</div>
                     </div>
@@ -3427,10 +3438,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     <div style={{background:"#fff",borderRadius:10,border:"1px solid #E2E8F0",padding:"14px 16px"}}>
                       <div style={{fontSize:12,color:"#64748B",marginBottom:4}}>Speed Gain</div>
                       <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={_gChartPal.th_good} strokeWidth="2.5">
                           <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
                         </svg>
-                        <span style={{fontSize:22,fontWeight:700,color:"#16A34A"}}>{sel.speedGain.toFixed(2)}%</span>
+                        <span style={{fontSize:22,fontWeight:700,color:_gChartPal.th_good}}>{sel.speedGain.toFixed(2)}%</span>
                       </div>
                       <div style={{fontSize:11,color:"#64748B"}}>Improvement in average speed<br/>in post period</div>
                     </div>
@@ -4066,7 +4077,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               </div>
               {/* Legend — top */}
               <div style={{flexShrink:0,display:"flex",alignItems:"center",flexWrap:"wrap",gap:20,marginBottom:10,paddingLeft:4,justifyContent:"flex-end"}}>
-                {[["#16A34A","-0 <= Deviation % <= 10"],["#F59E0B","10 < Deviation % <= 20"],["#EF4444","20 < Deviation %"]].map(function(r){
+                {[[_gChartPal.th_good,"-0 <= Deviation % <= 10"],[_gChartPal.th_warn,"10 < Deviation % <= 20"],[_gChartPal.th_bad,"20 < Deviation %"]].map(function(r){
                   return(
                     <div key={r[1]} style={{display:"flex",alignItems:"center",gap:6}}>
                       <div style={{width:22,height:4,borderRadius:2,background:r[0],flexShrink:0}}/>
@@ -4075,7 +4086,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   );
                 })}
                 <div style={{display:"flex",alignItems:"center",gap:6}}>
-                  <div style={{width:22,height:3,background:"#16A34A",flexShrink:0,borderRadius:2}}/>
+                  <div style={{width:22,height:3,background:_gChartPal.th_good,flexShrink:0,borderRadius:2}}/>
                   <span style={{fontSize:11,color:THEME.textSub}}>7 Days Rolling Average</span>
                 </div>
               </div>
@@ -5968,10 +5979,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               var ty=ys(37);
               return (
                 <g key={"ps"+i}>
-                  <line x1={cx} y1={ytop} x2={cx} y2={y0} stroke="#EF4444" strokeWidth={1.5} strokeDasharray="6,4"/>
-                  <text x={cx} y={ty}    textAnchor="middle" fontSize={9.5} fontWeight={700} fill="#EF4444" fontFamily="inherit">Port stay</text>
-                  <text x={cx} y={ty+13} textAnchor="middle" fontSize={9.5} fontWeight={700} fill="#EF4444" fontFamily="inherit">{p.days+" days"}</text>
-                  <text x={cx} y={ty+26} textAnchor="middle" fontSize={9.5} fontWeight={500} fill="#EF4444" fontFamily="inherit">{"("+p.type+")"}</text>
+                  <line x1={cx} y1={ytop} x2={cx} y2={y0} stroke={_gChartPal.evt_bad} strokeWidth={1.5} strokeDasharray="6,4"/>
+                  <text x={cx} y={ty}    textAnchor="middle" fontSize={9.5} fontWeight={700} fill={_gChartPal.evt_bad} fontFamily="inherit">Port stay</text>
+                  <text x={cx} y={ty+13} textAnchor="middle" fontSize={9.5} fontWeight={700} fill={_gChartPal.evt_bad} fontFamily="inherit">{p.days+" days"}</text>
+                  <text x={cx} y={ty+26} textAnchor="middle" fontSize={9.5} fontWeight={500} fill={_gChartPal.evt_bad} fontFamily="inherit">{"("+p.type+")"}</text>
                 </g>
               );
             })}
@@ -5981,8 +5992,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               var dy=ys(30), d=8;
               return (
                 <g key={"me"+i}>
-                  <line x1={cx} y1={y0} x2={cx} y2={dy+d} stroke="#16A34A" strokeWidth={1.5}/>
-                  <polygon points={cx+","+(dy-d)+" "+(cx+d)+","+dy+" "+cx+","+(dy+d)+" "+(cx-d)+","+dy} fill="#16A34A"/>
+                  <line x1={cx} y1={y0} x2={cx} y2={dy+d} stroke={_gChartPal.evt_good} strokeWidth={1.5}/>
+                  <polygon points={cx+","+(dy-d)+" "+(cx+d)+","+dy+" "+cx+","+(dy+d)+" "+(cx-d)+","+dy} fill={_gChartPal.evt_good}/>
                   <text x={cx} y={dy-d-5} textAnchor="middle" fontSize={9.5} fontWeight={700} fill="#1E293B" fontFamily="inherit">p.label</text>
                 </g>
               );
@@ -6000,7 +6011,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         if(t.payload&&t.payload.length&&typeof t.payload[0].value==="number") avg=t.payload[0].value;
         var near=null,best=0.6;
         allDots.forEach(function(p){var dd=Math.abs(p.x-xv);if(dd<best){best=dd;near=p;}});
-        var lineClr=avg<=10?"#16A34A":avg<=20?"#F97316":"#EF4444";
+        var lineClr=avg<=10?_gChartPal.th_good:avg<=20?_gChartPal.th_warn:_gChartPal.th_bad;
         return (
           <div style={{background:"#1E293B",borderRadius:8,boxShadow:"0 4px 12px rgba(0,0,0,0.35)",border:"1px solid #334155",minWidth:200,overflow:"hidden",fontFamily:"inherit"}}>
             <div style={{padding:"10px 14px 9px"}}>
@@ -6057,7 +6068,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 {svcs.map(function(s,i){
                   return <div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
                     {s.diamond
-                      ?<svg width="12" height="12"><polygon points="6,0 12,6 6,12 0,6" fill="#16A34A"/></svg>
+                      ?<svg width="12" height="12"><polygon points="6,0 12,6 6,12 0,6" fill={_gChartPal.evt_good}/></svg>
                       :<span style={{display:"inline-block",width:12,height:12,flexShrink:0}}/>}
                     <span style={{fontSize:11,color:"#475569"}}>{s.t}</span>
                   </div>;
@@ -6079,27 +6090,27 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             </div>
             <div style={{display:"flex",alignItems:"center",gap:5}}>
               <svg width="36" height="12">
-                <line x1="1"  y1="6" x2="12" y2="6" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round"/>
-                <line x1="12" y1="6" x2="25" y2="6" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round"/>
-                <line x1="25" y1="6" x2="35" y2="6" stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round"/>
+                <line x1="1"  y1="6" x2="12" y2="6" stroke={_gChartPal.th_good} strokeWidth="2.5" strokeLinecap="round"/>
+                <line x1="12" y1="6" x2="25" y2="6" stroke={_gChartPal.th_warn} strokeWidth="2.5" strokeLinecap="round"/>
+                <line x1="25" y1="6" x2="35" y2="6" stroke={_gChartPal.th_bad} strokeWidth="2.5" strokeLinecap="round"/>
               </svg>
               <span style={{fontSize:11,color:"#475569"}}>7 Days Rolling Average</span>
             </div>
             <div style={{display:"flex",alignItems:"center",gap:5}}>
-              <svg width="8" height="8"><polygon points="4,0 8,4 4,8 0,4" fill="#16A34A"/></svg>
+              <svg width="8" height="8"><polygon points="4,0 8,4 4,8 0,4" fill={_gChartPal.evt_good}/></svg>
               <span style={{fontSize:11,color:"#475569"}}>Maintenance Event</span>
             </div>
             <div style={{display:"flex",alignItems:"center",gap:5}}>
-              <svg width="24" height="12"><line x1="1" y1="6" x2="23" y2="6" stroke="#EF4444" strokeWidth="1.5" strokeDasharray="5,3"/></svg>
+              <svg width="24" height="12"><line x1="1" y1="6" x2="23" y2="6" stroke={_gChartPal.evt_bad} strokeWidth="1.5" strokeDasharray="5,3"/></svg>
               <span style={{fontSize:11,color:"#475569"}}>Port Stay (T/NT)</span>
             </div>
             <div style={{width:16,height:16,cursor:"pointer",flexShrink:0,position:"relative"}}
               onMouseEnter={function(){setShowLegend(true);}}
               onMouseLeave={function(){setShowLegend(false);}}>
               <svg width="16" height="16" viewBox="0 0 16 16" style={{display:"block"}}>
-                <path d="M8,8 L8,0 A8,8 0 0,1 16,8 Z" fill="#22C55E"/>
+                <path d="M8,8 L8,0 A8,8 0 0,1 16,8 Z" fill={_gChartPal.th_good}/>
                 <path d="M8,8 L16,8 A8,8 0 0,1 8,16 Z" fill="#FACC15"/>
-                <path d="M8,8 L8,16 A8,8 0 0,1 0,8 Z" fill="#EF4444"/>
+                <path d="M8,8 L8,16 A8,8 0 0,1 0,8 Z" fill={_gChartPal.th_bad}/>
                 <path d="M8,8 L0,8 A8,8 0 0,1 8,0 Z" fill="#3B82F6"/>
                 <circle cx="8" cy="8" r="8" fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/>
               </svg>
@@ -7102,9 +7113,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <div style={{fontSize:12,fontWeight:700,color:"#1E293B",marginBottom:8}}>Line Legend</div>
                 <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
                   <svg width="36" height="12">
-                    <line x1="1"  y1="6" x2="12" y2="6" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round"/>
-                    <line x1="12" y1="6" x2="25" y2="6" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round"/>
-                    <line x1="25" y1="6" x2="35" y2="6" stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round"/>
+                    <line x1="1"  y1="6" x2="12" y2="6" stroke={_gChartPal.th_good} strokeWidth="2.5" strokeLinecap="round"/>
+                    <line x1="12" y1="6" x2="25" y2="6" stroke={_gChartPal.th_warn} strokeWidth="2.5" strokeLinecap="round"/>
+                    <line x1="25" y1="6" x2="35" y2="6" stroke={_gChartPal.th_bad} strokeWidth="2.5" strokeLinecap="round"/>
                   </svg>
                   <span style={{fontSize:11,color:"#475569"}}>7 Days Rolling Average</span>
                 </div>
@@ -7129,9 +7140,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             </div>
             <div style={{display:"flex",alignItems:"center",gap:5}}>
               <svg width="36" height="12">
-                <line x1="1"  y1="6" x2="12" y2="6" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round"/>
-                <line x1="12" y1="6" x2="25" y2="6" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round"/>
-                <line x1="25" y1="6" x2="35" y2="6" stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round"/>
+                <line x1="1"  y1="6" x2="12" y2="6" stroke={_gChartPal.th_good} strokeWidth="2.5" strokeLinecap="round"/>
+                <line x1="12" y1="6" x2="25" y2="6" stroke={_gChartPal.th_warn} strokeWidth="2.5" strokeLinecap="round"/>
+                <line x1="25" y1="6" x2="35" y2="6" stroke={_gChartPal.th_bad} strokeWidth="2.5" strokeLinecap="round"/>
               </svg>
               <span style={{fontSize:11,color:"#475569"}}>7 Days Rolling Average</span>
             </div>
@@ -7139,9 +7150,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               onMouseEnter={function(){setShowLegend(true);}}
               onMouseLeave={function(){setShowLegend(false);}}>
               <svg width="16" height="16" viewBox="0 0 16 16" style={{display:"block"}}>
-                <path d="M8,8 L8,0 A8,8 0 0,1 16,8 Z" fill="#22C55E"/>
+                <path d="M8,8 L8,0 A8,8 0 0,1 16,8 Z" fill={_gChartPal.th_good}/>
                 <path d="M8,8 L16,8 A8,8 0 0,1 8,16 Z" fill="#FACC15"/>
-                <path d="M8,8 L8,16 A8,8 0 0,1 0,8 Z" fill="#EF4444"/>
+                <path d="M8,8 L8,16 A8,8 0 0,1 0,8 Z" fill={_gChartPal.th_bad}/>
                 <path d="M8,8 L0,8 A8,8 0 0,1 8,0 Z" fill="#3B82F6"/>
                 <circle cx="8" cy="8" r="8" fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/>
               </svg>
@@ -7192,9 +7203,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <div style={{fontSize:12,fontWeight:700,color:"#1E293B",marginBottom:8}}>Line Legend</div>
                 <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:7}}>
                   <svg width="36" height="12">
-                    <line x1="1"  y1="6" x2="12" y2="6" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round"/>
-                    <line x1="12" y1="6" x2="25" y2="6" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round"/>
-                    <line x1="25" y1="6" x2="35" y2="6" stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round"/>
+                    <line x1="1"  y1="6" x2="12" y2="6" stroke={_gChartPal.th_good} strokeWidth="2.5" strokeLinecap="round"/>
+                    <line x1="12" y1="6" x2="25" y2="6" stroke={_gChartPal.th_warn} strokeWidth="2.5" strokeLinecap="round"/>
+                    <line x1="25" y1="6" x2="35" y2="6" stroke={_gChartPal.th_bad} strokeWidth="2.5" strokeLinecap="round"/>
                   </svg>
                   <span style={{fontSize:11,color:"#475569"}}>7 Days Rolling Average</span>
                 </div>
