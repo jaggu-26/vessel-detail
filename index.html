@@ -138,6 +138,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         evt_good:"#16A34A", evt_bad:"#EF4444",
         // Fuel Performance Deviation
         fpd_pred:"#22C55E", fpd_rep:"#F97316", fpd_trial:"#7C3AED",
+        // Pill tab controls (Laden/Ballast, ECA/Non-ECA, etc.)
+        tab_active:"#2563EB",
       },
       v2: {
         // Warranty Breach — violet / cyan (no red/green/orange/pink)
@@ -168,6 +170,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         evt_good:"#0EA5E9", evt_bad:"#7C3AED",
         // Technical — Fuel Performance Deviation — purple / yellow / blue (no red/green/orange/pink)
         fpd_pred:"#A855F7", fpd_rep:"#EAB308", fpd_trial:"#3B82F6",
+        // Pill tab controls (Laden/Ballast, ECA/Non-ECA, etc.)
+        tab_active:"#001E4C",
       }
     };
     var _gChartPal = CHART_PALETTES.v1;
@@ -5274,7 +5278,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 var act=condition===t[0];
                 return <button key={t[0]} onClick={function(){setCondition(t[0]);}} style={{
                   padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",
-                  border:"none",background:act?"#2563EB":"transparent",color:act?"#fff":"#94A3B8",
+                  border:"none",background:act?p.tab_active:"transparent",color:act?"#fff":"#94A3B8",
                   fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif",transition:"all 0.15s"
                 }}>{t[1]}</button>;
               })}
@@ -5392,7 +5396,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         }} style={{
           padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",
           border:"none",
-          background:active?p.adc_prop:"transparent",
+          background:active?p.tab_active:"transparent",
           color:active?"#fff":"#94A3B8",
           fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif",
           transition:"all 0.15s",
@@ -7446,7 +7450,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               }} style={{
                 padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",
                 border:"none",
-                background:active?"#2563EB":"transparent",
+                background:active?_gChartPal.tab_active:"transparent",
                 color:active?"#fff":"#94A3B8",
                 transition:"all 0.15s",
               }}>{label}</button>;
@@ -7532,7 +7536,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 }} style={{
                   padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",
                   border:"none",
-                  background:active?"#2563EB":"transparent",
+                  background:active?_gChartPal.tab_active:"transparent",
                   color:active?"#fff":"#94A3B8",
                   transition:"all 0.15s",
                 }}>{label}</button>;
