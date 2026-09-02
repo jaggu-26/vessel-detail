@@ -139,7 +139,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         // Fuel Performance Deviation
         fpd_pred:"#22C55E", fpd_rep:"#F97316", fpd_trial:"#7C3AED",
         // Pill tab controls (Laden/Ballast, ECA/Non-ECA, etc.)
-        tab_active:"#2563EB",
+        tab_active:"#2563EB", tab_radius:20,
       },
       v2: {
         // Warranty Breach — violet / cyan (no red/green/orange/pink)
@@ -171,7 +171,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         // Technical — Fuel Performance Deviation — purple / yellow / blue (no red/green/orange/pink)
         fpd_pred:"#A855F7", fpd_rep:"#EAB308", fpd_trial:"#3B82F6",
         // Pill tab controls (Laden/Ballast, ECA/Non-ECA, etc.)
-        tab_active:"#001E4C",
+        tab_active:"#001E4C", tab_radius:4,
       }
     };
     var _gChartPal = CHART_PALETTES.v1;
@@ -5273,11 +5273,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         <div style={{display:"flex",flexDirection:"column",width:"100%",height:"100%"}}>
           {/* Controls row */}
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,flexShrink:0}}>
-            <div style={{display:"flex",gap:1,background:"#F1F5F9",borderRadius:20,padding:"2px"}}>
+            <div style={{display:"flex",gap:1,background:"#F1F5F9",borderRadius:p.tab_radius,padding:"2px"}}>
               {[["laden","Laden"],["ballast","Ballast"]].map(function(t){
                 var act=condition===t[0];
                 return <button key={t[0]} onClick={function(){setCondition(t[0]);}} style={{
-                  padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",
+                  padding:"4px 12px",borderRadius:p.tab_radius,fontSize:11,fontWeight:600,cursor:"pointer",
                   border:"none",background:act?p.tab_active:"transparent",color:act?"#fff":"#94A3B8",
                   fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif",transition:"all 0.15s"
                 }}>{t[1]}</button>;
@@ -5394,7 +5394,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             return active&&prev.length>1?prev.filter(function(x){return x!==key;}):active?prev:prev.concat([key]);
           });
         }} style={{
-          padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",
+          padding:"4px 12px",borderRadius:p.tab_radius,fontSize:11,fontWeight:600,cursor:"pointer",
           border:"none",
           background:active?p.tab_active:"transparent",
           color:active?"#fff":"#94A3B8",
@@ -5408,7 +5408,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
             {/* Left: filter tabs */}
             <div style={{display:"flex",alignItems:"center",gap:2}}>
-              <div style={{display:"flex",gap:1,background:"#F1F5F9",borderRadius:20,padding:"2px"}}>
+              <div style={{display:"flex",gap:1,background:"#F1F5F9",borderRadius:p.tab_radius,padding:"2px"}}>
                 {tab("ECA","eca")}{tab("Non-ECA","noneca")}
               </div>
             </div>
@@ -7448,7 +7448,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   return active&&prev.length>1?prev.filter(function(x){return x!==k;}):active?prev:prev.concat([k]);
                 });
               }} style={{
-                padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",
+                padding:"4px 12px",borderRadius:_gChartPal.tab_radius,fontSize:11,fontWeight:600,cursor:"pointer",
                 border:"none",
                 background:active?_gChartPal.tab_active:"transparent",
                 color:active?"#fff":"#94A3B8",
@@ -7458,7 +7458,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             return (
               <div style={{display:"flex",flexDirection:"column",width:"100%",height:"100%"}}>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
-                  <div style={{display:"flex",gap:1,background:"#F1F5F9",borderRadius:20,padding:"2px"}}>
+                  <div style={{display:"flex",gap:1,background:"#F1F5F9",borderRadius:_gChartPal.tab_radius,padding:"2px"}}>
                     {wscTab("Laden","laden")}{wscTab("Ballast","ballast")}
                   </div>
                   <div style={{display:"flex",alignItems:"center",gap:12}}>
@@ -7534,7 +7534,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     return active&&prev.length>1?prev.filter(function(x){return x!==k;}):active?prev:prev.concat([k]);
                   });
                 }} style={{
-                  padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:600,cursor:"pointer",
+                  padding:"4px 12px",borderRadius:_gChartPal.tab_radius,fontSize:11,fontWeight:600,cursor:"pointer",
                   border:"none",
                   background:active?_gChartPal.tab_active:"transparent",
                   color:active?"#fff":"#94A3B8",
@@ -7554,7 +7554,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               return (
               <div style={{display:"flex",flexDirection:"column",width:"100%",height:"100%"}}>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,flexShrink:0}}>
-                  <div style={{display:"flex",gap:1,background:"#F1F5F9",borderRadius:20,padding:"2px"}}>
+                  <div style={{display:"flex",gap:1,background:"#F1F5F9",borderRadius:_gChartPal.tab_radius,padding:"2px"}}>
                     {sccTab("Laden","laden")}{sccTab("Ballast","ballast")}
                   </div>
                   <div style={{display:"flex",alignItems:"center",gap:12}}>
