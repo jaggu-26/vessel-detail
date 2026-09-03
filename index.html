@@ -520,7 +520,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           {payload.map(function(p,i){return(
             <div key={i} style={{display:"flex",alignItems:"center",gap:7,marginBottom:i<payload.length-1?5:0}}>
               <div style={{width:8,height:8,borderRadius:"50%",background:p.color,flexShrink:0,boxShadow:"0 0 0 2px rgba(255,255,255,0.15)"}}/>
-              <span style={{fontSize:12,color:"#94A3B8",fontWeight:500}}>p.name:</span>
+              <span style={{fontSize:12,color:"#94A3B8",fontWeight:500}}>{p.name}:</span>
               <span style={{fontSize:12,color:"#F8FAFC",fontWeight:700}}>{typeof p.value==="number"?p.value.toLocaleString():p.value}</span>
             </div>
           );})}
@@ -711,7 +711,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           {payload.map(function(p,i){return(
             <div key={i} style={{display:"flex",alignItems:"center",gap:6,marginBottom:i<payload.length-1?4:0}}>
               <div style={{width:8,height:8,borderRadius:"50%",background:p.color,flexShrink:0}}/>
-              <span style={{fontSize:12,color:"#E2E8F0",fontWeight:500}}>p.name:</span>
+              <span style={{fontSize:12,color:"#E2E8F0",fontWeight:500}}>{p.name}:</span>
               <span style={{fontSize:12,color:"#ffffff",fontWeight:700}}>{typeof p.value==="number"?p.value.toLocaleString():p.value}</span>
             </div>
           );})}
