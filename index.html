@@ -968,7 +968,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                           background:isAct?"#EEF2FF":"transparent",transition:"background 0.1s"}}
                         onMouseEnter={function(e){if(!isAct)e.currentTarget.style.background="#f5f6f8";}}
                         onMouseLeave={function(e){if(!isAct)e.currentTarget.style.background="transparent";}}>
-                        <span style={{fontSize:13,fontWeight:isAct?600:400,color:THEME.text}}>p.label</span>
+                        <span style={{fontSize:13,fontWeight:isAct?600:400,color:THEME.text}}>{p.label}</span>
                         {isAct&&p.label!=="Custom"&&(
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={B} strokeWidth="2.5">
                             <polyline points="20 6 9 17 4 12"/>
@@ -6003,7 +6003,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <g key={"me"+i}>
                   <line x1={cx} y1={y0} x2={cx} y2={dy+d} stroke={_gChartPal.evt_good} strokeWidth={1.5}/>
                   <polygon points={cx+","+(dy-d)+" "+(cx+d)+","+dy+" "+cx+","+(dy+d)+" "+(cx-d)+","+dy} fill={_gChartPal.evt_good}/>
-                  <text x={cx} y={dy-d-5} textAnchor="middle" fontSize={9.5} fontWeight={700} fill="#1E293B" fontFamily="inherit">p.label</text>
+                  <text x={cx} y={dy-d-5} textAnchor="middle" fontSize={9.5} fontWeight={700} fill="#1E293B" fontFamily="inherit">{p.label}</text>
                 </g>
               );
             })}
