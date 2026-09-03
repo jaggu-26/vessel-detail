@@ -140,6 +140,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         fpd_pred:"#22C55E", fpd_rep:"#F97316", fpd_trial:"#7C3AED",
         // Pill tab controls (Laden/Ballast, ECA/Non-ECA, etc.)
         tab_active:"#2563EB", tab_radius:20,
+        // Chart card title/subtitle sizing (original)
+        title_size:14, title_lh:20, subtitle_size:12,
       },
       v2: {
         // Warranty Breach — violet / cyan (no red/green/orange/pink)
@@ -172,6 +174,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         fpd_pred:"#A855F7", fpd_rep:"#EAB308", fpd_trial:"#3B82F6",
         // Pill tab controls (Laden/Ballast, ECA/Non-ECA, etc.)
         tab_active:"#001E4C", tab_radius:4,
+        // Chart card title/subtitle sizing (larger for V2)
+        title_size:18, title_lh:24, subtitle_size:14,
       }
     };
     var _gChartPal = CHART_PALETTES.v1;
@@ -4139,11 +4143,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       <div className="skel" style={{height:10,width:80}}/>
                     </React.Fragment>
                   : <React.Fragment>
-                      <div style={{fontWeight:600,fontSize:16,color:"#1E293B",lineHeight:"22px",display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
+                      <div style={{fontWeight:600,fontSize:_gChartPal.title_size,color:"#1E293B",lineHeight:_gChartPal.title_lh+"px",display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
                         {sample&&<span style={{fontSize:10,fontWeight:500,color:"#94A3B8",letterSpacing:0.2,flexShrink:0}}>Sample</span>}
                         <span>{title}</span>
                       </div>
-                      {subtitle&&<div style={{fontSize:14,color:THEME.textMuted,marginTop:1}}>{subtitle}</div>}
+                      {subtitle&&<div style={{fontSize:_gChartPal.subtitle_size,color:THEME.textMuted,marginTop:1}}>{subtitle}</div>}
                     </React.Fragment>
                 }
               </div>
