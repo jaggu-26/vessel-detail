@@ -4581,16 +4581,19 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                           })}
                         </div>
                       ) : (
-                        <div style={{marginTop:"auto",display:"flex",alignItems:"flex-end",justifyContent:"space-between"}}>
-                          <div style={{minWidth:0}}>
-                            {k.sublabel&&<div style={{fontSize:_gChartPal.kpi_sub,color:subColor,fontWeight:500,marginBottom:2,lineHeight:1,whiteSpace:"nowrap"}}>{k.sublabel}</div>}
-                            <div style={{display:"flex",alignItems:"baseline",gap:4}}>
-                              <span className="kpi-val" style={{fontSize:valFs,fontWeight:700,color:valueColor,lineHeight:1,whiteSpace:"nowrap",overflowWrap:"normal"}}>{k.value}</span>
-                              {k.unit&&<span style={{fontSize:_gChartPal.kpi_sub,color:subColor,fontWeight:400,whiteSpace:"nowrap"}}>{k.unit}</span>}
+                        <div style={{marginTop:"auto",display:"flex",flexDirection:"column"}}>
+                          {_gChartPal===CHART_PALETTES.v2 && k.detail && <div style={{fontSize:_gChartPal.kpi_detail,color:subColor,fontWeight:500,marginBottom:3,lineHeight:1.3}}>{k.detail}</div>}
+                          <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between"}}>
+                            <div style={{minWidth:0}}>
+                              {k.sublabel&&<div style={{fontSize:_gChartPal.kpi_sub,color:subColor,fontWeight:500,marginBottom:2,lineHeight:1,whiteSpace:"nowrap"}}>{k.sublabel}</div>}
+                              <div style={{display:"flex",alignItems:"baseline",gap:4}}>
+                                <span className="kpi-val" style={{fontSize:valFs,fontWeight:700,color:valueColor,lineHeight:1,whiteSpace:"nowrap",overflowWrap:"normal"}}>{k.value}</span>
+                                {k.unit&&<span style={{fontSize:_gChartPal.kpi_sub,color:subColor,fontWeight:400,whiteSpace:"nowrap"}}>{k.unit}</span>}
+                              </div>
+                              {_gChartPal!==CHART_PALETTES.v2 && k.detail && <div style={{fontSize:_gChartPal.kpi_detail,color:subColor,fontWeight:500,marginTop:3,lineHeight:1.3}}>{k.detail}</div>}
                             </div>
-                            {k.detail && <div style={{fontSize:_gChartPal.kpi_detail,color:subColor,fontWeight:500,marginTop:3,lineHeight:1.3}}>{k.detail}</div>}
+                            {k.atPar ? <div style={{flexShrink:0,marginBottom:1}}><ParIndicator dark={true} tooltip={tip}/></div> : k.up!==undefined && <div style={{flexShrink:0,marginBottom:1}}><ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/></div>}
                           </div>
-                          {k.atPar ? <div style={{flexShrink:0,marginBottom:1}}><ParIndicator dark={true} tooltip={tip}/></div> : k.up!==undefined && <div style={{flexShrink:0,marginBottom:1}}><ArrowTooltip up={k.up} tooltip={tip} change={k.change||""} dark={true} isLast={isLast}/></div>}
                         </div>
                       )}
                     </React.Fragment>
