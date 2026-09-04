@@ -128,6 +128,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         // Technical — Speed/Power + Cons/Speed
         tech_pred:"#16A34A", tech_rep:"#EA580C", tech_trial:"#6366F1",
         tech_laden:"#16A34A", tech_ballast:"#A0522D",
+        // Speed Power Curve chart lines (unchanged from tech_pred/rep/trial)
+        spc_pred:"#16A34A", spc_rep:"#EA580C", spc_trial:"#6366F1",
         // Load SFOC scatter categories
         sfoc_out:"#EF4444", sfoc_in:"#16A34A", sfoc_cout:"#F97316", sfoc_cin:"#86EFAC",
         // ME RPM/Power
@@ -162,6 +164,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         feu_pos:"#0891B2", feu_pos2:"#22D3EE", feu_neg:"#A855F7", feu_neg2:"#6D28D9", feu_line:"#8B5CF6",
         // Technical — Speed/Power Curve — cyan / yellow / violet (no red/green/orange/pink)
         tech_pred:"#06B6D4", tech_rep:"#FACC15", tech_trial:"#8B5CF6",
+        // Speed Power Curve chart lines — darker cyan / darker amber / darker violet
+        spc_pred:"#0E7490", spc_rep:"#A16207", spc_trial:"#6D28D9",
         // Technical — Consumption by Speed (Laden/Ballast) — purple / indigo (no red/green/orange/pink)
         tech_laden:"#C084FC", tech_ballast:"#6366F1",
         // Technical — Load SFOC scatter categories — deep violet / sky / yellow / light cyan (no red/green/orange/pink)
@@ -6206,7 +6210,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           var predY=ys(curveAt(cv,"predicted"));
           var repY=ys(curveAt(cv,"reported"));
           var stP5Y=ys(curveAt(cv,"stP5"));
-          var yBot=ys(0); var yTop=ys(13000);
+          var yBot=ys(0); var yTop=ys(12000);
 
           var tipW=206; var tipH=122;
           var tipX=cx+18; var tipY=yTop+8;
@@ -6220,21 +6224,21 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           crosshair=(
             <g>
               <line x1={cx} y1={yTop} x2={cx} y2={yBot} stroke="#CBD5E1" strokeDasharray="5 3" strokeWidth={1.5}/>
-              <circle cx={cx} cy={predY} r={9} fill="none" stroke={p.tech_pred} strokeWidth={2.5}/>
-              <circle cx={cx} cy={repY} r={9} fill="none" stroke={p.tech_rep} strokeWidth={2.5}/>
-              <circle cx={cx} cy={stP5Y} r={9} fill="none" stroke={p.tech_trial} strokeWidth={2.5}/>
+              <circle cx={cx} cy={predY} r={9} fill="none" stroke={p.spc_pred} strokeWidth={2.5}/>
+              <circle cx={cx} cy={repY} r={9} fill="none" stroke={p.spc_rep} strokeWidth={2.5}/>
+              <circle cx={cx} cy={stP5Y} r={9} fill="none" stroke={p.spc_trial} strokeWidth={2.5}/>
               <g transform={"translate("+tipX+","+tipY+")"}>
                 <rect x={0} y={0} width={tipW} height={tipH} rx={8} fill="#1E293B" stroke="#334155" strokeWidth={1}
                   style={{filter:"drop-shadow(0 4px 12px rgba(0,0,0,0.35))"}}/>
                 <text x={12} y={22} fontSize={12} fontWeight="700" fill="white">{"Speed: "+cv.toFixed(1)+" knots"}</text>
                 <line x1={8} y1={30} x2={tipW-8} y2={30} stroke="#334155" strokeWidth={1}/>
-                <circle cx={22} cy={47} r={5} fill={p.tech_pred}/>
+                <circle cx={22} cy={47} r={5} fill={p.spc_pred}/>
                 <text x={32} y={51} fontSize={11} fill="#94A3B8">{"Predicted Power:"}</text>
                 <text x={tipW-10} y={51} fontSize={11} fontWeight="600" fill="white" textAnchor="end">{predV.toLocaleString()+" kW"}</text>
-                <circle cx={22} cy={67} r={5} fill={p.tech_rep}/>
+                <circle cx={22} cy={67} r={5} fill={p.spc_rep}/>
                 <text x={32} y={71} fontSize={11} fill="#94A3B8">{"Reported Power:"}</text>
                 <text x={tipW-10} y={71} fontSize={11} fontWeight="600" fill="white" textAnchor="end">{repV.toLocaleString()+" kW"}</text>
-                <line x1={15} y1={86} x2={29} y2={86} stroke={p.tech_trial} strokeWidth={2} strokeDasharray="4 2"/>
+                <line x1={15} y1={86} x2={29} y2={86} stroke={p.spc_trial} strokeWidth={2} strokeDasharray="4 2"/>
                 <text x={32} y={90} fontSize={11} fill="#94A3B8">{"Sea Trial Power:"}</text>
                 <text x={tipW-10} y={90} fontSize={11} fontWeight="600" fill="white" textAnchor="end">{stV.toLocaleString()+" kW"}</text>
                 <rect x={15} y={100} width={14} height={10} rx={2} fill="rgba(99,102,241,0.25)" stroke="rgba(99,102,241,0.5)" strokeWidth={1}/>
@@ -6250,12 +6254,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             {reportedPts.map(function(p,i){
               var px=xs(p.v),py=ys(p.y);
               if(isNaN(px)||isNaN(py)) return null;
-              return <circle key={"rp"+i} cx={px} cy={py} r={6} fill={_gChartPal.tech_rep} fillOpacity={0.88} stroke="white" strokeWidth={1.5}/>;
+              return <circle key={"rp"+i} cx={px} cy={py} r={6} fill={_gChartPal.spc_rep} fillOpacity={0.88} stroke="white" strokeWidth={1.5}/>;
             })}
             {predictedPts.map(function(p,i){
               var px=xs(p.v),py=ys(p.y);
               if(isNaN(px)||isNaN(py)) return null;
-              return <circle key={"pp"+i} cx={px} cy={py} r={6} fill={_gChartPal.tech_pred} fillOpacity={0.88} stroke="white" strokeWidth={1.5}/>;
+              return <circle key={"pp"+i} cx={px} cy={py} r={6} fill={_gChartPal.spc_pred} fillOpacity={0.88} stroke="white" strokeWidth={1.5}/>;
             })}
             {crosshair}
           </g>
@@ -6263,9 +6267,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       };
 
       var legendItems=[
-        {color:p.tech_pred,type:"line-dot",label:"Predicted Power (Laden)"},
-        {color:p.tech_rep,type:"line-dot",label:"Reported Power (Laden)"},
-        {color:p.tech_trial,type:"dash",label:"Sea Trial Power (Laden) +5%"},
+        {color:p.spc_pred,type:"line-dot",label:"Predicted Power (Laden)"},
+        {color:p.spc_rep,type:"line-dot",label:"Reported Power (Laden)"},
+        {color:p.spc_trial,type:"dash",label:"Sea Trial Power (Laden) +5%"},
         {color:"rgba(99,102,241,0.28)",type:"rect",label:"+5% Band"},
       ];
 
@@ -6302,16 +6306,16 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   tickFormatter={function(v){return v.toFixed(1);}}
                   tick={{fontSize:11,fill:"#555"}} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
                   label={{value:"Speed (knots)",position:"insideBottom",offset:-12,style:axLabel}}/>
-                <YAxis domain={[0,13000]} ticks={[0,2000,4000,6000,8000,10000,12000]}
+                <YAxis domain={[0,12000]} ticks={[0,2000,4000,6000,8000,10000,12000]}
                   tickFormatter={function(v){return v===0?"0":v.toLocaleString();}}
                   tick={{fontSize:11,fill:"#555"}} axisLine={false} tickLine={false} width={70}
                   label={{value:"Power (kW)",angle:-90,position:"insideLeft",offset:14,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={function(){return null;}}/>
                 <Area type="monotone" dataKey="stBase" stackId="st" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
                 <Area type="monotone" dataKey="stBand" stackId="st" stroke="none" fill="rgba(99,102,241,0.22)" legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="stP5" stroke={p.tech_trial} strokeWidth={2} strokeDasharray="7 4" dot={false} legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="reported" stroke={p.tech_rep} strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="predicted" stroke={p.tech_pred} strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="stP5" stroke={p.spc_trial} strokeWidth={2} strokeDasharray="7 4" dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="reported" stroke={p.spc_rep} strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="predicted" stroke={p.spc_pred} strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
                 <Customized component={OverlayLayer}/>
               </ComposedChart>
             </ResponsiveContainer>
