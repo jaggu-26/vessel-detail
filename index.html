@@ -6281,12 +6281,16 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             {reportedPts.map(function(p,i){
               var px=xs(p.v),py=ys(p.y);
               if(isNaN(px)||isNaN(py)) return null;
-              return <circle key={"rp"+i} cx={px} cy={py} r={_gChartVerReal==="v2"?4:6} fill={_gChartPal.spc_rep} fillOpacity={0.88} stroke="white" strokeWidth={1.5}/>;
+              return _gChartVerReal==="v2"
+                ? <circle key={"rp"+i} cx={px} cy={py} r={4} fill={_gChartPal.spc_rep}/>
+                : <circle key={"rp"+i} cx={px} cy={py} r={6} fill={_gChartPal.spc_rep} fillOpacity={0.88} stroke="white" strokeWidth={1.5}/>;
             })}
             {predictedPts.map(function(p,i){
               var px=xs(p.v),py=ys(p.y);
               if(isNaN(px)||isNaN(py)) return null;
-              return <circle key={"pp"+i} cx={px} cy={py} r={_gChartVerReal==="v2"?4:6} fill={_gChartPal.spc_pred} fillOpacity={0.88} stroke="white" strokeWidth={1.5}/>;
+              return _gChartVerReal==="v2"
+                ? <circle key={"pp"+i} cx={px} cy={py} r={4} fill={_gChartPal.spc_pred}/>
+                : <circle key={"pp"+i} cx={px} cy={py} r={6} fill={_gChartPal.spc_pred} fillOpacity={0.88} stroke="white" strokeWidth={1.5}/>;
             })}
             {crosshair}
           </g>
