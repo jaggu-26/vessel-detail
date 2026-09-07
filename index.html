@@ -6347,9 +6347,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <Tooltip content={function(){return null;}}/>
                 <Area type="monotone" dataKey="stBase" stackId="st" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
                 <Area type="monotone" dataKey="stBand" stackId="st" stroke="none" fill="rgba(99,102,241,0.22)" legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="stP5" stroke={p.spc_trial} strokeWidth={2} strokeDasharray="7 4" dot={false} legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="reported" stroke={p.spc_rep} strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="predicted" stroke={p.spc_pred} strokeWidth={2.5} dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="stP5" stroke={p.spc_trial} strokeWidth={_gChartVerReal==="v2"?1:2} strokeDasharray="7 4" dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="reported" stroke={p.spc_rep} strokeWidth={_gChartVerReal==="v2"?1:2.5} dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="predicted" stroke={p.spc_pred} strokeWidth={_gChartVerReal==="v2"?1:2.5} dot={false} legendType="none" isAnimationActive={false}/>
                 <Customized component={OverlayLayer}/>
               </ComposedChart>
             </ResponsiveContainer>
