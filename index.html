@@ -5368,13 +5368,13 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var _todayY=new Date().getFullYear();
       var count=Math.min(months,7);
       var rawRows=[
-        {propulsion:120,manoeuvring:18,auxiliaries:38},
-        {propulsion:135,manoeuvring:22,auxiliaries:42},
-        {propulsion:115,manoeuvring:16,auxiliaries:35},
-        {propulsion:148,manoeuvring:24,auxiliaries:45},
-        {propulsion:108,manoeuvring:15,auxiliaries:30},
-        {propulsion:162,manoeuvring:26,auxiliaries:50},
-        {propulsion:140,manoeuvring:20,auxiliaries:40},
+        {propulsion:120,manoeuvring:42,auxiliaries:38},
+        {propulsion:135,manoeuvring:51,auxiliaries:42},
+        {propulsion:115,manoeuvring:38,auxiliaries:35},
+        {propulsion:148,manoeuvring:55,auxiliaries:45},
+        {propulsion:108,manoeuvring:33,auxiliaries:30},
+        {propulsion:162,manoeuvring:58,auxiliaries:50},
+        {propulsion:140,manoeuvring:46,auxiliaries:40},
       ];
       var allData=rawRows.slice(-count).map(function(row,i){
         var monthsAgo=count-1-i;
@@ -5480,7 +5480,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
                 {xAx("m","Month")}
                 <YAxis yAxisId="left" tick={axTick} width={54} axisLine={false} tickLine={false}
-                  domain={[0,220]} ticks={[0,55,110,165,220]}
+                  domain={[0,260]} ticks={[0,65,130,195,260]}
                   label={{value:"ME consumption (MT)",angle:-90,position:"insideLeft",offset:10,style:{...axLabel,textAnchor:"middle",fill:p.adc_prop}}}/>
                 <YAxis yAxisId="right" orientation="right" tick={{...axTick,fill:p.adc_aux}} width={56} axisLine={false} tickLine={false}
                   domain={[0,80]} ticks={[0,20,40,60,80]}
