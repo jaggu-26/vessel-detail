@@ -6646,7 +6646,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 );})}
                 <text x={mg.left+plotW/2} y={mg.top+plotH+33} textAnchor="middle" fontSize={12} fill="#64748B" fontFamily="inherit" fontWeight={500}>Load (%)</text>
                 {yTicks.map(function(yv){return <text key={yv} x={mg.left-8} y={ys(yv)+4} textAnchor="end" fontSize={12} fill="#94A3B8" fontFamily="inherit">{yv}</text>;})}
-                <text transform={"rotate(-90)"} x={-(mg.top+plotH/2)} y={16} textAnchor="middle" fontSize={12} fill="#64748B" fontFamily="inherit" fontWeight={500}>SFOC (g/kWh)</text>
+                <text transform={"rotate(-90)"} x={-(mg.top+plotH/2)} y={16} textAnchor="middle" fontSize={12} fill={_gChartVerReal==="v2"?"#94A3B8":"#64748B"} fontFamily="inherit" fontWeight={_gChartVerReal==="v2"?400:500}>SFOC (g/kWh)</text>
                 {CURVES.map(function(curve){return(
                   <g key={curve.key}>
                     <path d={buildPath(curve.fn)} stroke={curve.stroke} strokeWidth={curve.sw} fill="none" strokeDasharray={curve.dash||undefined}/>
