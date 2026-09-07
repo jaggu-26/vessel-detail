@@ -2873,6 +2873,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Engine Health Deterioration chart — risk-band area + hover tooltip ────────
     function FuelConsumptionSpeedChart(){
+      var _gChartPal=CHART_PALETTES.v1; // Technical tab: always V1 chart design, even in V2
       var p=_gChartPal;
       var [hoverSpd,setHoverSpd]=React.useState(null);
       var curvePts=[
@@ -5810,6 +5811,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Hull Health Chart — Power BI style (Nov 2024 → Dec 2025)
     function HullHealthChart({n, viewMode, showColorWheel}){
+      var _gChartPal=CHART_PALETTES.v1; // Technical tab: always V1 chart design, even in V2
       var p=_gChartPal;
       // x=1 → Nov 2024, x=3 → Jan 2025, x=5 → Mar 2025, x=7 → May 2025,
       // x=9 → Jul 2025, x=11 → Sep 2025, x=13 → Nov 2025, x=15 → Jan 2026
@@ -6165,6 +6167,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Speed Power Curve Chart
     function SpeedPowerChart(){
+      var _gChartPal=CHART_PALETTES.v1; // Technical tab: always V1 chart design, even in V2
       var p=_gChartPal;
 
       var [activeV,setActiveV]=React.useState(null);
@@ -6471,6 +6474,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Load SFOC Curve Chart
     function LoadSFOCChart({showLegendOpen}){
+      var _gChartPal=CHART_PALETTES.v1; // Technical tab: always V1 chart design, even in V2
       var p=_gChartPal;
       var containerRef=React.useRef(null);
       var [dims,setDims]=React.useState({w:700,h:380});
@@ -6802,6 +6806,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── ME RPM Power Performance Chart
     function MERPMPowerChart(){
+      var _gChartPal=CHART_PALETTES.v1; // Technical tab: always V1 chart design, even in V2
       var p=_gChartPal;
 
       // Reported scatter points — merged into main dataset for tooltip support
@@ -6892,6 +6897,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
     // ── Main Engine Health Chart ──────────────────────────────────────────────────
     function MEHealthChart({showColorWheel, showOpenLegend}){
+      var _gChartPal=CHART_PALETTES.v1; // Technical tab: always V1 chart design, even in V2
       var p=_gChartPal;
       var SMN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       var FMN=["January","February","March","April","May","June","July","August","September","October","November","December"];
