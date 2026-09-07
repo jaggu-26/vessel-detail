@@ -5728,15 +5728,18 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={euData} margin={{top:16,right:48,bottom:24,left:16}} barGap={3} barCategoryGap="28%">
+              <ComposedChart data={euData} margin={{top:16,right:48,bottom:24,left:16}}
+                barSize={p===CHART_PALETTES.v2?38:undefined}
+                barGap={p===CHART_PALETTES.v2?undefined:3}
+                barCategoryGap={p===CHART_PALETTES.v2?undefined:"28%"}>
                 <defs>
                   <linearGradient id="euEmissionsGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={p.eu_emiss} stopOpacity={1}/>
-                    <stop offset="100%" stopColor={p.eu_emiss2} stopOpacity={0.7}/>
+                    <stop offset="100%" stopColor={p===CHART_PALETTES.v2?p.eu_emiss:p.eu_emiss2} stopOpacity={p===CHART_PALETTES.v2?0.55:0.7}/>
                   </linearGradient>
                   <linearGradient id="euConsumpGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={p.eu_cons} stopOpacity={1}/>
-                    <stop offset="100%" stopColor={p.eu_cons2} stopOpacity={0.7}/>
+                    <stop offset="100%" stopColor={p===CHART_PALETTES.v2?p.eu_cons:p.eu_cons2} stopOpacity={p===CHART_PALETTES.v2?0.55:0.7}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
@@ -5747,8 +5750,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   label={{value:"Consumption",angle:90,position:"insideRight",offset:6,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={<ModernTooltip/>} cursor={<BarBandCursor dataLen={euData.length}/>}/>
                 <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{fontSize:p===CHART_PALETTES.v2?12:11,paddingBottom:12}}/>
-                <Bar yAxisId="left" dataKey="emissions" name="Total emissions" fill="url(#euEmissionsGrad)" radius={[5,5,0,0]} maxBarSize={38}/>
-                <Bar yAxisId="right" dataKey="consumption" name="Consumption" fill="url(#euConsumpGrad)" radius={[5,5,0,0]} maxBarSize={38}/>
+                <Bar yAxisId="left" dataKey="emissions" name="Total emissions" fill="url(#euEmissionsGrad)" radius={p===CHART_PALETTES.v2?[6,6,0,0]:[5,5,0,0]} maxBarSize={38}/>
+                <Bar yAxisId="right" dataKey="consumption" name="Consumption" fill="url(#euConsumpGrad)" radius={p===CHART_PALETTES.v2?[6,6,0,0]:[5,5,0,0]} maxBarSize={38}/>
               </ComposedChart>
             </ResponsiveContainer>
           </div>
