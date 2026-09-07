@@ -6506,8 +6506,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       if(_gChartVerReal==="v2"){
         _gChartPal=Object.assign({},_gChartPal,{
           sfoc_out:"#2563EB", sfoc_in:"#BFDBFE",
-          sfoc_cout:"#7C3AED", sfoc_cin:"#DDD6FE"
-        }); // blue/violet combination for V2
+          sfoc_cout:"#475569", sfoc_cin:"#CBD5E1"
+        }); // blue/grey combination for V2
       }
       var p=_gChartPal;
       var containerRef=React.useRef(null);
@@ -6915,11 +6915,15 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   stroke={p.merpm_scatter} strokeWidth={0}
                   dot={function(props){
                     if(props.value==null) return <g key={props.index}/>;
-                    return <circle key={props.index} cx={props.cx} cy={props.cy} r={_gChartVerReal==="v2"?4:5} fill={p.merpm_scatter} stroke="#fff" strokeWidth={1.2} opacity={0.9}/>;
+                    return _gChartVerReal==="v2"
+                      ? <circle key={props.index} cx={props.cx} cy={props.cy} r={4} fill={p.merpm_scatter}/>
+                      : <circle key={props.index} cx={props.cx} cy={props.cy} r={5} fill={p.merpm_scatter} stroke="#fff" strokeWidth={1.2} opacity={0.9}/>;
                   }}
                   activeDot={function(props){
                     if(props.value==null) return <g/>;
-                    return <circle cx={props.cx} cy={props.cy} r={_gChartVerReal==="v2"?6:7} fill={p.merpm_scatter} stroke="#fff" strokeWidth={1.5}/>;
+                    return _gChartVerReal==="v2"
+                      ? <circle cx={props.cx} cy={props.cy} r={5.5} fill={p.merpm_scatter}/>
+                      : <circle cx={props.cx} cy={props.cy} r={7} fill={p.merpm_scatter} stroke="#fff" strokeWidth={1.5}/>;
                   }}
                   connectNulls={false} legendType="none" isAnimationActive={false} name="Reported (kW)"/>
               </ComposedChart>
