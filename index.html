@@ -177,7 +177,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         // Technical — Hull Health event markers (maintenance / port stay) — sky / violet (no red/green/orange/pink)
         evt_good:"#0EA5E9", evt_bad:"#7C3AED",
         // Technical — Fuel Performance Deviation — purple / yellow / blue (no red/green/orange/pink)
-        fpd_pred:"#A855F7", fpd_rep:"#EAB308", fpd_trial:"#3B82F6",
+        fpd_pred:"#40A0BD", fpd_rep:"#EAB308", fpd_trial:"#3B82F6",
         // Pill tab controls (Laden/Ballast, ECA/Non-ECA, etc.)
         tab_active:"#001E4C", tab_radius:4,
         // Chart card title/subtitle sizing (larger for V2)
@@ -2876,7 +2876,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     function FuelConsumptionSpeedChart(){
       var _gChartPal=CHART_PALETTES.v1; // Technical tab: always V1 chart design, even in V2
       if(_gChartVerReal==="v2"){
-        _gChartPal=Object.assign({},_gChartPal,{fpd_pred:"#A855F7",fpd_rep:"#EAB308",fpd_trial:"#3B82F6"}); // avoid orange/green in V2
+        _gChartPal=Object.assign({},_gChartPal,{fpd_pred:"#40A0BD",fpd_rep:"#EAB308",fpd_trial:"#3B82F6"}); // avoid orange/green in V2
       }
       var p=_gChartPal;
       var [hoverSpd,setHoverSpd]=React.useState(null);
