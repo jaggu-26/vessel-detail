@@ -7450,6 +7450,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var [wscView,setWscView]=React.useState("Month");
       var [wscFilter,setWscFilter]=React.useState(["laden"]);
       var [sccFilter,setSccFilter]=React.useState(["laden","ballast"]);
+      var [sccHoverX,setSccHoverX]=React.useState(null);
       var [sogSlipView,setSogSlipView]=React.useState("Month");
       var [hhView,setHhView]=React.useState("Month");
       var HullHealthTabs=(
@@ -7713,7 +7714,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   </div>
                 </div>
                 )}
-                <div style={{flex:1,minHeight:0}}>
+                <div style={{flex:1,minHeight:0}}
+                  onMouseMove={function(e){
+                    var rect=e.currentTarget.getBoundingClientRect();
+                    setSccHoverX(e.clientX-rect.left);
+                  }}
+                  onMouseLeave={function(){setSccHoverX(null);}}>
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart margin={{bottom:24,left:_gChartPal===CHART_PALETTES.v2?10:16,right:10,top:4}}>
                   <CartesianGrid stroke="#F1F5F9" strokeDasharray="0" vertical={false}/>
@@ -7724,7 +7730,15 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <YAxis type="number" dataKey="y" domain={[0,2.5]}
                     tick={axTick} width={52} tickCount={5} axisLine={false} tickLine={false}
                     label={{value:"Fuel (tons/hr)", angle:-90, position:"insideLeft", offset:_gChartPal===CHART_PALETTES.v2?2:6, style:{...axLabel,textAnchor:"middle"}}}/>
-                  <Tooltip cursor={{stroke:"#E2E8F0",strokeDasharray:"4 2"}} content={function(props){
+                  <Customized component={function(cp){
+                    if(sccHoverX==null) return null;
+                    var off=cp.offset||{};
+                    var left=off.left||0, right=(cp.width||0)-(off.right||0);
+                    var top=off.top||0, bottom=(cp.height||0)-(off.bottom||0);
+                    if(sccHoverX<left||sccHoverX>right) return null;
+                    return <line x1={sccHoverX} y1={top} x2={sccHoverX} y2={bottom} stroke="#E2E8F0" strokeDasharray="4 2" style={{pointerEvents:"none"}}/>;
+                  }}/>
+                  <Tooltip cursor={false} content={function(props){
                     var active=props.active,payload=props.payload;
                     if(!active||!payload||!payload.length) return null;
                     var byName={};
