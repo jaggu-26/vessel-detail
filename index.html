@@ -2970,22 +2970,22 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             <circle cx={cx} cy={ys(pV)} r={6} fill="none" stroke={p.fpd_pred} strokeWidth={2.5}/>
             <circle cx={cx} cy={ys(rV)} r={6} fill="none" stroke={p.fpd_rep} strokeWidth={2.5}/>
             <circle cx={cx} cy={ys(s5V)} r={6} fill="none" stroke={p.fpd_trial} strokeWidth={2.5}/>
-            <rect x={tipX} y={tipY} width={tipW} height={tipH} rx={8} fill="#fff"
-              stroke="#E2E8F0" strokeWidth={1} style={{filter:'drop-shadow(0 4px 14px rgba(0,0,0,0.13))'}}/>
-            <text x={tipX+14} y={tipY+20} fontSize={12} fontWeight="700" fill="#0F172A">{'Speed: '+hoverSpd.toFixed(1)+' knots'}</text>
-            <line x1={tipX+8} y1={tipY+27} x2={tipX+tipW-8} y2={tipY+27} stroke="#E2E8F0" strokeWidth={1}/>
+            <rect x={tipX} y={tipY} width={tipW} height={tipH} rx={8} fill="#1E293B"
+              stroke="#334155" strokeWidth={1} style={{filter:'drop-shadow(0 4px 14px rgba(0,0,0,0.35))'}}/>
+            <text x={tipX+14} y={tipY+20} fontSize={12} fontWeight="700" fill="white">{'Speed: '+hoverSpd.toFixed(1)+' knots'}</text>
+            <line x1={tipX+8} y1={tipY+27} x2={tipX+tipW-8} y2={tipY+27} stroke="#334155" strokeWidth={1}/>
             <circle cx={tipX+16} cy={tipY+41} r={4} fill={p.fpd_pred}/>
-            <text x={tipX+26} y={tipY+45} fontSize={11} fill="#64748B">Predicted ME Consumption:</text>
-            <text x={tipX+tipW-12} y={tipY+45} fontSize={11} fontWeight="600" fill="#0F172A" textAnchor="end">{pV.toFixed(1)+' MT'}</text>
+            <text x={tipX+26} y={tipY+45} fontSize={11} fill="#94A3B8">Predicted ME Consumption:</text>
+            <text x={tipX+tipW-12} y={tipY+45} fontSize={11} fontWeight="600" fill="white" textAnchor="end">{pV.toFixed(1)+' MT'}</text>
             <circle cx={tipX+16} cy={tipY+59} r={4} fill={p.fpd_rep}/>
-            <text x={tipX+26} y={tipY+63} fontSize={11} fill="#64748B">Reported ME Consumption:</text>
-            <text x={tipX+tipW-12} y={tipY+63} fontSize={11} fontWeight="600" fill="#0F172A" textAnchor="end">{rV.toFixed(1)+' MT'}</text>
+            <text x={tipX+26} y={tipY+63} fontSize={11} fill="#94A3B8">Reported ME Consumption:</text>
+            <text x={tipX+tipW-12} y={tipY+63} fontSize={11} fontWeight="600" fill="white" textAnchor="end">{rV.toFixed(1)+' MT'}</text>
             <line x1={tipX+10} y1={tipY+77} x2={tipX+26} y2={tipY+77} stroke={p.fpd_trial} strokeWidth={2} strokeDasharray="5 3"/>
-            <text x={tipX+32} y={tipY+81} fontSize={11} fill="#64748B">Shop Test ME Consumption:</text>
-            <text x={tipX+tipW-12} y={tipY+81} fontSize={11} fontWeight="600" fill="#0F172A" textAnchor="end">{sV.toFixed(1)+' MT'}</text>
+            <text x={tipX+32} y={tipY+81} fontSize={11} fill="#94A3B8">Shop Test ME Consumption:</text>
+            <text x={tipX+tipW-12} y={tipY+81} fontSize={11} fontWeight="600" fill="white" textAnchor="end">{sV.toFixed(1)+' MT'}</text>
             <rect x={tipX+10} y={tipY+90} width={16} height={11} fill="rgba(167,139,250,0.35)" rx={2}/>
-            <text x={tipX+32} y={tipY+100} fontSize={11} fill="#64748B">Shop Test ME Consumption +5%:</text>
-            <text x={tipX+tipW-12} y={tipY+100} fontSize={11} fontWeight="600" fill="#0F172A" textAnchor="end">{s5V.toFixed(1)+' MT'}</text>
+            <text x={tipX+32} y={tipY+100} fontSize={11} fill="#94A3B8">Shop Test ME Consumption +5%:</text>
+            <text x={tipX+tipW-12} y={tipY+100} fontSize={11} fontWeight="600" fill="white" textAnchor="end">{s5V.toFixed(1)+' MT'}</text>
           </g>
         );
       };
