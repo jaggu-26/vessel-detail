@@ -5242,6 +5242,13 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
 
       var viewMode=props.viewMode||"month";
       var [condition,setCondition]=React.useState("laden");
+      var [seriesOn,setSeriesOn]=React.useState(["slip","avg","sog"]);
+      function toggleSeries(key){
+        setSeriesOn(function(prev){
+          var active=prev.includes(key);
+          return active&&prev.length>1?prev.filter(function(x){return x!==key;}):active?prev:prev.concat([key]);
+        });
+      }
       var isVoyage=viewMode==="voyage";
       var isBallast=condition==="ballast";
       var _lf=isBallast?0.78:1.0;
@@ -5285,9 +5292,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var voyageData=_vBase.map(function(r){return {v:r.v,slip:+(r.slip*_lf).toFixed(2),slip7d:+(r.slip7d*_lf).toFixed(2),sog:+(r.sog+_sogOff).toFixed(2)};});
       var _ticks=["01 Jan 2026","01 Feb 2026","01 Mar 2026","01 Apr 2026","01 May 2026","01 Jun 2026","01 Jul 2026"];
       var _legendItems=[
-        {label:_condLabel+" Slip %",      color:p.ss_slip,dash:true},
-        {label:_condLabel+" Slip % (7D Avg)", color:p.ss_avg,dash:false},
-        {label:_condLabel+" SOG",         color:p.ss_slip,dash:true},
+        {key:"slip",label:_condLabel+" Slip %",      color:p.ss_slip,dash:true},
+        {key:"avg", label:_condLabel+" Slip % (7D Avg)", color:p.ss_avg,dash:false},
+        {key:"sog", label:_condLabel+" SOG",         color:p.ss_slip,dash:true},
       ];
       return (
         <div style={{display:"flex",flexDirection:"column",width:"100%",height:"100%"}}>
@@ -5303,18 +5310,38 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 }}>{t[1]}</button>;
               })}
             </div>
-            <div style={{display:"flex",alignItems:"center",gap:10}}>
-              {_legendItems.map(function(item){
-                return (
-                  <div key={item.label} style={{display:"flex",alignItems:"center",gap:4}}>
-                    <svg width="16" height="10" viewBox="0 0 16 10" style={{flexShrink:0}}>
-                      <line x1="0" y1="5" x2="16" y2="5" stroke={item.color} strokeWidth="2.5" strokeDasharray={item.dash?"5 3":"0"}/>
-                    </svg>
-                    <span style={{fontSize:p===CHART_PALETTES.v2?12:11,color:"#64748B",whiteSpace:"nowrap"}}>{item.label}</span>
-                  </div>
-                );
-              })}
-            </div>
+            {p===CHART_PALETTES.v2 ? (
+              <div style={{display:"flex",alignItems:"center",flexWrap:"wrap",gap:8}}>
+                {_legendItems.map(function(item){
+                  var active=seriesOn.includes(item.key);
+                  return (
+                    <button key={item.key} onClick={function(){toggleSeries(item.key);}} style={{
+                      display:"flex",alignItems:"center",gap:5,padding:"4px 10px",borderRadius:p.tab_radius,
+                      border:"none",background:"#F1F5F9",cursor:"pointer",opacity:active?1:0.45,transition:"opacity 0.15s",
+                      fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif",
+                    }}>
+                      <svg width="16" height="10" viewBox="0 0 16 10" style={{flexShrink:0}}>
+                        <line x1="0" y1="5" x2="16" y2="5" stroke={item.color} strokeWidth="2.5" strokeDasharray={item.dash?"5 3":"0"}/>
+                      </svg>
+                      <span style={{fontSize:12,fontWeight:600,color:"#64748B",whiteSpace:"nowrap"}}>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                {_legendItems.map(function(item){
+                  return (
+                    <div key={item.key} style={{display:"flex",alignItems:"center",gap:4}}>
+                      <svg width="16" height="10" viewBox="0 0 16 10" style={{flexShrink:0}}>
+                        <line x1="0" y1="5" x2="16" y2="5" stroke={item.color} strokeWidth="2.5" strokeDasharray={item.dash?"5 3":"0"}/>
+                      </svg>
+                      <span style={{fontSize:11,color:"#64748B",whiteSpace:"nowrap"}}>{item.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
           {/* Chart */}
           <div style={{flex:1,minHeight:0}}>
@@ -5331,9 +5358,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       domain={[12,14]} tickCount={5}
                       label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:6,style:{...axLabel,fill:p.ss_slip,textAnchor:"middle"}}}/>
                     <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
-                    <Line yAxisId="left" type="linear" dataKey="slip" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
-                    <Line yAxisId="left" type="linear" dataKey="slip7d" stroke={p.ss_avg} dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
-                    <Line yAxisId="right" type="linear" dataKey="sog" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+                    <Line yAxisId="left" type="linear" hide={!seriesOn.includes("slip")} dataKey="slip" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+                    <Line yAxisId="left" type="linear" hide={!seriesOn.includes("avg")} dataKey="slip7d" stroke={p.ss_avg} dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+                    <Line yAxisId="right" type="linear" hide={!seriesOn.includes("sog")} dataKey="sog" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
                   </ComposedChart>
                 : <ComposedChart data={monthData} margin={{bottom:24,left:p===CHART_PALETTES.v2?10:16,right:p===CHART_PALETTES.v2?10:44,top:4}}>
                     <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
@@ -5348,9 +5375,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:6,style:{...axLabel,fill:p.ss_slip,textAnchor:"middle"}}}/>
                     <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
                     <ReferenceLine yAxisId="left" x="01 Apr 2026" stroke="#CBD5E1" strokeWidth={1}/>
-                    <Line yAxisId="left" type="linear" dataKey="slip" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
-                    <Line yAxisId="left" type="linear" dataKey="slip7d" stroke={p.ss_avg} dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
-                    <Line yAxisId="right" type="linear" dataKey="sog" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+                    <Line yAxisId="left" type="linear" hide={!seriesOn.includes("slip")} dataKey="slip" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+                    <Line yAxisId="left" type="linear" hide={!seriesOn.includes("avg")} dataKey="slip7d" stroke={p.ss_avg} dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+                    <Line yAxisId="right" type="linear" hide={!seriesOn.includes("sog")} dataKey="sog" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
                   </ComposedChart>
               }
             </ResponsiveContainer>
