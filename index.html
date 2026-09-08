@@ -5605,9 +5605,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <ReferenceLine y={3.7} stroke={p.tech_pred} strokeDasharray="3 2" strokeWidth={1} strokeOpacity={0.4}/>
                   <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
                   <XAxis dataKey={aerView==="Month"?"m":"v"} tick={<AerXTick/>} axisLine={{stroke:"#E2E8F0"}} tickLine={false} height={aerView==="Month"?36:52}
-                    label={{value:aerView==="Month"?"Month":"Voyage Number",position:"insideBottom",offset:-12,style:axLabel}}/>
+                    label={{value:aerView==="Month"?"Month":"Voyage Number",position:"insideBottom",offset:-12,style:p===CHART_PALETTES.v2?{...axLabel,fontSize:14}:axLabel}}/>
                   <YAxis domain={[0,20]} ticks={[0,2,4,6,8,10,12,14,16,18,20]} tick={axTick} axisLine={false} tickLine={false}
-                    label={{value:"AER Rating",angle:-90,position:"insideLeft",offset:p===CHART_PALETTES.v2?2:14,style:{...axLabel,textAnchor:"middle"}}}/>
+                    label={{value:"AER Rating",angle:-90,position:"insideLeft",offset:p===CHART_PALETTES.v2?2:14,style:p===CHART_PALETTES.v2?{...axLabel,fontSize:14,textAnchor:"middle"}:{...axLabel,textAnchor:"middle"}}}/>
                   <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
                   <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{fontSize:p===CHART_PALETTES.v2?12:11,paddingBottom:12}}
                   formatter={function(value){return p===CHART_PALETTES.v2?<span style={{color:"#64748B"}}>{value}</span>:value;}}/>
