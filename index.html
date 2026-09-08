@@ -6344,11 +6344,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <XAxis type="number" dataKey="v" domain={[7.0,17.0]}
                   ticks={[7,8,9,10,11,12,13,14,15,16,17]}
                   tickFormatter={function(v){return v.toFixed(1);}}
-                  tick={{fontSize:_gChartVerReal==="v2"?12:13,fill:"#555"}} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
+                  tick={{fontSize:_gChartVerReal==="v2"?12:13,fill:_gChartVerReal==="v2"?"#94A3B8":"#555"}} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
                   label={{value:"Speed (knots)",position:"insideBottom",offset:-12,style:axLabel}}/>
                 <YAxis domain={[0,12000]} ticks={[0,2000,4000,6000,8000,10000,12000]}
                   tickFormatter={function(v){return v===0?"0":v.toLocaleString();}}
-                  tick={{fontSize:_gChartVerReal==="v2"?12:13,fill:"#555"}} axisLine={false} tickLine={false} width={70}
+                  tick={{fontSize:_gChartVerReal==="v2"?12:13,fill:_gChartVerReal==="v2"?"#94A3B8":"#555"}} axisLine={false} tickLine={false} width={70}
                   label={{value:"Power (kW)",angle:-90,position:"insideLeft",offset:_gChartVerReal==="v2"?2:14,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={function(){return null;}}/>
                 <Area type="monotone" dataKey="stBase" stackId="st" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
