@@ -3025,9 +3025,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={function(){return null;}}/>
                 <Customized component={BandLayer}/>
-                <Line type="monotone" dataKey="pred" stroke={p.fpd_pred} strokeWidth={_gChartVerReal==="v2"?1.5:2.5} dot={false} isAnimationActive={false} legendType="none"/>
-                <Line type="monotone" dataKey="rep" stroke={p.fpd_rep} strokeWidth={_gChartVerReal==="v2"?1.5:2.5} dot={false} isAnimationActive={false} legendType="none"/>
-                <Line type="monotone" dataKey="s5" stroke={p.fpd_trial} strokeWidth={_gChartVerReal==="v2"?1.5:2} strokeDasharray="8 4" dot={false} isAnimationActive={false} legendType="none"/>
+                <Line type="monotone" dataKey="pred" stroke={p.fpd_pred} strokeWidth={_gChartVerReal==="v2"?2.5:2.5} dot={false} isAnimationActive={false} legendType="none"/>
+                <Line type="monotone" dataKey="rep" stroke={p.fpd_rep} strokeWidth={_gChartVerReal==="v2"?2.5:2.5} dot={false} isAnimationActive={false} legendType="none"/>
+                <Line type="monotone" dataKey="s5" stroke={p.fpd_trial} strokeWidth={_gChartVerReal==="v2"?2.5:2} strokeDasharray="8 4" dot={false} isAnimationActive={false} legendType="none"/>
                 <Customized component={DotsLayer3}/>
                 <Customized component={CrosshairLayer4}/>
               </ComposedChart>
@@ -6353,9 +6353,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <Tooltip content={function(){return null;}}/>
                 <Area type="monotone" dataKey="stBase" stackId="st" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
                 <Area type="monotone" dataKey="stBand" stackId="st" stroke="none" fill="rgba(99,102,241,0.22)" legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="stP5" stroke={p.spc_trial} strokeWidth={_gChartVerReal==="v2"?1.5:2} strokeDasharray="7 4" dot={false} legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="reported" stroke={p.spc_rep} strokeWidth={_gChartVerReal==="v2"?1.5:2.5} dot={false} legendType="none" isAnimationActive={false}/>
-                <Line type="monotone" dataKey="predicted" stroke={p.spc_pred} strokeWidth={_gChartVerReal==="v2"?1.5:2.5} dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="stP5" stroke={p.spc_trial} strokeWidth={_gChartVerReal==="v2"?2.5:2} strokeDasharray="7 4" dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="reported" stroke={p.spc_rep} strokeWidth={_gChartVerReal==="v2"?2.5:2.5} dot={false} legendType="none" isAnimationActive={false}/>
+                <Line type="monotone" dataKey="predicted" stroke={p.spc_pred} strokeWidth={_gChartVerReal==="v2"?2.5:2.5} dot={false} legendType="none" isAnimationActive={false}/>
                 <Customized component={OverlayLayer}/>
               </ComposedChart>
             </ResponsiveContainer>
@@ -6570,9 +6570,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var xTicks=[20,30,40,50,60,70,80,90,100];
       var yTicks=[100,120,140,160,180,200,220];
       var CURVES=[
-        {key:"st",fn:shopTrial,name:"Shop Trial SFOC",stroke:"#1E3A8A",dash:"",sw:_gChartVerReal==="v2"?1.5:2.5},
-        {key:"mc",fn:meanCorr,name:"Mean Corr. SFOC",stroke:"#1E3A8A",dash:"8,4",sw:_gChartVerReal==="v2"?1.5:2},
-        {key:"ul",fn:uppLimit,name:"Upp. Limit SFOC (+5%)",stroke:"#1E3A8A",dash:"3,3",sw:_gChartVerReal==="v2"?1.5:2},
+        {key:"st",fn:shopTrial,name:"Shop Trial SFOC",stroke:"#1E3A8A",dash:"",sw:_gChartVerReal==="v2"?2.5:2.5},
+        {key:"mc",fn:meanCorr,name:"Mean Corr. SFOC",stroke:"#1E3A8A",dash:"8,4",sw:_gChartVerReal==="v2"?2.5:2},
+        {key:"ul",fn:uppLimit,name:"Upp. Limit SFOC (+5%)",stroke:"#1E3A8A",dash:"3,3",sw:_gChartVerReal==="v2"?2.5:2},
       ];
       var CATS={
         "meas-out":{label:"SFOC Measured (Outside Band)",color:p.sfoc_out},
@@ -6915,8 +6915,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
                 <Area type="monotone" dataKey="bandLow" stackId="tb" stroke="none" fill="transparent" legendType="none" isAnimationActive={false} name="–"/>
                 <Area type="monotone" dataKey="bandFill" stackId="tb" stroke="none" fill="rgba(147,197,253,0.45)" legendType="none" isAnimationActive={false} name="–5% Band"/>
-                <Line type="monotone" dataKey="bench" stroke="#1E3A8A" strokeWidth={_gChartVerReal==="v2"?1.5:2.5} dot={false} legendType="none" isAnimationActive={false} name="Benchmark (kW)"/>
-                <Line type="monotone" dataKey="rfit" stroke={p.merpm_fit} strokeWidth={_gChartVerReal==="v2"?1.5:1.8} strokeDasharray="6 3" dot={false} legendType="none" connectNulls={false} isAnimationActive={false} name="Reported Fit (kW)"/>
+                <Line type="monotone" dataKey="bench" stroke="#1E3A8A" strokeWidth={_gChartVerReal==="v2"?2.5:2.5} dot={false} legendType="none" isAnimationActive={false} name="Benchmark (kW)"/>
+                <Line type="monotone" dataKey="rfit" stroke={p.merpm_fit} strokeWidth={_gChartVerReal==="v2"?2.5:1.8} strokeDasharray="6 3" dot={false} legendType="none" connectNulls={false} isAnimationActive={false} name="Reported Fit (kW)"/>
                 <Line type="monotone" dataKey="rep"
                   stroke={p.merpm_scatter} strokeWidth={0}
                   dot={function(props){
