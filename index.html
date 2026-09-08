@@ -151,13 +151,13 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         // Warranty Breach — primary brand blue + lighter tint of the same
         wb_speed:"#1752FE", wb_cons:"#9DB8FF",
         // Speed & Consumption scatter — charcoal navy / turquoise, clearly distinct
-        sc_ballast:"#1E293B", sc_laden:"#14B8A6",
+        sc_ballast:"#2259FE", sc_laden:"#14B8A6",
         // Avg Daily Consumption bars — primary brand blue + lighter tint (stacked bar) / teal (aux)
-        adc_prop:"#1752FE", adc_mano:"#9DB8FF", adc_aux:"#0D9488",
+        adc_prop:"#0EA5E9", adc_mano:"#7DD3FC", adc_aux:"#0D9488",
         // SOG & Slip lines — teal / amber, cool vs warm contrast
         ss_slip:"#0D9488", ss_avg:"#D97706",
         // Global GHG areas — cyan / yellow / violet
-        ghg_co2:"#0891B2", ghg_n2o:"#EAB308", ghg_ch4:"#7C3AED",
+        ghg_co2:"#0891B2", ghg_n2o:"#EAB308", ghg_ch4:"#2359FE",
         // EU Emissions bars — cyan / yellow
         eu_emiss:"#0891B2", eu_emiss2:"#67E8F9", eu_cons:"#FACC15", eu_cons2:"#FDE047",
         // FuelEU balance — muted sea-green gradient (from reference image)
@@ -7450,6 +7450,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var [wscView,setWscView]=React.useState("Month");
       var [wscFilter,setWscFilter]=React.useState(["laden"]);
       var [sccFilter,setSccFilter]=React.useState(["laden","ballast"]);
+      var [sccRegFilter,setSccRegFilter]=React.useState(["laden","ballast"]);
       var [sccHoverX,setSccHoverX]=React.useState(null);
       var [sogSlipView,setSogSlipView]=React.useState("Month");
       var [hhView,setHhView]=React.useState("Month");
@@ -7626,7 +7627,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 var active=sccFilter.includes(k);
                 return <button key={k} onClick={function(){
                   setSccFilter(function(prev){
-                    return active&&prev.length>1?prev.filter(function(x){return x!==k;}):active?prev:prev.concat([k]);
+                    return active?prev.filter(function(x){return x!==k;}):prev.concat([k]);
                   });
                 }} style={{
                   padding:"4px 12px",borderRadius:_gChartPal.tab_radius,fontSize:11,fontWeight:600,cursor:"pointer",
@@ -7652,7 +7653,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 var dotColor=isLadenKey?_gChartPal.sc_laden:_gChartPal.sc_ballast;
                 return <button key={key} onClick={function(){
                   setSccFilter(function(prev){
-                    return active&&prev.length>1?prev.filter(function(x){return x!==key;}):active?prev:prev.concat([key]);
+                    return active?prev.filter(function(x){return x!==key;}):prev.concat([key]);
                   });
                 }} style={{
                   display:"flex",alignItems:"center",gap:5,padding:"4px 10px",borderRadius:_gChartPal.tab_radius,
@@ -7664,12 +7665,22 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 </button>;
               }
               function sccRegChip(isLadenKey){
+                var key=isLadenKey?"laden":"ballast";
+                var active=sccRegFilter.includes(key);
                 var lineColor=isLadenKey?_gChartPal.sc_laden:_gChartPal.sc_ballast;
                 return (
-                  <div style={{display:"flex",alignItems:"center",gap:5,padding:"4px 10px",borderRadius:_gChartPal.tab_radius,background:"#F1F5F9"}}>
+                  <button key={"reg-"+key} onClick={function(){
+                    setSccRegFilter(function(prev){
+                      return active?prev.filter(function(x){return x!==key;}):prev.concat([key]);
+                    });
+                  }} style={{
+                    display:"flex",alignItems:"center",gap:5,padding:"4px 10px",borderRadius:_gChartPal.tab_radius,
+                    border:"none",background:"#F1F5F9",cursor:"pointer",opacity:active?1:0.45,transition:"opacity 0.15s",
+                    fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif",
+                  }}>
                     <svg width="16" height="8" style={{flexShrink:0}}><line x1="0" y1="4" x2="16" y2="4" stroke={lineColor} strokeWidth="2" strokeDasharray="4 3"/></svg>
                     <span style={{fontSize:12,fontWeight:600,color:"#64748B"}}>{isLadenKey?"Laden Regression":"Ballast Regression"}</span>
-                  </div>
+                  </button>
                 );
               }
               return (
@@ -7678,8 +7689,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <div style={{display:"flex",alignItems:"center",flexWrap:"wrap",gap:8,marginBottom:12,flexShrink:0}}>
                   {sccChip("laden")}
                   {sccChip("ballast")}
-                  {hasLaden&&sccRegChip(true)}
-                  {hasBallast&&sccRegChip(false)}
+                  {sccRegChip(true)}
+                  {sccRegChip(false)}
                 </div>
                 ) : (
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,flexShrink:0}}>
@@ -7736,9 +7747,41 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     var left=off.left||0, right=(cp.width||0)-(off.right||0);
                     var top=off.top||0, bottom=(cp.height||0)-(off.bottom||0);
                     if(sccHoverX<left||sccHoverX>right) return null;
-                    return <line x1={sccHoverX} y1={top} x2={sccHoverX} y2={bottom} stroke="#E2E8F0" strokeDasharray="4 2" style={{pointerEvents:"none"}}/>;
+                    var xm=cp.xAxisMap; var xs=xm&&(xm[0]||xm["0"])&&(xm[0]||xm["0"]).scale;
+                    var dataX=xs&&xs.invert?xs.invert(sccHoverX):null;
+                    var crosshair=<line x1={sccHoverX} y1={top} x2={sccHoverX} y2={bottom} stroke="#E2E8F0" strokeDasharray="4 2"/>;
+                    if(dataX==null) return <g style={{pointerEvents:"none"}}>{crosshair}</g>;
+                    function nearest(arr){
+                      var best=null,bd=Infinity;
+                      arr.forEach(function(pt){var d=Math.abs(pt.x-dataX); if(d<bd){bd=d;best=pt;}});
+                      return best;
+                    }
+                    var series=[];
+                    if(hasBallast){var bp=nearest(ballastPts); if(bp) series.push({name:"Ballast",color:_gChartPal.sc_ballast,speed:bp.x,fuel:bp.y});}
+                    if(hasLaden){var lp=nearest(ladenPts); if(lp) series.push({name:"Laden",color:_gChartPal.sc_laden,speed:lp.x,fuel:lp.y});}
+                    if(!series.length) return <g style={{pointerEvents:"none"}}>{crosshair}</g>;
+                    var rowH=32, tipW=182, tipH=14+series.length*rowH;
+                    var tipX=sccHoverX+14, tipY=top+8;
+                    if(tipX+tipW>right) tipX=sccHoverX-tipW-14;
+                    return (
+                      <g style={{pointerEvents:"none"}}>
+                        {crosshair}
+                        <rect x={tipX} y={tipY} width={tipW} height={tipH} rx={8} fill="#1E293B" stroke="#334155" strokeWidth={1} style={{filter:"drop-shadow(0 4px 12px rgba(0,0,0,0.35))"}}/>
+                        {series.map(function(s,i){
+                          var ry=tipY+16+i*rowH;
+                          return (
+                            <g key={i}>
+                              <circle cx={tipX+14} cy={ry} r={4} fill={s.color}/>
+                              <text x={tipX+24} y={ry+4} fontSize={11} fontWeight="700" fill="white">{s.name}</text>
+                              <text x={tipX+14} y={ry+19} fontSize={10} fill="#94A3B8">{"Speed: "+s.speed.toFixed(1)+" kn"}</text>
+                              <text x={tipX+tipW-14} y={ry+19} fontSize={10} fontWeight="600" fill="white" textAnchor="end">{s.fuel.toFixed(2)+" t/hr"}</text>
+                            </g>
+                          );
+                        })}
+                      </g>
+                    );
                   }}/>
-                  <Tooltip cursor={false} content={function(props){
+                  <Tooltip cursor={{stroke:"#E2E8F0",strokeDasharray:"4 2"}} content={function(props){
                     var active=props.active,payload=props.payload;
                     if(!active||!payload||!payload.length) return null;
                     var byName={};
@@ -7775,10 +7818,10 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       </div>
                     );
                   }}/>
-                  {hasBallast&&<Scatter name="Ballast Regression" data={bRegData}
+                  {(_gChartPal===CHART_PALETTES.v2?sccRegFilter.includes("ballast"):hasBallast)&&<Scatter name="Ballast Regression" data={bRegData}
                     line={{stroke:_gChartPal.sc_ballast,strokeWidth:2}} lineType="joint"
                     dot={false} fill={_gChartPal.sc_ballast} legendType="none"/>}
-                  {hasLaden&&<Scatter name="Laden Regression" data={lRegData}
+                  {(_gChartPal===CHART_PALETTES.v2?sccRegFilter.includes("laden"):hasLaden)&&<Scatter name="Laden Regression" data={lRegData}
                     line={{stroke:_gChartPal.sc_laden,strokeWidth:2,strokeDasharray:"7 4"}} lineType="joint"
                     dot={false} fill={_gChartPal.sc_laden} legendType="none"/>}
                   {hasBallast&&<Scatter name="Ballast" data={ballastPts} legendType="none"
