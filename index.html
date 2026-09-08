@@ -7819,7 +7819,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     );
                   }}/>
                   {(_gChartPal===CHART_PALETTES.v2?sccRegFilter.includes("ballast"):hasBallast)&&<Scatter name="Ballast Regression" data={bRegData}
-                    line={{stroke:_gChartPal.sc_ballast,strokeWidth:2}} lineType="joint"
+                    line={{stroke:_gChartPal.sc_ballast,strokeWidth:2,strokeDasharray:"7 4"}} lineType="joint"
                     shape={function(){return null;}} fill={_gChartPal.sc_ballast} legendType="none"/>}
                   {(_gChartPal===CHART_PALETTES.v2?sccRegFilter.includes("laden"):hasLaden)&&<Scatter name="Laden Regression" data={lRegData}
                     line={{stroke:_gChartPal.sc_laden,strokeWidth:2,strokeDasharray:"7 4"}} lineType="joint"
