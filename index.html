@@ -5543,7 +5543,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         if(aerView==="Month"){
           return (
             <g transform={"translate("+props.x+","+props.y+")"}>
-              <text x={0} y={0} dy={14} textAnchor="middle" fontSize={11} fill="#64748B" fontWeight={500}>{props.payload.value}</text>
+              <text x={0} y={0} dy={14} textAnchor="middle" fontSize={p===CHART_PALETTES.v2?12:11} fill={p===CHART_PALETTES.v2?"#94A3B8":"#64748B"} fontWeight={500}>{props.payload.value}</text>
             </g>
           );
         }
@@ -5552,7 +5552,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         var idx=vv.indexOf(String(props.payload.value));
         return (
           <g transform={"translate("+props.x+","+props.y+")"}>
-            <text x={0} y={0} dy={14} textAnchor="middle" fontSize={11} fill="#64748B" fontWeight={500}>{props.payload.value}</text>
+            <text x={0} y={0} dy={14} textAnchor="middle" fontSize={p===CHART_PALETTES.v2?12:11} fill={p===CHART_PALETTES.v2?"#94A3B8":"#64748B"} fontWeight={500}>{props.payload.value}</text>
             {idx>=0&&<text x={0} y={0} dy={27} textAnchor="middle" fontSize={10} fill="#94A3B8">{mm[idx]}</text>}
           </g>
         );
