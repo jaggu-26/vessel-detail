@@ -5326,7 +5326,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       label={{value:"Voyage",offset:-12,position:"insideBottom",style:axLabel}}/>
                     <YAxis yAxisId="left" tick={axTick} width={40} axisLine={false} tickLine={false}
                       domain={[1,7]} tickCount={4}
-                      label={{value:"Slip (%)",angle:-90,position:"insideLeft",offset:p===CHART_PALETTES.v2?2:6,style:{...axLabel,textAnchor:"middle"}}}/>
+                      label={{value:"Slip (%)",angle:-90,position:"insideLeft",offset:p===CHART_PALETTES.v2?2:6,style:{...axLabel,textAnchor:"middle",fill:p===CHART_PALETTES.v2?p.ss_avg:axLabel.fill}}}/>
                     <YAxis yAxisId="right" orientation="right" tick={{...axTick,fill:p.ss_slip}} width={38} axisLine={false} tickLine={false}
                       domain={[12,14]} tickCount={5}
                       label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:6,style:{...axLabel,fill:p.ss_slip,textAnchor:"middle"}}}/>
@@ -5342,7 +5342,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       label={{value:"Month",offset:-12,position:"insideBottom",style:axLabel}}/>
                     <YAxis yAxisId="left" tick={axTick} width={40} axisLine={false} tickLine={false}
                       domain={[1,7]} tickCount={4}
-                      label={{value:"Slip (%)",angle:-90,position:"insideLeft",offset:p===CHART_PALETTES.v2?2:6,style:{...axLabel,textAnchor:"middle"}}}/>
+                      label={{value:"Slip (%)",angle:-90,position:"insideLeft",offset:p===CHART_PALETTES.v2?2:6,style:{...axLabel,textAnchor:"middle",fill:p===CHART_PALETTES.v2?p.ss_avg:axLabel.fill}}}/>
                     <YAxis yAxisId="right" orientation="right" tick={{...axTick,fill:p.ss_slip}} width={38} axisLine={false} tickLine={false}
                       domain={[12,14]} tickCount={5}
                       label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:6,style:{...axLabel,fill:p.ss_slip,textAnchor:"middle"}}}/>
