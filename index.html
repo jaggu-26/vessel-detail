@@ -6906,11 +6906,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <ComposedChart data={curveData} margin={{top:16,right:_gChartVerReal==="v2"?10:20,bottom:36,left:_gChartVerReal==="v2"?10:16}}>
                 <CartesianGrid stroke="#dde3ee" strokeDasharray="0" vertical={false}/>
                 <XAxis type="number" dataKey="rpm" domain={[44,89]} ticks={xTicks}
-                  tick={{fontSize:_gChartVerReal==="v2"?12:13,fill:"#555"}} axisLine={{stroke:"#CBD5E1"}} tickLine={false}
+                  tick={{fontSize:_gChartVerReal==="v2"?12:13,fill:_gChartVerReal==="v2"?"#94A3B8":"#555"}} axisLine={{stroke:"#CBD5E1"}} tickLine={false}
                   label={{value:"ME Shaft Speed (RPM)",position:"insideBottom",offset:-12,style:axLabel}}/>
                 <YAxis domain={[0,15523]} ticks={yTicks}
                   tickFormatter={function(v){return v===0?"0":v.toLocaleString();}} width={72}
-                  tick={{fontSize:_gChartVerReal==="v2"?12:13,fill:"#555"}} axisLine={false} tickLine={false}
+                  tick={{fontSize:_gChartVerReal==="v2"?12:13,fill:_gChartVerReal==="v2"?"#94A3B8":"#555"}} axisLine={false} tickLine={false}
                   label={{value:"Shaft Power (kW)",angle:-90,position:"insideLeft",offset:_gChartVerReal==="v2"?2:14,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
                 <Area type="monotone" dataKey="bandLow" stackId="tb" stroke="none" fill="transparent" legendType="none" isAnimationActive={false} name="–"/>
