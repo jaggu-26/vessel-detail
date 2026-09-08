@@ -148,8 +148,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         kpi_label:12, kpi_sub:11, kpi_detail:12, kpi_card_h:91,
       },
       v2: {
-        // Warranty Breach — same colors as V1
-        wb_speed:"#3B82F6", wb_cons:"#F87171",
+        // Warranty Breach — same blue family, lighter shade instead of red
+        wb_speed:"#3B82F6", wb_cons:"#93C5FD",
         // Speed & Consumption scatter — charcoal navy / turquoise, clearly distinct
         sc_ballast:"#1E293B", sc_laden:"#14B8A6",
         // Avg Daily Consumption bars — blue / sky / purple (no red/green/orange/pink)
@@ -181,7 +181,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         // Pill tab controls (Laden/Ballast, ECA/Non-ECA, etc.)
         tab_active:"#001E4C", tab_radius:4,
         // Chart card title/subtitle sizing (larger for V2)
-        title_size:18, title_lh:24, subtitle_size:14,
+        title_size:16, title_lh:22, subtitle_size:14,
         // KPI card text (value stays fixed at 18px in both versions)
         kpi_label:13, kpi_sub:12, kpi_detail:13, kpi_card_h:104,
       }
@@ -457,8 +457,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       "Grace Dahlia":      [{label:"Total Voyages",value:"32",up:false},{label:"Distance Travelled",value:"1,156,340 NM",up:false},{label:"Laden Days",value:"139",up:false},{label:"Ballast Days",value:"38",up:false},{label:"Port Days",value:"24",label2:"Prolonged Port Stays",value2:"6",up:false},{label:"Cargo Carried",value:"8,456,700 MT",up:false},{label:"EEOI",value:"12 t/(NM·CT)",up:true},{label:"CII Rating",value:"B (81)",up:true},{label:"Status",value:"In Port",change:"",up:true},{label:"Utilization",value:"83%",change:"-0.5%",up:false},{label:"Fuel eff.",value:"18.0 kt/t",change:"-0.1",up:false},{label:"Port calls (MTD)",value:"6",change:"+1",up:true},{label:"On-time",value:"92.0%",change:"-0.4%",up:false},{label:"Incidents",value:"1",change:"",up:true},{label:"Avg speed",value:"13.3 kn",change:"-0.1",up:false},{label:"Bunker (MTD)",value:"$276K",change:"-2%",up:true},{label:"CO2 (MTD)",value:"16.2 t",change:"-1%",up:true},{label:"Idle days",value:"5",change:"+1",up:false},{label:"CII score",value:"81 (B)",change:"+1",up:true},{label:"Voyages MTD",value:"3",change:"",up:true}],
     };
 
-    const axTick = {fontSize:13, fill:"#94A3B8", fontWeight:400};
-    const axLabel = {fontSize:12, fill:"#94A3B8"};
+    var axTick = {fontSize:13, fill:"#94A3B8", fontWeight:400};
+    var axLabel = {fontSize:12, fill:"#94A3B8"};
     const lgStyle = {verticalAlign:"top",align:"right",iconSize:8,iconType:"square",wrapperStyle:{paddingTop:6,fontSize:11}};
 
     // ── Smart chart-type picker ──────────────────────────────────────────────
@@ -13368,7 +13368,12 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                       borderRadius:8,boxShadow:"0 4px 16px rgba(0,0,0,0.12)",border:"1px solid #E2E8F0",
                       zIndex:999,minWidth:140,overflow:"hidden"}}>
                       {["v1","v2"].map(function(v){return(
-                        <button key={v} onClick={function(){_gChartPal=CHART_PALETTES[v];_gChartVerReal=v;setChartVer(v);setChartVerOpen(false);}}
+                        <button key={v} onClick={function(){
+                          _gChartPal=CHART_PALETTES[v];_gChartVerReal=v;
+                          if(v==="v2"){axTick={fontSize:12,fill:"#94A3B8",fontWeight:400};axLabel={fontSize:13,fill:"#94A3B8"};}
+                          else {axTick={fontSize:13,fill:"#94A3B8",fontWeight:400};axLabel={fontSize:12,fill:"#94A3B8"};}
+                          setChartVer(v);setChartVerOpen(false);
+                        }}
                           style={{display:"flex",alignItems:"center",gap:8,width:"100%",padding:"10px 14px",
                             border:"none",background:chartVer===v?"#EEF2FF":"transparent",
                             cursor:"pointer",fontSize:13,fontWeight:chartVer===v?700:500,
