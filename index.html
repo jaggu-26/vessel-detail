@@ -6674,6 +6674,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     />
                   );
                 })}
+                {tooltip&&<line x1={tooltip.cx} y1={mg.top} x2={tooltip.cx} y2={mg.top+plotH} stroke="#CBD5E1" strokeDasharray="5 3" strokeWidth={1.5} style={{pointerEvents:"none"}}/>}
                 {tooltip&&<TooltipBox t={tooltip}/>}
               </svg>
             )}
@@ -6836,6 +6837,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     />
                   );
                 })}
+                {tooltip&&<line x1={tooltip.cx} y1={mg.top} x2={tooltip.cx} y2={mg.top+plotH} stroke="#CBD5E1" strokeDasharray="5 3" strokeWidth={1.5} style={{pointerEvents:"none"}}/>}
                 {tooltip&&<TooltipBox t={tooltip}/>}
               </svg>
             )}
