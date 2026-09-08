@@ -3013,7 +3013,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           </div>
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={curvePts} margin={{top:8,right:_gChartVerReal==="v2"?10:24,bottom:36,left:16}}
+              <ComposedChart data={curvePts} margin={{top:8,right:_gChartVerReal==="v2"?10:24,bottom:36,left:_gChartVerReal==="v2"?10:16}}
                 onMouseMove={function(e){if(e&&e.activeLabel!=null)setHoverSpd(+e.activeLabel);}}
                 onMouseLeave={function(){setHoverSpd(null);}}>
                 <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.15)" strokeDasharray="5 4"/>
@@ -5320,7 +5320,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
               {isVoyage
-                ? <ComposedChart data={voyageData} margin={{bottom:24,left:16,right:p===CHART_PALETTES.v2?10:44,top:4}}>
+                ? <ComposedChart data={voyageData} margin={{bottom:24,left:p===CHART_PALETTES.v2?10:16,right:p===CHART_PALETTES.v2?10:44,top:4}}>
                     <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
                     <XAxis dataKey="v" tick={axTick} axisLine={false} tickLine={false} dy={6}
                       label={{value:"Voyage",offset:-12,position:"insideBottom",style:axLabel}}/>
@@ -5335,7 +5335,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     <Line yAxisId="left" type="linear" dataKey="slip7d" stroke={p.ss_avg} dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
                     <Line yAxisId="right" type="linear" dataKey="sog" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
                   </ComposedChart>
-                : <ComposedChart data={monthData} margin={{bottom:24,left:16,right:p===CHART_PALETTES.v2?10:44,top:4}}>
+                : <ComposedChart data={monthData} margin={{bottom:24,left:p===CHART_PALETTES.v2?10:16,right:p===CHART_PALETTES.v2?10:44,top:4}}>
                     <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
                     <XAxis dataKey="date" ticks={_ticks} tick={axTick} axisLine={false} tickLine={false} dy={6}
                       tickFormatter={function(v){return v.split(" ")[1];}}
@@ -5479,7 +5479,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           </div>
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={chartData} margin={{bottom:24,left:16,right:p===CHART_PALETTES.v2?10:20,top:4}} barSize={38} barGap={4} barCategoryGap="30%">
+              <ComposedChart data={chartData} margin={{bottom:24,left:p===CHART_PALETTES.v2?10:16,right:p===CHART_PALETTES.v2?10:20,top:4}} barSize={38} barGap={4} barCategoryGap="30%">
                 <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
                 {xAx("m","Month")}
                 <YAxis yAxisId="left" tick={axTick} width={54} axisLine={false} tickLine={false}
@@ -5580,7 +5580,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           <div style={{display:"flex",width:"100%",height:"100%",minWidth:0,flex:1}}>
             <div style={{flex:1,minWidth:0,height:"100%"}}>
               <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={aerData} margin={{top:16,right:10,bottom:24,left:16}}>
+                <ComposedChart data={aerData} margin={{top:16,right:10,bottom:24,left:p===CHART_PALETTES.v2?10:16}}>
                   <defs>
                     <linearGradient id="aerAttainedGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor={p.tech_pred} stopOpacity={0.28}/>
@@ -5681,7 +5681,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           </div>
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={ghgData} margin={{top:4,right:p===CHART_PALETTES.v2?10:16,bottom:36,left:16}}>
+              <ComposedChart data={ghgData} margin={{top:4,right:p===CHART_PALETTES.v2?10:16,bottom:36,left:p===CHART_PALETTES.v2?10:16}}>
                 <defs>
                   <linearGradient id="ghgG1" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={p.ghg_co2} stopOpacity={0.45}/>
@@ -5732,7 +5732,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column"}}>
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={euData} margin={{top:16,right:p===CHART_PALETTES.v2?10:48,bottom:24,left:16}}
+              <ComposedChart data={euData} margin={{top:16,right:p===CHART_PALETTES.v2?10:48,bottom:24,left:p===CHART_PALETTES.v2?10:16}}
                 barSize={p===CHART_PALETTES.v2?38:undefined}
                 barGap={p===CHART_PALETTES.v2?undefined:3}
                 barCategoryGap={p===CHART_PALETTES.v2?undefined:"28%"}>
@@ -5797,7 +5797,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       };
       return (
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={fuelEUData} margin={{top:16,right:p===CHART_PALETTES.v2?10:56,bottom:24,left:16}}>
+          <ComposedChart data={fuelEUData} margin={{top:16,right:p===CHART_PALETTES.v2?10:56,bottom:24,left:p===CHART_PALETTES.v2?10:16}}>
             <defs>
               <linearGradient id="fuelGreenGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor={p.feu_pos} stopOpacity={1}/>
@@ -6170,7 +6170,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           {/* Chart */}
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={lineData} margin={{top:12,right:_gChartVerReal==="v2"?10:20,bottom:36,left:16}}>
+              <ComposedChart data={lineData} margin={{top:12,right:_gChartVerReal==="v2"?10:20,bottom:36,left:_gChartVerReal==="v2"?10:16}}>
                 <CartesianGrid stroke="rgba(148,163,184,0.22)" strokeDasharray="3 3" vertical={false}/>
                 <XAxis type="number" dataKey="x" domain={[xMin,xDomainEnd]} ticks={xTicks}
                   tickFormatter={viewMode==="voyage"
@@ -6335,7 +6335,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           </div>
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={curveData} margin={{top:10,right:_gChartVerReal==="v2"?10:20,bottom:36,left:16}}
+              <ComposedChart data={curveData} margin={{top:10,right:_gChartVerReal==="v2"?10:20,bottom:36,left:_gChartVerReal==="v2"?10:16}}
                 onMouseMove={function(e){
                   if(e&&e.activePayload&&e.activePayload.length) setActiveV(e.activePayload[0].payload.v);
                 }}
@@ -6903,7 +6903,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           </div>
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={curveData} margin={{top:16,right:_gChartVerReal==="v2"?10:20,bottom:36,left:16}}>
+              <ComposedChart data={curveData} margin={{top:16,right:_gChartVerReal==="v2"?10:20,bottom:36,left:_gChartVerReal==="v2"?10:16}}>
                 <CartesianGrid stroke="#dde3ee" strokeDasharray="0" vertical={false}/>
                 <XAxis type="number" dataKey="rpm" domain={[44,89]} ticks={xTicks}
                   tick={{fontSize:11,fill:"#555"}} axisLine={{stroke:"#CBD5E1"}} tickLine={false}
@@ -7233,7 +7233,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           {/* Chart */}
           <div style={{flex:1,minHeight:0}}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={lineData} margin={{top:12,right:_gChartVerReal==="v2"?10:20,bottom:36,left:16}}
+              <ComposedChart data={lineData} margin={{top:12,right:_gChartVerReal==="v2"?10:20,bottom:36,left:_gChartVerReal==="v2"?10:16}}
                 onMouseMove={function(e){if(e&&e.activePayload&&e.activePayload.length>0)setHoverX(e.activePayload[0].payload.x);else setHoverX(null);}}
                 onMouseLeave={function(){setHoverX(null);}}>
                 <CartesianGrid stroke="rgba(148,163,184,0.22)" strokeDasharray="3 3" vertical={false}/>
@@ -7539,7 +7539,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 </div>
                 <div style={{flex:1,minHeight:0}}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} barSize={38} margin={{bottom:24,left:16,right:10,top:4}}>
+                    <BarChart data={chartData} barSize={38} margin={{bottom:24,left:_gChartPal===CHART_PALETTES.v2?10:16,right:10,top:4}}>
                       <defs>
                         <linearGradient id="bgSpeedBreach" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor={_gChartPal.wb_speed} stopOpacity={1}/>
@@ -7651,7 +7651,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 </div>
                 <div style={{flex:1,minHeight:0}}>
               <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{bottom:24,left:16,right:10,top:4}}>
+                <ScatterChart margin={{bottom:24,left:_gChartPal===CHART_PALETTES.v2?10:16,right:10,top:4}}>
                   <CartesianGrid stroke="#F1F5F9" strokeDasharray="0" vertical={false}/>
                   <XAxis type="number" dataKey="x" domain={[0,14]}
                     tick={axTick} axisLine={{stroke:"#E2E8F0",strokeWidth:1}} tickLine={false} tickCount={8}>
