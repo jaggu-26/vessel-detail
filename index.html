@@ -6344,11 +6344,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <XAxis type="number" dataKey="v" domain={[7.0,17.0]}
                   ticks={[7,8,9,10,11,12,13,14,15,16,17]}
                   tickFormatter={function(v){return v.toFixed(1);}}
-                  tick={{fontSize:11,fill:"#555"}} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
+                  tick={{fontSize:_gChartVerReal==="v2"?12:13,fill:"#555"}} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
                   label={{value:"Speed (knots)",position:"insideBottom",offset:-12,style:axLabel}}/>
                 <YAxis domain={[0,12000]} ticks={[0,2000,4000,6000,8000,10000,12000]}
                   tickFormatter={function(v){return v===0?"0":v.toLocaleString();}}
-                  tick={{fontSize:11,fill:"#555"}} axisLine={false} tickLine={false} width={70}
+                  tick={{fontSize:_gChartVerReal==="v2"?12:13,fill:"#555"}} axisLine={false} tickLine={false} width={70}
                   label={{value:"Power (kW)",angle:-90,position:"insideLeft",offset:_gChartVerReal==="v2"?2:14,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={function(){return null;}}/>
                 <Area type="monotone" dataKey="stBase" stackId="st" stroke="none" fill="transparent" legendType="none" isAnimationActive={false}/>
@@ -6641,12 +6641,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 {xTicks.map(function(xv){return(
                   <React.Fragment key={xv}>
                     <line x1={xs(xv)} y1={mg.top+plotH} x2={xs(xv)} y2={mg.top+plotH+4} stroke="#CBD5E1" strokeWidth={1}/>
-                    <text x={xs(xv)} y={mg.top+plotH+17} textAnchor="middle" fontSize={12} fill="#94A3B8" fontFamily="inherit">{xv}</text>
+                    <text x={xs(xv)} y={mg.top+plotH+17} textAnchor="middle" fontSize={_gChartVerReal==="v2"?12:13} fill="#94A3B8" fontFamily="inherit">{xv}</text>
                   </React.Fragment>
                 );})}
-                <text x={mg.left+plotW/2} y={mg.top+plotH+33} textAnchor="middle" fontSize={12} fill="#64748B" fontFamily="inherit" fontWeight={500}>Load (%)</text>
-                {yTicks.map(function(yv){return <text key={yv} x={mg.left-8} y={ys(yv)+4} textAnchor="end" fontSize={12} fill="#94A3B8" fontFamily="inherit">{yv}</text>;})}
-                <text transform={"rotate(-90)"} x={-(mg.top+plotH/2)} y={16} textAnchor="middle" fontSize={12} fill={_gChartVerReal==="v2"?"#94A3B8":"#64748B"} fontFamily="inherit" fontWeight={_gChartVerReal==="v2"?400:500}>SFOC (g/kWh)</text>
+                <text x={mg.left+plotW/2} y={mg.top+plotH+33} textAnchor="middle" fontSize={_gChartVerReal==="v2"?14:12} fill={_gChartVerReal==="v2"?"#94A3B8":"#64748B"} fontFamily="inherit" fontWeight={_gChartVerReal==="v2"?400:500}>Load (%)</text>
+                {yTicks.map(function(yv){return <text key={yv} x={mg.left-8} y={ys(yv)+4} textAnchor="end" fontSize={_gChartVerReal==="v2"?12:13} fill="#94A3B8" fontFamily="inherit">{yv}</text>;})}
+                <text transform={"rotate(-90)"} x={-(mg.top+plotH/2)} y={16} textAnchor="middle" fontSize={_gChartVerReal==="v2"?14:12} fill={_gChartVerReal==="v2"?"#94A3B8":"#64748B"} fontFamily="inherit" fontWeight={_gChartVerReal==="v2"?400:500}>SFOC (g/kWh)</text>
                 {CURVES.map(function(curve){return(
                   <g key={curve.key}>
                     <path d={buildPath(curve.fn)} stroke={curve.stroke} strokeWidth={curve.sw} fill="none" strokeDasharray={curve.dash||undefined}/>
@@ -6803,12 +6803,12 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 {xTicks.map(function(xv){return(
                   <React.Fragment key={xv}>
                     <line x1={xs(xv)} y1={mg.top+plotH} x2={xs(xv)} y2={mg.top+plotH+4} stroke="#CBD5E1" strokeWidth={1}/>
-                    <text x={xs(xv)} y={mg.top+plotH+17} textAnchor="middle" fontSize={12} fill="#94A3B8" fontFamily="inherit">{xv}%</text>
+                    <text x={xs(xv)} y={mg.top+plotH+17} textAnchor="middle" fontSize={_gChartVerReal==="v2"?12:13} fill="#94A3B8" fontFamily="inherit">{xv}%</text>
                   </React.Fragment>
                 );})}
-                <text x={mg.left+plotW/2} y={mg.top+plotH+35} textAnchor="middle" fontSize={12} fill="#64748B" fontFamily="inherit" fontWeight={500}>LOAD (%)</text>
-                {yTicks.map(function(yv){return <text key={yv} x={mg.left-8} y={ys(yv)+4} textAnchor="end" fontSize={12} fill="#94A3B8" fontFamily="inherit">{yv}</text>;})}
-                <text transform={"rotate(-90)"} x={-(mg.top+plotH/2)} y={16} textAnchor="middle" fontSize={12} fill="#64748B" fontFamily="inherit" fontWeight={500}>SFOC Corrected (g/kWh)</text>
+                <text x={mg.left+plotW/2} y={mg.top+plotH+35} textAnchor="middle" fontSize={_gChartVerReal==="v2"?14:12} fill={_gChartVerReal==="v2"?"#94A3B8":"#64748B"} fontFamily="inherit" fontWeight={_gChartVerReal==="v2"?400:500}>LOAD (%)</text>
+                {yTicks.map(function(yv){return <text key={yv} x={mg.left-8} y={ys(yv)+4} textAnchor="end" fontSize={_gChartVerReal==="v2"?12:13} fill="#94A3B8" fontFamily="inherit">{yv}</text>;})}
+                <text transform={"rotate(-90)"} x={-(mg.top+plotH/2)} y={16} textAnchor="middle" fontSize={_gChartVerReal==="v2"?14:12} fill={_gChartVerReal==="v2"?"#94A3B8":"#64748B"} fontFamily="inherit" fontWeight={_gChartVerReal==="v2"?400:500}>SFOC Corrected (g/kWh)</text>
                 {/* Shop Trial Curve */}
                 <path d={buildCurvePath()} stroke="#1E3A8A" strokeWidth={2.5} fill="none"/>
                 <path d={buildCurvePath()} stroke="transparent" strokeWidth={14} fill="none" style={{cursor:"crosshair"}}
@@ -6906,11 +6906,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               <ComposedChart data={curveData} margin={{top:16,right:_gChartVerReal==="v2"?10:20,bottom:36,left:_gChartVerReal==="v2"?10:16}}>
                 <CartesianGrid stroke="#dde3ee" strokeDasharray="0" vertical={false}/>
                 <XAxis type="number" dataKey="rpm" domain={[44,89]} ticks={xTicks}
-                  tick={{fontSize:11,fill:"#555"}} axisLine={{stroke:"#CBD5E1"}} tickLine={false}
+                  tick={{fontSize:_gChartVerReal==="v2"?12:13,fill:"#555"}} axisLine={{stroke:"#CBD5E1"}} tickLine={false}
                   label={{value:"ME Shaft Speed (RPM)",position:"insideBottom",offset:-12,style:axLabel}}/>
                 <YAxis domain={[0,15523]} ticks={yTicks}
                   tickFormatter={function(v){return v===0?"0":v.toLocaleString();}} width={72}
-                  tick={{fontSize:11,fill:"#555"}} axisLine={false} tickLine={false}
+                  tick={{fontSize:_gChartVerReal==="v2"?12:13,fill:"#555"}} axisLine={false} tickLine={false}
                   label={{value:"Shaft Power (kW)",angle:-90,position:"insideLeft",offset:_gChartVerReal==="v2"?2:14,style:{...axLabel,textAnchor:"middle"}}}/>
                 <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
                 <Area type="monotone" dataKey="bandLow" stackId="tb" stroke="none" fill="transparent" legendType="none" isAnimationActive={false} name="–"/>
