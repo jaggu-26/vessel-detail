@@ -5868,6 +5868,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     // ── Hull Health Chart — Power BI style (Nov 2024 → Dec 2025)
     function HullHealthChart({n, viewMode, showColorWheel}){
       var _gChartPal=CHART_PALETTES.v1; // Technical tab: always V1 chart design, even in V2
+      if(_gChartVerReal==="v2"){
+        _gChartPal=Object.assign({},_gChartPal,{th_warn:"#F59E0B"}); // amber instead of orange — better contrast against red (th_bad), matches Main Engine Health fix
+      }
       var p=_gChartPal;
       // x=1 → Nov 2024, x=3 → Jan 2025, x=5 → Mar 2025, x=7 → May 2025,
       // x=9 → Jul 2025, x=11 → Sep 2025, x=13 → Nov 2025, x=15 → Jan 2026
@@ -13712,11 +13715,11 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       ]},
       {group:"Technical Charts"},
       {section:"Hull Health",type:"Scatter + Band Chart",colors:[
-        {hex:p.th_good,label:"Line segments — Good (0–10%)",swatch:"solid"},
-        {hex:p.th_warn,label:"Line segments — Caution (10–20%)",swatch:"solid"},
-        {hex:p.th_bad,label:"Line segments — Critical (> 20%)",swatch:"solid"},
-        {hex:p.evt_good,label:"Maintenance event marker",swatch:"solid"},
-        {hex:p.evt_bad,label:"Port stay marker & line",swatch:"solid"},
+        {hex:CHART_PALETTES.v1.th_good,label:"Line segments — Good (0–10%)",swatch:"solid"},
+        {hex:_gChartVerReal==="v2"?"#F59E0B":CHART_PALETTES.v1.th_warn,label:"Line segments — Caution (10–20%)",swatch:"solid"},
+        {hex:CHART_PALETTES.v1.th_bad,label:"Line segments — Critical (> 20%)",swatch:"solid"},
+        {hex:CHART_PALETTES.v1.evt_good,label:"Maintenance event marker",swatch:"solid"},
+        {hex:CHART_PALETTES.v1.evt_bad,label:"Port stay marker & line",swatch:"solid"},
         {hex:"#3B82F6",label:"Speed loss scatter dots",swatch:"solid"},
         {hex:"#86EFAC",label:"Fill band — Good (0–10%) — fixed",swatch:"band"},
         {hex:"#FDE047",label:"Fill band — Caution (10–20%) — fixed",swatch:"band"},
@@ -13743,10 +13746,10 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         {hex:p.merpm_fit,label:"Reported Fit (dashed)",swatch:"dashed"},
       ]},
       {section:"Main Engine Health",type:"Scatter + Threshold Chart",colors:[
-        {hex:p.th_good,label:"Line segments — Good (0–10%)",swatch:"solid"},
-        {hex:p.th_warn,label:"Line segments — Caution (10–20%)",swatch:"solid"},
-        {hex:p.th_bad,label:"Line segments — Critical (> 20%)",swatch:"solid"},
-        {hex:"#3B82F6",label:"Deviation % SFOC correc. — scatter dots",swatch:"solid"},
+        {hex:CHART_PALETTES.v1.th_good,label:"Line segments — Good (0–10%)",swatch:"solid"},
+        {hex:_gChartVerReal==="v2"?"#F59E0B":CHART_PALETTES.v1.th_warn,label:"Line segments — Caution (10–20%)",swatch:"solid"},
+        {hex:CHART_PALETTES.v1.th_bad,label:"Line segments — Critical (> 20%)",swatch:"solid"},
+        {hex:_gChartVerReal==="v2"?"#3B82F6":CHART_PALETTES.v1.th_good,label:"Deviation % SFOC correc. — scatter dots",swatch:"solid"},
         {hex:"#86EFAC",label:"Fill band — Good (0–10%) — fixed",swatch:"band"},
         {hex:"#FDE047",label:"Fill band — Caution (10–20%) — fixed",swatch:"band"},
         {hex:"#EF4444",label:"Fill band — Critical (> 20%) — fixed",swatch:"band"},
