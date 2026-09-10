@@ -5750,6 +5750,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     // ── EU Emissions Chart — module level
     function EUEmissionsChart(){
       var p=_gChartPal;
+      if(p===CHART_PALETTES.v2){
+        p=Object.assign({},p,{eu_cons:CHART_PALETTES.v2.wb_speed,eu_cons2:CHART_PALETTES.v2.wb_speed}); // same blue as Warranty Breach's Speed Breach bar, replacing the yellow gradient
+      }
 
       var euData=[
         {cat:"EU → EU",   emissions:86, consumption:58},
@@ -13703,8 +13706,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       {section:"Emissions (EU)",type:"Bar Chart",colors:[
         Object.assign({label:"Total Emissions — top stop"},grad(p.eu_emiss,0.70)),
         {hex:p.eu_emiss2,label:"Total Emissions — bottom stop",swatch:"solid"},
-        Object.assign({label:"Consumption — top stop"},grad(p.eu_cons,0.70)),
-        {hex:p.eu_cons2,label:"Consumption — bottom stop",swatch:"solid"},
+        Object.assign({label:"Consumption — top stop"},grad(_gChartVerReal==="v2"?CHART_PALETTES.v2.wb_speed:p.eu_cons,0.70)),
+        {hex:_gChartVerReal==="v2"?CHART_PALETTES.v2.wb_speed:p.eu_cons2,label:"Consumption — bottom stop",swatch:"solid"},
       ]},
       {section:"EU ETS and FuelEU CB",type:"Bar + Line Chart",colors:[
         Object.assign({label:"Positive Balance — top stop"},grad(p.feu_pos,0.75)),
