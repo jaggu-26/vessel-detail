@@ -177,7 +177,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         // Technical — Hull Health event markers (maintenance / port stay) — sky / violet (no red/green/orange/pink)
         evt_good:"#0EA5E9", evt_bad:"#7C3AED",
         // Technical — Fuel Performance Deviation — purple / yellow / blue (no red/green/orange/pink)
-        fpd_pred:"#40A0BD", fpd_rep:"#EAB308", fpd_trial:"#3B82F6",
+        fpd_pred:"#40A0BD", fpd_rep:"#FFC000", fpd_trial:"#3B82F6",
         // Pill tab controls (Laden/Ballast, ECA/Non-ECA, etc.)
         tab_active:"#001E4C", tab_radius:4,
         // Chart card title/subtitle sizing (larger for V2)
@@ -2876,7 +2876,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     function FuelConsumptionSpeedChart(){
       var _gChartPal=CHART_PALETTES.v1; // Technical tab: always V1 chart design, even in V2
       if(_gChartVerReal==="v2"){
-        _gChartPal=Object.assign({},_gChartPal,{fpd_pred:"#40A0BD",fpd_rep:"#EAB308",fpd_trial:"#3B82F6"}); // avoid orange/green in V2
+        _gChartPal=Object.assign({},_gChartPal,{fpd_pred:"#40A0BD",fpd_rep:"#FFC000",fpd_trial:"#3B82F6"}); // avoid orange/green in V2
       }
       var p=_gChartPal;
       var [hoverSpd,setHoverSpd]=React.useState(null);
@@ -5869,7 +5869,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     function HullHealthChart({n, viewMode, showColorWheel}){
       var _gChartPal=CHART_PALETTES.v1; // Technical tab: always V1 chart design, even in V2
       if(_gChartVerReal==="v2"){
-        _gChartPal=Object.assign({},_gChartPal,{th_warn:"#F59E0B"}); // amber instead of orange — better contrast against red (th_bad), matches Main Engine Health fix
+        _gChartPal=Object.assign({},_gChartPal,{th_warn:"#FFC000"}); // amber/gold instead of orange — better contrast against red (th_bad), matches Main Engine Health fix
       }
       var p=_gChartPal;
       // x=1 → Nov 2024, x=3 → Jan 2025, x=5 → Mar 2025, x=7 → May 2025,
@@ -6982,7 +6982,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     function MEHealthChart({showColorWheel, showOpenLegend}){
       var _gChartPal=CHART_PALETTES.v1; // Technical tab: always V1 chart design, even in V2
       if(_gChartVerReal==="v2"){
-        _gChartPal=Object.assign({},_gChartPal,{th_warn:"#F59E0B"}); // amber instead of orange — better contrast against red (th_bad)
+        _gChartPal=Object.assign({},_gChartPal,{th_warn:"#FFC000"}); // amber/gold instead of orange — better contrast against red (th_bad)
       }
       var p=_gChartPal;
       var SMN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -13716,7 +13716,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       {group:"Technical Charts"},
       {section:"Hull Health",type:"Scatter + Band Chart",colors:[
         {hex:CHART_PALETTES.v1.th_good,label:"Line segments — Good (0–10%)",swatch:"solid"},
-        {hex:_gChartVerReal==="v2"?"#F59E0B":CHART_PALETTES.v1.th_warn,label:"Line segments — Caution (10–20%)",swatch:"solid"},
+        {hex:_gChartVerReal==="v2"?"#FFC000":CHART_PALETTES.v1.th_warn,label:"Line segments — Caution (10–20%)",swatch:"solid"},
         {hex:CHART_PALETTES.v1.th_bad,label:"Line segments — Critical (> 20%)",swatch:"solid"},
         {hex:CHART_PALETTES.v1.evt_good,label:"Maintenance event marker",swatch:"solid"},
         {hex:CHART_PALETTES.v1.evt_bad,label:"Port stay marker & line",swatch:"solid"},
@@ -13747,7 +13747,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       ]},
       {section:"Main Engine Health",type:"Scatter + Threshold Chart",colors:[
         {hex:CHART_PALETTES.v1.th_good,label:"Line segments — Good (0–10%)",swatch:"solid"},
-        {hex:_gChartVerReal==="v2"?"#F59E0B":CHART_PALETTES.v1.th_warn,label:"Line segments — Caution (10–20%)",swatch:"solid"},
+        {hex:_gChartVerReal==="v2"?"#FFC000":CHART_PALETTES.v1.th_warn,label:"Line segments — Caution (10–20%)",swatch:"solid"},
         {hex:CHART_PALETTES.v1.th_bad,label:"Line segments — Critical (> 20%)",swatch:"solid"},
         {hex:_gChartVerReal==="v2"?"#3B82F6":CHART_PALETTES.v1.th_good,label:"Deviation % SFOC correc. — scatter dots",swatch:"solid"},
         {hex:"#86EFAC",label:"Fill band — Good (0–10%) — fixed",swatch:"band"},
