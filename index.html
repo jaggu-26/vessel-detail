@@ -7111,7 +7111,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             {dotPts.map(function(p,i){
               var cx=xs(p.x),cy=ys(p.y);
               if(isNaN(cx)||isNaN(cy)) return null;
-              return <circle key={"d"+i} cx={cx} cy={cy} r={_gChartVerReal==="v2"?4:3} fill={_gChartPal.th_good} fillOpacity={0.80}/>;
+              return <circle key={"d"+i} cx={cx} cy={cy} r={_gChartVerReal==="v2"?4:3} fill={_gChartVerReal==="v2"?"#3B82F6":_gChartPal.th_good} fillOpacity={0.80}/>;
             })}
           </g>
         );
@@ -13740,9 +13740,13 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         {hex:p.merpm_fit,label:"Reported Fit (dashed)",swatch:"dashed"},
       ]},
       {section:"Main Engine Health",type:"Scatter + Threshold Chart",colors:[
-        {hex:p.th_good,label:"Deviation % — Good (0–10%)",swatch:"solid"},
-        {hex:p.th_warn,label:"Deviation % — Caution (10–20%)",swatch:"solid"},
-        {hex:p.th_bad,label:"Deviation % — Critical (> 20%)",swatch:"solid"},
+        {hex:p.th_good,label:"Line segments — Good (0–10%)",swatch:"solid"},
+        {hex:p.th_warn,label:"Line segments — Caution (10–20%)",swatch:"solid"},
+        {hex:p.th_bad,label:"Line segments — Critical (> 20%)",swatch:"solid"},
+        {hex:"#3B82F6",label:"Deviation % SFOC correc. — scatter dots",swatch:"solid"},
+        {hex:"#86EFAC",label:"Fill band — Good (0–10%) — fixed",swatch:"band"},
+        {hex:"#FDE047",label:"Fill band — Caution (10–20%) — fixed",swatch:"band"},
+        {hex:"#EF4444",label:"Fill band — Critical (> 20%) — fixed",swatch:"band"},
       ]},
       ];
     }
