@@ -6603,12 +6603,23 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         {key:"mc",fn:meanCorr,name:"Mean Corr. SFOC",stroke:"#1E3A8A",dash:"8,4",sw:_gChartVerReal==="v2"?2.5:2},
         {key:"ul",fn:uppLimit,name:"Upp. Limit SFOC (+5%)",stroke:"#1E3A8A",dash:"3,3",sw:_gChartVerReal==="v2"?2.5:2},
       ];
-      var CATS={
+      var CATS=_gChartVerReal==="v2"?{
+        "meas-out":{label:"SFOC Measured",color:"#F97316"},
+        "meas-in":{label:"SFOC Measured",color:"#F97316"},
+        "corr-in":{label:"SFOC Corrected",color:"#16A34A"},
+        "corr-out":{label:"SFOC Corrected",color:"#16A34A"},
+      }:{
         "meas-out":{label:"SFOC Measured (Outside Band)",color:p.sfoc_out},
         "meas-in":{label:"SFOC Measured (Within Band)",color:p.sfoc_in},
         "corr-in":{label:"SFOC Corrected (Within Band)",color:p.sfoc_cin},
         "corr-out":{label:"SFOC Corrected (Outside Band)",color:p.sfoc_cout},
       };
+      var legendDots=_gChartVerReal==="v2"
+        ?[{key:"meas",label:"SFOC Measured",color:"#F97316"},{key:"corr",label:"SFOC Corrected",color:"#16A34A"}]
+        :Object.keys(CATS).map(function(k){return Object.assign({key:k},CATS[k]);});
+      var legendLines=_gChartVerReal==="v2"
+        ?[{key:"st",label:"Shop Trial SFOC",dash:"",sw:2.5},{key:"ul",label:"Upp. Limit SFOC (+5%)",dash:"3,3",sw:2},{key:"mc",label:"Mean Corr. SFOC",dash:"6,3",sw:2}]
+        :[{key:"st",label:"Shop Trial SFOC",dash:"",sw:2.5},{key:"mc",label:"Mean Corr. SFOC",dash:"6,3",sw:2},{key:"ul",label:"Upp. Limit SFOC (+5%)",dash:"3,3",sw:2}];
 
       function TooltipBox(props){
         var t=props.t;
@@ -6642,24 +6653,18 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       return (
         <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",fontFamily:"inherit",userSelect:"none"}}>
           <div style={{display:"flex",flexWrap:"wrap",justifyContent:"flex-end",alignItems:"center",gap:"6px 16px",fontSize:_gChartVerReal==="v2"?12:11,color:_gChartVerReal==="v2"?"#64748B":"#374151",padding:"4px 12px 12px",lineHeight:"18px",flexShrink:0}}>
-            {Object.keys(CATS).map(function(k){var cat=CATS[k];return(
-              <div key={k} style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
+            {legendDots.map(function(cat){return(
+              <div key={cat.key} style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
                 <svg width="10" height="10" style={{flexShrink:0}}><circle cx="5" cy="5" r="4.5" fill={cat.color}/></svg>
                 <span>{cat.label}</span>
               </div>
             );})}
-            <div style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
-              <svg width="22" height="8" style={{flexShrink:0}}><line x1="1" y1="4" x2="21" y2="4" stroke="#1E3A8A" strokeWidth="2.5"/></svg>
-              <span>Shop Trial SFOC</span>
-            </div>
-            <div style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
-              <svg width="22" height="8" style={{flexShrink:0}}><line x1="1" y1="4" x2="21" y2="4" stroke="#1E3A8A" strokeWidth="2" strokeDasharray="6,3"/></svg>
-              <span>Mean Corr. SFOC</span>
-            </div>
-            <div style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
-              <svg width="22" height="8" style={{flexShrink:0}}><line x1="1" y1="4" x2="21" y2="4" stroke="#1E3A8A" strokeWidth="2" strokeDasharray="3,3"/></svg>
-              <span>Upp. Limit SFOC (+5%)</span>
-            </div>
+            {legendLines.map(function(ln){return(
+              <div key={ln.key} style={{display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
+                <svg width="22" height="8" style={{flexShrink:0}}><line x1="1" y1="4" x2="21" y2="4" stroke="#1E3A8A" strokeWidth={ln.sw} strokeDasharray={ln.dash||undefined}/></svg>
+                <span>{ln.label}</span>
+              </div>
+            );})}
           </div>
           <div style={{flex:1,minHeight:0,position:"relative"}} ref={containerRef}>
             {dims.w>50&&dims.h>50&&(
