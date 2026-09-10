@@ -6606,8 +6606,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var CATS=_gChartVerReal==="v2"?{
         "meas-out":{label:"SFOC Measured",color:"#F97316"},
         "meas-in":{label:"SFOC Measured",color:"#F97316"},
-        "corr-in":{label:"SFOC Corrected",color:"#16A34A"},
-        "corr-out":{label:"SFOC Corrected",color:"#16A34A"},
+        "corr-in":{label:"SFOC Corrected",color:"#0EA5E9"},
+        "corr-out":{label:"SFOC Corrected",color:"#0EA5E9"},
       }:{
         "meas-out":{label:"SFOC Measured (Outside Band)",color:p.sfoc_out},
         "meas-in":{label:"SFOC Measured (Within Band)",color:p.sfoc_in},
@@ -6615,7 +6615,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         "corr-out":{label:"SFOC Corrected (Outside Band)",color:p.sfoc_cout},
       };
       var legendDots=_gChartVerReal==="v2"
-        ?[{key:"meas",label:"SFOC Measured",color:"#F97316"},{key:"corr",label:"SFOC Corrected",color:"#16A34A"}]
+        ?[{key:"meas",label:"SFOC Measured",color:"#F97316"},{key:"corr",label:"SFOC Corrected",color:"#0EA5E9"}]
         :Object.keys(CATS).map(function(k){return Object.assign({key:k},CATS[k]);});
       var legendLines=_gChartVerReal==="v2"
         ?[{key:"st",label:"Shop Trial SFOC",dash:"",sw:2.5},{key:"ul",label:"Upp. Limit SFOC (+5%)",dash:"3,3",sw:2},{key:"mc",label:"Mean Corr. SFOC",dash:"6,3",sw:2}]
