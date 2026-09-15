@@ -5541,6 +5541,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     // ── AER Voyage Chart — module level
     function AERVoyageChart({aerView, setAerView}){
       var p=_gChartPal;
+      var AER_ATTAINED_COLOR="#2663EB";
       if(!aerView) aerView="Month";
       if(!setAerView) setAerView=function(){};
       var voyageData=[
@@ -5589,8 +5590,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         if(p.cx==null||p.cy==null) return null;
         return (
           <g>
-            <circle cx={p.cx} cy={p.cy} r={11} fill={_gChartPal.tech_pred} fillOpacity={0.12}/>
-            <circle cx={p.cx} cy={p.cy} r={7} fill={_gChartPal.tech_pred} stroke="#fff" strokeWidth={2.5}/>
+            <circle cx={p.cx} cy={p.cy} r={11} fill={AER_ATTAINED_COLOR} fillOpacity={0.12}/>
+            <circle cx={p.cx} cy={p.cy} r={7} fill={AER_ATTAINED_COLOR} stroke="#fff" strokeWidth={2.5}/>
           </g>
         );
       };
@@ -5611,8 +5612,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <ComposedChart data={aerData} margin={{top:16,right:10,bottom:24,left:p===CHART_PALETTES.v2?10:16}}>
                   <defs>
                     <linearGradient id="aerAttainedGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={p.tech_pred} stopOpacity={0.28}/>
-                      <stop offset="100%" stopColor={p.tech_pred} stopOpacity={0.03}/>
+                      <stop offset="0%" stopColor={AER_ATTAINED_COLOR} stopOpacity={0.28}/>
+                      <stop offset="100%" stopColor={AER_ATTAINED_COLOR} stopOpacity={0.03}/>
                     </linearGradient>
                     <linearGradient id="aerRequiredGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor={p.eu_cons} stopOpacity={0.18}/>
@@ -5642,9 +5643,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <Area type="monotone" dataKey="required" stroke={p.eu_cons} strokeWidth={2.5} strokeDasharray="6 3"
                     fill="url(#aerRequiredGrad)" dot={<AerRequiredDot/>}
                     activeDot={{r:6,fill:p.eu_cons,stroke:"#fff",strokeWidth:2}} name="Required AER"/>
-                  <Area type="monotone" dataKey="attained" stroke={p.tech_pred} strokeWidth={2.5}
+                  <Area type="monotone" dataKey="attained" stroke={AER_ATTAINED_COLOR} strokeWidth={2.5}
                     fill="url(#aerAttainedGrad)" dot={<AerAttainedDot/>}
-                    activeDot={{r:9,fill:p.tech_pred,stroke:"#fff",strokeWidth:2.5}} name="Attained AER (Voyage based)"/>
+                    activeDot={{r:9,fill:AER_ATTAINED_COLOR,stroke:"#fff",strokeWidth:2.5}} name="Attained AER (Voyage based)"/>
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
@@ -13708,7 +13709,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       ]},
       {group:"Environmental Charts"},
       {section:"CII Rating (AER)",type:"Area + Band Chart",colors:[
-        {hex:p.tech_pred,label:"Attained AER line",swatch:"solid"},
+        {hex:"#2663EB",label:"Attained AER line",swatch:"solid"},
         {hex:p.eu_cons,label:"Required AER line (dashed)",swatch:"dashed"},
         {hex:"#16A34A",label:"Band A — Excellent (AER ≤ 3.7) — fixed rating colour",swatch:"band"},
         {hex:"#22C55E",label:"Band B — Good (3.7–5.0) — fixed rating colour",swatch:"band"},
