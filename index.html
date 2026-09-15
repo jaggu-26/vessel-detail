@@ -143,7 +143,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         // Pill tab controls (Laden/Ballast, ECA/Non-ECA, etc.)
         tab_active:"#2563EB", tab_radius:20,
         // Chart card title/subtitle sizing (original)
-        title_size:14, title_lh:20, subtitle_size:14,
+        title_size:14, title_lh:20, subtitle_size:12,
         // KPI card text (value stays fixed at 18px in both versions)
         kpi_label:12, kpi_sub:11, kpi_detail:12, kpi_card_h:91,
       },
@@ -13386,8 +13386,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                         </button>
                         <div style={{marginLeft:16,flexShrink:0}}><VesselIcon size={(kpiMode==="analytics2"||kpiMode==="analytics3")?36:56} bg={getVesselColor(selectedVessel.type)}/></div>
                         <div style={{lineHeight:1,flexShrink:0,marginLeft:12}}>
-                          <div style={{fontSize:18,fontWeight:700,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#ffffff":THEME.text}}>{selectedVessel.name}</div>
-                          <div style={{fontSize:14,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.5)":"#94A3B8",marginTop:(kpiMode==="analytics2"||kpiMode==="analytics3")?4:10}}>
+                          <div style={{fontSize:_gChartVerReal==="v2"?18:((kpiMode==="analytics2"||kpiMode==="analytics3")?13:14),fontWeight:700,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#ffffff":THEME.text}}>{selectedVessel.name}</div>
+                          <div style={{fontSize:_gChartVerReal==="v2"?14:11,color:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.5)":"#94A3B8",marginTop:(kpiMode==="analytics2"||kpiMode==="analytics3")?4:10}}>
                             {selectedVessel.imo.replace("IMO ","")}
                             <span style={{margin:"0 5px",color:"#CBD5E1"}}>|</span>
                             {selectedVessel.type}
