@@ -5541,7 +5541,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     // ── AER Voyage Chart — module level
     function AERVoyageChart({aerView, setAerView}){
       var p=_gChartPal;
-      var AER_ATTAINED_COLOR="#2663EB";
+      var AER_ATTAINED_COLOR=_gChartVerReal==="v2"?"#2663EB":p.tech_pred;
       if(!aerView) aerView="Month";
       if(!setAerView) setAerView=function(){};
       var voyageData=[
@@ -13709,7 +13709,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       ]},
       {group:"Environmental Charts"},
       {section:"CII Rating (AER)",type:"Area + Band Chart",colors:[
-        {hex:"#2663EB",label:"Attained AER line",swatch:"solid"},
+        {hex:_gChartVerReal==="v2"?"#2663EB":p.tech_pred,label:"Attained AER line",swatch:"solid"},
         {hex:p.eu_cons,label:"Required AER line (dashed)",swatch:"dashed"},
         {hex:"#16A34A",label:"Band A — Excellent (AER ≤ 3.7) — fixed rating colour",swatch:"band"},
         {hex:"#22C55E",label:"Band B — Good (3.7–5.0) — fixed rating colour",swatch:"band"},
