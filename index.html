@@ -5515,7 +5515,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <YAxis yAxisId="left" tick={axTick} width={54} axisLine={false} tickLine={false}
                   domain={[0,260]} ticks={[0,65,130,195,260]}
                   label={{value:"ME consumption (MT)",angle:-90,position:"insideLeft",offset:p===CHART_PALETTES.v2?2:10,style:{...axLabel,textAnchor:"middle",fill:p.adc_prop}}}/>
-                <YAxis yAxisId="right" orientation="right" tick={{...axTick,fill:p.adc_aux}} width={56} axisLine={false} tickLine={false}
+                <YAxis yAxisId="right" orientation="right" tick={_gChartVerReal==="v2"?axTick:{...axTick,fill:p.adc_aux}} width={56} axisLine={false} tickLine={false}
                   domain={[0,80]} ticks={[0,20,40,60,80]}
                   label={{value:"Auxiliaries consumption (MT)",angle:90,position:"insideRight",offset:10,style:{...axLabel,textAnchor:"middle",fill:p.adc_aux}}}/>
                 <Tooltip content={<ModernTooltip/>} cursor={<BarBandCursor dataLen={chartData.length}/>}/>
