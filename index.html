@@ -5542,6 +5542,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     function AERVoyageChart({aerView, setAerView}){
       var p=_gChartPal;
       var AER_ATTAINED_COLOR=_gChartVerReal==="v2"?"#2663EB":p.tech_pred;
+      var AER_REQUIRED_COLOR=_gChartVerReal==="v2"?"#0991B2":p.eu_cons;
       if(!aerView) aerView="Month";
       if(!setAerView) setAerView=function(){};
       var voyageData=[
@@ -5599,8 +5600,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         if(p.cx==null||p.cy==null) return null;
         return (
           <g>
-            <circle cx={p.cx} cy={p.cy} r={7} fill={_gChartPal.eu_cons} fillOpacity={0.15}/>
-            <circle cx={p.cx} cy={p.cy} r={4} fill={_gChartPal.eu_cons} stroke="#fff" strokeWidth={2}/>
+            <circle cx={p.cx} cy={p.cy} r={7} fill={AER_REQUIRED_COLOR} fillOpacity={0.15}/>
+            <circle cx={p.cx} cy={p.cy} r={4} fill={AER_REQUIRED_COLOR} stroke="#fff" strokeWidth={2}/>
           </g>
         );
       };
@@ -5616,8 +5617,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       <stop offset="100%" stopColor={AER_ATTAINED_COLOR} stopOpacity={0.03}/>
                     </linearGradient>
                     <linearGradient id="aerRequiredGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={p.eu_cons} stopOpacity={0.18}/>
-                      <stop offset="100%" stopColor={p.eu_cons} stopOpacity={0.02}/>
+                      <stop offset="0%" stopColor={AER_REQUIRED_COLOR} stopOpacity={0.18}/>
+                      <stop offset="100%" stopColor={AER_REQUIRED_COLOR} stopOpacity={0.02}/>
                     </linearGradient>
                     <filter id="aerGlow">
                       <feGaussianBlur stdDeviation="2" result="blur"/>
@@ -5640,9 +5641,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
                   <Legend verticalAlign="top" align="right" iconSize={8} iconType="square" wrapperStyle={{fontSize:p===CHART_PALETTES.v2?12:11,paddingBottom:12}}
                   formatter={function(value){return p===CHART_PALETTES.v2?<span style={{color:"#64748B"}}>{value}</span>:value;}}/>
-                  <Area type="monotone" dataKey="required" stroke={p.eu_cons} strokeWidth={2.5} strokeDasharray="6 3"
+                  <Area type="monotone" dataKey="required" stroke={AER_REQUIRED_COLOR} strokeWidth={2.5} strokeDasharray="6 3"
                     fill="url(#aerRequiredGrad)" dot={<AerRequiredDot/>}
-                    activeDot={{r:6,fill:p.eu_cons,stroke:"#fff",strokeWidth:2}} name="Required AER"/>
+                    activeDot={{r:6,fill:AER_REQUIRED_COLOR,stroke:"#fff",strokeWidth:2}} name="Required AER"/>
                   <Area type="monotone" dataKey="attained" stroke={AER_ATTAINED_COLOR} strokeWidth={2.5}
                     fill="url(#aerAttainedGrad)" dot={<AerAttainedDot/>}
                     activeDot={{r:9,fill:AER_ATTAINED_COLOR,stroke:"#fff",strokeWidth:2.5}} name="Attained AER (Voyage based)"/>
@@ -13710,7 +13711,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       {group:"Environmental Charts"},
       {section:"CII Rating (AER)",type:"Area + Band Chart",colors:[
         {hex:_gChartVerReal==="v2"?"#2663EB":p.tech_pred,label:"Attained AER line",swatch:"solid"},
-        {hex:p.eu_cons,label:"Required AER line (dashed)",swatch:"dashed"},
+        {hex:_gChartVerReal==="v2"?"#0991B2":p.eu_cons,label:"Required AER line (dashed)",swatch:"dashed"},
         {hex:"#16A34A",label:"Band A — Excellent (AER ≤ 3.7) — fixed rating colour",swatch:"band"},
         {hex:"#22C55E",label:"Band B — Good (3.7–5.0) — fixed rating colour",swatch:"band"},
         {hex:"#84CC16",label:"Band B/C boundary reference — fixed rating colour",swatch:"solid"},
