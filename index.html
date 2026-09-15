@@ -1936,6 +1936,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     function SimulatorModal({title, onClose}) {
       var [simTab,setSimTab]=useState("speed");
       var [loadCond,setLoadCond]=useState("laden");
+      var BREACHED_COLOR=_gChartVerReal==="v2"?"#EF4444":"#7B2830";
 
       var BD=["12 Dec","13 Dec","14 Dec","15 Dec","16 Dec","17 Dec","18 Dec",
               "19 Dec","20 Dec","21 Dec","22 Dec","23 Dec","24 Dec","25 Dec",
@@ -2099,13 +2100,13 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     <Line type="stepAfter" dataKey="ordered" stroke="#4a8a9a" strokeWidth={2.5}
                       dot={false} name="Ordered" legendType="none" connectNulls={false} isAnimationActive={false}/>
 
-                    {/* Series 1: dark red filled dots — Breached */}
+                    {/* Series 1: filled dots — Breached */}
                     <Line dataKey="s1" stroke="none" strokeWidth={0} name="Breached"
                       dot={function(p){
                         if(p.value==null||p.cx==null||p.cy==null)return null;
-                        return <circle key={p.index} cx={p.cx} cy={p.cy} r={6} fill="#7B2830" stroke="none"/>;
+                        return <circle key={p.index} cx={p.cx} cy={p.cy} r={6} fill={BREACHED_COLOR} stroke="none"/>;
                       }}
-                      activeDot={{r:7,fill:"#7B2830"}} connectNulls={false} legendType="none" isAnimationActive={false}/>
+                      activeDot={{r:7,fill:BREACHED_COLOR}} connectNulls={false} legendType="none" isAnimationActive={false}/>
 
                     {/* Series 2: green hollow dots — Within Warranty */}
                     <Line dataKey="s2" stroke="none" strokeWidth={0} name="Within Warranty"
@@ -2129,7 +2130,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                             </span>
                             <span style={{display:"flex",alignItems:"center",gap:5}}>
                               <svg width="12" height="12" viewBox="0 0 12 12">
-                                <circle cx="6" cy="6" r="5" fill="#7B2830"/>
+                                <circle cx="6" cy="6" r="5" fill={BREACHED_COLOR}/>
                               </svg>
                               Breached
                             </span>
