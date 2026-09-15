@@ -5241,6 +5241,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     // ── Laden Slip % & SOG chart — module level for stable identity
     function SlipSOGChart(props){
       var p=_gChartPal;
+      var SS_SLIP_COLOR=_gChartVerReal==="v2"?"#2259FE":p.ss_slip;
 
       var viewMode=props.viewMode||"month";
       var [condition,setCondition]=React.useState("laden");
@@ -5294,7 +5295,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var voyageData=_vBase.map(function(r){return {v:r.v,slip:+(r.slip*_lf).toFixed(2),slip7d:+(r.slip7d*_lf).toFixed(2),sog:+(r.sog+_sogOff).toFixed(2)};});
       var _ticks=["01 Jan 2026","01 Feb 2026","01 Mar 2026","01 Apr 2026","01 May 2026","01 Jun 2026","01 Jul 2026"];
       var _legendItems=[
-        {key:"slip",label:_condLabel+" Slip %",      color:p.ss_slip,dash:true},
+        {key:"slip",label:_condLabel+" Slip %",      color:SS_SLIP_COLOR,dash:true},
         {key:"avg", label:_condLabel+" Slip % (7D Avg)", color:p.ss_avg,dash:false},
         {key:"sog", label:_condLabel+" SOG",         color:p.ss_slip,dash:true},
       ];
@@ -5360,7 +5361,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       domain={[12,14]} tickCount={5}
                       label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:10,style:{...axLabel,fill:p.ss_slip,textAnchor:"middle"}}}/>
                     <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
-                    <Line yAxisId="left" type="linear" hide={!seriesOn.includes("slip")} dataKey="slip" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+                    <Line yAxisId="left" type="linear" hide={!seriesOn.includes("slip")} dataKey="slip" stroke={SS_SLIP_COLOR} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
                     <Line yAxisId="left" type="linear" hide={!seriesOn.includes("avg")} dataKey="slip7d" stroke={p.ss_avg} dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
                     <Line yAxisId="right" type="linear" hide={!seriesOn.includes("sog")} dataKey="sog" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
                   </ComposedChart>
@@ -5377,7 +5378,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       label={{value:"SOG (kn)",angle:90,position:"insideRight",offset:10,style:{...axLabel,fill:p.ss_slip,textAnchor:"middle"}}}/>
                     <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
                     <ReferenceLine yAxisId="left" x="01 Apr 2026" stroke="#CBD5E1" strokeWidth={1}/>
-                    <Line yAxisId="left" type="linear" hide={!seriesOn.includes("slip")} dataKey="slip" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
+                    <Line yAxisId="left" type="linear" hide={!seriesOn.includes("slip")} dataKey="slip" stroke={SS_SLIP_COLOR} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
                     <Line yAxisId="left" type="linear" hide={!seriesOn.includes("avg")} dataKey="slip7d" stroke={p.ss_avg} dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
                     <Line yAxisId="right" type="linear" hide={!seriesOn.includes("sog")} dataKey="sog" stroke={p.ss_slip} strokeDasharray="5 3" dot={false} activeDot={{r:4}} strokeWidth={2.5} isAnimationActive={false}/>
                   </ComposedChart>
@@ -13685,7 +13686,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         Object.assign({label:"Auxiliaries"},grad(p.adc_aux,0.55)),
       ]},
       {section:"SOG and Slip",type:"Line Chart",colors:[
-        {hex:p.ss_slip,label:"Slip % (dashed) & SOG line",swatch:"dashed"},
+        {hex:_gChartVerReal==="v2"?"#2259FE":p.ss_slip,label:"Slip % (dashed)",swatch:"dashed"},
+        {hex:p.ss_slip,label:"SOG line (dashed)",swatch:"dashed"},
         {hex:p.ss_avg,label:"Slip 7D Average",swatch:"solid"},
         {hex:"#CBD5E1",label:"Reference line (date marker)",swatch:"solid"},
       ]},
