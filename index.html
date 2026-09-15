@@ -7550,7 +7550,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         </div>
       );
       var operationalItems=[
-        cc("Warranty Breach","Warranty Breach – Monthly / Voyage breach count",
+        cc("Warranty Breach",wscView==="Month"?"Warranty Breach – Monthly breach count":"Warranty Breach – Voyage breach count",
           function(n, detailViewMode){
             var vm=detailViewMode?(detailViewMode.charAt(0).toUpperCase()+detailViewMode.slice(1)):wscView;
             var isVoyage=vm==="Voyage";
