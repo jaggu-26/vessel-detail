@@ -12391,7 +12391,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
               <div style={{fontSize:12,color:"#94A3B8",marginTop:4}}>{vessel.imo.replace("IMO ","")} <span style={{margin:"0 3px"}}>|</span> {vessel.type}</div>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:2}}>
                 <span style={{fontSize:12,color:"#334155",fontWeight:600}}>Laden <span style={{color:"#CBD5E1",margin:"0 6px"}}>|</span> Speed Optimised</span>
-                <button onClick={onAnalytics} style={{display:"flex",alignItems:"center",gap:5,border:"1.5px solid #1852FE",background:"none",
+                <button data-tour="view-analytics" onClick={onAnalytics} style={{display:"flex",alignItems:"center",gap:5,border:"1.5px solid #1852FE",background:"none",
                   cursor:"pointer",color:"#1852FE",fontSize:12,fontWeight:600,fontFamily:"inherit",flexShrink:0,
                   padding:"4px 12px",borderRadius:6,transition:"background 0.15s"}}
                   onMouseEnter={function(e){e.currentTarget.style.background="rgba(24,82,254,0.06)";}}
@@ -12868,7 +12868,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           )}
 
           {/* Search bar top */}
-          <div style={{position:"absolute",top:16,left:16,zIndex:20,width:280}}>
+          <div data-tour="map-search" style={{position:"absolute",top:16,left:16,zIndex:20,width:280}}>
             <div style={{boxShadow:"0 2px 8px rgba(0,0,0,0.08)",borderRadius:4}}>
               <VesselSearch
                 selectedVessel={mapVessel}
@@ -12894,7 +12894,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
           </div>
 
           {/* Passage tabs */}
-          <div style={{position:"absolute",top:16,left:308,zIndex:10,
+          <div data-tour="passage-tabs" style={{position:"absolute",top:16,left:308,zIndex:10,
             display:"flex",alignItems:"center",gap:2,
             background:"#fff",borderRadius:4,border:"1px solid #E2E8F0",
             boxShadow:"0 2px 8px rgba(0,0,0,0.08)",padding:"3px",height:42}}>
@@ -12918,6 +12918,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
             var vr = VESSEL_ROUTES[mapVessel.name] || {from:"—",to:"—",dist:0,done:0,dep:"—",arr:"—",pos:"—"};
             return <div
             ref={dragRef}
+            data-tour="vessel-card"
             onMouseDown={onCardMouseDown}
             style={{position:"absolute",top:cardPos.y,left:cardPos.x,zIndex:10,width:510,
               background:"#fff",borderRadius:16,
@@ -12987,7 +12988,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
                   </button>
                 </div>
-                <button onClick={onAnalytics} style={{border:"none",background:"none",cursor:"pointer",
+                <button data-tour="view-analytics" onClick={onAnalytics} style={{border:"none",background:"none",cursor:"pointer",
                   fontSize:12,fontWeight:600,color:"#1852FE",fontFamily:"inherit",
                   textDecoration:"none",padding:0}}>
                   <span style={{textDecoration:"underline",textUnderlineOffset:2}}>View Analytics</span>
@@ -13182,6 +13183,175 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       );
     }
 
+    // ── Guided walkthrough (starts from the fleet map) ──────────────────────
+    function tourPickMarker(){
+      var icons=document.querySelectorAll('.leaflet-marker-icon');
+      for(var i=0;i<icons.length;i++){
+        var r=icons[i].getBoundingClientRect();
+        if(r.width>0 && r.left>340 && r.top>90 && r.right<window.innerWidth-60 && r.bottom<window.innerHeight-60) return icons[i];
+      }
+      return icons[0]||null;
+    }
+    var TOUR_STEPS=[
+      {view:"map",place:"center",title:"Welcome to Fleet Analytics",
+        body:"A short tour that takes you from the fleet map into a vessel's analytics. Use Next and Back to move, or press Esc to leave at any time."},
+      {view:"map",sel:'[data-tour="map-search"]',place:"right",title:"Find any vessel",
+        body:"Search by vessel name or IMO. Selecting a vessel centres the map on it and opens its summary card."},
+      {view:"map",sel:'[data-tour="passage-tabs"]',place:"bottom",title:"Passage views",
+        body:"Switch between the current passage, past passages and other views for the selected vessel."},
+      {view:"map",sel:'button[title="Weather Overlays"]',place:"right",title:"Weather overlays",
+        body:"Layer wind, current and wave data on top of the map to see the conditions along a route."},
+      {view:"map",find:tourPickMarker,place:"bottom",title:"Pick a vessel on the map",
+        body:"Every marker is a vessel, coloured by type. Click Next and we will open one for you.",
+        onNext:function(){var m=tourPickMarker(); if(m) m.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));}},
+      {view:"map",sel:'[data-tour="vessel-card"]',place:"left",title:"Vessel summary card",
+        body:"Route progress, speed, CII and alerts at a glance. You can drag the card to reposition it."},
+      {view:"map",sel:'[data-tour="view-analytics"]',place:"top",title:"Open the analytics",
+        body:"View Analytics opens the full dashboard for this vessel. Click Next to go there.",
+        onNext:function(ctx){var b=document.querySelector('[data-tour="view-analytics"]'); if(b) b.click(); else if(ctx.hasVessel) ctx.setShowMap(false);}},
+      {view:"analytics",sel:'button[title="Back to Map"]',place:"bottom",title:"Back to the map",
+        body:"The arrow returns you to the fleet map at any time, alongside this vessel's name, IMO, type and range."},
+      {view:"analytics",sel:'[data-tour="dash-tabs"]',place:"bottom",title:"Three analytics tabs",
+        body:"Operational, Environmental and Technical group the vessel's charts, KPIs and deep-dives by topic."},
+      {view:"analytics",sel:'button[title="Compare"]',place:"bottom",title:"Compare vessels",
+        body:"Select up to 3 vessels and view their performance side by side."},
+      {view:"analytics",sel:'button[title="Chart Colour Theme"]',place:"bottom",title:"Chart colour theme",
+        body:"Switch the charts between Version 1 and Version 2 colour themes."},
+      {view:"analytics",sel:'[data-tour="customise"]',place:"left",optional:true,title:"Customise the dashboard",
+        body:"Add, remove and reorder charts to build the view you need."},
+      {view:"analytics",place:"center",title:"You're all set",
+        body:"That's the flow: fleet map, vessel card, then the Operational, Environmental and Technical analytics. Use the arrow at the top-left to return to the map."}
+    ];
+
+    var _tourStore={step:0,dir:1};
+    function WalkthroughTour({onClose,ctx}){
+      var [step,setStep]=useState(_tourStore.step);
+      var [dir,setDir]=useState(_tourStore.dir);
+      function onGo(n,d){
+        if(n<0||n>=TOUR_STEPS.length){onClose();return;}
+        _tourStore.step=n; _tourStore.dir=d||1;
+        if(TOUR_STEPS[n].view==="map"&&!ctx.showMap) ctx.setShowMap(true);
+        setDir(d||1); setStep(n);
+      }
+      var st=TOUR_STEPS[step];
+      var last=step===TOUR_STEPS.length-1;
+      var [rawRect,setRect]=useState(null);
+      var rect=(st.sel||st.find)?rawRect:null;
+      var [missing,setMissing]=useState(false);
+      var [ph,setPh]=useState(210);
+      var [vp,setVp]=useState({w:window.innerWidth,h:window.innerHeight});
+      var popRef=useRef(null);
+
+      useEffect(function(){
+        function onResize(){setVp({w:window.innerWidth,h:window.innerHeight});}
+        window.addEventListener("resize",onResize);
+        return function(){window.removeEventListener("resize",onResize);};
+      },[]);
+
+      useEffect(function(){
+        setRect(null); setMissing(false);
+        if(!st.sel && !st.find) return;
+        var tries=0;
+        function locate(){
+          var el=st.find?st.find():document.querySelector(st.sel);
+          if(el){
+            var r=el.getBoundingClientRect();
+            if(r.width>0&&r.height>0){
+              setMissing(false);
+              setRect(function(o){return (o&&Math.abs(o.x-r.left)<1&&Math.abs(o.y-r.top)<1&&Math.abs(o.w-r.width)<1&&Math.abs(o.h-r.height)<1)?o:{x:r.left,y:r.top,w:r.width,h:r.height};});
+              return;
+            }
+          }
+          setRect(null);
+          tries++;
+          if(tries>45){
+            if(st.optional) onGo(step+(dir||1)); else setMissing(true);
+          }
+        }
+        locate();
+        var iv=setInterval(locate,120);
+        return function(){clearInterval(iv);};
+      },[step,vp.w,vp.h]);
+
+      useEffect(function(){
+        function onKey(e){
+          if(e.key==="Escape") onClose();
+          else if(e.key==="ArrowRight"||e.key==="Enter") goNext();
+          else if(e.key==="ArrowLeft") goBack();
+        }
+        window.addEventListener("keydown",onKey);
+        return function(){window.removeEventListener("keydown",onKey);};
+      });
+
+      useEffect(function(){
+        if(popRef.current){var h=popRef.current.offsetHeight; if(h&&Math.abs(h-ph)>1) setPh(h);}
+      });
+
+      function goNext(){
+        if(st.onNext) st.onNext(ctx);
+        if(last) onClose(); else onGo(step+1);
+      }
+      function goBack(){ if(step>0) onGo(step-1,-1); }
+
+      var PW=340, M=12, GAP=14, PAD=6;
+      var centered=!rect;
+      var left,top;
+      if(rect){
+        var fits={
+          right:function(){return {x:rect.x+rect.w+PAD+GAP,y:rect.y+rect.h/2-ph/2};},
+          left:function(){return {x:rect.x-PAD-GAP-PW,y:rect.y+rect.h/2-ph/2};},
+          bottom:function(){return {x:rect.x+rect.w/2-PW/2,y:rect.y+rect.h+PAD+GAP};},
+          top:function(){return {x:rect.x+rect.w/2-PW/2,y:rect.y-PAD-GAP-ph};}
+        };
+        var order={right:["right","bottom","left","top"],left:["left","bottom","right","top"],bottom:["bottom","top","right","left"],top:["top","bottom","right","left"]}[st.place]||["bottom","top","right","left"];
+        var pos=null;
+        for(var oi=0;oi<order.length&&!pos;oi++){
+          var c=fits[order[oi]]();
+          if(c.x>=M&&c.y>=M&&c.x+PW<=vp.w-M&&c.y+ph<=vp.h-M) pos=c;
+        }
+        if(!pos) pos=fits[order[0]]();
+        left=Math.max(M,Math.min(vp.w-PW-M,pos.x));
+        top=Math.max(M,Math.min(vp.h-ph-M,pos.y));
+      } else {
+        left=Math.max(M,(vp.w-PW)/2);
+        top=Math.max(M,(vp.h-ph)/2);
+      }
+
+      var btnBase={height:34,padding:"0 16px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"inherit"};
+      return (
+        <React.Fragment>
+          <div style={{position:"fixed",inset:0,zIndex:9998,background:rect?"transparent":"rgba(8,20,45,0.6)"}} onClick={function(e){e.stopPropagation();}}/>
+          {rect&&<div style={{position:"fixed",left:rect.x-PAD,top:rect.y-PAD,width:rect.w+PAD*2,height:rect.h+PAD*2,borderRadius:10,
+            boxShadow:"0 0 0 9999px rgba(8,20,45,0.6)",border:"2px solid #1852FE",zIndex:9999,pointerEvents:"none",
+            transition:"left .25s ease, top .25s ease, width .25s ease, height .25s ease"}}/>}
+          <div ref={popRef} role="dialog" aria-label={st.title}
+            style={{position:"fixed",left:left,top:top,width:PW,zIndex:10000,background:"#fff",borderRadius:12,
+              boxShadow:"0 10px 24px rgba(0,0,0,0.18)",border:"1px solid #E4E9F2",padding:"16px 18px 14px",
+              transition:"left .25s ease, top .25s ease"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
+              <span style={{fontSize:11,fontWeight:700,letterSpacing:"0.06em",textTransform:"uppercase",color:"#1852FE"}}>Step {step+1} of {TOUR_STEPS.length}</span>
+              <button onClick={onClose} aria-label="Close tour" title="Close tour"
+                style={{width:24,height:24,border:"none",background:"none",cursor:"pointer",color:"#94A3B8",padding:0,display:"flex",alignItems:"center",justifyContent:"center",borderRadius:6}}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div style={{fontSize:16,fontWeight:700,color:"#0F172A",marginBottom:6}}>{st.title}</div>
+            <div style={{fontSize:13.5,lineHeight:"20px",color:"#475569"}}>{st.body}</div>
+            {missing&&<div style={{marginTop:8,fontSize:12,color:"#B45309"}}>This element isn't visible right now — you can continue with Next.</div>}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:14}}>
+              <div style={{display:"flex",gap:4}}>
+                {TOUR_STEPS.map(function(_,i){return <span key={i} style={{width:i===step?14:6,height:6,borderRadius:3,background:i===step?"#1852FE":"#CBD5E1",transition:"all .2s"}}/>;})}
+              </div>
+              <div style={{display:"flex",gap:8}}>
+                {step>0&&<button onClick={goBack} style={Object.assign({},btnBase,{border:"1px solid #E4E9F2",background:"#fff",color:"#0F172A"})}>Back</button>}
+                <button onClick={goNext} style={Object.assign({},btnBase,{border:"none",background:"#1852FE",color:"#fff"})}>{last?"Finish":"Next"}</button>
+              </div>
+            </div>
+          </div>
+        </React.Fragment>
+      );
+    }
+
     function App() {
       var [activeNav,setActiveNav]=useState("emissions");
       var [monthCount,setMonthCount]=useState(6);
@@ -13214,6 +13384,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       var [detailChart,setDetailChart]=useState(null);
       var [selectedVessel,setSelectedVessel]=useState(null);
       var [showMap,setShowMap]=useState(true);
+      var [tourOn,setTourOn]=useState(false);
+      var tourEl=tourOn?<WalkthroughTour onClose={function(){setTourOn(false);}} ctx={{setShowMap:setShowMap,showMap:showMap,hasVessel:!!selectedVessel}}/>:null;
       var [vesselSearchOpen,setVesselSearchOpen]=useState(false);
       // Measure vessel-info span (back arrow → search icon) while closed,
       // so the opened search bar can match that exact width
@@ -13339,6 +13511,16 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
             <style>{fontStyles}</style>
             {sidebarEl}
             <MapPage vessel={selectedVessel} onAnalytics={function(){setShowMap(false);}} onVesselChange={function(v){setSelectedVessel(v);}}/>
+            {!tourOn&&(
+              <button onClick={function(){_tourStore.step=0;_tourStore.dir=1;setTourOn(true);}} title="Take a guided tour"
+                style={{position:"fixed",left:72,bottom:20,zIndex:30,display:"flex",alignItems:"center",gap:8,height:38,padding:"0 14px",
+                  borderRadius:19,border:"1px solid #E4E9F2",background:"#fff",color:"#0F172A",fontSize:13,fontWeight:600,
+                  fontFamily:"inherit",cursor:"pointer",boxShadow:"0 4px 6px rgba(0,0,0,0.07)"}}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1852FE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r="0.5" fill="#1852FE"/></svg>
+                Take a tour
+              </button>
+            )}
+            {tourEl}
           </div>
         );
       }
@@ -13367,6 +13549,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         <div style={{display:"flex",height:"100vh",width:"100vw",background:THEME.bg,fontFamily:"'Gilroy','Plus Jakarta Sans',sans-serif",overflow:"hidden"}}>
           <style>{fontStyles}</style>
           {sidebarEl}
+          {tourEl}
           <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0}}>
             <div style={{background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"#001E4C":(kpiMode==="analytics2"||kpiMode==="analytics3")?THEME.bg:darkBg?"#EAEFF4":"transparent",display:"flex",alignItems:"center",position:"relative",padding:(kpiMode==="highlight2"||kpiMode==="highlight3"||kpiMode==="analytics2"||kpiMode==="analytics3")?"20px 24px 20px":"20px 24px 0px",flexShrink:0,transition:"background 0.2s",minHeight:(kpiMode==="analytics2"||kpiMode==="analytics3")?76:96,boxSizing:"border-box"}}>
               {activeNav==="emissions" && selectedVessel ? (
@@ -13405,7 +13588,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                     </div>
                   </div>
                   {/* Tabs — absolutely centred in the header bar */}
-                  <div ref={tabsRef} style={{position:"absolute",left:"50%",transform:"translateX(-50%)",display:"flex",alignItems:"center",gap:4,height:36,
+                  <div ref={tabsRef} data-tour="dash-tabs" style={{position:"absolute",left:"50%",transform:"translateX(-50%)",display:"flex",alignItems:"center",gap:4,height:36,
                     background:(kpiMode==="highlight2"||kpiMode==="highlight3")?"rgba(255,255,255,0.12)":"#E2E8F0",
                     borderRadius:6,padding:"0 4px"}}>
                     {[
@@ -13588,7 +13771,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
                       Reset to default
                     </button>
                   )}
-                  <button onClick={function(){setShowCustomise(true);}}
+                  <button data-tour="customise" onClick={function(){setShowCustomise(true);}}
                     style={{display:"flex",alignItems:"center",gap:6,height:36,padding:"0 14px",borderRadius:4,border:"1.5px solid #1852FE",background:"#EEF2FF",cursor:"pointer",fontSize:13,fontWeight:600,color:"#1852FE",flexShrink:0,transition:"all 0.15s",fontFamily:"inherit",whiteSpace:"nowrap"}}
 onMouseEnter={function(e){e.currentTarget.style.background="#E0E7FF";}}
 onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
