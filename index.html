@@ -186,7 +186,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
         kpi_label:12, kpi_sub:11, kpi_detail:12, kpi_card_h:91,
       }
     };
-    var _gChartPal = CHART_PALETTES.v1;
+    var _gChartPal = CHART_PALETTES.v2;
     // ── end Chart Palette ─────────────────────────────────────────────────────
 
     // Custom cursor for ComposedChart with bars — Recharts passes full viewBox to custom cursor
@@ -832,7 +832,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     var _activeInsightSetter = null;
     var _setDetailChart = null;
     var _currentDashTab = "operational";
-    var _gChartVerReal = "v1"; // tracks the actual chartVer toggle, even inside functions that shadow _gChartPal to force V1 colors
+    var _gChartVerReal = "v2"; // tracks the actual chartVer toggle, even inside functions that shadow _gChartPal to force V1 colors
 
     function DateRangeDropdown({onRangeChange, defaultLabel, dark, align, presets: customPresets}) {
       var PRESETS=customPresets||[
@@ -13363,7 +13363,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       var principalWrapRef=useRef(null);
       var [customCharts,setCustomCharts]=useState([]);
       var [dashTab,setDashTab]=useState("operational");
-      var [chartVer,setChartVer]=useState("v1");
+      var [chartVer,setChartVer]=useState("v2");
       var [chartVerOpen,setChartVerOpen]=useState(false);
       var [detailChart,setDetailChart]=useState(null);
       var [selectedVessel,setSelectedVessel]=useState(null);
