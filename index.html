@@ -6915,7 +6915,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     function MERPMPowerChart(){
       var _gChartPal=CHART_PALETTES.v1; // Technical tab: always V1 chart design, even in V2
       var p=_gChartPal;
-      var BENCH_COLOR=_gChartVerReal==="v2"?"#7C3AED":"#1E3A8A";
+      var BENCH_COLOR=_gChartVerReal==="v2"?"#334155":"#1E3A8A";
 
       // Reported scatter points — merged into main dataset for tooltip support
       var reportedPts=[
@@ -13973,7 +13973,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       {section:"Main Engine RPM – Power",type:"Line + Scatter Chart",colors:[
         {hex:p.merpm_scatter,label:"Reported — scatter dots",swatch:"solid"},
         {hex:p.merpm_fit,label:"Reported Fit (dashed)",swatch:"dashed"},
-      ].concat(_gChartVerReal==="v2"?[{hex:"#7C3AED",label:"Benchmark (Shop Test)",swatch:"solid"}]:[])},
+      ].concat(_gChartVerReal==="v2"?[{hex:"#334155",label:"Benchmark (Shop Test)",swatch:"solid"}]:[])},
       {section:"Main Engine Health",type:"Scatter + Threshold Chart",colors:[
         {hex:CHART_PALETTES.v1.th_good,label:"Line segments — Good (0–10%)",swatch:"solid"},
         {hex:_gChartVerReal==="v2"?"#FFC000":CHART_PALETTES.v1.th_warn,label:"Line segments — Caution (10–20%)",swatch:"solid"},
