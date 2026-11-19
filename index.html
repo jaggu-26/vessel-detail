@@ -6081,7 +6081,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             {dotPts.map(function(p,i){
               var cx=xs(p.x),cy=ys(p.y);
               if(isNaN(cx)||isNaN(cy)) return null;
-              return <circle key={"d"+i} cx={cx} cy={cy} r={2.5} fill="#3B82F6" fillOpacity={0.72}/>;
+              return <circle key={"d"+i} cx={cx} cy={cy} r={_gFinal?4:2.5} fill="#3B82F6" fillOpacity={0.72}/>;
             })}
             {portStayPts.map(function(p,i){
               var cx=xs(p.x);
