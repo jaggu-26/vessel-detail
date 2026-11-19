@@ -5638,7 +5638,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <ReferenceLine y={7.4} stroke="#F97316" strokeDasharray="3 2" strokeWidth={1} strokeOpacity={0.4}/>
                   <ReferenceLine y={6.2} stroke="#EAB308" strokeDasharray="3 2" strokeWidth={1} strokeOpacity={0.4}/>
                   <ReferenceLine y={5.0} stroke="#84CC16" strokeDasharray="3 2" strokeWidth={1} strokeOpacity={0.4}/>
-                  <ReferenceLine y={3.7} stroke={p.tech_pred} strokeDasharray="3 2" strokeWidth={1} strokeOpacity={0.4}/>
+                  <ReferenceLine y={3.7} stroke={_gFinal?CHART_PALETTES.v1.tech_pred:p.tech_pred} strokeDasharray="3 2" strokeWidth={1} strokeOpacity={0.4}/>
                   <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.08)" strokeDasharray="0"/>
                   <XAxis dataKey={aerView==="Month"?"m":"v"} tick={<AerXTick/>} axisLine={{stroke:"#E2E8F0"}} tickLine={false} height={aerView==="Month"?36:52}
                     label={{value:aerView==="Month"?"Month":"Voyage Number",position:"insideBottom",offset:-12,style:p===CHART_PALETTES.v2?{...axLabel,fontSize:14}:axLabel}}/>
