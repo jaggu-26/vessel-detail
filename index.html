@@ -7667,6 +7667,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           return cc("Speed and Consumption","Ballast vs Laden – At Sea",
             function(n){
               var hasLaden=sccFilter.includes("laden"), hasBallast=sccFilter.includes("ballast");
+              var SCP=_gFinal?CHART_PALETTES.v1:_gChartPal; // Final Version: Version 1 series colours
               function sccTab(label,k){
                 var active=sccFilter.includes(k);
                 return <button key={k} onClick={function(){
@@ -7686,15 +7687,15 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               var bRegData=[],lRegData=[];
               for(var i=0;i<=56;i++){var s=i*0.25;bRegData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(bReg(s).toFixed(3))});lRegData.push({x:parseFloat(s.toFixed(2)),y:parseFloat(lReg(s).toFixed(3))});}
               var sccLegendItems=[
-                hasBallast&&[_gChartPal.sc_ballast,"Ballast Regression","line"],
-                hasLaden&&[_gChartPal.sc_laden,"Laden Regression","dash"],
-                hasBallast&&[_gChartPal.sc_ballast,"Ballast","circle"],
-                hasLaden&&[_gChartPal.sc_laden,"Laden","circle"],
+                hasBallast&&[SCP.sc_ballast,"Ballast Regression","line"],
+                hasLaden&&[SCP.sc_laden,"Laden Regression","dash"],
+                hasBallast&&[SCP.sc_ballast,"Ballast","circle"],
+                hasLaden&&[SCP.sc_laden,"Laden","circle"],
               ].filter(Boolean);
               function sccChip(key){
                 var active=sccFilter.includes(key);
                 var isLadenKey=key==="laden";
-                var dotColor=isLadenKey?_gChartPal.sc_laden:_gChartPal.sc_ballast;
+                var dotColor=isLadenKey?SCP.sc_laden:SCP.sc_ballast;
                 return <button key={key} onClick={function(){
                   setSccFilter(function(prev){
                     return active?prev.filter(function(x){return x!==key;}):prev.concat([key]);
@@ -7711,7 +7712,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
               function sccRegChip(isLadenKey){
                 var key=isLadenKey?"laden":"ballast";
                 var active=sccRegFilter.includes(key);
-                var lineColor=isLadenKey?_gChartPal.sc_laden:_gChartPal.sc_ballast;
+                var lineColor=isLadenKey?SCP.sc_laden:SCP.sc_ballast;
                 return (
                   <button key={"reg-"+key} onClick={function(){
                     setSccRegFilter(function(prev){
@@ -7744,25 +7745,25 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <div style={{display:"flex",alignItems:"center",gap:12}}>
                     {hasBallast&&(
                       <div style={{display:"flex",alignItems:"center",gap:4}}>
-                        <svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke={_gChartPal.sc_ballast} strokeWidth="2"/></svg>
+                        <svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke={SCP.sc_ballast} strokeWidth="2"/></svg>
                         <span style={{fontSize:11,color:"#64748B"}}>Ballast Reg.</span>
                       </div>
                     )}
                     {hasLaden&&(
                       <div style={{display:"flex",alignItems:"center",gap:4}}>
-                        <svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke={_gChartPal.sc_laden} strokeWidth="2" strokeDasharray="5 3"/></svg>
+                        <svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke={SCP.sc_laden} strokeWidth="2" strokeDasharray="5 3"/></svg>
                         <span style={{fontSize:11,color:"#64748B"}}>Laden Reg.</span>
                       </div>
                     )}
                     {hasBallast&&(
                       <div style={{display:"flex",alignItems:"center",gap:4}}>
-                        <div style={{width:8,height:8,borderRadius:"50%",background:_gChartPal.sc_ballast,flexShrink:0}}/>
+                        <div style={{width:8,height:8,borderRadius:"50%",background:SCP.sc_ballast,flexShrink:0}}/>
                         <span style={{fontSize:11,color:"#64748B"}}>Ballast</span>
                       </div>
                     )}
                     {hasLaden&&(
                       <div style={{display:"flex",alignItems:"center",gap:4}}>
-                        <div style={{width:8,height:8,borderRadius:"50%",background:_gChartPal.sc_laden,flexShrink:0}}/>
+                        <div style={{width:8,height:8,borderRadius:"50%",background:SCP.sc_laden,flexShrink:0}}/>
                         <span style={{fontSize:11,color:"#64748B"}}>Laden</span>
                       </div>
                     )}
@@ -7801,8 +7802,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                       return best;
                     }
                     var series=[];
-                    if(hasBallast){var bp=nearest(ballastPts); if(bp) series.push({name:"Ballast",color:_gChartPal.sc_ballast,speed:bp.x,fuel:bp.y});}
-                    if(hasLaden){var lp=nearest(ladenPts); if(lp) series.push({name:"Laden",color:_gChartPal.sc_laden,speed:lp.x,fuel:lp.y});}
+                    if(hasBallast){var bp=nearest(ballastPts); if(bp) series.push({name:"Ballast",color:SCP.sc_ballast,speed:bp.x,fuel:bp.y});}
+                    if(hasLaden){var lp=nearest(ladenPts); if(lp) series.push({name:"Laden",color:SCP.sc_laden,speed:lp.x,fuel:lp.y});}
                     if(!series.length) return <g style={{pointerEvents:"none"}}>{crosshair}</g>;
                     var rowH=32, tipW=182, tipH=14+series.length*rowH;
                     var tipX=sccHoverX+14, tipY=top+8;
@@ -7863,17 +7864,17 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     );
                   }}/>
                   {(_gChartPal===CHART_PALETTES.v2?sccRegFilter.includes("ballast"):hasBallast)&&<Scatter name="Ballast Regression" data={bRegData}
-                    line={{stroke:_gChartPal.sc_ballast,strokeWidth:2,strokeDasharray:"7 4"}} lineType="joint"
-                    shape={function(){return null;}} fill={_gChartPal.sc_ballast} legendType="none"/>}
+                    line={{stroke:SCP.sc_ballast,strokeWidth:2,strokeDasharray:"7 4"}} lineType="joint"
+                    shape={function(){return null;}} fill={SCP.sc_ballast} legendType="none"/>}
                   {(_gChartPal===CHART_PALETTES.v2?sccRegFilter.includes("laden"):hasLaden)&&<Scatter name="Laden Regression" data={lRegData}
-                    line={{stroke:_gChartPal.sc_laden,strokeWidth:2,strokeDasharray:"7 4"}} lineType="joint"
-                    shape={function(){return null;}} fill={_gChartPal.sc_laden} legendType="none"/>}
+                    line={{stroke:SCP.sc_laden,strokeWidth:2,strokeDasharray:"7 4"}} lineType="joint"
+                    shape={function(){return null;}} fill={SCP.sc_laden} legendType="none"/>}
                   {hasBallast&&<Scatter name="Ballast" data={ballastPts} legendType="none"
-                    fill={_gChartPal.sc_ballast}
-                    shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill={_gChartPal.sc_ballast}/>;}}/>}
+                    fill={SCP.sc_ballast}
+                    shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill={SCP.sc_ballast}/>;}}/>}
                   {hasLaden&&<Scatter name="Laden" data={ladenPts} legendType="none"
-                    fill={_gChartPal.sc_laden}
-                    shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill={_gChartPal.sc_laden}/>;}}/>}
+                    fill={SCP.sc_laden}
+                    shape={function(p){return <circle cx={p.cx} cy={p.cy} r={4} fill={SCP.sc_laden}/>;}}/>}
                 </ScatterChart>
               </ResponsiveContainer>
                 </div>
@@ -13887,8 +13888,8 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         Object.assign({label:"Consumption Breach"},grad(_gFinal?CHART_PALETTES.v1.adc_aux:p.wb_cons,0.55)),
       ]},
       {section:"Speed and Consumption",type:"Scatter Chart",colors:[
-        {hex:p.sc_ballast,label:"Ballast — scatter & regression line",swatch:"solid"},
-        {hex:p.sc_laden,label:"Laden — scatter & regression line (dashed)",swatch:"dashed"},
+        {hex:(_gFinal?CHART_PALETTES.v1:p).sc_ballast,label:"Ballast — scatter & regression line",swatch:"solid"},
+        {hex:(_gFinal?CHART_PALETTES.v1:p).sc_laden,label:"Laden — scatter & regression line (dashed)",swatch:"dashed"},
       ]},
       {section:"Average Daily Consumption",type:"Stacked Bar Chart",colors:[
         Object.assign({label:"ME Propulsion"},grad((_gFinal?CHART_PALETTES.v1:p).adc_prop,0.55)),
