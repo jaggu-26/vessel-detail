@@ -6915,6 +6915,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     function MERPMPowerChart(){
       var _gChartPal=CHART_PALETTES.v1; // Technical tab: always V1 chart design, even in V2
       var p=_gChartPal;
+      var BENCH_COLOR=_gChartVerReal==="v2"?"#7C3AED":"#1E3A8A";
 
       // Reported scatter points — merged into main dataset for tooltip support
       var reportedPts=[
@@ -6948,7 +6949,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
       var yTicks=[0,3105,6209,9314,12419,15523];
       var xTicks=[47,52,61,70,79,87];
       var legendItems=[
-        {color:"#1E3A8A",type:"line",label:"Benchmark (Shop Test)"},
+        {color:BENCH_COLOR,type:"line",label:"Benchmark (Shop Test)"},
         {color:"rgba(147,197,253,0.55)",type:"rect",label:"–5% Tolerance Band"},
         {color:p.merpm_scatter,type:"dot",label:"Reported"},
         {color:p.merpm_fit,type:"dash",label:"Reported Fit"},
@@ -6982,7 +6983,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <Tooltip content={<ModernTooltip/>} cursor={{stroke:"#CBD5E1",strokeWidth:1}}/>
                 <Area type="monotone" dataKey="bandLow" stackId="tb" stroke="none" fill="transparent" legendType="none" isAnimationActive={false} name="–"/>
                 <Area type="monotone" dataKey="bandFill" stackId="tb" stroke="none" fill="rgba(147,197,253,0.45)" legendType="none" isAnimationActive={false} name="–5% Band"/>
-                <Line type="monotone" dataKey="bench" stroke="#1E3A8A" strokeWidth={_gChartVerReal==="v2"?2.5:2.5} dot={false} legendType="none" isAnimationActive={false} name="Benchmark (kW)"/>
+                <Line type="monotone" dataKey="bench" stroke={BENCH_COLOR} strokeWidth={_gChartVerReal==="v2"?2.5:2.5} dot={false} legendType="none" isAnimationActive={false} name="Benchmark (kW)"/>
                 <Line type="monotone" dataKey="rfit" stroke={p.merpm_fit} strokeWidth={_gChartVerReal==="v2"?2.5:1.8} strokeDasharray="6 3" dot={false} legendType="none" connectNulls={false} isAnimationActive={false} name="Reported Fit (kW)"/>
                 <Line type="monotone" dataKey="rep"
                   stroke={p.merpm_scatter} strokeWidth={0}
@@ -13972,7 +13973,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       {section:"Main Engine RPM – Power",type:"Line + Scatter Chart",colors:[
         {hex:p.merpm_scatter,label:"Reported — scatter dots",swatch:"solid"},
         {hex:p.merpm_fit,label:"Reported Fit (dashed)",swatch:"dashed"},
-      ]},
+      ].concat(_gChartVerReal==="v2"?[{hex:"#7C3AED",label:"Benchmark (Shop Test)",swatch:"solid"}]:[])},
       {section:"Main Engine Health",type:"Scatter + Threshold Chart",colors:[
         {hex:CHART_PALETTES.v1.th_good,label:"Line segments — Good (0–10%)",swatch:"solid"},
         {hex:_gChartVerReal==="v2"?"#FFC000":CHART_PALETTES.v1.th_warn,label:"Line segments — Caution (10–20%)",swatch:"solid"},
