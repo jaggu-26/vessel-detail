@@ -5874,9 +5874,9 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <XAxis dataKey="voy" tick={{...axTick,fontSize:10}} axisLine={{stroke:"#E2E8F0"}} tickLine={false}
                   label={{value:"Voyage",position:"insideBottom",offset:-12,style:axLabel}}/>
                 <YAxis yAxisId="left" domain={[-250,250]} ticks={[-200,-100,0,100,200]} tick={axTick} axisLine={false} tickLine={false}
-                  label={{value:"Compliance balance (EUAs)",angle:-90,position:"insideLeft",offset:p===CHART_PALETTES.v2?2:14,style:{...axLabel,textAnchor:"middle",fill:p===CHART_PALETTES.v2?"#E4403E":axLabel.fill}}}/>
+                  label={{value:"Compliance balance (EUAs)",angle:-90,position:"insideLeft",offset:p===CHART_PALETTES.v2?2:14,style:{...axLabel,textAnchor:"middle"}}}/>
                 <YAxis yAxisId="right" orientation="right" domain={[0,5000]} ticks={[0,1000,2000,3000,4000]} tick={axTick} axisLine={false} tickLine={false}
-                  label={{value:"EUAs required",angle:90,position:"insideRight",offset:8,style:{...axLabel,textAnchor:"middle",fill:p===CHART_PALETTES.v2?"#37947F":axLabel.fill}}}/>
+                  label={{value:"EUAs required",angle:90,position:"insideRight",offset:8,style:{...axLabel,textAnchor:"middle",fill:p===CHART_PALETTES.v2?p.feu_line:axLabel.fill}}}/>
                 <Tooltip content={<ModernTooltip/>} cursor={<BarBandCursor dataLen={fuelEUData.length}/>}/>
                 <Bar yAxisId="left" dataKey="balance" name="Compliance balance" maxBarSize={30} legendType="none">
                   {fuelEUData.map(function(entry,i){
