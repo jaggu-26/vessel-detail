@@ -5396,6 +5396,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
     //    is stable across SectionCharts re-renders (hover state, etc.)
     function AvgFuelConsChart(props){
       var p=_gChartPal;
+      var ADC=_gFinal?CHART_PALETTES.v1:p; // Final Version: Version 1 colours for this chart
 
       var months = props.months || 6;
       var [filter, setFilter] = React.useState(["eca"]);
@@ -5469,15 +5470,15 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
             {_gChartPal===CHART_PALETTES.v2 ? (
               <div style={{display:"flex",alignItems:"center",gap:10}}>
                 <div style={{display:"flex",alignItems:"center",gap:3}}>
-                  <span style={{width:8,height:8,borderRadius:2,background:p.adc_prop,display:"inline-block",flexShrink:0}}/>
+                  <span style={{width:8,height:8,borderRadius:2,background:ADC.adc_prop,display:"inline-block",flexShrink:0}}/>
                   <span style={{fontSize:12,color:"#64748B"}}>Propulsion</span>
                 </div>
                 <div style={{display:"flex",alignItems:"center",gap:3}}>
-                  <span style={{width:8,height:8,borderRadius:2,background:p.adc_mano,display:"inline-block",flexShrink:0}}/>
+                  <span style={{width:8,height:8,borderRadius:2,background:ADC.adc_mano,display:"inline-block",flexShrink:0}}/>
                   <span style={{fontSize:12,color:"#64748B"}}>Manoeuvring</span>
                 </div>
                 <div style={{display:"flex",alignItems:"center",gap:3}}>
-                  <span style={{width:8,height:8,borderRadius:2,background:p.adc_aux,display:"inline-block",flexShrink:0}}/>
+                  <span style={{width:8,height:8,borderRadius:2,background:ADC.adc_aux,display:"inline-block",flexShrink:0}}/>
                   <span style={{fontSize:12,color:"#64748B"}}>Auxiliaries</span>
                 </div>
               </div>
@@ -5488,11 +5489,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                   <span style={{fontSize:9,color:"#94A3B8",fontWeight:600}}>ME (Propulsion + Manoeuvring)</span>
                   <div style={{display:"flex",alignItems:"center",gap:4}}>
                     <div style={{display:"flex",alignItems:"center",gap:3}}>
-                      <span style={{width:8,height:8,borderRadius:2,background:p.adc_prop,display:"inline-block",flexShrink:0}}/>
+                      <span style={{width:8,height:8,borderRadius:2,background:ADC.adc_prop,display:"inline-block",flexShrink:0}}/>
                       <span style={{fontSize:9,color:"#64748B"}}>Propulsion</span>
                     </div>
                     <div style={{display:"flex",alignItems:"center",gap:3}}>
-                      <span style={{width:8,height:8,borderRadius:2,background:p.adc_mano,display:"inline-block",flexShrink:0}}/>
+                      <span style={{width:8,height:8,borderRadius:2,background:ADC.adc_mano,display:"inline-block",flexShrink:0}}/>
                       <span style={{fontSize:9,color:"#64748B"}}>Manoeuvring</span>
                     </div>
                   </div>
@@ -5503,7 +5504,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 <div style={{display:"flex",alignItems:"center",gap:5}}>
                   <span style={{fontSize:9,color:"#94A3B8",fontWeight:600}}>Auxiliaries</span>
                   <div style={{display:"flex",alignItems:"center",gap:3}}>
-                    <span style={{width:8,height:8,borderRadius:2,background:p.adc_aux,display:"inline-block",flexShrink:0}}/>
+                    <span style={{width:8,height:8,borderRadius:2,background:ADC.adc_aux,display:"inline-block",flexShrink:0}}/>
                     <span style={{fontSize:9,color:"#64748B"}}>Auxiliaries</span>
                   </div>
                 </div>
@@ -5517,21 +5518,21 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                 {xAx("m","Month")}
                 <YAxis yAxisId="left" tick={axTick} width={54} axisLine={false} tickLine={false}
                   domain={[0,260]} ticks={[0,65,130,195,260]}
-                  label={{value:"ME consumption (MT)",angle:-90,position:"insideLeft",offset:p===CHART_PALETTES.v2?2:10,style:{...axLabel,textAnchor:"middle",fill:p.adc_prop}}}/>
-                <YAxis yAxisId="right" orientation="right" tick={_gChartVerReal==="v2"?axTick:{...axTick,fill:p.adc_aux}} width={56} axisLine={false} tickLine={false}
+                  label={{value:"ME consumption (MT)",angle:-90,position:"insideLeft",offset:p===CHART_PALETTES.v2?2:10,style:{...axLabel,textAnchor:"middle",fill:ADC.adc_prop}}}/>
+                <YAxis yAxisId="right" orientation="right" tick={_gChartVerReal==="v2"?axTick:{...axTick,fill:ADC.adc_aux}} width={56} axisLine={false} tickLine={false}
                   domain={[0,80]} ticks={[0,20,40,60,80]}
-                  label={{value:"Auxiliaries consumption (MT)",angle:90,position:"insideRight",offset:10,style:{...axLabel,textAnchor:"middle",fill:p.adc_aux}}}/>
+                  label={{value:"Auxiliaries consumption (MT)",angle:90,position:"insideRight",offset:10,style:{...axLabel,textAnchor:"middle",fill:ADC.adc_aux}}}/>
                 <Tooltip content={<ModernTooltip/>} cursor={<BarBandCursor dataLen={chartData.length}/>}/>
                 <Customized component={function(){return React.createElement("defs",null,
                   React.createElement("linearGradient",{id:"afcGradProp",x1:"0",y1:"0",x2:"0",y2:"1"},
-                    React.createElement("stop",{offset:"0%",stopColor:p.adc_prop,stopOpacity:1}),
-                    React.createElement("stop",{offset:"100%",stopColor:p.adc_prop,stopOpacity:0.55})),
+                    React.createElement("stop",{offset:"0%",stopColor:ADC.adc_prop,stopOpacity:1}),
+                    React.createElement("stop",{offset:"100%",stopColor:ADC.adc_prop,stopOpacity:0.55})),
                   React.createElement("linearGradient",{id:"afcGradMano",x1:"0",y1:"0",x2:"0",y2:"1"},
-                    React.createElement("stop",{offset:"0%",stopColor:p.adc_mano,stopOpacity:1}),
-                    React.createElement("stop",{offset:"100%",stopColor:p.adc_mano,stopOpacity:0.55})),
+                    React.createElement("stop",{offset:"0%",stopColor:ADC.adc_mano,stopOpacity:1}),
+                    React.createElement("stop",{offset:"100%",stopColor:ADC.adc_mano,stopOpacity:0.55})),
                   React.createElement("linearGradient",{id:"afcGradAux",x1:"0",y1:"0",x2:"0",y2:"1"},
-                    React.createElement("stop",{offset:"0%",stopColor:p.adc_aux,stopOpacity:1}),
-                    React.createElement("stop",{offset:"100%",stopColor:p.adc_aux,stopOpacity:0.55}))
+                    React.createElement("stop",{offset:"0%",stopColor:ADC.adc_aux,stopOpacity:1}),
+                    React.createElement("stop",{offset:"100%",stopColor:ADC.adc_aux,stopOpacity:0.55}))
                 );}}/>
                 <Bar yAxisId="left" dataKey="propulsion" stackId="me" fill="url(#afcGradProp)" name="Propulsion"/>
                 <Bar yAxisId="left" dataKey="manoeuvring" stackId="me" fill="url(#afcGradMano)" name="Manoeuvring" radius={[4,4,0,0]}/>
@@ -13885,9 +13886,9 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
         {hex:p.sc_laden,label:"Laden — scatter & regression line (dashed)",swatch:"dashed"},
       ]},
       {section:"Average Daily Consumption",type:"Stacked Bar Chart",colors:[
-        Object.assign({label:"ME Propulsion"},grad(p.adc_prop,0.55)),
-        Object.assign({label:"Manoeuvring"},grad(p.adc_mano,0.55)),
-        Object.assign({label:"Auxiliaries"},grad(p.adc_aux,0.55)),
+        Object.assign({label:"ME Propulsion"},grad((_gFinal?CHART_PALETTES.v1:p).adc_prop,0.55)),
+        Object.assign({label:"Manoeuvring"},grad((_gFinal?CHART_PALETTES.v1:p).adc_mano,0.55)),
+        Object.assign({label:"Auxiliaries"},grad((_gFinal?CHART_PALETTES.v1:p).adc_aux,0.55)),
       ]},
       {section:"SOG and Slip",type:"Line Chart",colors:[
         {hex:_gChartVerReal==="v2"?"#2259FE":p.ss_slip,label:"Slip % (dashed)",swatch:"dashed"},
