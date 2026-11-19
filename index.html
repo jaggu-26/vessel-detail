@@ -7601,7 +7601,7 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                     {wscTab("Laden","laden")}{wscTab("Ballast","ballast")}
                   </div>
                   <div style={{display:"flex",alignItems:"center",gap:12}}>
-                    {[[_gChartPal.wb_speed,"Speed Breach"],[_gChartPal.wb_cons,"Consumption Breach"]].map(function(l){
+                    {[[_gChartPal.wb_speed,"Speed Breach"],[(_gFinal?CHART_PALETTES.v1.adc_aux:_gChartPal.wb_cons),"Consumption Breach"]].map(function(l){
                       return(
                         <div key={l[1]} style={{display:"flex",alignItems:"center",gap:4}}>
                           <div style={{width:8,height:8,borderRadius:2,background:l[0],flexShrink:0}}/>
@@ -7620,8 +7620,8 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
                           <stop offset="100%" stopColor={_gChartPal.wb_speed} stopOpacity={0.55}/>
                         </linearGradient>
                         <linearGradient id="bgConsBreach" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor={_gChartPal.wb_cons} stopOpacity={1}/>
-                          <stop offset="100%" stopColor={_gChartPal.wb_cons} stopOpacity={0.55}/>
+                          <stop offset="0%" stopColor={(_gFinal?CHART_PALETTES.v1.adc_aux:_gChartPal.wb_cons)} stopOpacity={1}/>
+                          <stop offset="100%" stopColor={(_gFinal?CHART_PALETTES.v1.adc_aux:_gChartPal.wb_cons)} stopOpacity={0.55}/>
                         </linearGradient>
                       </defs>
                       <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0"/>
@@ -13878,7 +13878,7 @@ onMouseLeave={function(e){e.currentTarget.style.background="#EEF2FF";}}>
       {group:"Operational Charts"},
       {section:"Warranty Breach",type:"Bar Chart",colors:[
         Object.assign({label:"Speed Breach"},grad(p.wb_speed,0.55)),
-        Object.assign({label:"Consumption Breach"},grad(p.wb_cons,0.55)),
+        Object.assign({label:"Consumption Breach"},grad(_gFinal?CHART_PALETTES.v1.adc_aux:p.wb_cons,0.55)),
       ]},
       {section:"Speed and Consumption",type:"Scatter Chart",colors:[
         {hex:p.sc_ballast,label:"Ballast — scatter & regression line",swatch:"solid"},
