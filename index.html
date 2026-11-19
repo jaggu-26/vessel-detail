@@ -7994,6 +7994,11 @@ body.mosaic-dragging, body.mosaic-dragging * { cursor: grabbing !important; }
           function(n){return mkArea(fd(utilData,n,100),"v","#48AB87","#E0F5EE","Month","% Util.","Utilisation %");}, 2, {sample:true}),
       ];
 
+      // Final Version: SOG and Slip takes Average Daily Consumption's default slot (items 2 and 3) and vice versa
+      if(_gFinal){
+        var _swapTmp=operationalItems[2];operationalItems[2]=operationalItems[3];operationalItems[3]=_swapTmp;
+      }
+
       // Environmental tab — 4 charts 2×2
       var [aerView,setAerView]=React.useState("Month");
       var [ghgYear,setGhgYear]=React.useState("2025");
